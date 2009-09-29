@@ -584,14 +584,14 @@ spaces across the current buffer."
 (setq font-lock-maximum-size nil)       ; Fontify huge buffers
 (setq font-lock-maximum-decoration t)
 ;; highlight non-breaking spaces
-;; (gnuemacs
+;; (GNUEmacs
 ;;     (require 'disp-table)
 ;;     (aset standard-display-table
 ;;           (make-char 'latin-iso8859-1 (- ?\240 128))
 ;;           (vector (+ ?\267 (* 524288 (face-id 'nobreak-space))))))
 
-;; highlight fixme, todo and xxx as warning in some major modes
-(gnuemacs
+;; highlight FIXME, TODO and XXX as warning in some major modes
+(GNUEmacs
     (dolist (mode '(c-mode
                     java-mode
                     cperl-mode
@@ -599,7 +599,7 @@ spaces across the current buffer."
                     css-mode-hook
                     emacs-lisp-mode))
       (font-lock-add-keywords mode
-                              '(("\\(xxx\\|fixme\\|todo\\)"
+                              '(("\\(XXX\\|FIXME\\|TODO\\)"
                                  1 font-lock-warning-face prepend)))))
 
 ;;--------------------------------------------------------------------------------
@@ -618,38 +618,38 @@ spaces across the current buffer."
 ;; rozpoznawanie odpowiednich końcówek linii plików tekstowych
 ;;--------------------------------------------------------------------------------
 (defun set-buffer-file-eol-type (eol-type)
-  "set the file end-of-line conversion type of the current buffer to
- eol-type.
- this means that when you save the buffer, line endings will be converted
- according to eol-type.
+  "Set the file end-of-line conversion type of the current buffer to
+ EOL-TYPE.
+ This means that when you save the buffer, line endings will be converted
+ according to EOL-TYPE.
 
- eol-type is one of three symbols:
+ EOL-TYPE is one of three symbols:
 
-   unix (lf)
-   dos (crlf)
-   mac (cr)
+   unix (LF)
+   dos (CRLF)
+   mac (CR)
 
- this function marks the buffer modified so that the succeeding
+ This function marks the buffer modified so that the succeeding
  \\[save-buffer]
- surely saves the buffer with eol-type.  from a program, if you don't want
+ surely saves the buffer with EOL-TYPE.  From a program, if you don't want
  to mark the buffer modified, use coding-system-change-eol-conversion
  directly [weikart]."
-  (interactive "seol type for visited file (unix, dos, or mac): ")
+  (interactive "SEOL type for visited file (unix, dos, or mac): ")
   (setq buffer-file-coding-system (coding-system-change-eol-conversion
                                    buffer-file-coding-system eol-type))
   (set-buffer-modified-p t)
   (force-mode-line-update))
 
-(global-set-key "\^cu" (lambda () (interactive) (set-buffer-file-eol-type 'unix)))
-(global-set-key "\^cs" (lambda () (interactive) (set-buffer-file-eol-type 'dos)))
-(global-set-key "\^cm" (lambda () (interactive) (set-buffer-file-eol-type 'mac)))
+(global-set-key "\^Cu" (lambda () (interactive) (set-buffer-file-eol-type 'unix)))
+(global-set-key "\^Cd" (lambda () (interactive) (set-buffer-file-eol-type 'dos)))
+(global-set-key "\^Cm" (lambda () (interactive) (set-buffer-file-eol-type 'mac)))
 
 
-;; make the mode-line display the standard eol-type symbols (used above)...
-(setq eol-mnemonic-undecided "(?)" ;; unknown eol type
-      eol-mnemonic-unix  "(unix)" ;; lf
-      eol-mnemonic-dos  "(dos)" ;; crlf
-      eol-mnemonic-mac  "(mac)") ;; cr
+;; Make the mode-line display the standard EOL-TYPE symbols (used above)...
+(setq eol-mnemonic-undecided "(?)" ;; unknown EOL type
+      eol-mnemonic-unix  "(unix)" ;; LF
+      eol-mnemonic-dos  "(dos)" ;; CRLF
+      eol-mnemonic-mac  "(mac)") ;; CR
 
 ;;--------------------------------------------------------------------------------
 ;; gnuserv
@@ -680,7 +680,7 @@ spaces across the current buffer."
 (global-set-key [(%)] 'match-paren)
 
 (defun match-paren (arg)
-  "go to the matching parenthesis if on parenthesis otherwise insert %."
+  "Go to the matching parenthesis if on parenthesis otherwise insert %."
   (interactive "p")
   (cond ((looking-at "\\s\(") (forward-list 1) (backward-char 1))
         ((looking-at "\\s\)") (forward-char 1) (backward-list 1))
@@ -693,7 +693,7 @@ spaces across the current buffer."
       visible-bell t)
 
 ;;--------------------------------------------------------------------------------
-;; gud mode
+;; GUD mode
 ;;--------------------------------------------------------------------------------
 (setq gdb-many-windows t)
 
@@ -703,13 +703,13 @@ spaces across the current buffer."
 (require 'clearcase)
 
 ;;----------------------------------------------------------------------
-;; subversion mode
+;; Subversion mode
 ;;----------------------------------------------------------------------
 (require 'psvn)
-(setq svn-user-names-including-blanks '("karol barski"
-                    "zbigniew zagorski"
-                    "jerzy myc"
-                    "tomasz waligora")) ; username used on sal9000 contains blanks
+(setq svn-user-names-including-blanks '("Karol Barski"
+                                        "Jerzy Myc"
+                                        "Tomasz Waligora"
+                                        "Zbigniew Zagorski")) ; username used on SAL9000 contains blanks
 (add-hook 'svn-pre-parse-status-hook 'svn-status-parse-fixup-user-names-including-blanks)
 
 
@@ -745,7 +745,7 @@ spaces across the current buffer."
 ;; zegarek
 ;;--------------------------------------------------------------------------------
 (display-time)
-(setq display-time-format "%h:%m %d/%m/%y")
+(setq display-time-format "%H:%M %d/%m/%Y")
 (setq display-time-24hr-format t)
 
 ;;--------------------------------------------------------------------------------
@@ -757,38 +757,38 @@ spaces across the current buffer."
 ;; klawisze skrótów
 ;;--------------------------------------------------------------------------------
 (global-set-key [(meta g)] 'goto-line)
-;; (global-set-key [(meta g)] 'what-line)
+;; (global-set-key [(meta G)] 'what-line)
 
 (if (string-equal "21" (substring emacs-version 0 2))
     (progn
-      ;; ===== function to delete a line =====
+      ;; ===== Function to delete a line =====
 
-      ;; first define a variable which will store the previous column position
-      (defvar previous-column nil "save the column position")
+      ;; First define a variable which will store the previous column position
+      (defvar previous-column nil "Save the column position")
 
-      ;; define the nuke-line function. the line is killed, then the newline
-      ;; character is deleted. the column which the cursor was positioned at is then
-      ;; restored. because the kill-line function is used, the contents deleted can
+      ;; Define the nuke-line function. The line is killed, then the newline
+      ;; character is deleted. The column which the cursor was positioned at is then
+      ;; restored. Because the kill-line function is used, the contents deleted can
       ;; be later restored by usibackward-delete-char-untabifyng the yank commands.
       (defun nuke-line()
-        "kill an entire line, including the trailing newline character"
+        "Kill an entire line, including the trailing newline character"
         (interactive)
 
-        ;; store the current column position, so it can later be restored for a more
+        ;; Store the current column position, so it can later be restored for a more
         ;; natural feel to the deletion
         (setq previous-column (current-column))
 
-        ;; now move to the end of the current line
+        ;; Now move to the end of the current line
         (end-of-line)
 
-        ;; test the length of the line. if it is 0, there is no need for a
-        ;; kill-line. all that happens in this case is that the new-line character
+        ;; Test the length of the line. If it is 0, there is no need for a
+        ;; kill-line. All that happens in this case is that the new-line character
         ;; is deleted.
         (if (= (current-column) 0)
             (delete-char 1)
 
-          ;; this is the 'else' clause. the current line being deleted is not zero
-          ;; in length. first remove the line by moving to its start and then
+          ;; This is the 'else' clause. The current line being deleted is not zero
+          ;; in length. First remove the line by moving to its start and then
           ;; killing, followed by deletion of the newline character, and then
           ;; finally restoration of the column position.
           (progn
@@ -797,17 +797,17 @@ spaces across the current buffer."
             (delete-char 1)
             (move-to-column previous-column))))
 
-      ;; kill whole line with c-; (because ; is close to k)
+      ;; kill whole line with C-; (because ; is close to k)
       (global-set-key [(ctrl \;)] 'nuke-line)
       )
-
-  ;; kill whole line with c-; (because ; is close to k)
+  
+  ;; kill whole line with C-; (because ; is close to k)
   (global-set-key [(ctrl \;)] 'kill-whole-line)
-
+  
   )
 
 ;; string-insert-rectangle is useful but not binded to any key by default
-(global-set-key (kbd "c-x r a") 'string-insert-rectangle)
+(global-set-key (kbd "C-x r a") 'string-insert-rectangle)
 
 ;;--------------------------------------------------------------------------------
 ;; zezwalaj na użycie poniższych komend
