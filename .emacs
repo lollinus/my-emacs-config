@@ -109,8 +109,10 @@
          (concat my-site-lisp-directory "doxymacs"))
 ;(add-to-list 'load-path
 ;        (concat my-site-lisp-directory "tempo"))
-(add-to-list 'load-path
-         (concat my-site-lisp-directory "url"))
+(if (string-equal "21" (substring emacs-version 0 2))
+    (add-to-list 'load-path
+                 (concat my-site-lisp-directory "url"))
+  )
 (add-to-list 'load-path
          (concat my-site-lisp-directory "clearcase"))
 (add-to-list 'load-path
@@ -171,7 +173,7 @@
 
 ;;----------------------------------------------------------------------
 ;; cedet configuration load
-(load "~/.emacs-rc-cedet.el")
+;;(load "~/.emacs-rc-cedet.el")
 
 ;; highlight trailing whitespaces
 (mapc (lambda (hook)
@@ -558,16 +560,21 @@ spaces across the current buffer."
 ;; doxygen mode
 ;;--------------------------------------------------------------------------------
 ;;(require 'doxygen)
-;;(setq doxymacs-doxygen-dirs "d:/Karol/Programy/doxygen/bin")
 (require 'doxymacs)
 (setq doxymacs-use-external-xml-parser t)
-(setq doxymacs-external-xml-parser-executable "xmllint.exe")
+(if running-ms-windows
+    (progn
+      (setq doxymacs-doxygen-dirs "d:/Karol/Programy/doxygen/bin")
+      (setq doxymacs-external-xml-parser-executable "xmllint.exe")
+      )
+  (setq doxymacs-external-xml-parser-executable "xmllint")
+  )
 (add-hook 'c-mode-common-hook 'doxymacs-mode)
 (defun my-doxymacs-font-lock-hook ()
   (if (or (eq major-mode 'c-mode) (eq major-mode 'c++-mode))
       (doxymacs-font-lock)))
 (add-hook 'font-lock-mode-hook 'my-doxymacs-font-lock-hook)
-;;(setq-default doxymacs-doxygen-style "C++")
+(setq-default doxymacs-doxygen-style "C++")
 (setq doxymacs-doxygen-style "JavaDoc")
 
 ;;--------------------------------------------------------------------------------
