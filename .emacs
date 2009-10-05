@@ -119,6 +119,10 @@
          (concat my-site-lisp-directory "psvn"))
 (add-to-list 'load-path
              (concat my-site-lisp-directory "ruby-mode"))
+(add-to-list 'load-path
+             (concat my-site-lisp-directory "git"))
+(add-to-list 'load-path
+             (concat my-site-lisp-directory "cedet-1.0pre6"))
 
 ;; don't add newlines to end of buffer when scrolling
 (setq next-line-add-newlines nil)
@@ -175,6 +179,22 @@
 ;; cedet configuration load
 ;;(load "~/.emacs-rc-cedet.el")
 
+;; Load CEDET.
+;; See cedet/common/cedet.info for configuration details.
+(load-file "~/site-lisp/cedet-1.0pre6/common/cedet.el")
+
+;; Enable EDE (Project Management) features
+;;(global-ede-mode t)
+
+;; * This enables even more coding tools such as intellisense mode
+;;   decoration mode, and stickyfunc mode (plus regular code helpers)
+(semantic-load-enable-gaudy-code-helpers)
+
+;; Enable SRecode (Template management) minor-mode.
+;;(global-srecode-minor-mode t)
+
+
+;;----------------------------------------------------------------------
 ;; highlight trailing whitespaces
 (mapc (lambda (hook)
         (add-hook hook (lambda ()
@@ -719,6 +739,11 @@ spaces across the current buffer."
                                         "Zbigniew Zagorski")) ; username used on SAL9000 contains blanks
 (add-hook 'svn-pre-parse-status-hook 'svn-status-parse-fixup-user-names-including-blanks)
 
+;;----------------------------------------------------------------------
+;; git mode
+;;----------------------------------------------------------------------
+(require 'git)
+(require 'git-blame)
 
 ;;--------------------------------------------------------------------------------
 ;; styl indentacji kodu
