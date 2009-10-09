@@ -97,7 +97,11 @@
 (add-to-list 'load-path my-site-lisp-directory)
 (add-to-list 'load-path
              (if (string-equal "21" (substring emacs-version 0 2))
-                 (concat my-site-lisp-directory "linum/emacs21")
+                 (progn 
+                   ;; emacs 21 specific plugins
+                   (concat my-site-lisp-directory "linum/emacs21")
+                   (concat my-site-lisp-directory "cua")
+                 )
                (concat my-site-lisp-directory "linum/emacs22")
                )
              )
@@ -121,8 +125,6 @@
              (concat my-site-lisp-directory "ruby-mode"))
 (add-to-list 'load-path
              (concat my-site-lisp-directory "git"))
-(add-to-list 'load-path
-             (concat my-site-lisp-directory "cedet-1.0pre6"))
 
 ;; don't add newlines to end of buffer when scrolling
 (setq next-line-add-newlines nil)
@@ -177,22 +179,7 @@
 
 ;;----------------------------------------------------------------------
 ;; cedet configuration load
-;;(load "~/.emacs-rc-cedet.el")
-
-;; Load CEDET.
-;; See cedet/common/cedet.info for configuration details.
-(load-file "~/site-lisp/cedet-1.0pre6/common/cedet.el")
-
-;; Enable EDE (Project Management) features
-;;(global-ede-mode t)
-
-;; * This enables even more coding tools such as intellisense mode
-;;   decoration mode, and stickyfunc mode (plus regular code helpers)
-(semantic-load-enable-gaudy-code-helpers)
-
-;; Enable SRecode (Template management) minor-mode.
-;;(global-srecode-minor-mode t)
-
+(load "~/.emacs-rc-cedet.el")
 
 ;;----------------------------------------------------------------------
 ;; highlight trailing whitespaces
@@ -840,6 +827,12 @@ spaces across the current buffer."
 
 ;; string-insert-rectangle is useful but not binded to any key by default
 (global-set-key (kbd "C-x r a") 'string-insert-rectangle)
+
+;;--------------------------------------------------------------------------------
+;; CUA mode
+;;--------------------------------------------------------------------------------
+(require 'cua)
+(CUA-mode 'emacs)
 
 ;;--------------------------------------------------------------------------------
 ;; zezwalaj na użycie poniższych komend
