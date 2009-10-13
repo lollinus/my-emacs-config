@@ -617,6 +617,20 @@ spaces across the current buffer."
                                  1 font-lock-warning-face prepend)))))
 
 ;;--------------------------------------------------------------------------------
+;; transparent emacs window on M$
+;;--------------------------------------------------------------------------------
+(if running-ms-windows
+    (progn
+      (defun transparent(alpha-level no-focus-alpha-level)
+        "Let's you make the window transparent"
+        (interactive "nAlpha level : \nnNo focus alpha level : ")
+        (set-frame-parameter (selected-frame) 'alpha (list alpha-level no-focus-alpha-level))
+        (add-to-list 'default-frame-alist '(alpha alpha-level 50)))
+      (transparent 85 30)
+      )
+)
+
+;;--------------------------------------------------------------------------------
 ;; polskie ustawienia
 ;;--------------------------------------------------------------------------------
 ;;(codepage-setup '1250)
