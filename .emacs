@@ -38,6 +38,7 @@
   "Execute any number of forms if running under GNU Emacs."
   (list 'if (not running-xemacs) (cons 'progn body)))
 
+
 (defmacro XEmacs (&rest body)
   "Execute any number of forms if running under XEmacs."
   (list 'if running-xemacs (cons 'progn body)))
