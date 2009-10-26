@@ -104,8 +104,8 @@
 (if (string-equal "21" (substring emacs-version 0 2))
     (add-to-list 'load-path
                  (concat my-site-lisp-directory "cua")
-               )
-)
+                 )
+  )
 (add-to-list 'load-path
          (concat my-site-lisp-directory "folding"))
 (add-to-list 'load-path
@@ -845,8 +845,13 @@ spaces across the current buffer."
 ;;--------------------------------------------------------------------------------
 ;; CUA mode
 ;;--------------------------------------------------------------------------------
-(require 'cua)
-(CUA-mode 'emacs)
+(if (string-equal "21" (substring emacs-version 0 2))
+   (progn
+     (require 'cua)
+     (CUA-mode 'emacs)
+     )
+  (cua-mode 'emacs)
+  )
 
 ;;--------------------------------------------------------------------------------
 ;; zezwalaj na użycie poniższych komend
