@@ -97,14 +97,15 @@
 (add-to-list 'load-path my-site-lisp-directory)
 (add-to-list 'load-path
              (if (string-equal "21" (substring emacs-version 0 2))
-                 (progn 
-                   ;; emacs 21 specific plugins
-                   (concat my-site-lisp-directory "linum/emacs21")
-                   (concat my-site-lisp-directory "cua")
-                 )
+                 (concat my-site-lisp-directory "linum/emacs21")
                (concat my-site-lisp-directory "linum/emacs22")
                )
              )
+(if (string-equal "21" (substring emacs-version 0 2))
+    (add-to-list 'load-path
+                 (concat my-site-lisp-directory "cua")
+               )
+)
 (add-to-list 'load-path
          (concat my-site-lisp-directory "folding"))
 (add-to-list 'load-path
@@ -566,7 +567,6 @@ spaces across the current buffer."
 ;;--------------------------------------------------------------------------------
 ;; doxygen mode
 ;;--------------------------------------------------------------------------------
-;;(require 'doxygen)
 (require 'doxymacs)
 (setq doxymacs-use-external-xml-parser t)
 (if running-ms-windows
@@ -581,7 +581,7 @@ spaces across the current buffer."
   (if (or (eq major-mode 'c-mode) (eq major-mode 'c++-mode))
       (doxymacs-font-lock)))
 (add-hook 'font-lock-mode-hook 'my-doxymacs-font-lock-hook)
-(setq-default doxymacs-doxygen-style "C++")
+;;(setq-default doxymacs-doxygen-style "C++")
 (setq doxymacs-doxygen-style "JavaDoc")
 
 ;;--------------------------------------------------------------------------------
