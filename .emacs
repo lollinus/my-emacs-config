@@ -449,15 +449,18 @@ spaces across the current buffer."
   (not (buffer-name (get-buffer buffer))))
 
 ;; If makefile doesn't exist compile with g++ -Wall -o <current file name> <current file name>
-(add-hook 'c++-mode-hook
+(add-hook 'c-mode-hook
           (lambda ()
-            (unless (or (file-exists-p "makefile")
-                        (file-exists-p "Makefile"))
+            (unless (or (file-exists-p "Makefile")
+			(file-exists-p "Makefile"))
               (set (make-local-variable 'compile-command)
-                   (concat "g++ -Wall -o "
-                           (file-name-sans-extension (file-name-nondirectory (buffer-file-name)))
-                           " "
-                           (file-name-nondirectory (buffer-file-name)))))))
+                   (let ((file (file-name-nondirectory buffer-file-name)))
+                     (format "%s -c -o %s.o %s %s %s"
+                             (or (getenv "CC") "g++")
+                             (file-name-sans-extension file)
+                             (or (getenv "CPPFLAGS") "-DDEBUG=9")
+                             (or (getenv "CFLAGS") "-ansi -pedantic -Wall -g")
+                             file))))))
 
 ;;--------------------------------------------------------------------------------
 ;; iswitchb-mode for interactive switch buffers
