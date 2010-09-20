@@ -1,5 +1,5 @@
 ;; -*- mode: lisp; coding: utf-8 -*-
-;;
+;; 
 (setq user-full-name "Karol Barski")
 (setq user-mail-address "lollinus@gmail.com")
 
@@ -37,7 +37,6 @@
 (defmacro GNUEmacs (&rest body)
   "Execute any number of forms if running under GNU Emacs."
   (list 'if (not running-xemacs) (cons 'progn body)))
-
 
 (defmacro XEmacs (&rest body)
   "Execute any number of forms if running under XEmacs."
@@ -268,12 +267,10 @@ spaces across the current buffer."
 ;;     (setq wide-column-default-cursor-colour "rgb:15/FF/00"))
 ;; ;;    (add-hook 'text-mode-hook 'wide-column-mode)
 
-
 ;;; ----[ 19.17 Cursor Display
 
 ;; see what I'm typing *immediately*
 (setq echo-keystrokes 0.01)
-
 
 ;;; ----[ Temporary Displays
 
@@ -318,7 +315,6 @@ spaces across the current buffer."
 ;; turn menus off
 (unless window-system
     (menu-bar-mode 0))
-
 
 ;;; ----[ 26.20 (info "(emacs)Mouse Avoidance")
 
@@ -403,6 +399,7 @@ spaces across the current buffer."
 
 ;; fancy streching cursor
 (setq x-stretch-cursor t)
+(global-hl-line-mode t)
 
 ;; show column number in mode-line
 (column-number-mode t)
@@ -429,8 +426,8 @@ spaces across the current buffer."
 
 
 ;; --[ Folding mode ]----------------------------------------------------
-(load "folding" 'nomessage 'noerror)
-(folding-mode-add-find-file-hook)
+;(load "folding" 'nomessage 'noerror)
+;(folding-mode-add-find-file-hook)
 
 ;;--------------------------------------------------------------------------------
 ;; buffer switch
@@ -451,10 +448,10 @@ spaces across the current buffer."
   (not (buffer-name (get-buffer buffer))))
 
 ;; If makefile doesn't exist compile with g++ -Wall -o <current file name> <current file name>
-(add-hook 'c-mode-hook
+(add-hook 'c++-mode-hook
           (lambda ()
-            (unless (or (file-exists-p "Makefile")
-			(file-exists-p "Makefile"))
+            (unless (or (file-exists-p "makefile")
+                        (file-exists-p "Makefile"))
               (set (make-local-variable 'compile-command)
                    (let ((file (file-name-nondirectory buffer-file-name)))
                      (format "%s -c -o %s.o %s %s %s"
@@ -573,6 +570,8 @@ spaces across the current buffer."
 ;;--------------------------------------------------------------------------------
 ;; doxygen mode
 ;;--------------------------------------------------------------------------------
+;;(require 'doxygen)
+;;(setq doxymacs-doxygen-dirs "d:/Karol/Programy/doxygen/bin")
 (require 'doxymacs)
 (setq doxymacs-use-external-xml-parser t)
 (if running-ms-windows
@@ -864,9 +863,10 @@ spaces across the current buffer."
 
 
 ;;--------------------------------------------------------------------------------
-;; zezwalaj na użycie poniższych komend
+;; zezwalaj na uĹźycie poniĹźszych komend
 ;;--------------------------------------------------------------------------------
 (put 'narrow-to-page 'disabled nil)
+(put 'narrow-to-region 'disabled nil)
 (put 'upcase-region 'disabled nil)
 (put 'downcase-region 'disabled nil)
 
@@ -1011,4 +1011,3 @@ region\) apply comment-or-uncomment to the current line"
 (add-hook 'ruby-mode-hook '(lambda () (inf-ruby-keys)))
 
 (require 'ruby-electric)
-(put 'narrow-to-region 'disabled nil)
