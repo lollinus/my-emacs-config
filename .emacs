@@ -181,7 +181,7 @@
 
 ;;----------------------------------------------------------------------
 ;; cedet configuration load
-(load "~/.emacs-rc-cedet.el")
+;;(load "~/.emacs-rc-cedet.el")
 
 ;;----------------------------------------------------------------------
 ;; highlight trailing whitespaces
@@ -397,7 +397,9 @@ spaces across the current buffer."
 ;; My customized emacs
 ;;--------------------------------------------------------------------------------
 ;; scroll bar on the right side
-(set-scroll-bar-mode 'right)
+(if window-system
+    (set-scroll-bar-mode 'right)
+  )
 
 ;; fancy streching cursor
 (setq x-stretch-cursor t)
@@ -849,6 +851,9 @@ spaces across the current buffer."
 ;;--------------------------------------------------------------------------------
 ;; CUA mode
 ;;--------------------------------------------------------------------------------
+(setq cua-enable-cua-keys nil)
+(setq cua-highlight-region-shift-only t) ;; no transient mark mode
+(setq cua-toggle-set-mark nil) ;; original set-mark behavior, i.e. no transient-mark-mode
 (if (string-equal "21" (substring emacs-version 0 2))
    (progn
      (require 'cua)
@@ -857,11 +862,11 @@ spaces across the current buffer."
   (cua-mode 'emacs)
   )
 
+
 ;;--------------------------------------------------------------------------------
 ;; zezwalaj na użycie poniższych komend
 ;;--------------------------------------------------------------------------------
 (put 'narrow-to-page 'disabled nil)
-(put 'narrow-to-region 'disabled nil)
 (put 'upcase-region 'disabled nil)
 (put 'downcase-region 'disabled nil)
 
@@ -1006,3 +1011,4 @@ region\) apply comment-or-uncomment to the current line"
 (add-hook 'ruby-mode-hook '(lambda () (inf-ruby-keys)))
 
 (require 'ruby-electric)
+(put 'narrow-to-region 'disabled nil)
