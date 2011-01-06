@@ -88,7 +88,7 @@
 
 ;; 3.
 (if running-ms-windows
-    (defvar my-site-lisp-directory "d:/karol/programy/site-lisp/"
+    (defvar my-site-lisp-directory "c:/karol/programy/site-lisp/"
       "Name of directory where my personal additional Emacs Lisp files reside.")
   (defvar my-site-lisp-directory "~/site-lisp/"
     "Name of directory where my personal additional Emacs Lisp files reside.")
@@ -101,27 +101,20 @@
                (concat my-site-lisp-directory "linum/emacs22")
                )
              )
-(if (string-equal "21" (substring emacs-version 0 2))
-    (add-to-list 'load-path
-                 (concat my-site-lisp-directory "cua")
-                 )
-  )
 (add-to-list 'load-path
-         (concat my-site-lisp-directory "folding"))
+             (concat my-site-lisp-directory "folding"))
 (add-to-list 'load-path
-         (concat my-site-lisp-directory "color-theme-library"))
+             (concat my-site-lisp-directory "color-theme-library"))
 (add-to-list 'load-path
-         (concat my-site-lisp-directory "doxymacs"))
-;(add-to-list 'load-path
-;        (concat my-site-lisp-directory "tempo"))
-(if (string-equal "21" (substring emacs-version 0 2))
-    (add-to-list 'load-path
-                 (concat my-site-lisp-directory "url"))
-  )
+             (concat my-site-lisp-directory "doxymacs"))
+                                        ;(add-to-list 'load-path
+                                        ;	     (concat my-site-lisp-directory "tempo"))
 (add-to-list 'load-path
-         (concat my-site-lisp-directory "clearcase"))
+             (concat my-site-lisp-directory "url"))
 (add-to-list 'load-path
-         (concat my-site-lisp-directory "psvn"))
+             (concat my-site-lisp-directory "clearcase"))
+(add-to-list 'load-path
+             (concat my-site-lisp-directory "psvn"))
 (add-to-list 'load-path
              (concat my-site-lisp-directory "ruby-mode"))
 (add-to-list 'load-path
@@ -178,11 +171,6 @@
 
 ;;; ----[ 19.11 (info "(emacs)Useless Whitespace")
 
-;;----------------------------------------------------------------------
-;; cedet configuration load
-;;(load "~/.emacs-rc-cedet.el")
-
-;;----------------------------------------------------------------------
 ;; highlight trailing whitespaces
 (mapc (lambda (hook)
         (add-hook hook (lambda ()
@@ -254,9 +242,9 @@ spaces across the current buffer."
 (require 'column-marker)
 ;; highlight column 80 in foo mode
 ;; (add-hook emacs-lisp-mode-hook
-;;    (lambda ()
-;;      (interactive)
-;;      (column-marker-1 80)))
+;; 	  (lambda ()
+;; 	    (interactive)
+;; 	    (column-marker-1 80)))
 
 ;;   ;; use `C-c m' interactively to highlight with `column-marker-1-face'
 ;; (global-set-key [(control c) (m)] 'column-marker-1)
@@ -393,9 +381,7 @@ spaces across the current buffer."
 ;; My customized emacs
 ;;--------------------------------------------------------------------------------
 ;; scroll bar on the right side
-(if window-system
-    (set-scroll-bar-mode 'right)
-  )
+(set-scroll-bar-mode 'right)
 
 ;; fancy streching cursor
 (setq x-stretch-cursor t)
@@ -410,14 +396,8 @@ spaces across the current buffer."
 
 ;; use inactive face for mode-line in non-selected windows
 (setq mode-line-in-non-selected-windows t)
-(tool-bar-mode nil) ; disable toolbar
+(tool-bar-mode -1) ; disable toolbar
 (setq kill-whole-line t)
-
-;; Set the frame's title. %b is the name of the buffer. %+ indicates
-;; the state of the buffer: * if modified, % if read only, or -
-;; otherwise. Two of them to emulate the mode line. %f for the file
-;; name. Incredibly useful!
-(setq frame-title-format "Emacs: %b %+%+ %f ")
 
 ;; code for including abbreviated file paths in mode line
 ;; (GNUEmacs
@@ -438,14 +418,14 @@ spaces across the current buffer."
 (global-set-key [(f10)]  'bs-cycle-next)
 
 ;; fix buffer-killing for bs + gnuclient
-(eval-after-load "gnuclient"
-  '(fset 'kill-buffer 'my-server-kill-buffer))
+;; (eval-after-load "gnuclient"
+;;   '(fset 'kill-buffer 'my-server-kill-buffer))
 
-(defun my-server-kill-buffer (buffer)
-  "Call `server-kill-buffer' but make sure to return the correct value."
-  (interactive "bKill buffer ")
-  (server-kill-buffer (get-buffer buffer))
-  (not (buffer-name (get-buffer buffer))))
+;; (defun my-server-kill-buffer (buffer)
+;;   "Call `server-kill-buffer' but make sure to return the correct value."
+;;   (interactive "bKill buffer ")
+;;   (server-kill-buffer (get-buffer buffer))
+;;   (not (buffer-name (get-buffer buffer))))
 
 ;; If makefile doesn't exist compile with g++ -Wall -o <current file name> <current file name>
 (add-hook 'c++-mode-hook
@@ -453,13 +433,10 @@ spaces across the current buffer."
             (unless (or (file-exists-p "makefile")
                         (file-exists-p "Makefile"))
               (set (make-local-variable 'compile-command)
-                   (let ((file (file-name-nondirectory buffer-file-name)))
-                     (format "%s -c -o %s.o %s %s %s"
-                             (or (getenv "CC") "g++")
-                             (file-name-sans-extension file)
-                             (or (getenv "CPPFLAGS") "-DDEBUG=9")
-                             (or (getenv "CFLAGS") "-ansi -pedantic -Wall -g")
-                             file))))))
+                   (concat "g++ -Wall -o "
+                           (file-name-sans-extension (file-name-nondirectory (buffer-file-name)))
+                           " "
+                           (file-name-nondirectory (buffer-file-name)))))))
 
 ;;--------------------------------------------------------------------------------
 ;; iswitchb-mode for interactive switch buffers
@@ -493,25 +470,6 @@ spaces across the current buffer."
   '("\\.gv$" . graphviz-dot-mode))
 
 ;;(load "auctex.el" nil t t)
-
-;;--------------------------------------------------------------------------------
-;; regional settings
-;;--------------------------------------------------------------------------------
-;;(set-default-coding-systems     'iso-latin-2)
-;;(set-keyboard-coding-system           'iso-latin-2)
-;;(prefer-coding-system                 'iso-latin-2-unix)
-
-;;(set-language-environment               'Polish)
-;; (set-language-environment               'utf-8)
-;; (set-default-coding-systems             'utf-8)
-;;(setq file-name-coding-system           'utf-8)
-;; (setq default-buffer-file-coding-system 'utf-8)
-;;(set-keyboard-coding-system             'utf-8)
-;; (set-terminal-coding-system             'utf-8)
-;; (set-clipboard-coding-system            'utf-8)
-;; (set-selection-coding-system            'utf-8)
-(prefer-coding-system                   'iso-latin-2-unix)
-
 
 ;;--------------------------------------------------------------------------------
 ;; clipboard is encoded utf-16
@@ -574,13 +532,7 @@ spaces across the current buffer."
 ;;(setq doxymacs-doxygen-dirs "d:/Karol/Programy/doxygen/bin")
 (require 'doxymacs)
 (setq doxymacs-use-external-xml-parser t)
-(if running-ms-windows
-    (progn
-      (setq doxymacs-doxygen-dirs "d:/Karol/Programy/doxygen/bin")
-      (setq doxymacs-external-xml-parser-executable "xmllint.exe")
-      )
-  (setq doxymacs-external-xml-parser-executable "xmllint")
-  )
+(setq doxymacs-external-xml-parser-executable "xmllint.exe")
 (add-hook 'c-mode-common-hook 'doxymacs-mode)
 (defun my-doxymacs-font-lock-hook ()
   (if (or (eq major-mode 'c-mode) (eq major-mode 'c++-mode))
@@ -620,20 +572,6 @@ spaces across the current buffer."
       (font-lock-add-keywords mode
                               '(("\\(XXX\\|FIXME\\|TODO\\)"
                                  1 font-lock-warning-face prepend)))))
-
-;;--------------------------------------------------------------------------------
-;; transparent emacs window on M$
-;;--------------------------------------------------------------------------------
-(if running-ms-windows
-    (progn
-      (defun transparent(alpha-level no-focus-alpha-level)
-        "Let's you make the window transparent"
-        (interactive "nAlpha level : \nnNo focus alpha level : ")
-        (set-frame-parameter (selected-frame) 'alpha (list alpha-level no-focus-alpha-level))
-        (add-to-list 'default-frame-alist '(alpha alpha-level 50)))
-      (transparent 85 30)
-      )
-)
 
 ;;--------------------------------------------------------------------------------
 ;; polskie ustawienia
@@ -685,23 +623,6 @@ spaces across the current buffer."
       eol-mnemonic-mac  "(mac)") ;; CR
 
 ;;--------------------------------------------------------------------------------
-;; gnuserv
-;;--------------------------------------------------------------------------------
-(if running-ms-windows
-    (progn
-      (setq server-program "d:/karol/programy/emacs/bin/gnuserv.exe")
-      (require 'gnuserv)
-
-;;; open buffer in existing frame instead of creating new one...
-      (setq gnuserv-frame (selected-frame))
-      (message "gnuserv started.")
-      (gnuserv-start)
-      )
-  (progn
-    (server-start))
-  )
-
-;;--------------------------------------------------------------------------------
 ;; pokazuj krańcowe nawiasy
 ;;--------------------------------------------------------------------------------
 (show-paren-mode 1)
@@ -740,16 +661,9 @@ spaces across the current buffer."
 ;;----------------------------------------------------------------------
 (require 'psvn)
 (setq svn-user-names-including-blanks '("Karol Barski"
-                                        "Jerzy Myc"
-                                        "Tomasz Waligora"
                                         "Zbigniew Zagorski")) ; username used on SAL9000 contains blanks
 (add-hook 'svn-pre-parse-status-hook 'svn-status-parse-fixup-user-names-including-blanks)
 
-;;----------------------------------------------------------------------
-;; git mode
-;;----------------------------------------------------------------------
-(require 'git)
-(require 'git-blame)
 
 ;;--------------------------------------------------------------------------------
 ;; styl indentacji kodu
@@ -847,23 +761,16 @@ spaces across the current buffer."
 ;; string-insert-rectangle is useful but not binded to any key by default
 (global-set-key (kbd "C-x r a") 'string-insert-rectangle)
 
-;;--------------------------------------------------------------------------------
-;; CUA mode
-;;--------------------------------------------------------------------------------
-(setq cua-enable-cua-keys nil)
-(setq cua-highlight-region-shift-only t) ;; no transient mark mode
-(setq cua-toggle-set-mark nil) ;; original set-mark behavior, i.e. no transient-mark-mode
-(if (string-equal "21" (substring emacs-version 0 2))
-   (progn
-     (require 'cua)
-     (CUA-mode 'emacs)
-     )
-  (cua-mode 'emacs)
-  )
-
+;; Join lines as in Vim
+(defun my-join-line()
+  "Join current and next line, remove tralinig spaces leaving only one. Similar to Vim Ctrl-j"
+  (interactive)
+  (join-line 'forward-line)
+)
+(global-set-key [(ctrl j)] 'my-join-line)
 
 ;;--------------------------------------------------------------------------------
-;; zezwalaj na uĹźycie poniĹźszych komend
+;; zezwalaj na użycie poniższych komend
 ;;--------------------------------------------------------------------------------
 (put 'narrow-to-page 'disabled nil)
 (put 'narrow-to-region 'disabled nil)
@@ -882,9 +789,11 @@ spaces across the current buffer."
 (global-set-key (kbd "(") 'skeleton-pair-insert-maybe)
 (global-set-key (kbd "{") 'skeleton-pair-insert-maybe)
 (global-set-key (kbd "[") 'skeleton-pair-insert-maybe)
-(global-set-key (kbd "\"") 'skeleton-pair-insert-maybe)
-(global-set-key (kbd "'") 'skeleton-pair-insert-maybe)
+;;(global-set-key (kbd "\"") 'skeleton-pair-insert-maybe)
+;;(global-set-key (kbd "'") 'skeleton-pair-insert-maybe)
 
+(require 'git)
+(require 'git-blame)
 ;; ;; textmate-next-line from textmate.el - github.com/defunkt/textmate.el
 ;; (defun textmate-next-line ()
 ;;   "Go to next line and indent wherever you are in a line"
@@ -942,13 +851,13 @@ region\) apply comment-or-uncomment to the current line"
 ;; (defun insert-numbers (min max)
 ;;   (interactive "nFrom: \nnTo: ")
 ;;   (let ((margin (buffer-substring (save-excursion (beginning-of-line) (point))
-;;                                (point))))
-;;  (when (<= min max)
-;;    (insert (format "%d" min))
-;;    (setq min (+ 1 min))
-;;    (while (<= min max)
-;;      (insert (format "\n%s%d" margin min))
-;;      (setq min (+ 1 min))))))
+;; 								  (point))))
+;; 	(when (<= min max)
+;; 	  (insert (format "%d" min))
+;; 	  (setq min (+ 1 min))
+;; 	  (while (<= min max)
+;; 		(insert (format "\n%s%d" margin min))
+;; 		(setq min (+ 1 min))))))
 
 
 ;; ido!
@@ -979,35 +888,81 @@ region\) apply comment-or-uncomment to the current line"
 (add-to-list 'auto-mode-alist
   '("\\.list\\'" . outline-mode))
 
+(global-set-key [(control c) (l)] 'org-store-link)
+(global-set-key [(control c) (c)] 'org-capture)
+(global-set-key "\C-ca" 'org-agenda)
+(global-set-key "\C-cb" 'org-iswitchb)
+
+
 ;; don't let Customize mess with my .emacs
 (setq custom-file "~/.emacs.d/custom.el")
 (load custom-file 'noerror)
 
-;;-------------------------------------------------------------------------------
-;; python mode
-;;-------------------------------------------------------------------------------
-(setq auto-mode-alist
-      (cons '("\\.py$" . python-mode) auto-mode-alist))
-(setq interpreter-mode-alist
-      (cons '("python" . python-mode)
-            interpreter-mode-alist))
-(autoload 'python-mode "python-mode" "Python editing mode." t)
-
 ;;--------------------------------------------------------------------------------
 ;; ruby mode
 ;;--------------------------------------------------------------------------------
-(if (or (string-equal (getenv "OSTYPE") "Linux")
-        (string-equal (getenv "OSTYPE") "linux")
-		(string-equal (getenv "OSTYPE") "linux-gnu"))
-    (setq ruby-program-name "/usr/bin/ruby")
-  (or (string-equal (getenv "OSTYPE") "FreeBSD" ))
-  (setq ruby-program-name "/usr/local/bin/ruby"))
-(autoload 'ruby-mode "ruby-mode" "Mode for editing ruby source files" t)
-(setq auto-mode-alist (append '(("\\.rb$" . ruby-mode)) auto-mode-alist))
-(setq interpreter-mode-alist (append '(("ruby" . ruby-mode)) interpreter-mode-alist))
+(autoload 'ruby-mode "ruby-mode"
+  "Mode for editing ruby source files" t)
+(setq auto-mode-alist
+      (append '(("\\.rb$" . ruby-mode)) auto-mode-alist))
+(setq interpreter-mode-alist
+      (append '(("ruby" . ruby-mode)) interpreter-mode-alist))
 
-(autoload 'inf-ruby "inf-ruby" "Run an inferior Ruby process")
-(autoload 'inf-ruby-keys "inf-ruby" "Set local key defs for inf-ruby in ruby-mode")
-(add-hook 'ruby-mode-hook '(lambda () (inf-ruby-keys)))
+
+(autoload 'inf-ruby "inf-ruby"
+  "Run an inferior Ruby process")
+(autoload 'inf-ruby-keys "inf-ruby"
+  "Set local key defs for inf-ruby in ruby-mode")
+(add-hook 'ruby-mode-hook
+          '(lambda ()
+             (inf-ruby-keys)
+             ))
 
 (require 'ruby-electric)
+
+;;--------------------------------------------------------------------------------
+;; CEDET
+;;--------------------------------------------------------------------------------
+(load-file "~/install/cedet-1.0/common/cedet.el")
+
+
+;; Enable EDE (Project Management) features
+(global-ede-mode 1)
+
+;; Enable EDE for a pre-existing C++ project
+;; (ede-cpp-root-project "NAME" :file "~/myproject/Makefile")
+
+
+;; Enabling Semantic (code-parsing, smart completion) features
+;; Select one of the following:
+
+;; * This enables the database and idle reparse engines
+(semantic-load-enable-minimum-features)
+
+;; * This enables some tools useful for coding, such as summary mode
+;;   imenu support, and the semantic navigator
+(semantic-load-enable-code-helpers)
+
+;; * This enables even more coding tools such as intellisense mode
+;;   decoration mode, and stickyfunc mode (plus regular code helpers)
+;; (semantic-load-enable-gaudy-code-helpers)
+
+;; * This enables the use of Exuberent ctags if you have it installed.
+;;   If you use C++ templates or boost, you should NOT enable it.
+;; (semantic-load-enable-all-exuberent-ctags-support)
+;;   Or, use one of these two types of support.
+;;   Add support for new languges only via ctags.
+;; (semantic-load-enable-primary-exuberent-ctags-support)
+;;   Add support for using ctags as a backup parser.
+;; (semantic-load-enable-secondary-exuberent-ctags-support)
+
+;; Enable SRecode (Template management) minor-mode.
+;; (global-srecode-minor-mode 1)
+
+;;--------------------------------------------------------------------------------
+;; CUA mode
+;;--------------------------------------------------------------------------------
+(setq cua-enable-cua-keys nil)
+(setq cua-highlight-region-shift-only t) ;; no transient mark mode
+(setq cua-toggle-set-mark nil) ;; original set-mark behavior, i.e. no transient-mark-mode
+(cua-mode)
