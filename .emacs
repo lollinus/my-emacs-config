@@ -776,6 +776,7 @@ spaces across the current buffer."
 (put 'narrow-to-region 'disabled nil)
 (put 'upcase-region 'disabled nil)
 (put 'downcase-region 'disabled nil)
+(put 'set-goal-column 'disabled nil)
 
 ;; keep minibuffer history between session
 (if (not (string-equal "21" (substring emacs-version 0 2)))
@@ -785,10 +786,10 @@ spaces across the current buffer."
 
 ;; autocompletion
 (global-set-key (kbd "ESC ESC") 'dabbrev-expand) ; ESC ESC ESC not usable :-/
-(setq skeleton-pair t)
-(global-set-key (kbd "(") 'skeleton-pair-insert-maybe)
-(global-set-key (kbd "{") 'skeleton-pair-insert-maybe)
-(global-set-key (kbd "[") 'skeleton-pair-insert-maybe)
+;(setq skeleton-pair t)
+;(global-set-key (kbd "(") 'skeleton-pair-insert-maybe)
+;(global-set-key (kbd "{") 'skeleton-pair-insert-maybe)
+;(global-set-key (kbd "[") 'skeleton-pair-insert-maybe)
 ;;(global-set-key (kbd "\"") 'skeleton-pair-insert-maybe)
 ;;(global-set-key (kbd "'") 'skeleton-pair-insert-maybe)
 
@@ -966,3 +967,9 @@ region\) apply comment-or-uncomment to the current line"
 (setq cua-highlight-region-shift-only t) ;; no transient mark mode
 (setq cua-toggle-set-mark nil) ;; original set-mark behavior, i.e. no transient-mark-mode
 (cua-mode)
+
+;;--------------------------------------------------------------------------------
+;; sed mode
+;;--------------------------------------------------------------------------------
+;(autoload 'sed-mode "sed-mode"
+;  "Mode for editing sed scripts" t)
