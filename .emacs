@@ -200,9 +200,10 @@
 (add-hook 'c++-mode-hook 'font-lock-fontify-numbers)
 (add-hook 'perl-mode-hook 'font-lock-fontify-numbers)
 (add-hook 'ruby-mode-hook 'font-lock-fontify-numbers)
+(add-hook 'python-mode-hook 'font-lock-fontify-numbers)
 (add-hook 'css-mode-hook 'font-lock-fontify-numbers)
 (add-hook 'emacs-lisp-mode-hook 'font-lock-fontify-numbers)
-;; (add-hook 'js2-mode-hook 'font-lock-fontify-numbers)
+(add-hook 'js2-mode-hook 'font-lock-fontify-numbers)
 
 (setq inhibit-splash-screen t)
 
@@ -900,6 +901,13 @@ region\) apply comment-or-uncomment to the current line"
 (load custom-file 'noerror)
 
 ;;--------------------------------------------------------------------------------
+;; JavaScript mode
+;;--------------------------------------------------------------------------------
+(autoload #'js-mode "JavaScript" "Start js-mode" t)
+(add-to-list 'auto-mode-alist '("\\.js$" . js-mode))
+(add-to-list 'auto-mode-alist '("\\.json$" . js-mode))
+
+;;--------------------------------------------------------------------------------
 ;; ruby mode
 ;;--------------------------------------------------------------------------------
 (autoload 'ruby-mode "ruby-mode"
@@ -920,6 +928,12 @@ region\) apply comment-or-uncomment to the current line"
              ))
 
 (require 'ruby-electric)
+
+;;--------------------------------------------------------------------------------
+;; Python mode customization
+;;--------------------------------------------------------------------------------
+(setq python-python-command "python2.6")
+
 
 ;;--------------------------------------------------------------------------------
 ;; CEDET
@@ -968,8 +982,3 @@ region\) apply comment-or-uncomment to the current line"
 (setq cua-toggle-set-mark nil) ;; original set-mark behavior, i.e. no transient-mark-mode
 (cua-mode)
 
-;;--------------------------------------------------------------------------------
-;; sed mode
-;;--------------------------------------------------------------------------------
-;(autoload 'sed-mode "sed-mode"
-;  "Mode for editing sed scripts" t)
