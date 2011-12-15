@@ -1,5 +1,5 @@
 ;; -*- mode: lisp; coding: utf-8 -*-
-;; 
+;;
 (setq user-full-name "Karol Barski")
 (setq user-mail-address "lollinus@gmail.com")
 
@@ -101,16 +101,23 @@
                (concat my-site-lisp-directory "linum/emacs22")
                )
              )
+(if (string-equal "21" (substring emacs-version 0 2))
+    (add-to-list 'load-path
+                 (concat my-site-lisp-directory "cua")
+                 )
+  )
 (add-to-list 'load-path
              (concat my-site-lisp-directory "folding"))
 (add-to-list 'load-path
              (concat my-site-lisp-directory "color-theme-library"))
 (add-to-list 'load-path
              (concat my-site-lisp-directory "doxymacs"))
-                                        ;(add-to-list 'load-path
-                                        ;	     (concat my-site-lisp-directory "tempo"))
-(add-to-list 'load-path
-             (concat my-site-lisp-directory "url"))
+;(add-to-list 'load-path
+;        (concat my-site-lisp-directory "tempo"))
+(if (string-equal "21" (substring emacs-version 0 2))
+    (add-to-list 'load-path
+                 (concat my-site-lisp-directory "url"))
+  )
 (add-to-list 'load-path
              (concat my-site-lisp-directory "clearcase"))
 (add-to-list 'load-path
@@ -243,9 +250,9 @@ spaces across the current buffer."
 (require 'column-marker)
 ;; highlight column 80 in foo mode
 ;; (add-hook emacs-lisp-mode-hook
-;; 	  (lambda ()
-;; 	    (interactive)
-;; 	    (column-marker-1 80)))
+;;    (lambda ()
+;;      (interactive)
+;;      (column-marker-1 80)))
 
 ;;   ;; use `C-c m' interactively to highlight with `column-marker-1-face'
 ;; (global-set-key [(control c) (m)] 'column-marker-1)
@@ -382,7 +389,9 @@ spaces across the current buffer."
 ;; My customized emacs
 ;;--------------------------------------------------------------------------------
 ;; scroll bar on the right side
-(set-scroll-bar-mode 'right)
+(if window-system
+    (set-scroll-bar-mode 'right)
+  )
 
 ;; fancy streching cursor
 (setq x-stretch-cursor t)
@@ -397,8 +406,14 @@ spaces across the current buffer."
 
 ;; use inactive face for mode-line in non-selected windows
 (setq mode-line-in-non-selected-windows t)
-(tool-bar-mode -1) ; disable toolbar
+(tool-bar-mode nil) ; disable toolbar
 (setq kill-whole-line t)
+
+;; Set the frame's title. %b is the name of the buffer. %+ indicates
+;; the state of the buffer: * if modified, % if read only, or -
+;; otherwise. Two of them to emulate the mode line. %f for the file
+;; name. Incredibly useful!
+(setq frame-title-format "Emacs: %b %+%+ %f ")
 
 ;; code for including abbreviated file paths in mode line
 ;; (GNUEmacs
@@ -434,10 +449,13 @@ spaces across the current buffer."
             (unless (or (file-exists-p "makefile")
                         (file-exists-p "Makefile"))
               (set (make-local-variable 'compile-command)
-                   (concat "g++ -Wall -o "
-                           (file-name-sans-extension (file-name-nondirectory (buffer-file-name)))
-                           " "
-                           (file-name-nondirectory (buffer-file-name)))))))
+                   (let ((file (file-name-nondirectory buffer-file-name)))
+                     (format "%s -c -o %s.o %s %s %s"
+                             (or (getenv "CC") "g++")
+                             (file-name-sans-extension file)
+                             (or (getenv "CPPFLAGS") "-DDEBUG=9")
+                             (or (getenv "CFLAGS") "-ansi -pedantic -Wall -g")
+                             file))))))
 
 ;;--------------------------------------------------------------------------------
 ;; iswitchb-mode for interactive switch buffers
@@ -533,7 +551,13 @@ spaces across the current buffer."
 ;;(setq doxymacs-doxygen-dirs "d:/Karol/Programy/doxygen/bin")
 (require 'doxymacs)
 (setq doxymacs-use-external-xml-parser t)
-(setq doxymacs-external-xml-parser-executable "xmllint.exe")
+(if running-ms-windows
+    (progn
+      (setq doxymacs-doxygen-dirs "d:/Karol/Programy/doxygen/bin")
+      (setq doxymacs-external-xml-parser-executable "xmllint.exe")
+      )
+  (setq doxymacs-external-xml-parser-executable "xmllint")
+  )
 (add-hook 'c-mode-common-hook 'doxymacs-mode)
 (defun my-doxymacs-font-lock-hook ()
   (if (or (eq major-mode 'c-mode) (eq major-mode 'c++-mode))
@@ -573,6 +597,21 @@ spaces across the current buffer."
       (font-lock-add-keywords mode
                               '(("\\(XXX\\|FIXME\\|TODO\\)"
                                  1 font-lock-warning-face prepend)))))
+
+;;--------------------------------------------------------------------------------
+;; transparent emacs window on M$
+;;--------------------------------------------------------------------------------
+(set-frame-parameter (selected-frame) 'alpha '(95 50))
+(eval-when-compile (requilre 'cl))
+(defun toggle-transparency ()
+  (interactive)
+  (if (/=
+       (cadr (frame-parameter nil 'alpha))
+       100)
+      (set-frame-parameter nil 'alpha '(100 100))
+    (set-frame-parameter nil 'alpha '(95 50))))
+
+(global-set-key [(ctrl c)(t)] 'toggle-transparency)
 
 ;;--------------------------------------------------------------------------------
 ;; polskie ustawienia
@@ -623,6 +662,24 @@ spaces across the current buffer."
       eol-mnemonic-dos  "(dos)" ;; CRLF
       eol-mnemonic-mac  "(mac)") ;; CR
 
+
+;;--------------------------------------------------------------------------------
+;; gnuserv
+;;--------------------------------------------------------------------------------
+(if running-ms-windows
+    (progn
+      (setq server-program "d:/karol/programy/emacs/bin/gnuserv.exe")
+      (require 'gnuserv)
+
+;;; open buffer in existing frame instead of creating new one...
+      (setq gnuserv-frame (selected-frame))
+      (message "gnuserv started.")
+      (gnuserv-start)
+      )
+  (progn
+    (server-start))
+  )
+
 ;;--------------------------------------------------------------------------------
 ;; pokazuj krańcowe nawiasy
 ;;--------------------------------------------------------------------------------
@@ -665,6 +722,11 @@ spaces across the current buffer."
                                         "Zbigniew Zagorski")) ; username used on SAL9000 contains blanks
 (add-hook 'svn-pre-parse-status-hook 'svn-status-parse-fixup-user-names-including-blanks)
 
+;;----------------------------------------------------------------------
+;; git mode
+;;----------------------------------------------------------------------
+(require 'git)
+(require 'git-blame)
 
 ;;--------------------------------------------------------------------------------
 ;; styl indentacji kodu
@@ -753,14 +815,28 @@ spaces across the current buffer."
       ;; kill whole line with C-; (because ; is close to k)
       (global-set-key [(ctrl \;)] 'nuke-line)
       )
-  
+
   ;; kill whole line with C-; (because ; is close to k)
   (global-set-key [(ctrl \;)] 'kill-whole-line)
-  
+
   )
 
 ;; string-insert-rectangle is useful but not binded to any key by default
 (global-set-key (kbd "C-x r a") 'string-insert-rectangle)
+
+;;--------------------------------------------------------------------------------
+;; CUA mode
+;;--------------------------------------------------------------------------------
+(setq cua-enable-cua-keys nil)
+(setq cua-highlight-region-shift-only t) ;; no transient mark mode
+(setq cua-toggle-set-mark nil) ;; original set-mark behavior, i.e. no transient-mark-mode
+(if (string-equal "21" (substring emacs-version 0 2))
+   (progn
+     (require 'cua)
+     (CUA-mode 'emacs)
+     )
+  (cua-mode 'emacs)
+  )
 
 ;; Join lines as in Vim
 (defun my-join-line()
@@ -794,8 +870,6 @@ spaces across the current buffer."
 ;;(global-set-key (kbd "\"") 'skeleton-pair-insert-maybe)
 ;;(global-set-key (kbd "'") 'skeleton-pair-insert-maybe)
 
-(require 'git)
-(require 'git-blame)
 ;; ;; textmate-next-line from textmate.el - github.com/defunkt/textmate.el
 ;; (defun textmate-next-line ()
 ;;   "Go to next line and indent wherever you are in a line"
@@ -853,13 +927,13 @@ region\) apply comment-or-uncomment to the current line"
 ;; (defun insert-numbers (min max)
 ;;   (interactive "nFrom: \nnTo: ")
 ;;   (let ((margin (buffer-substring (save-excursion (beginning-of-line) (point))
-;; 								  (point))))
-;; 	(when (<= min max)
-;; 	  (insert (format "%d" min))
-;; 	  (setq min (+ 1 min))
-;; 	  (while (<= min max)
-;; 		(insert (format "\n%s%d" margin min))
-;; 		(setq min (+ 1 min))))))
+;;                                (point))))
+;;  (when (<= min max)
+;;    (insert (format "%d" min))
+;;    (setq min (+ 1 min))
+;;    (while (<= min max)
+;;      (insert (format "\n%s%d" margin min))
+;;      (setq min (+ 1 min))))))
 
 
 ;; ido!
@@ -907,33 +981,36 @@ region\) apply comment-or-uncomment to the current line"
 (add-to-list 'auto-mode-alist '("\\.js$" . js-mode))
 (add-to-list 'auto-mode-alist '("\\.json$" . js-mode))
 
+;;-------------------------------------------------------------------------------
+;; python mode
+;;-------------------------------------------------------------------------------
+(setq python-python-command "python2.6")
+(setq auto-mode-alist
+      (cons '("\\.py$" . python-mode) auto-mode-alist))
+(setq interpreter-mode-alist
+      (cons '("python" . python-mode)
+            interpreter-mode-alist))
+(autoload 'python-mode "python-mode" "Python editing mode." t)
+
 ;;--------------------------------------------------------------------------------
 ;; ruby mode
 ;;--------------------------------------------------------------------------------
-(autoload 'ruby-mode "ruby-mode"
-  "Mode for editing ruby source files" t)
-(setq auto-mode-alist
-      (append '(("\\.rb$" . ruby-mode)) auto-mode-alist))
-(setq interpreter-mode-alist
-      (append '(("ruby" . ruby-mode)) interpreter-mode-alist))
+(if (or (string-equal (getenv "OSTYPE") "Linux")
+        (string-equal (getenv "OSTYPE") "linux")
+        (string-equal (getenv "OSTYPE") "linux-gnu"))
+    (setq ruby-program-name "/usr/bin/ruby")
+  (or (string-equal (getenv "OSTYPE") "FreeBSD" ))
+  (setq ruby-program-name "/usr/local/bin/ruby"))
+(autoload 'ruby-mode "ruby-mode" "Mode for editing ruby source files" t)
+(setq auto-mode-alist (append '(("\\.rb$" . ruby-mode)) auto-mode-alist))
+(setq interpreter-mode-alist (append '(("ruby" . ruby-mode)) interpreter-mode-alist))
 
 
-(autoload 'inf-ruby "inf-ruby"
-  "Run an inferior Ruby process")
-(autoload 'inf-ruby-keys "inf-ruby"
-  "Set local key defs for inf-ruby in ruby-mode")
-(add-hook 'ruby-mode-hook
-          '(lambda ()
-             (inf-ruby-keys)
-             ))
+(autoload 'inf-ruby "inf-ruby" "Run an inferior Ruby process")
+(autoload 'inf-ruby-keys "inf-ruby" "Set local key defs for inf-ruby in ruby-mode")
+(add-hook 'ruby-mode-hook '(lambda () (inf-ruby-keys)))
 
 (require 'ruby-electric)
-
-;;--------------------------------------------------------------------------------
-;; Python mode customization
-;;--------------------------------------------------------------------------------
-(setq python-python-command "python2.6")
-
 
 ;;--------------------------------------------------------------------------------
 ;; CEDET
@@ -976,12 +1053,4 @@ region\) apply comment-or-uncomment to the current line"
       ;; (global-srecode-minor-mode 1)
       )
   )
-
-;;--------------------------------------------------------------------------------
-;; CUA mode
-;;--------------------------------------------------------------------------------
-(setq cua-enable-cua-keys nil)
-(setq cua-highlight-region-shift-only t) ;; no transient mark mode
-(setq cua-toggle-set-mark nil) ;; original set-mark behavior, i.e. no transient-mark-mode
-(cua-mode)
 
