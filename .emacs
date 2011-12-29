@@ -539,8 +539,7 @@ spaces across the current buffer."
   (if (or (eq major-mode 'c-mode) (eq major-mode 'c++-mode))
       (doxymacs-font-lock)))
 (add-hook 'font-lock-mode-hook 'my-doxymacs-font-lock-hook)
-;;(setq-default doxymacs-doxygen-style "C++")
-(setq doxymacs-doxygen-style "JavaDoc")
+(setq doxymacs-doxygen-style "C++!")
 
 ;;--------------------------------------------------------------------------------
 ;; kolorowanie składni
