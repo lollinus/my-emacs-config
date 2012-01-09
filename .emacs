@@ -118,8 +118,10 @@
     (add-to-list 'load-path
                  (concat my-site-lisp-directory "url"))
   )
-(add-to-list 'load-path
-             (concat my-site-lisp-directory "clearcase"))
+(if (not running-ms-windows)
+  (add-to-list 'load-path
+	       (concat my-site-lisp-directory "clearcase"))
+  )
 (add-to-list 'load-path
              (concat my-site-lisp-directory "psvn"))
 (add-to-list 'load-path
@@ -406,7 +408,7 @@ spaces across the current buffer."
 
 ;; use inactive face for mode-line in non-selected windows
 (setq mode-line-in-non-selected-windows t)
-(tool-bar-mode nil) ; disable toolbar
+(tool-bar-mode 0) ; disable toolbar
 (setq kill-whole-line t)
 
 ;; Set the frame's title. %b is the name of the buffer. %+ indicates
@@ -476,10 +478,11 @@ spaces across the current buffer."
 ;;--------------------------------------------------------------------------------
 ;; aspell mode
 ;;--------------------------------------------------------------------------------
-;; (if running-ms-windows
-;;     (setq ispell-program-name "d:/karol/cygwin/bin/aspell.exe")
-;;   (setq  ispell-program-name "aspell")
-;;   )
+(if running-ms-windows
+    ;(setq ispell-program-name "d:/karol/cygwin/bin/aspell.exe")
+    (message "not using aspell under ms windows")
+  (setq ispell-program-name "aspell")
+  )
 
 ;;--------------------------------------------------------------------------------
 ;; Graphviz dot mode
@@ -541,7 +544,7 @@ spaces across the current buffer."
 ;;(color-theme-classic)
 
 (if window-system
-    (color-theme-subtle-hacker)
+    (load-theme 'tango-dark)
   (color-theme-hober))
 
 ;;--------------------------------------------------------------------------------
@@ -553,7 +556,7 @@ spaces across the current buffer."
 (setq doxymacs-use-external-xml-parser t)
 (if running-ms-windows
     (progn
-      (setq doxymacs-doxygen-dirs "d:/Karol/Programy/doxygen/bin")
+      (setq doxymacs-doxygen-dirs "c:/Karol/Programy/doxygen/bin")
       (setq doxymacs-external-xml-parser-executable "xmllint.exe")
       )
   (setq doxymacs-external-xml-parser-executable "xmllint")
@@ -600,15 +603,15 @@ spaces across the current buffer."
 ;;--------------------------------------------------------------------------------
 ;; transparent emacs window on M$
 ;;--------------------------------------------------------------------------------
-(set-frame-parameter (selected-frame) 'alpha '(95 50))
-(eval-when-compile (requilre 'cl))
+(set-frame-parameter (selected-frame) 'alpha '(92 50))
+(eval-when-compile (require 'cl))
 (defun toggle-transparency ()
   (interactive)
   (if (/=
        (cadr (frame-parameter nil 'alpha))
        100)
       (set-frame-parameter nil 'alpha '(100 100))
-    (set-frame-parameter nil 'alpha '(95 50))))
+    (set-frame-parameter nil 'alpha '(92 50))))
 
 (global-set-key [(ctrl c)(t)] 'toggle-transparency)
 
@@ -666,17 +669,7 @@ spaces across the current buffer."
 ;; gnuserv
 ;;--------------------------------------------------------------------------------
 (if running-ms-windows
-    (progn
-      (setq server-program "d:/karol/programy/emacs/bin/gnuserv.exe")
-      (require 'gnuserv)
-
-;;; open buffer in existing frame instead of creating new one...
-      (setq gnuserv-frame (selected-frame))
-      (message "gnuserv started.")
-      (gnuserv-start)
-      )
-  (progn
-    (server-start))
+    (server-start)
   )
 
 ;;--------------------------------------------------------------------------------
@@ -711,7 +704,9 @@ spaces across the current buffer."
 ;;----------------------------------------------------------------------
 ;; clearcase mode
 ;;----------------------------------------------------------------------
-(require 'clearcase)
+(if (not running-ms-windows)
+    (require 'clearcase)
+  )
 
 ;;----------------------------------------------------------------------
 ;; Subversion mode
@@ -1009,7 +1004,7 @@ region\) apply comment-or-uncomment to the current line"
 ;;--------------------------------------------------------------------------------
 ;; JavaScript mode
 ;;--------------------------------------------------------------------------------
-(autoload #'js-mode "JavaScript" "Start js-mode" t)
+(autoload 'js-mode "JavaScript" "Start js-mode" t)
 (add-to-list 'auto-mode-alist '("\\.js$" . js-mode))
 (add-to-list 'auto-mode-alist '("\\.json$" . js-mode))
 
@@ -1085,4 +1080,23 @@ region\) apply comment-or-uncomment to the current line"
       ;; (global-srecode-minor-mode 1)
       )
   )
+
+
+;;--------------------------------------------------------------------------------
+;; Customize location of diff programs under windows
+;;--------------------------------------------------------------------------------
+(if running-ms-windows
+    (progn 
+      (custom-set-variables
+       ;; custom-set-variables was added by Custom.
+       ;; If you edit it by hand, you could mess it up, so be careful.
+       ;; Your init file should contain only one such instance.
+       ;; If there is more than one, they won't work right.
+       '(ediff-cmp-program "c:/Karol/Programy/GnuWin32/bin/cmp.exe")
+       '(ediff-custom-diff-program "c:/Karol/Programy/GnuWin32/bin/diff.exe")
+       '(ediff-diff-program "c:/Karol/Programy/GnuWin32/bin/diff.exe")
+       '(ediff-diff3-program "c:/Karol/Programy/GnuWin32/bin/diff3.exe"))
+      )
+)
+
 
