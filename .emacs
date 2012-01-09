@@ -120,10 +120,11 @@
     (add-to-list 'load-path
                  (concat my-site-lisp-directory "url"))
   )
-(if (not running-ms-windows)
-  (add-to-list 'load-path
-	       (concat my-site-lisp-directory "clearcase"))
-  )
+; turn off clearcase for emacs 24 because of config error
+; (if (not running-ms-windows)
+;   (add-to-list 'load-path
+; 	       (concat my-site-lisp-directory "clearcase"))
+;   )
 (add-to-list 'load-path
              (concat my-site-lisp-directory "psvn"))
 (add-to-list 'load-path
@@ -712,9 +713,10 @@ spaces across the current buffer."
 ;;----------------------------------------------------------------------
 ;; clearcase mode
 ;;----------------------------------------------------------------------
-(if (not running-ms-windows)
-    (require 'clearcase)
-  )
+; turn off clearcase for emacs 24 because of config error
+;; (if (not running-ms-windows)
+;;     (require 'clearcase)
+;;   )
 
 ;;----------------------------------------------------------------------
 ;; Subversion mode
