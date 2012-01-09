@@ -563,8 +563,7 @@ spaces across the current buffer."
   (if (or (eq major-mode 'c-mode) (eq major-mode 'c++-mode))
       (doxymacs-font-lock)))
 (add-hook 'font-lock-mode-hook 'my-doxymacs-font-lock-hook)
-;;(setq-default doxymacs-doxygen-style "C++")
-(setq doxymacs-doxygen-style "JavaDoc")
+(setq doxymacs-doxygen-style "C++!")
 
 ;;--------------------------------------------------------------------------------
 ;; kolorowanie składni
@@ -960,15 +959,48 @@ region\) apply comment-or-uncomment to the current line"
 (add-to-list 'auto-mode-alist
   '("\\.html\\'\\|\\.xml\\'\\|\\.phtml\\'" . xml-mode))
 
+;;--------------------------------------------------------------------------------
 ;; outline-mode
+;;--------------------------------------------------------------------------------
 (add-to-list 'auto-mode-alist
   '("\\.list\\'" . outline-mode))
 
+;;--------------------------------------------------------------------------------
+;; org-mode
+;;--------------------------------------------------------------------------------
 (global-set-key [(control c) (l)] 'org-store-link)
 (global-set-key [(control c) (c)] 'org-capture)
 (global-set-key "\C-ca" 'org-agenda)
 (global-set-key "\C-cb" 'org-iswitchb)
 
+(setq org-ditaa-jar-path "~/java/ditaa0_9.jar")
+(setq org-plantuml-jar-path "~/java/plantuml.jar")
+
+;; (add-hook 'org-babel-after-execute-hook 'org-display-inline-images 'append)
+
+;; (org-babel-do-load-languages
+;;  (quote org-babel-load-languages)
+;;  (quote ((emacs-lisp . t)
+;;          (dot . t)
+;;          (ditaa . t)
+;;          (R . t)
+;;          (python . t)
+;;          (ruby . t)
+;;          (gnuplot . t)
+;;          (clojure . t)
+;;          (sh . t)
+;;          (ledger . t)
+;;          (org . t)
+;;          (plantuml . t)
+;;          (latex . t))))
+
+; Do not prompt to confirm evaluation
+; This may be dangerous - make sure you understand the consequences
+; of setting this -- see the docstring for details
+;; (setq org-confirm-babel-evaluate nil)
+
+; Use fundamental mode when editing plantuml blocks with C-c '
+;; (add-to-list 'org-src-lang-modes (quote ("plantuml" . fundamental)))
 
 ;; don't let Customize mess with my .emacs
 (setq custom-file "~/.emacs.d/custom.el")
