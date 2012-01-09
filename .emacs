@@ -131,6 +131,8 @@
              (concat my-site-lisp-directory "ruby-mode"))
 (add-to-list 'load-path
              (concat my-site-lisp-directory "git"))
+(add-to-list 'load-path
+             (concat my-site-lisp-directory "chrome-edit"))
 
 ;; don't add newlines to end of buffer when scrolling
 (setq next-line-add-newlines nil)
@@ -680,6 +682,13 @@ spaces across the current buffer."
 (if running-ms-windows
     (server-start)
   )
+
+;;--------------------------------------------------------------------------------
+;; chrome edit
+;;--------------------------------------------------------------------------------
+(when (require 'edit-server nil t)
+  (setq edit-server-new-frame nil)
+  (edit-server-start))
 
 ;;--------------------------------------------------------------------------------
 ;; pokazuj krańcowe nawiasy
