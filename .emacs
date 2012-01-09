@@ -108,8 +108,10 @@
   )
 (add-to-list 'load-path
              (concat my-site-lisp-directory "folding"))
-(add-to-list 'load-path
-             (concat my-site-lisp-directory "color-theme-library"))
+(if (not (string-equal "24" (substring emacs-version 0 2)))
+    (add-to-list 'load-path
+                 (concat my-site-lisp-directory "color-theme-library"))
+  )
 (add-to-list 'load-path
              (concat my-site-lisp-directory "doxymacs"))
 ;(add-to-list 'load-path
@@ -537,15 +539,21 @@ spaces across the current buffer."
 ;;--------------------------------------------------------------------------------
 ;; color themes
 ;;--------------------------------------------------------------------------------
-(require 'color-theme)
-;;(load-library "color-theme-library")
-;;(setq color-theme-is-global t)
-(color-theme-initialize)
-;;(color-theme-classic)
-
-(if window-system
-    (load-theme 'tango-dark)
-  (color-theme-hober))
+(if (not (string-equal "24" (substring emacs-version 0 2)))
+    (progn
+      (require 'color-theme)
+      (color-theme-initialize)
+      (if window-system
+          (color-theme-subtle-hacker)
+        (color-theme-hober))
+      )
+  (progn
+    (if window-system
+        (load-theme 'tango-dark)
+      (load-theme 'wombat))
+    )
+  "For emacs 24 and above use builtin color-theme library"
+  )
 
 ;;--------------------------------------------------------------------------------
 ;; doxygen mode
@@ -1046,9 +1054,6 @@ region\) apply comment-or-uncomment to the current line"
     (progn
       (load-file "~/install/cedet-1.0/common/cedet.el")
 
-      ;; Enable EDE (Project Management) features
-      (global-ede-mode 1)
-
       ;; Enable EDE for a pre-existing C++ project
       ;; (ede-cpp-root-project "NAME" :file "~/myproject/Makefile")
 
@@ -1079,6 +1084,10 @@ region\) apply comment-or-uncomment to the current line"
       ;; Enable SRecode (Template management) minor-mode.
       ;; (global-srecode-minor-mode 1)
       )
+  (progn
+    ;; Enable EDE (Project Management) features
+    (global-ede-mode 1)
+    )
   )
 
 
