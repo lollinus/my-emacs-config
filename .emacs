@@ -123,7 +123,7 @@
 ; turn off clearcase for emacs 24 because of config error
 ; (if (not running-ms-windows)
 ;   (add-to-list 'load-path
-; 	       (concat my-site-lisp-directory "clearcase"))
+;          (concat my-site-lisp-directory "clearcase"))
 ;   )
 (add-to-list 'load-path
              (concat my-site-lisp-directory "psvn"))
@@ -230,7 +230,7 @@ spaces across the current buffer."
   (untabify (point-min) (point-max))
   )
 
-(global-set-key [(control c) (t)] 'my-delete-trailing-whitespaces-and-untabify)
+(global-set-key (kbd "C-c t") 'my-delete-trailing-whitespaces-and-untabify)
 
 ;;; ----[ 19.15 The (info "(emacs)Cursor Display")
 
@@ -294,7 +294,7 @@ spaces across the current buffer."
 ;; don't use default key bindings, as I want some of them to be defined
 ;; differently (C-x C-r, for example)
 ;; visit a file
-(global-set-key [(f3)] 'find-file-at-point)
+(global-set-key (kbd "<f3>") 'find-file-at-point)
 
 ;;; ----[ 26.9 Making and Using a (info "(emacs)Speedbar") Frame
 
@@ -306,7 +306,7 @@ spaces across the current buffer."
 ;; expand/collapse latex sections
 (speedbar-add-supported-extension '(".tex" ".bib" ".w"))
 ;; jump to speedbar frame
-(global-set-key [(f4)] 'speedbar-get-focus)
+(global-set-key (kbd "<f4>") 'speedbar-get-focus)
 
 ;; bind the arrow keys in the speedbar tree
 ;; [http://www.uweb.ucsb.edu/~dreamtheorist/emacs.html]
@@ -436,9 +436,9 @@ spaces across the current buffer."
 ;; buffer switch
 ;;--------------------------------------------------------------------------------
 (require 'bs)
-(global-set-key "\C-x\C-b" 'bs-show)
-(global-set-key [(f9)]   'bs-cycle-previous)
-(global-set-key [(f10)]  'bs-cycle-next)
+(global-set-key (kbd "C-x C-b") 'bs-show)
+(global-set-key (kbd "<f9>") 'bs-cycle-previous)
+(global-set-key (kbd "<f10>")  'bs-cycle-next)
 
 ;; fix buffer-killing for bs + gnuclient
 ;; (eval-after-load "gnuclient"
@@ -624,7 +624,7 @@ spaces across the current buffer."
       (set-frame-parameter nil 'alpha '(100 100))
     (set-frame-parameter nil 'alpha '(92 50))))
 
-(global-set-key [(ctrl c)(t)] 'toggle-transparency)
+(global-set-key (kbd "C-c t") 'toggle-transparency)
 
 ;;--------------------------------------------------------------------------------
 ;; polskie ustawienia
@@ -664,9 +664,9 @@ spaces across the current buffer."
   (set-buffer-modified-p t)
   (force-mode-line-update))
 
-(global-set-key "\^Cu" (lambda () (interactive) (set-buffer-file-eol-type 'unix)))
-(global-set-key "\^Cd" (lambda () (interactive) (set-buffer-file-eol-type 'dos)))
-(global-set-key "\^Cm" (lambda () (interactive) (set-buffer-file-eol-type 'mac)))
+(global-set-key (kbd "C-c u") (lambda () (interactive) (set-buffer-file-eol-type 'unix)))
+(global-set-key (kbd "C-c d") (lambda () (interactive) (set-buffer-file-eol-type 'dos)))
+(global-set-key (kbd "C-c m") (lambda () (interactive) (set-buffer-file-eol-type 'mac)))
 
 
 ;; Make the mode-line display the standard EOL-TYPE symbols (used above)...
@@ -699,7 +699,7 @@ spaces across the current buffer."
 ;;--------------------------------------------------------------------------------
 ;; % key on paren moves cursor to matching paren
 ;;--------------------------------------------------------------------------------
-(global-set-key [(%)] 'match-paren)
+(global-set-key (kdb "%") 'match-paren)
 
 (defun match-paren (arg)
   "Go to the matching parenthesis if on parenthesis otherwise insert %."
@@ -784,7 +784,7 @@ spaces across the current buffer."
 ;;--------------------------------------------------------------------------------
 ;; klawisze skrótów
 ;;--------------------------------------------------------------------------------
-(global-set-key [(meta g)] 'goto-line)
+(global-set-key (kbd "M-g") 'goto-line)
 ;; (global-set-key [(meta G)] 'what-line)
 
 (if (string-equal "21" (substring emacs-version 0 2))
@@ -826,11 +826,11 @@ spaces across the current buffer."
             (move-to-column previous-column))))
 
       ;; kill whole line with C-; (because ; is close to k)
-      (global-set-key [(ctrl \;)] 'nuke-line)
+      (global-set-key (kbd "C-;") 'nuke-line)
       )
 
   ;; kill whole line with C-; (because ; is close to k)
-  (global-set-key [(ctrl \;)] 'kill-whole-line)
+  (global-set-key (kbd "C-;") 'kill-whole-line)
 
   )
 
@@ -857,7 +857,7 @@ spaces across the current buffer."
   (interactive)
   (join-line 'forward-line)
 )
-(global-set-key [(ctrl j)] 'my-join-line)
+(global-set-key (kbd "C-j") 'my-join-line)
 
 ;;--------------------------------------------------------------------------------
 ;; zezwalaj na użycie poniższych komend
@@ -872,7 +872,6 @@ spaces across the current buffer."
 (if (not (string-equal "21" (substring emacs-version 0 2)))
     (savehist-mode t)
   )
-
 
 ;; autocompletion
 (global-set-key (kbd "ESC ESC") 'dabbrev-expand) ; ESC ESC ESC not usable :-/
@@ -948,16 +947,31 @@ region\) apply comment-or-uncomment to the current line"
 ;;      (insert (format "\n%s%d" margin min))
 ;;      (setq min (+ 1 min))))))
 
+;;--------------------------------------------------------------------------------
+;; recentf mode
+;;--------------------------------------------------------------------------------
+(recentf-mode t)
+(global-set-key (kbd "<f8>") 'recentf-open-files)
 
+;;--------------------------------------------------------------------------------
 ;; ido!
-;; (require 'ido)
-;; (ido-mode t)
+;;--------------------------------------------------------------------------------
+;;(require 'ido)
+(ido-mode t)
 ;; (setq ido-enable-flex-matching t)
 
+(global-set-key (kbd "C-x C-r") 'ido-recentf-open)
+(defun ido-recentf-open ()
+  "Use 'ido-completing-read to \\[find-file] a recent file"
+  (interactive)
+  (if (find-file (ido-completing-read "Find recent file:" recentf-list))
+      (message "Opening file...")
+    (message "Aborting")))
+
 ;; scrolling settings
-(setq scroll-preserve-screen-position t)
-(setq scroll-margin 2)
-(setq scroll-step 1)
+;;(setq scroll-preserve-screen-position t)
+;;(setq scroll-margin 2)
+;;(setq scroll-step 1)
 
 ;; files should always end with a new line
 ;; (setq require-final-newline t)
@@ -982,13 +996,14 @@ region\) apply comment-or-uncomment to the current line"
 ;;--------------------------------------------------------------------------------
 ;; org-mode
 ;;--------------------------------------------------------------------------------
-(global-set-key [(control c) (l)] 'org-store-link)
-(global-set-key [(control c) (c)] 'org-capture)
-(global-set-key "\C-ca" 'org-agenda)
-(global-set-key "\C-cb" 'org-iswitchb)
+(global-set-key (kbd "C-c l") 'org-store-link)
+(global-set-key (kbd "C-c c") 'org-capture)
+(global-set-key (kbd "C-c a") 'org-agenda)
+(global-set-key (kbd "C-c b") 'org-iswitchb)
 
 (setq org-ditaa-jar-path "~/java/ditaa0_9.jar")
 (setq org-plantuml-jar-path "~/java/plantuml.jar")
+(setq org-src-fontify-natively t)
 
 ;; (add-hook 'org-babel-after-execute-hook 'org-display-inline-images 'append)
 
@@ -1106,7 +1121,7 @@ region\) apply comment-or-uncomment to the current line"
 ;; Customize location of diff programs under windows
 ;;--------------------------------------------------------------------------------
 (if running-ms-windows
-    (progn 
+    (progn
       (custom-set-variables
        ;; custom-set-variables was added by Custom.
        ;; If you edit it by hand, you could mess it up, so be careful.
@@ -1118,5 +1133,3 @@ region\) apply comment-or-uncomment to the current line"
        '(ediff-diff3-program "c:/Karol/Programy/GnuWin32/bin/diff3.exe"))
       )
 )
-
-
