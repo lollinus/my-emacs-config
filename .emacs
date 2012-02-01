@@ -129,6 +129,8 @@
              (concat my-site-lisp-directory "psvn"))
 (add-to-list 'load-path
              (concat my-site-lisp-directory "ruby-mode"))
+; (add-to-list 'load-path
+;              (concat my-site-lisp-directory "python-mode"))
 (add-to-list 'load-path
              (concat my-site-lisp-directory "git"))
 (add-to-list 'load-path
@@ -396,9 +398,10 @@ spaces across the current buffer."
 ;; My customized emacs
 ;;--------------------------------------------------------------------------------
 ;; scroll bar on the right side
-(if window-system
-    (set-scroll-bar-mode 'right)
-  )
+; (if window-system
+;     (set-scroll-bar-mode 'right)
+;   )
+(scroll-bar-mode -1)
 
 ;; fancy streching cursor
 (setq x-stretch-cursor t)
@@ -550,11 +553,9 @@ spaces across the current buffer."
           (color-theme-subtle-hacker)
         (color-theme-hober))
       )
-  (progn
-    (if window-system
-        (load-theme 'tango-dark)
-      (load-theme 'wombat))
-    )
+  ;; since I use emacs in daemon mode then always load window-system theme.
+  ;; will chane it if neccessary
+    (load-theme 'tango-dark)
   "For emacs 24 and above use builtin color-theme library"
   )
 
@@ -739,7 +740,8 @@ spaces across the current buffer."
 ;; git mode
 ;;----------------------------------------------------------------------
 (require 'git)
-(require 'git-blame)
+(autoload 'git-blame-mode "git-blame"
+  "Minor mode for incremental blame for Git." t)
 
 ;;--------------------------------------------------------------------------------
 ;; styl indentacji kodu
@@ -1033,10 +1035,13 @@ region\) apply comment-or-uncomment to the current line"
 (setq python-python-command "python2.6")
 (setq auto-mode-alist
       (cons '("\\.py$" . python-mode) auto-mode-alist))
-(setq interpreter-mode-alist
-      (cons '("python" . python-mode)
-            interpreter-mode-alist))
-(autoload 'python-mode "python-mode" "Python editing mode." t)
+;; (setq interpreter-mode-alist
+;;       (cons '("python" . python-mode)
+;;             interpreter-mode-alist))
+;; (autoload 'python-mode "python-mode" "Python editing mode." t)
+;;   
+;; (setq py-install-directory (concat my-site-lisp-directory "python-mode"))
+;; (require 'python-mode)
 
 ;;--------------------------------------------------------------------------------
 ;; ruby mode
@@ -1061,45 +1066,45 @@ region\) apply comment-or-uncomment to the current line"
 ;;--------------------------------------------------------------------------------
 ;; CEDET
 ;;--------------------------------------------------------------------------------
-(if (not running-ms-windows)
-    (progn
-      (load-file "~/install/cedet-1.0/common/cedet.el")
+;; (if (not running-ms-windows)
+;;     (progn
+;;       (load-file "~/install/cedet-1.0/common/cedet.el")
 
-      ;; Enable EDE for a pre-existing C++ project
-      ;; (ede-cpp-root-project "NAME" :file "~/myproject/Makefile")
+;;       ;; Enable EDE for a pre-existing C++ project
+;;       ;; (ede-cpp-root-project "NAME" :file "~/myproject/Makefile")
 
 
-      ;; Enabling Semantic (code-parsing, smart completion) features
-      ;; Select one of the following:
+;;       ;; Enabling Semantic (code-parsing, smart completion) features
+;;       ;; Select one of the following:
 
-      ;; * This enables the database and idle reparse engines
-      (semantic-load-enable-minimum-features)
+;;       ;; * This enables the database and idle reparse engines
+;;       (semantic-load-enable-minimum-features)
 
-      ;; * This enables some tools useful for coding, such as summary mode
-      ;;   imenu support, and the semantic navigator
-      (semantic-load-enable-code-helpers)
+;;       ;; * This enables some tools useful for coding, such as summary mode
+;;       ;;   imenu support, and the semantic navigator
+;;       (semantic-load-enable-code-helpers)
 
-      ;; * This enables even more coding tools such as intellisense mode
-      ;;   decoration mode, and stickyfunc mode (plus regular code helpers)
-      ;; (semantic-load-enable-gaudy-code-helpers)
+;;       ;; * This enables even more coding tools such as intellisense mode
+;;       ;;   decoration mode, and stickyfunc mode (plus regular code helpers)
+;;       ;; (semantic-load-enable-gaudy-code-helpers)
 
-      ;; * This enables the use of Exuberent ctags if you have it installed.
-      ;;   If you use C++ templates or boost, you should NOT enable it.
-      ;; (semantic-load-enable-all-exuberent-ctags-support)
-      ;;   Or, use one of these two types of support.
-      ;;   Add support for new languges only via ctags.
-      ;; (semantic-load-enable-primary-exuberent-ctags-support)
-      ;;   Add support for using ctags as a backup parser.
-      ;; (semantic-load-enable-secondary-exuberent-ctags-support)
+;;       ;; * This enables the use of Exuberent ctags if you have it installed.
+;;       ;;   If you use C++ templates or boost, you should NOT enable it.
+;;       ;; (semantic-load-enable-all-exuberent-ctags-support)
+;;       ;;   Or, use one of these two types of support.
+;;       ;;   Add support for new languges only via ctags.
+;;       ;; (semantic-load-enable-primary-exuberent-ctags-support)
+;;       ;;   Add support for using ctags as a backup parser.
+;;       ;; (semantic-load-enable-secondary-exuberent-ctags-support)
 
-      ;; Enable SRecode (Template management) minor-mode.
-      ;; (global-srecode-minor-mode 1)
-      )
-  (progn
-    ;; Enable EDE (Project Management) features
-    (global-ede-mode 1)
-    )
-  )
+;;       ;; Enable SRecode (Template management) minor-mode.
+;;       ;; (global-srecode-minor-mode 1)
+;;       )
+;;   (progn
+;;     ;; Enable EDE (Project Management) features
+;;     (global-ede-mode 1)
+;;     )
+;;   )
 
 
 ;;--------------------------------------------------------------------------------
@@ -1118,5 +1123,3 @@ region\) apply comment-or-uncomment to the current line"
        '(ediff-diff3-program "c:/Karol/Programy/GnuWin32/bin/diff3.exe"))
       )
 )
-
-
