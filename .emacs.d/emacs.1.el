@@ -549,21 +549,3 @@ region\) apply comment-or-uncomment to the current line"
 
 ;; (add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/"))
 ;; (add-to-list 'package-archives '("torney" . "http://torney.com/elpa/"))
-
-
-;;--------------------------------------------------------------------------------
-;; Customize location of diff programs under windows
-;;--------------------------------------------------------------------------------
-(if running-ms-windows
-    (progn
-      (custom-set-variables
-       ;; custom-set-variables was added by Custom.
-       ;; If you edit it by hand, you could mess it up, so be careful.
-       ;; Your init file should contain only one such instance.
-       ;; If there is more than one, they won't work right.
-       '(ediff-cmp-program "c:/Karol/Programy/GnuWin32/bin/cmp.exe")
-       '(ediff-custom-diff-program "c:/Karol/Programy/GnuWin32/bin/diff.exe")
-       '(ediff-diff-program "c:/Karol/Programy/GnuWin32/bin/diff.exe")
-       '(ediff-diff3-program "c:/Karol/Programy/GnuWin32/bin/diff3.exe"))
-      )
-)

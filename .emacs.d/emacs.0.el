@@ -3,8 +3,6 @@
 (setq user-full-name "Karol Barski")
 (setq user-mail-address "lollinus@gmail.com")
 
-;; OS type -- are we running Microsoft Windows?
-(defvar running-ms-windows (eq system-type 'windows-nt))
 
 ;; Emacs type -- are we running XEmacs (or GNU Emacs)?
 (defvar running-xemacs (string-match "XEmacs\\|Lucid" emacs-version))
@@ -567,7 +565,6 @@ spaces across the current buffer."
 (setq doxymacs-use-external-xml-parser t)
 (if running-ms-windows
     (progn
-      (setq doxymacs-doxygen-dirs "c:/Karol/Programy/doxygen/bin")
       (setq doxymacs-external-xml-parser-executable "xmllint.exe")
       )
   (setq doxymacs-external-xml-parser-executable "xmllint")
