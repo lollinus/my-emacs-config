@@ -1,0 +1,5 @@
+# key: def
+# name: (define var val)
+# --
+(define ${1:var} ${2:value})
+$0

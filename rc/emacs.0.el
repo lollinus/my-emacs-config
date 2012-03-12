@@ -1,7 +1,7 @@
 ;; -*- mode: lisp; coding: utf-8-unix -*-
 ;;
 (setq user-full-name "Karol Barski")
-(setq user-mail-address "lollinus@gmail.com")
+(setq user-mail-address "karol.barski@tieto.com")
 
 
 ;; Emacs type -- are we running XEmacs (or GNU Emacs)?
@@ -86,7 +86,7 @@
 
 ;; 3.
 (if running-ms-windows
-    (defvar my-site-lisp-directory "c:/users/barskkar/site-lisp/"
+    (defvar my-site-lisp-directory (concat (getenv "HOME") "\\site-lisp\\")
       "Name of directory where my personal additional Emacs Lisp files reside.")
   (defvar my-site-lisp-directory "~/site-lisp/"
     "Name of directory where my personal additional Emacs Lisp files reside.")

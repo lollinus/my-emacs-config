@@ -1,0 +1,7 @@
+# key: try
+# name: try {} catch (...) { ... }
+# --
+try {
+	$0
+} catch (${1:condition}) {
+}

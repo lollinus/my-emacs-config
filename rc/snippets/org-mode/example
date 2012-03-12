@@ -1,0 +1,6 @@
+# key: ex
+# name: example (#+BEGIN_EXAMPLE...)
+# --
+#+BEGIN_EXAMPLE
+$0
+#+END_EXAMPLE

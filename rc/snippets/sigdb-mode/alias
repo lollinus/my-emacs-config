@@ -1,0 +1,4 @@
+# key: alias
+# name: aliases
+# --
+aliases {$0}

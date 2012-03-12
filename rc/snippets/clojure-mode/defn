@@ -1,0 +1,6 @@
+# key: defn
+# name: (defn fun ...)
+# --
+(defn ${1:func} [${2:args}]$>
+$0$>
+)$>

@@ -1,0 +1,4 @@
+# key: or
+# name: or
+# --
+(or (${1:first_expression}) ($0))
