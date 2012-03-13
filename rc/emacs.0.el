@@ -93,19 +93,11 @@
   )
 
 (add-to-list 'load-path my-site-lisp-directory)
-(add-to-list 'load-path
-             (if (string-equal "21" (substring emacs-version 0 2))
-                 (concat my-site-lisp-directory "linum/emacs21")
-               (concat my-site-lisp-directory "linum/emacs22")
-               )
-             )
 (if (string-equal "21" (substring emacs-version 0 2))
     (add-to-list 'load-path
                  (concat my-site-lisp-directory "cua")
                  )
   )
-(add-to-list 'load-path
-             (concat my-site-lisp-directory "folding"))
 (add-to-list 'load-path
              (concat my-site-lisp-directory "doxymacs"))
 ;(add-to-list 'load-path
@@ -384,9 +376,6 @@ spaces across the current buffer."
 ;; show column number in mode-line
 (column-number-mode t)
 (line-number-mode t)
-;; line numbering with linum (WTF it's not activated by defaults?!)
-(require 'linum)
-;(global-linum-mode t)
 
 ;; use inactive face for mode-line in non-selected windows
 (setq mode-line-in-non-selected-windows t)
@@ -403,11 +392,6 @@ spaces across the current buffer."
 ;; (GNUEmacs
 ;;     (require 'mode-line)
 ;;     (mode-line-toggle-display nil))
-
-
-;; --[ Folding mode ]----------------------------------------------------
-;(load "folding" 'nomessage 'noerror)
-;(folding-mode-add-find-file-hook)
 
 ;;--------------------------------------------------------------------------------
 ;; buffer switch
