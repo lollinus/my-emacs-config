@@ -106,10 +106,6 @@
   )
 (add-to-list 'load-path
              (concat my-site-lisp-directory "folding"))
-(if (not (string-equal "24" (substring emacs-version 0 2)))
-    (add-to-list 'load-path
-                 (concat my-site-lisp-directory "color-theme-library"))
-  )
 (add-to-list 'load-path
              (concat my-site-lisp-directory "doxymacs"))
 ;(add-to-list 'load-path
@@ -250,23 +246,6 @@ spaces across the current buffer."
           (setq my-set-cursor-color-buffer (buffer-name)))))
 
     (add-hook 'post-command-hook 'my-set-cursor-color-according-to-mode))
-
-
-(require 'column-marker)
-;; highlight column 80 in foo mode
-;; (add-hook emacs-lisp-mode-hook
-;;    (lambda ()
-;;      (interactive)
-;;      (column-marker-1 80)))
-
-;;   ;; use `C-c m' interactively to highlight with `column-marker-1-face'
-;; (global-set-key [(control c) (m)] 'column-marker-1)
-
-;; ;; conflicts with the above!
-;; (when (try-require 'wide-column)
-;;     (setq wide-column-start-width 60)
-;;     (setq wide-column-default-cursor-colour "rgb:15/FF/00"))
-;; ;;    (add-hook 'text-mode-hook 'wide-column-mode)
 
 ;;; ----[ 19.17 Cursor Display
 
@@ -537,24 +516,6 @@ spaces across the current buffer."
   nil)
 (defun utf-16-be-pre-write-conversion (start end) nil)
 
-;;--------------------------------------------------------------------------------
-;; color themes
-;;--------------------------------------------------------------------------------
-(if (not (string-equal "24" (substring emacs-version 0 2)))
-    (progn
-      (require 'color-theme)
-      (color-theme-initialize)
-      (if window-system
-          (color-theme-subtle-hacker)
-        (color-theme-hober))
-      )
-  (progn
-    (if window-system
-        (load-theme 'tango-dark)
-      (load-theme 'wombat))
-    )
-  "For emacs 24 and above use builtin color-theme library"
-  )
 
 ;;--------------------------------------------------------------------------------
 ;; doxygen mode
