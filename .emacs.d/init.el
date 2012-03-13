@@ -10,4 +10,7 @@
 (load "~/rc/rc-elpa.el")
 (load "~/rc/rc-markdown-mode.el")
 (load "~/rc/rc-yasnippet.el")
-
+(load "~/rc/rc-color-theme.el")
+(load "~/rc/rc-column-marker.el")
+(load "~/rc/rc-undo-tree.el")
+(load "~/rc/rc-folding.el")

@@ -1,9 +1,12 @@
-[submodule "site-lisp/markdown-mode"]
-	path = site-lisp/markdown-mode
-	url = http://jblevins.org/git/markdown-mode.git
 [submodule "site-lisp/yasnippet"]
 	path = site-lisp/yasnippet
 	url = ssh://git@github.com/capitaomorte/yasnippet.git
 [submodule "site-lisp/markdown-mode-plus"]
 	path = site-lisp/markdown-mode-plus
 	url = ssh://git@github.com/milkypostman/markdown-mode-plus.git
+[submodule "site-lisp/undo-tree"]
+	path = site-lisp/undo-tree
+	url = http://www.dr-qubit.org/git/undo-tree.git
+[submodule "site-lisp/markdown-mode"]
+	path = site-lisp/markdown-mode
+	url = http://jblevins.org/git/markdown-mode.git
