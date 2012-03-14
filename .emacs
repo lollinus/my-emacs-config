@@ -135,6 +135,8 @@
              (concat my-site-lisp-directory "git"))
 (add-to-list 'load-path
              (concat my-site-lisp-directory "chrome-edit"))
+(add-to-list 'load-path
+             (concat my-site-lisp-directory "magit"))
 
 ;; don't add newlines to end of buffer when scrolling
 (setq next-line-add-newlines nil)
@@ -700,7 +702,7 @@ spaces across the current buffer."
 ;;--------------------------------------------------------------------------------
 ;; % key on paren moves cursor to matching paren
 ;;--------------------------------------------------------------------------------
-(global-set-key (kdb "%") 'match-paren)
+(global-set-key (kbd "%") 'match-paren)
 
 (defun match-paren (arg)
   "Go to the matching parenthesis if on parenthesis otherwise insert %."
@@ -1121,6 +1123,8 @@ region\) apply comment-or-uncomment to the current line"
 ;;     )
 ;;   )
 
+(require 'magit)
+(require 'magit-svn)
 
 ;;--------------------------------------------------------------------------------
 ;; Customize location of diff programs under windows
