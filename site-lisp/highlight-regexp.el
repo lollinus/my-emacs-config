@@ -1,6 +1,6 @@
 ;;; highlight-regexp.el --- temporary highlighting regular expressions.
 
-;; Copyright (C) 2002 Olaf Sylvester
+;; Copyright (C) 2002, 2003 Olaf Sylvester
 
 ;; Author: Olaf Sylvester <olaf@geekware.de>
 ;; Maintainer: Olaf Sylvester <olaf@geekware.de>

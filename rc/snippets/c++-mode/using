@@ -1,0 +1,5 @@
+# key: using
+# name: using namespace ... 
+# --
+using namespace ${1:std};
+$0
