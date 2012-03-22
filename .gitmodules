@@ -12,4 +12,4 @@
 	url = http://jblevins.org/git/markdown-mode.git
 [submodule "rc/snippets/java-mode"]
 	path = rc/snippets/java-mode
-	url = ssh://git@github.com/nekop/yasnippet-java-mode
+	url = ssh://git@github.com/lollinus/yasnippet-java-mode
