@@ -9,13 +9,15 @@
 (defvar running-ms-windows (eq system-type 'windows-nt))
 
 ; Set PATH depending on operating system being run
-; (getenv "PATH")
+(defun getappdata ()
+  (getenv "LOCALAPPDATA"))
+
 (if running-ms-windows
     (setenv "PATH"
             (concat
-             "C:\\Karol\\Programy\\GnuWin32\\bin" ";"
-             "C:\\Karol\\Programy\\PortableGit\\bin\\" ";"
-             "C:\\Karol\\Programy\\doxygen\\bin" ";"
+             (getappdata) "\\GnuWin32\\bin" ";"
+             (getappdata) "\\PortableGit\\bin\\" ";"
+             (getappdata) "\\doxygen\\bin" ";"
              "C:\\Program Files\\Java\\jdk1.7.0\\bin" ";"
              (getenv "PATH")
              )
@@ -25,9 +27,9 @@
 ;; set exec-path for emacs so it follows "PATH"
 (if running-ms-windows
     (progn
-      (add-to-list 'exec-path "C:/Karol/Programy/PortableGit/bin/")
-      (add-to-list 'exec-path "C:/Karol/Programy//GnuWin32/bin/")
-      (add-to-list 'exec-path "C:/Karol/Programy/doxygen/bin/")
+      (add-to-list 'exec-path (concat (getappdata) "/PortableGit/bin/"))
+      (add-to-list 'exec-path (concat (getappdata) "/GnuWin32/bin/"))
+      (add-to-list 'exec-path (concat (getappdata) "/doxygen/bin/"))
       (add-to-list 'exec-path "C:/Program Files/Java/jdk1.7.0/bin")
       )
   )

@@ -9,7 +9,7 @@
 	url = ssh://git@github.com/lollinus/undo-tree.git
 [submodule "site-lisp/markdown-mode"]
 	path = site-lisp/markdown-mode
-	url = http://jblevins.org/git/markdown-mode.git
+	url = ssh://git@github.com/defunkt/markdown-mode.git
 [submodule "rc/snippets/java-mode"]
 	path = rc/snippets/java-mode
 	url = ssh://git@github.com/lollinus/yasnippet-java-mode
