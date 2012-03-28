@@ -18,5 +18,4 @@
              (turn-on-auto-fill)
              (require 'asciidoc)))
 
-
 ;;; rc-adoc-mode.el ends here
