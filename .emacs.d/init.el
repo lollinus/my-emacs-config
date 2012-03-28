@@ -14,3 +14,4 @@
 (load "~/rc/rc-column-marker.el")
 (load "~/rc/rc-undo-tree.el")
 (load "~/rc/rc-folding.el")
+(load "~/rc/rc-adoc-mode.el")
