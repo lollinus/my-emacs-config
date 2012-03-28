@@ -13,3 +13,6 @@
 [submodule "rc/snippets/java-mode"]
 	path = rc/snippets/java-mode
 	url = ssh://git@github.com/lollinus/yasnippet-java-mode
+[submodule "site-lisp/asciidoc-el"]
+	path = site-lisp/asciidoc-el
+	url = ssh://git@github.com/metaperl/asciidoc-el
