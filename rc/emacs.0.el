@@ -114,8 +114,6 @@
 (add-to-list 'load-path
              (concat my-site-lisp-directory "psvn"))
 (add-to-list 'load-path
-             (concat my-site-lisp-directory "ruby-mode"))
-(add-to-list 'load-path
              (concat my-site-lisp-directory "git"))
 (add-to-list 'load-path
              (concat my-site-lisp-directory "chrome-edit"))
@@ -180,8 +178,6 @@
         c++-mode-hook
         emacs-lisp-mode-hook
         java-mode-hook
-        python-mode-hook
-        ruby-mode-hook
         shell-script-mode-hook))
 
 ;; ;; highlight tabs
@@ -199,8 +195,6 @@
 (add-hook 'c-mode-hook 'font-lock-fontify-numbers)
 (add-hook 'c++-mode-hook 'font-lock-fontify-numbers)
 (add-hook 'perl-mode-hook 'font-lock-fontify-numbers)
-(add-hook 'ruby-mode-hook 'font-lock-fontify-numbers)
-(add-hook 'python-mode-hook 'font-lock-fontify-numbers)
 (add-hook 'css-mode-hook 'font-lock-fontify-numbers)
 (add-hook 'emacs-lisp-mode-hook 'font-lock-fontify-numbers)
 (add-hook 'js2-mode-hook 'font-lock-fontify-numbers)
@@ -433,7 +427,7 @@ spaces across the current buffer."
 ;;----------------------------------------------------------------------
 ;; regexp higlight
 ;;----------------------------------------------------------------------
-(require 'highlight-regexp)
+;; (require 'highlight-regexp)
 
 ;;--------------------------------------------------------------------------------
 ;; time stamp writing in edited files
@@ -454,8 +448,7 @@ spaces across the current buffer."
 ;; Graphviz dot mode
 ;;--------------------------------------------------------------------------------
 (load "graphviz-dot-mode.el" nil t t)
-(add-to-list 'auto-mode-alist
-  '("\\.gv$" . graphviz-dot-mode))
+(add-to-list 'auto-mode-alist '("\\.gv$" . graphviz-dot-mode))
 
 ;;(load "auctex.el" nil t t)
 
@@ -483,40 +476,19 @@ spaces across the current buffer."
 ;; (add-to-list 'auto-coding-regexp-alist '("^\xFE\xFF" . utf-16-be) t)
 
 ;;--------------------------------------------------------------------------------
-;; table edition mode
-;;--------------------------------------------------------------------------------
-;; (require 'table)
-
-;;--------------------------------------------------------------------------------
 ;; Add missing support functions
 ;;--------------------------------------------------------------------------------
-(defun utf-16-le-pre-write-conversion (start end) nil)
-(defun utf-16-le-pre-write-conversion (beg end)
-  "Semi-dummy pre-write function effectively to autoload ucs-tables."
-  ;; Ensure translation table is loaded, if available.
-  (require 'ucs-tables nil t)
-  ;; Don't do this again.
-  (coding-system-put 'mule-utf-16-le 'pre-write-conversion nil)
-  nil)
-(defun utf-16-be-pre-write-conversion (start end) nil)
-
-
-;;--------------------------------------------------------------------------------
-;; doxygen mode
-;;--------------------------------------------------------------------------------
-;;(require 'doxygen)
-;;(setq doxymacs-doxygen-dirs "d:/Karol/Programy/doxygen/bin")
-(require 'doxymacs)
-(setq doxymacs-use-external-xml-parser t)
-(if running-ms-windows
+(if (not (string-equal "24" (substring emacs-version 0 2)))
     (progn
-      (setq doxymacs-external-xml-parser-executable "xmllint.exe")
+      (defun utf-16-le-pre-write-conversion (start end) nil)
+      (defun utf-16-le-pre-write-conversion (beg end)
+        "Semi-dummy pre-write function effectively to autoload ucs-tables."
+        ;; Ensure translation table is loaded, if available.
+        (require 'ucs-tables nil t)
+        ;; Don't do this again.
+        (coding-system-put 'mule-utf-16-le 'pre-write-conversion nil)
+        nil)
+      (defun utf-16-be-pre-write-conversion (start end) nil)
       )
-  (setq doxymacs-external-xml-parser-executable "xmllint")
+  "Emacs 24 should have these functions defined"
   )
-(add-hook 'c-mode-common-hook 'doxymacs-mode)
-(defun my-doxymacs-font-lock-hook ()
-  (if (or (eq major-mode 'c-mode) (eq major-mode 'c++-mode))
-      (doxymacs-font-lock)))
-(add-hook 'font-lock-mode-hook 'my-doxymacs-font-lock-hook)
-(setq doxymacs-doxygen-style "C++!")

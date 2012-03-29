@@ -473,34 +473,3 @@ region\) apply comment-or-uncomment to the current line"
 (add-to-list 'auto-mode-alist '("\\.js$" . js-mode))
 (add-to-list 'auto-mode-alist '("\\.json$" . js-mode))
 
-;;-------------------------------------------------------------------------------
-;; python mode
-;;-------------------------------------------------------------------------------
-(setq python-python-command "python2.6")
-(setq auto-mode-alist
-      (cons '("\\.py$" . python-mode) auto-mode-alist))
-(setq interpreter-mode-alist
-      (cons '("python" . python-mode)
-            interpreter-mode-alist))
-(autoload 'python-mode "python-mode" "Python editing mode." t)
-
-;;--------------------------------------------------------------------------------
-;; ruby mode
-;;--------------------------------------------------------------------------------
-(if (or (string-equal (getenv "OSTYPE") "Linux")
-        (string-equal (getenv "OSTYPE") "linux")
-        (string-equal (getenv "OSTYPE") "linux-gnu"))
-    (setq ruby-program-name "/usr/bin/ruby")
-  (or (string-equal (getenv "OSTYPE") "FreeBSD" ))
-  (setq ruby-program-name "/usr/local/bin/ruby"))
-(autoload 'ruby-mode "ruby-mode" "Mode for editing ruby source files" t)
-(setq auto-mode-alist (append '(("\\.rb$" . ruby-mode)) auto-mode-alist))
-(setq interpreter-mode-alist (append '(("ruby" . ruby-mode)) interpreter-mode-alist))
-
-
-(autoload 'inf-ruby "inf-ruby" "Run an inferior Ruby process")
-(autoload 'inf-ruby-keys "inf-ruby" "Set local key defs for inf-ruby in ruby-mode")
-(add-hook 'ruby-mode-hook '(lambda () (inf-ruby-keys)))
-
-(require 'ruby-electric)
-

@@ -15,4 +15,8 @@
 (load "~/rc/rc-undo-tree.el")
 (load "~/rc/rc-folding.el")
 (load "~/rc/rc-adoc-mode.el")
+(load "~/rc/rc-doxymacs.el")
 
+;; Load ruby only when needed
+;;(load "~/rc/rc-ruby.el")
+(load "~/rc/rc-python.el")
