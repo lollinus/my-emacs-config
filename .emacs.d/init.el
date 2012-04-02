@@ -20,3 +20,6 @@
 ;; Load ruby only when needed
 ;;(load "~/rc/rc-ruby.el")
 (load "~/rc/rc-python.el")
+
+(load "~/rc/rc-magit.el")
+
