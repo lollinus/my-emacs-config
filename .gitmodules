@@ -6,13 +6,13 @@
 	url = ssh://git@github.com/milkypostman/markdown-mode-plus.git
 [submodule "site-lisp/undo-tree"]
 	path = site-lisp/undo-tree
-	url = ssh://git@github.com/lollinus/undo-tree.git
+	url = ssh://git@github.com/emacsmirror/undo-tree.git
 [submodule "site-lisp/markdown-mode"]
 	path = site-lisp/markdown-mode
 	url = ssh://git@github.com/defunkt/markdown-mode.git
 [submodule "rc/snippets/java-mode"]
 	path = rc/snippets/java-mode
-	url = ssh://git@github.com/lollinus/yasnippet-java-mode
+	url = http://www.dr-qubit.org/git/undo-tree.git
 [submodule "site-lisp/asciidoc-el"]
 	path = site-lisp/asciidoc-el
 	url = ssh://git@github.com/lollinus/asciidoc-el
