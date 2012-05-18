@@ -83,11 +83,18 @@
      (man-page "git-branch")
      (actions
       ("v" "Branch manager" magit-branch-manager)
-      ("n" "New" magit-create-branch)
-      ("m" "Move" magit-move-branch)
-      ("d" "Delete" magit-delete-branch)
-      ("D" "Force Delete" magit-delete-branch-forced)
+      ("c" "Create" magit-create-branch)
+      ("r" "Rename" magit-move-branch)
+      ("k" "Delete" magit-delete-branch)
       ("b" "Checkout" magit-checkout)))
+
+    (remoting
+     (man-page "git-remote")
+     (actions
+      ("v" "Branch manager" magit-branch-manager)
+      ("a" "Add" magit-add-remote)
+      ("r" "Rename" magit-rename-remote)
+      ("k" "Remove" magit-remove-remote)))
 
     (tagging
      (man-page "git-tag")
@@ -169,7 +176,7 @@ and put in its place an empty one of the same name."
   (when (assoc group magit-key-mode-groups)
     (magit-key-mode-delete-group group))
   (setq magit-key-mode-groups
-        (cons (list group '(actions)) magit-key-mode-groups)))
+        (cons (list group (list 'actions)) magit-key-mode-groups)))
 
 (defun magit-key-mode-key-defined-p (for-group key)
   "If KEY is defined as any of switch, argument or action within

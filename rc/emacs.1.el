@@ -420,6 +420,7 @@ region\) apply comment-or-uncomment to the current line"
                                                          (sql . t)
                                                          (latex . t)
                                                          (org . t)
+                                                         (dot . t)
                                                          )
                              )
 
