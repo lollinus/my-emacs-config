@@ -32,21 +32,6 @@
                                  1 font-lock-warning-face prepend)))))
 
 ;;--------------------------------------------------------------------------------
-;; transparent emacs window on M$
-;;--------------------------------------------------------------------------------
-(set-frame-parameter (selected-frame) 'alpha '(92 50))
-(eval-when-compile (require 'cl))
-(defun toggle-transparency ()
-  (interactive)
-  (if (/=
-       (cadr (frame-parameter nil 'alpha))
-       100)
-      (set-frame-parameter nil 'alpha '(100 100))
-    (set-frame-parameter nil 'alpha '(92 50))))
-
-(global-set-key (kbd "C-c t") 'toggle-transparency)
-
-;;--------------------------------------------------------------------------------
 ;; polskie ustawienia
 ;;--------------------------------------------------------------------------------
 ;;(codepage-setup '1250)
