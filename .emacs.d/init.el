@@ -23,3 +23,5 @@
 (load "~/rc/rc-magit.el")
 (load "~/rc/rc-nxhtml.el")
 (load "~/rc/rc-org-mode.el")
+
+(load "~/rc/rc-alpha.el")
