@@ -1,4 +1,4 @@
-;; buffer-move config
+;;; rc-buffer-move.el ---
 (add-to-list 'load-path
              (concat my-site-lisp-directory "buffer-move"))
 
@@ -17,3 +17,5 @@
                             (local-set-key "<C-S-right>" 'buf-move-right)))
 
 
+
+;;; rc-buffer-move.el ends here ---
