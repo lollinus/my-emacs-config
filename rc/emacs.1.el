@@ -99,7 +99,7 @@
 ;; pokazuj krańcowe nawiasy
 ;;--------------------------------------------------------------------------------
 (show-paren-mode 1)
-(setw show-paren-style 'expression)
+(setq show-paren-style 'expression)
 (setq transient-mark-mode nil)
 
 ;;--------------------------------------------------------------------------------
