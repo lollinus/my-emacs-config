@@ -8,6 +8,8 @@
 (setq org-plantuml-jar-path "~/java/plantuml.jar")
 (setq org-src-fontify-natively t)
 (setq org-alphabetical-lists t)
+(setq org-time-stamp-custom-formats (cons "<%d-%m-%y>" "<%d-%m-%y %H:%M>"))
+(setq org-display-custom-times t)
 
 ;; (add-hook 'org-babel-after-execute-hook 'org-display-inline-images 'append)
 
@@ -20,8 +22,14 @@
                                                          (latex . t)
                                                          (org . t)
                                                          (dot . t)
+                                                         (python . t)
                                                          )
                              )
+
+;; (add-hook 'org-mode-hook
+;;           (lambda ()
+;;             (setq org-export-htmlize-output-type 'css)
+;;             (local-set-key (quote [?\C-c ?\C-x]) 'org-export-body-as-html)))
 
 ;; (org-babel-do-load-languages
 ;;  (quote org-babel-load-languages)

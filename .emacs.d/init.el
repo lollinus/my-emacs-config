@@ -28,3 +28,5 @@
 (load "~/rc/rc-gnus.el")
 
 (load "~/rc/rc-alpha.el")
+
+(load "~/rc/rc-haskell-mode.el")
