@@ -29,3 +29,4 @@
 (load "~/rc/rc-alpha.el")
 
 (load "~/rc/rc-haskell-mode.el")
+(load "~/rc/rc-auctex.el")
