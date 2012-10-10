@@ -1,6 +1,6 @@
 ;;; rc-auctex.el ---
 (add-to-list 'load-path
-             (concat my-site-lisp-directory "site-start.d"))
+             (concat my-site-lisp-directory "auctex/site-lisp/site-start.d"))
 (load "auctex.el" nil t t)
 (load "preview-latex.el" nil t t)
 (require 'tex-mik)
