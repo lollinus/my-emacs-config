@@ -16,9 +16,6 @@
 [submodule "site-lisp/asciidoc-el"]
 	path = site-lisp/asciidoc-el
 	url = ssh://git@github.com/lollinus/asciidoc-el
-[submodule "site-lisp/emacs-calfw"]
-	path = site-lisp/emacs-calfw
-	url = ssh://git@github.com/kiwanami/emacs-calfw
 [submodule "site-lisp/haskell-mode"]
 	path = site-lisp/haskell-mode
 	url = ssh://git@github.com/haskell/haskell-mode
