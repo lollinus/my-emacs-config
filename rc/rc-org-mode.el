@@ -13,6 +13,10 @@
 (setq org-time-stamp-custom-formats (cons "<%d-%m-%y>" "<%d-%m-%y %H:%M>"))
 (setq org-display-custom-times t)
 
+;; tables should always used fixed width font
+(set-face-attribute 'org-table nil :family "courier")
+(set-face-attribute 'org-column nil :family "courier")
+
 ;; (add-hook 'org-babel-after-execute-hook 'org-display-inline-images 'append)
 
 (org-babel-do-load-languages 'org-babel-load-languages '(
@@ -26,7 +30,7 @@
                                                          (dot . t)
                                                          (python . t)
                                                          )
-                             )
+                              )
 
 ;; (add-hook 'org-mode-hook
 ;;           (lambda ()
