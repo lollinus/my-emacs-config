@@ -30,5 +30,20 @@ Theme is chosen depending if current window is displayed on TTY or graphical win
 (switch-color-theme)
 (global-set-key (kbd "C-x c") 'switch-color-theme)
 
+; font configuration
+(defun kb-set-font ()
+  "Function sets screen font
+If emacs is run in MS Windows then use Arial Unicode MS
+On U*x systems Use DejaVu Sans Mono
+"
+  (if running-ms-windows
+      (set-frame-parameter nil 'font "Unifont")
+                                        ;(set-frame-parameter nil 'font "Arial Unicode MS")
+    (set-frame-parameter nil 'font "DejaVu Sans Mono"))
+)
+
+(kb-set-font)
+
+
 
 ;; rc-color-theme.el ends here

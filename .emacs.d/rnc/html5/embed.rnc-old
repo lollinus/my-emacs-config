@@ -94,7 +94,6 @@ namespace local = ""
 			                    | title 
 			                    | dir 
 			                    | lang 
-			                    | translate 
 			                    | style 
 			                    | tabindex 
 			                    | contextmenu 
@@ -142,6 +141,7 @@ namespace local = ""
 			                    | onplaying
 			                    | onprogress
 			                    | onratechange
+			                    | onreadystatechange
 			                    | onreset
 			                    | onscroll
 			                    | onseeked

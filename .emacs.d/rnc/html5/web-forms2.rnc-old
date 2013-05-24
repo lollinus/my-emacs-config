@@ -224,7 +224,7 @@ datatypes w = "http://whattf.org/datatype-draft"
 			}	
 		input.datetime.attrs.value =
 			attribute value {
-				w:string "" | common.data.datetime
+				common.data.datetime
 			}
 		
 	input.elem |= input.datetime.elem
@@ -262,7 +262,7 @@ datatypes w = "http://whattf.org/datatype-draft"
 			}	
 		input.datetime-local.attrs.value =
 			attribute value {
-				w:string "" | form.data.datetime-local
+				form.data.datetime-local
 			}
 		
 	input.elem |= input.datetime-local.elem
@@ -300,7 +300,7 @@ datatypes w = "http://whattf.org/datatype-draft"
 			}	
 		input.date.attrs.value =
 			attribute value {
-				w:string "" | form.data.date
+				form.data.date
 			}
 		
 	input.elem |= input.date.elem
@@ -338,7 +338,7 @@ datatypes w = "http://whattf.org/datatype-draft"
 			}	
 		input.month.attrs.value =
 			attribute value {
-				w:string "" | form.data.month
+				form.data.month
 			}
 		
 	input.elem |= input.month.elem
@@ -376,7 +376,7 @@ datatypes w = "http://whattf.org/datatype-draft"
 			}	
 		input.time.attrs.value =
 			attribute value {
-				w:string "" | form.data.time
+				form.data.time
 			}
 		
 	input.elem |= input.time.elem
@@ -414,7 +414,7 @@ datatypes w = "http://whattf.org/datatype-draft"
 			}	
 		input.week.attrs.value =
 			attribute value {
-				w:string "" | form.data.week
+				form.data.week
 			}
 		
 	input.elem |= input.week.elem
@@ -453,7 +453,7 @@ datatypes w = "http://whattf.org/datatype-draft"
 			}	
 		input.number.attrs.value =
 			attribute value {
-				w:string "" | common.data.float
+				common.data.float
 			}
 		
 	input.elem |= input.number.elem
@@ -647,7 +647,7 @@ datatypes w = "http://whattf.org/datatype-draft"
 			}
 		input.color.attrs.value =
 			attribute value {
-				w:string "" | form.data.color
+				form.data.color
 			}
 		
 	input.elem |= input.color.elem

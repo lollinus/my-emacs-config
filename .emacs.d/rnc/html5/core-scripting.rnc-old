@@ -136,6 +136,7 @@ datatypes w = "http://whattf.org/datatype-draft"
 		&	scripting.attr.onplaying?
 		&	scripting.attr.onprogress?
 		&	scripting.attr.onratechange?
+		&	scripting.attr.onreadystatechange?
 		&	scripting.attr.onreset?
 		&	scripting.attr.onscroll?
 		&	scripting.attr.onseeked?
@@ -236,6 +237,8 @@ datatypes w = "http://whattf.org/datatype-draft"
 		attribute onprogress { common.data.functionbody }
 	scripting.attr.onratechange =
 		attribute onratechange { common.data.functionbody }
+	scripting.attr.onreadystatechange =
+		attribute onreadystatechange { common.data.functionbody }
 	scripting.attr.onreset =
 		attribute onreset { common.data.functionbody }
 	scripting.attr.onscroll =
