@@ -9,3 +9,17 @@ My emacs configuration files. -*- mode: org mode: auto-fill -*-
 
 * Files
 
+* Modes
+
+Additional modes which I use and can be installed from elpa.
+
+** yasnippet
+
+** undo-tree
+
+** markdown-mode
+
+** markdown-mode+
+
+** haskell-mode
+
