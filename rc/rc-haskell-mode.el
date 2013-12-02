@@ -10,7 +10,7 @@
 
 (setq haskell-program-name
       (if (eq system-type 'cygwin)
-          "/cygdrive/c/ghc/gch-6.8.1/bin/ghcii.sh"
+          "/cygdrive/c/ghc/ghc-6.8.1/bin/ghcii.sh"
         "c:\\Haskell\\2012.2.0.0\\bin\\ghci.exe"))
 
 ;;; rc-haskell-mode.el ends here

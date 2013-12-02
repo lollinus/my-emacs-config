@@ -2,16 +2,19 @@
 ;(add-to-list 'package-archives
 ;             (cons "melpa" "http://melpa.milkbox.net/packages/") t)
 
-(package-initialize)
+(require 'package)
 
-(add-to-list 'package-archives
-             '("melpa" . "http://melpa.milkbox.net/packages/"))
+;; (add-to-list 'package-archives
+;;              '("melpa" . "http://melpa.milkbox.net/packages/"))
 
 
 
 ;; Add the user-contributed repository
 (add-to-list 'package-archives
              '("melpa" . "http://melpa.milkbox.net/packages/"))
+
+(add-to-list 'package-archives
+             '("marmelade" . "http://marmelade-repo.org/packages/"))
 
 ;; (progn
 ;;   (switch-to-buffer

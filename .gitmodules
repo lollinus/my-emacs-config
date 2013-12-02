@@ -1,6 +1,3 @@
-[submodule "site-lisp/yasnippet"]
-	path = site-lisp/yasnippet
-	url = ssh://git@github.com/capitaomorte/yasnippet.git
 [submodule "site-lisp/markdown-mode-plus"]
 	path = site-lisp/markdown-mode-plus
 	url = ssh://git@github.com/milkypostman/markdown-mode-plus.git

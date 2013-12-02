@@ -27,6 +27,7 @@
       (add-to-list 'exec-path (concat (getappdata) "/GnuWin32/bin/"))
       (add-to-list 'exec-path (concat (getappdata) "/doxygen/bin/"))
       (add-to-list 'exec-path "C:/Program Files/Java/jdk1.7.0/bin")
+      (add-to-list 'exec-path "c:/Program Files/Racket/")
       )
   )
 

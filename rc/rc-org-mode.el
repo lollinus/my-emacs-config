@@ -1,4 +1,7 @@
 ;;; rc-org-mode.el
+(add-to-list 'load-path
+             (concat my-site-lisp-directory "org-mode/lisp"))
+
 (add-to-list 'auto-mode-alist '("\\.org$" . org-mode))
 
 (global-set-key (kbd "C-c l") 'org-store-link)
@@ -53,5 +56,19 @@
 ;;          (plantuml . t)
 ;;          (latex . t))))
 
+
+;;--------------------------------------------------------------------------------
+;; outline-mode
+;;--------------------------------------------------------------------------------
+;;(add-to-list 'auto-mode-alist
+;;  '("\\.list\\'" . outline-mode))
+
+; Do not prompt to confirm evaluation
+; This may be dangerous - make sure you understand the consequences
+; of setting this -- see the docstring for details
+;; (setq org-confirm-babel-evaluate nil)
+
+; Use fundamental mode when editing plantuml blocks with C-c '
+;; (add-to-list 'org-src-lang-modes (quote ("plantuml" . fundamental)))
 
 ;;; rc-org-mode.el end here ---

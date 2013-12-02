@@ -393,20 +393,6 @@ region\) apply comment-or-uncomment to the current line"
 (add-to-list 'auto-mode-alist
   '("\\.html\\'\\|\\.xml\\'\\|\\.phtml\\'" . xml-mode))
 
-;;--------------------------------------------------------------------------------
-;; outline-mode
-;;--------------------------------------------------------------------------------
-(add-to-list 'auto-mode-alist
-  '("\\.list\\'" . outline-mode))
-
-; Do not prompt to confirm evaluation
-; This may be dangerous - make sure you understand the consequences
-; of setting this -- see the docstring for details
-;; (setq org-confirm-babel-evaluate nil)
-
-; Use fundamental mode when editing plantuml blocks with C-c '
-;; (add-to-list 'org-src-lang-modes (quote ("plantuml" . fundamental)))
-
 ;; don't let Customize mess with my .emacs
 (setq custom-file "~/.emacs.d/custom.el")
 (load custom-file 'noerror)
