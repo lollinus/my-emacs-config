@@ -7,8 +7,6 @@
 ;; Requirements:
 ;; Status: not intended to be distributed yet
 
-(add-to-list 'load-path
-             (concat my-site-lisp-directory "yasnippet"))
 (require 'yasnippet)
 
 ;; (eval-after-load 'yasnippet
@@ -24,8 +22,8 @@
 ;;     ))
 ;; (add-hook 'after-save-hook 'alexott/update-yasnippets-on-save)
 
-(add-to-list 'yas/snippet-dirs "~/rc/snippets")
-(yas/global-mode 1)
+(add-to-list 'yas-snippet-dirs "~/rc/snippets")
+(yas-global-mode 1)
 
 ;;; rc-yasnippet.el ends here
 

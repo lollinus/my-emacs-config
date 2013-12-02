@@ -13,6 +13,3 @@
 [submodule "site-lisp/asciidoc-el"]
 	path = site-lisp/asciidoc-el
 	url = ssh://git@github.com/metaperl/asciidoc-el
-[submodule "site-lisp/haskell-mode"]
-	path = site-lisp/haskell-mode
-	url = ssh://git@github.com/haskell/haskell-mode

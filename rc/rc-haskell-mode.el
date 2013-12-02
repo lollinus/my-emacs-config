@@ -1,6 +1,6 @@
 ;;; rc-haskell-mode.el ---
 ;;(add-to-list 'load-path (concat my-site-lisp-directory "haskell-mode"))
-(load (concat my-site-lisp-directory "haskell-mode/haskell-site-file"))
+;; (load (concat my-site-lisp-directory "haskell-mode/haskell-site-file"))
 
 (add-hook 'haskell-mode-hook 'turn-on-haskell-doc-mode)
 ;; indentation modules are mutually exclusive. Only one of them can be used.
