@@ -4,3 +4,6 @@
 [submodule "site-lisp/asciidoc-el"]
 	path = site-lisp/asciidoc-el
 	url = ssh://git@github.com/metaperl/asciidoc-el
+[submodule "rc/snippets/latex-mode"]
+	path = rc/snippets/latex-mode
+	url = https://github.com/madsdk/yasnippets-latex.git
