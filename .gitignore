@@ -1,3 +1,6 @@
 *elc
 *~
 .yas-compiled-snippets.el
+/elpa
+/history
+/server

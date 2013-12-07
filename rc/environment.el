@@ -44,3 +44,29 @@
       (add-to-list 'exec-path "/opt/doxygen/linux/ix86/doxygen_1.5.8-rhel4/bin")
       )
   )
+
+
+;; The most important directories are the last!
+
+;; `local-site-lisp-directory' is there so that you have an easy way of
+;; installing your own (possibly not distro packaged) Emacs add-ons which
+;; are specific to the version of Emacs your running. This keeps your local
+;; add-ons apart from distro supplied ones. If your have a `/usr/local'
+;; partition, it also means you can do a complete re-install of Emacs (or
+;; even your Linux distro) without impacting on stuff you have added by
+;; hand.
+
+;; 3.
+(if running-ms-windows
+    (defvar my-site-lisp-directory (concat (getenv "HOME") "\\.emacs.d\\site-lisp\\")
+      "Name of directory where my personal additional Emacs Lisp files reside.")
+  (defvar my-site-lisp-directory "~/.emacs.d/site-lisp/"
+    "Name of directory where my personal additional Emacs Lisp files reside.")
+  )
+
+(add-to-list 'load-path my-site-lisp-directory)
+(if (string-equal "21" (substring emacs-version 0 2))
+    (add-to-list 'load-path
+                 (concat my-site-lisp-directory "cua")
+                 )
+  )
