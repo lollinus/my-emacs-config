@@ -4,17 +4,11 @@
 
 (require 'package)
 
-;; (add-to-list 'package-archives
-;;              '("melpa" . "http://melpa.milkbox.net/packages/"))
-
-
-
 ;; Add the user-contributed repository
-(add-to-list 'package-archives
-             '("melpa" . "http://melpa.milkbox.net/packages/"))
-
-(add-to-list 'package-archives
-             '("marmelade" . "http://marmelade-repo.org/packages/"))
+(setq package-archives
+      '(("gnu" . "http://elpa.gnu.org/packages")
+        ("melpa" . "http://melpa.milkbox.net/packages/")
+        ("marmalade" . "http://marmalade-repo.org/packages/")))
 
 ;; (progn
 ;;   (switch-to-buffer
