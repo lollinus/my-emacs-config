@@ -1,12 +1,10 @@
 ;; configure melpa package archive
-;(add-to-list 'package-archives
-;             (cons "melpa" "http://melpa.milkbox.net/packages/") t)
 
 (require 'package)
 
 ;; Add the user-contributed repository
 (setq package-archives
-      '(("gnu" . "http://elpa.gnu.org/packages")
+      '(("gnu" . "http://elpa.gnu.org/packages/")
         ("melpa" . "http://melpa.milkbox.net/packages/")
         ("marmalade" . "http://marmalade-repo.org/packages/")))
 

@@ -1,7 +1,5 @@
 ;;; rc-psvn.el ---
 ;; svn mode configuration
-(add-to-list 'load-path
-             (concat my-site-lisp-directory "psvn"))
 
 (require 'psvn)
 (setq svn-user-names-including-blanks '("Karol Barski"
