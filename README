@@ -13,13 +13,25 @@ My emacs configuration files. -*- mode: org mode: auto-fill -*-
 
 Additional modes which I use and can be installed from elpa.
 
-** yasnippet
-
 ** undo-tree
+
+** yasnippet
 
 ** markdown-mode
 
 ** markdown-mode+
 
 ** haskell-mode
+
+** psvn
+
+** auto-complete
+
+** auto-complete-c-headers
+
+** flymake-google-cpplint
+
+** flymake-cursor
+
+** iedit
 
