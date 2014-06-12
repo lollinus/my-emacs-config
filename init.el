@@ -19,6 +19,7 @@
 (load "~/.emacs.d/rc/rc-flymake.el")
 (load "~/.emacs.d/rc/rc-google-c-style.el")
 (load "~/.emacs.d/rc/rc-iedit.el")
+(load "~/.emacs.d/rc/rc-cedet.el")
 
 ;; Load ruby only when needed
 ;;(load "~/.emacs.d/rc/rc-ruby.el")

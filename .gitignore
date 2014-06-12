@@ -6,3 +6,6 @@
 /server
 /url/cookies
 ac-comphist.dat
+semanticdb
+ede-projects.el
+site-lisp/nxhtml/etc/schema/xhtml-loader.rnc

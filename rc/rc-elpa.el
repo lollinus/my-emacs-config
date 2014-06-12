@@ -1,3 +1,4 @@
+;;; rc-elpa.el ---
 ;; configure melpa package archive
 
 (require 'package)
@@ -8,16 +9,30 @@
         ("melpa" . "http://melpa.milkbox.net/packages/")
         ("marmalade" . "http://marmalade-repo.org/packages/")))
 
-;; (progn
-;;   (switch-to-buffer
-;;    (url-retrieve-synchronously
-;;     "https://raw.github.com/milkypostman/melpa/master/melpa.el"))
-;;   (package-install-from-buffer (package-buffer-info) 'single))
+(defun ensure-package-installed (&rest packages)
+  "Assure every pacxkage is installed, ask for installation if it's not.
 
-;;(defadvice package-compute-transaction
-;;  (before package-compute-transaction-reverse (package-list requirements) activate compile)
-;;  "reverse the requirements"
-;;  (setq requirements (reverse requirements))
-;;  (print (requirements)))
+Return a list of installed packages or nil ofr every skipped package."
+  (mapcar
+   (lambda (package)
+     ;;(package-installed-p 'evil)
+     (if (package-installed-p package)
+         nil
+       (package-install package)))
+;;       (if (y-or-n-p (format "Package %s is missing. Install it? " package))
+;;           (package-install package)
+;;         package)))
+   packages))
+
+;; make sure to have downloaded archive description.
+;; Or use package-archive-contents as suggested by Nicolas Dudebout
+(or (file-exists-p package-user-dir)
+    (package-refresh-contents))
+
+;;(ensure-package-installed 'iedit 'magit) ; --> (nil nil) if iedit and magit are already installed
+
+;; activate installed packages
+;; (package-initialize)
 
 (package-initialize)
+;;; rc-elpa.el ends here
