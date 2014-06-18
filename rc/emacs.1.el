@@ -22,7 +22,6 @@
 ;; highlight FIXME, TODO and XXX as warning in some major modes
 (GNUEmacs
     (dolist (mode '(c-mode
-                    java-mode
                     cperl-mode
                     html-mode-hook
                     css-mode-hook
@@ -140,29 +139,6 @@
 (require 'git-blame)
 
 ;;--------------------------------------------------------------------------------
-;; styl indentacji kodu
-;;--------------------------------------------------------------------------------
-(setq c-default-style
-      '((c++-mode . "stroustrup")
-        (c-mode . "stroustrup")
-        (other . "bsd")))
-
-;(setq c-set-style "ellmtel")
-
-;;--------------------------------------------------------------------------------
-;; użycie tabulatora
-;;--------------------------------------------------------------------------------
-(setq default-tab-width 4)
-(setq-default indent-tabs-mode nil)
-;; (require 'cc-mode)
-;; ;; personal preferences
-;; (c-set-offset 'substatement-open 0)
-;; (c-set-offset 'case-label '+)
-;; (c-set-offset 'arglist-cont-nonempty '+)
-;; (c-set-offset 'arglist-intro '+)
-;; (c-set-offset 'topmost-intro-cont '+)
-
-;;--------------------------------------------------------------------------------
 ;; automatyczny odczyt plików kompresowanych
 ;;--------------------------------------------------------------------------------
 (auto-compression-mode 1)
@@ -235,27 +211,13 @@
 ;; string-insert-rectangle is useful but not binded to any key by default
 (global-set-key (kbd "C-x r a") 'string-insert-rectangle)
 
-;;--------------------------------------------------------------------------------
-;; CUA mode
-;;--------------------------------------------------------------------------------
-(setq cua-enable-cua-keys nil)
-(setq cua-highlight-region-shift-only t) ;; no transient mark mode
-(setq cua-toggle-set-mark nil) ;; original set-mark behavior, i.e. no transient-mark-mode
-(if (string-equal "21" (substring emacs-version 0 2))
-   (progn
-     (require 'cua)
-     (CUA-mode 'emacs)
-     )
-  (cua-mode 'emacs)
-  )
-
 ;; Join lines as in Vim
-(defun my-join-line()
-  "Join current and next line, remove tralinig spaces leaving only one. Similar to Vim Ctrl-j"
-  (interactive)
-  (join-line 'forward-line)
-)
-(global-set-key (kbd "C-j") 'my-join-line)
+;; (defun my-join-line()
+;;   "Join current and next line, remove tralinig spaces leaving only one. Similar to Vim Ctrl-j"
+;;   (interactive)
+;;   (join-line 'forward-line)
+;; )  
+;; (global-set-key (kbd "C-j") 'my-join-line)
 
 ;;--------------------------------------------------------------------------------
 ;; zezwalaj na użycie poniższych komend

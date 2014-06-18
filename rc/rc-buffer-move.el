@@ -1,8 +1,6 @@
 ;;; rc-buffer-move.el ---
-(add-to-list 'load-path
-             (concat my-site-lisp-directory "buffer-move"))
 
-(require 'buffer-move)
+(ensure-package-installed 'buffer-move)
 
 (global-set-key (kbd "<C-S-up>") 'buf-move-up)
 (global-set-key (kbd "<C-S-down>") 'buf-move-down)

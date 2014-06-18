@@ -150,7 +150,6 @@
         c-mode-hook
         c++-mode-hook
         emacs-lisp-mode-hook
-        java-mode-hook
         shell-script-mode-hook))
 
 ;; ;; highlight tabs
@@ -305,7 +304,6 @@ spaces across the current buffer."
                 ("\\.bash$"                            . shell-script-mode)
                 ("\\.sql$"                             . sql-mode)
                 ("\\.expect$"                          . tcl-mode)
-                ("\\.js$"                              . java-mode)
                 ("\\.dcl$"                             . dtd-mode)
                 ("\\.dec$"                             . dtd-mode)
                 ("\\.dtd$"                             . dtd-mode)

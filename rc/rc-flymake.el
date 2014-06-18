@@ -1,3 +1,4 @@
+;;; rc-flymake.el ---
 
 (defun my:flymake-google-init ()
   (require 'flymake-google-cpplint)
@@ -8,3 +9,5 @@
 
 (add-hook 'c-mode-hook 'my:flymake-google-init)
 (add-hook 'c++-mode-hook 'my:flymake-google-init)
+
+;;; rc-flymake.el ends here

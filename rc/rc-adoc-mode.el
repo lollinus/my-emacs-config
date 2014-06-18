@@ -1,9 +1,10 @@
 ;;; rc-adoc-mode.el ---
 
-(add-to-list 'load-path (concat my-site-lisp-directory "adoc-mode"))
-(add-to-list 'load-path (concat my-site-lisp-directory "asciidoc-el"))
+(ensure-package-installed 'adoc-mode)
 
-(autoload 'adoc-mode "adoc-mode")
+;; (add-to-list 'load-path (concat my-site-lisp-directory "adoc-mode"))
+;; (add-to-list 'load-path (concat my-site-lisp-directory "asciidoc-el"))
+;; (autoload 'adoc-mode "adoc-mode")
 
 (setq auto-mode-alist
       (append '(
@@ -13,9 +14,9 @@
               )
       )
 
-(add-hook 'adoc-mode-hook
-          '(lambda ()
-             (turn-on-auto-fill)
-             (require 'asciidoc)))
+;; (add-hook 'adoc-mode-hook
+;;           '(lambda ()
+;;              (turn-on-auto-fill)
+;;              (require 'asciidoc)))
 
 ;;; rc-adoc-mode.el ends here
