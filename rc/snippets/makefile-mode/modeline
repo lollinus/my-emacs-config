@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# name : emacs and vim modeline
+# key : modeline
+# contributor : Karol Barski
+# --
+# -*- mode: makefile; tab-width: 8; c-basic-offset: 8; indent-tabs-mode: t; coding: iso-latin-1-unix; -*- vim: set ts=8 sts=8 sw=8 syntax=makefile noet:

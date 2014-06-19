@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# name : emacs and vim modeline
+# key : modeline
+# contributor : Karol Barski
+# --
+/* -*- mode: ${1:c++}; tab-width: ${2:4}; c-basic-offset: $2; indent-tabs-mode: ${3:nil}; coding: iso-latin-1-unix; -*- vim: set ts=$2 sts=$2 sw=$2 syntax=$1 ${4:et}: */

@@ -16,6 +16,6 @@
   (if (or (eq major-mode 'c-mode) (eq major-mode 'c++-mode))
       (doxymacs-font-lock)))
 (add-hook 'font-lock-mode-hook 'my-doxymacs-font-lock-hook)
-(setq doxymacs-doxygen-style "C++!")
+(setq doxymacs-doxygen-style "JavaDoc")
 
 ;;; rc-doxymacs.el ends here

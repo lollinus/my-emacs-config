@@ -22,8 +22,9 @@
 ;;     ))
 ;; (add-hook 'after-save-hook 'alexott/update-yasnippets-on-save)
 
-(add-to-list 'yas-snippet-dirs "~/rc/snippets")
-(yas-global-mode 1)
+(add-to-list 'yas-snippet-dirs "~/.emacs.d/rc/snippets")
+(yas/global-mode 1)
+(setq yas-prompt-functions (quote (yas-ido-prompt yas-completing-prompt yas-no-prompt)))
 
 ;;; rc-yasnippet.el ends here
 
