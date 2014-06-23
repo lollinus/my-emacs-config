@@ -1,5 +1,7 @@
 ;;; rc-irony-mode.el ---
 
+(ensure-package-installed 'irony)
+
 (add-hook 'c++-mode-hook 'irony-mode)
 (add-hook 'c-mode-hook 'irony-mode)
 (add-hook 'objc-mode-hook 'irony-mode)

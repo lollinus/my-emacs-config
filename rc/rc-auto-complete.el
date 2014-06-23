@@ -1,5 +1,7 @@
 ;;; rc-auto-complete.el ---
 
+(ensure-package-installed 'auto-complete)
+
 (require 'auto-complete)
 ; do default config for auto-complete
 (require 'auto-complete-config)
