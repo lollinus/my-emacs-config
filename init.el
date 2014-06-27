@@ -18,12 +18,14 @@
 (load "~/.emacs.d/rc/rc-folding.el")
 (load "~/.emacs.d/rc/rc-adoc-mode.el")
 (load "~/.emacs.d/rc/rc-doxymacs.el")
+(load "~/.emacs.d/rc/rc-makefile-mode.el")
 
 (load "~/.emacs.d/rc/rc-auto-complete.el")
 ;; (load "~/.emacs.d/rc/rc-flymake.el")
 ;; (load "~/.emacs.d/rc/rc-google-c-style.el")
 (load "~/.emacs.d/rc/rc-iedit.el")
 ;; (load "~/.emacs.d/rc/rc-cedet.el")
+(load "~/.emacs.d/rc/rc-c-mode.el")
 (load "~/.emacs.d/rc/rc-irony-mode.el")
 (load "~/.emacs.d/rc/rc-java-mode.el")
 

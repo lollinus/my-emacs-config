@@ -147,8 +147,6 @@
         (add-hook hook (lambda ()
                          (setq show-trailing-whitespace t))))
       '(text-mode-hook
-        c-mode-hook
-        c++-mode-hook
         emacs-lisp-mode-hook
         shell-script-mode-hook))
 
@@ -164,8 +162,6 @@
                             ("[^a-zA-Z_]\\(-?[0-9]+\\.[0-9]+\\)" 1 font-lock-constant-face) ; float
                             ("[^a-zA-Z_1-9]\\(-?[0-9]+L?\\)" 1 font-lock-constant-face)))) ; int
 (add-hook 'php-mode-hook 'font-lock-fontify-numbers)
-(add-hook 'c-mode-hook 'font-lock-fontify-numbers)
-(add-hook 'c++-mode-hook 'font-lock-fontify-numbers)
 (add-hook 'perl-mode-hook 'font-lock-fontify-numbers)
 (add-hook 'css-mode-hook 'font-lock-fontify-numbers)
 (add-hook 'emacs-lisp-mode-hook 'font-lock-fontify-numbers)
@@ -375,20 +371,6 @@ spaces across the current buffer."
 ;;   (interactive "bKill buffer ")
 ;;   (server-kill-buffer (get-buffer buffer))
 ;;   (not (buffer-name (get-buffer buffer))))
-
-;; If makefile doesn't exist compile with g++ -Wall -o <current file name> <current file name>
-(add-hook 'c++-mode-hook
-          (lambda ()
-            (unless (or (file-exists-p "makefile")
-                        (file-exists-p "Makefile"))
-              (set (make-local-variable 'compile-command)
-                   (let ((file (file-name-nondirectory buffer-file-name)))
-                     (format "%s -c -o %s.o %s %s %s"
-                             (or (getenv "CC") "g++")
-                             (file-name-sans-extension file)
-                             (or (getenv "CPPFLAGS") "-DDEBUG=9")
-                             (or (getenv "CFLAGS") "-ansi -pedantic -Wall -g")
-                             file))))))
 
 ;;--------------------------------------------------------------------------------
 ;; iswitchb-mode for interactive switch buffers
