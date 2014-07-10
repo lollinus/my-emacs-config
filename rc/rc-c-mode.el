@@ -21,8 +21,8 @@
 ;; (c-set-offset 'arglist-intro '+)
 ;; (c-set-offset 'topmost-intro-cont '+)
 
-(add-hook 'c-mode-hook '(setq show-trailing-whitespace t))
-(add-hook 'c++-mode-hook '(setq show-trailing-whitespace t))
+(add-hook 'c-mode-hook '(lambda () (setq show-trailing-whitespace t)))
+(add-hook 'c++-mode-hook '(lambda () (setq show-trailing-whitespace t)))
 (add-hook 'c-mode-hook 'font-lock-fontify-numbers)
 (add-hook 'c++-mode-hook 'font-lock-fontify-numbers)
 
@@ -68,6 +68,10 @@
 	  (lambda ()
 	    (setq fill-column 80)
 	    (column-marker-3 80)
-		(auto-fill-mode)))
+		(auto-fill-mode)
+		(setq tab-width 8)
+		(setq indent-tabs-mode t)
+		(setq c-basic-offset 8)
+		))
 
 ;;; rc-c-mode.el ends here

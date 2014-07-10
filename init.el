@@ -19,6 +19,7 @@
 (load "~/.emacs.d/rc/rc-adoc-mode.el")
 (load "~/.emacs.d/rc/rc-doxymacs.el")
 (load "~/.emacs.d/rc/rc-makefile-mode.el")
+(load "~/.emacs.d/rc/rc-diff.el")
 
 (load "~/.emacs.d/rc/rc-auto-complete.el")
 ;; (load "~/.emacs.d/rc/rc-flymake.el")
