@@ -27,6 +27,7 @@
 (load "~/.emacs.d/rc/rc-iedit.el")
 ;; (load "~/.emacs.d/rc/rc-cedet.el")
 (load "~/.emacs.d/rc/rc-c-mode.el")
+(load "~/.emacs.d/rc/rc-ecb.el")
 (load "~/.emacs.d/rc/rc-irony-mode.el")
 (load "~/.emacs.d/rc/rc-java-mode.el")
 
