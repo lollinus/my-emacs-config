@@ -75,17 +75,10 @@
 ;;; ----[ Library Search
 (add-to-list 'load-path
              (concat my-site-lisp-directory "doxymacs"))
-;(add-to-list 'load-path
-;        (concat my-site-lisp-directory "tempo"))
 (if (string-equal "21" (substring emacs-version 0 2))
     (add-to-list 'load-path
                  (concat my-site-lisp-directory "url"))
   )
-; turn off clearcase for emacs 24 because of config error
-; (if (not running-ms-windows)
-;   (add-to-list 'load-path
-;          (concat my-site-lisp-directory "clearcase"))
-;   )
 (add-to-list 'load-path
              (concat my-site-lisp-directory "chrome-edit"))
 

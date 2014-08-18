@@ -127,7 +127,6 @@
 ;;----------------------------------------------------------------------
 ;; clearcase mode
 ;;----------------------------------------------------------------------
-; turn off clearcase for emacs 24 because of config error
 ;; (if (not running-ms-windows)
 ;;     (require 'clearcase)
 ;;   )
