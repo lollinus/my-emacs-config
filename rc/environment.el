@@ -64,7 +64,6 @@
     "Name of directory where my personal additional Emacs Lisp files reside.")
   )
 
-(add-to-list 'load-path my-site-lisp-directory)
 (if (string-equal "21" (substring emacs-version 0 2))
     (add-to-list 'load-path
                  (concat my-site-lisp-directory "cua")
