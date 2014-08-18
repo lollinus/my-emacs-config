@@ -15,7 +15,6 @@
 (load "~/.emacs.d/rc/rc-color-theme.el")
 (load "~/.emacs.d/rc/rc-column-marker.el")
 (load "~/.emacs.d/rc/rc-undo-tree.el")
-(load "~/.emacs.d/rc/rc-folding.el")
 (load "~/.emacs.d/rc/rc-adoc-mode.el")
 (load "~/.emacs.d/rc/rc-doxymacs.el")
 (load "~/.emacs.d/rc/rc-makefile-mode.el")
