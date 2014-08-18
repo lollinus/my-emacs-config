@@ -345,14 +345,6 @@ spaces across the current buffer."
 ;;     (require 'mode-line)
 ;;     (mode-line-toggle-display nil))
 
-;;--------------------------------------------------------------------------------
-;; buffer switch
-;;--------------------------------------------------------------------------------
-(require 'bs)
-(global-set-key (kbd "C-x C-b") 'bs-show)
-(global-set-key (kbd "<f9>") 'bs-cycle-previous)
-(global-set-key (kbd "<f10>")  'bs-cycle-next)
-
 ;; fix buffer-killing for bs + gnuclient
 ;; (eval-after-load "gnuclient"
 ;;   '(fset 'kill-buffer 'my-server-kill-buffer))
@@ -367,11 +359,6 @@ spaces across the current buffer."
 ;; iswitchb-mode for interactive switch buffers
 ;;--------------------------------------------------------------------------------
 (iswitchb-mode 1)
-
-;;----------------------------------------------------------------------
-;; regexp higlight
-;;----------------------------------------------------------------------
-;; (require 'highlight-regexp)
 
 ;;--------------------------------------------------------------------------------
 ;; time stamp writing in edited files

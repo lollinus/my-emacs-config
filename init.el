@@ -30,6 +30,9 @@
 (load "~/.emacs.d/rc/rc-irony-mode.el")
 (load "~/.emacs.d/rc/rc-java-mode.el")
 
+(load "~/.emacs.d/rc/rc-graphviz.el")
+
+
 ;; Load ruby only when needed
 ;;(load "~/.emacs.d/rc/rc-ruby.el")
 (load "~/.emacs.d/rc/rc-python.el")

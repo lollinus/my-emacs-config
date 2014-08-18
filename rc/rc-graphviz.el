@@ -1,6 +1,9 @@
+;;; rc-graphviz.el ---
+
 ;;--------------------------------------------------------------------------------
 ;; Graphviz dot mode
 ;;--------------------------------------------------------------------------------
-;;(load "graphviz-dot-mode.el" nil t t)
-;;(add-to-list 'auto-mode-alist '("\\.gv$" . graphviz-dot-mode))
+(ensure-package-installed 'graphviz-dot-mode)
+(setq graphviz-dot-view-command "xdot %s")
 
+;;; rc-graphviz.el ends here
