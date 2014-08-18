@@ -35,7 +35,6 @@
 ;;(load "~/.emacs.d/rc/rc-ruby.el")
 (load "~/.emacs.d/rc/rc-python.el")
 (load "~/.emacs.d/rc/rc-magit.el")
-(load "~/.emacs.d/rc/rc-nxhtml.el")
 
 ;; (load "~/.emacs.d/rc/rc-org-mode.el")
 ;(load "~/.emacs.d/rc/rc-gnus.el")

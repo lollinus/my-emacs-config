@@ -332,7 +332,7 @@ spaces across the current buffer."
 
 ;; fancy streching cursor
 (setq x-stretch-cursor t)
-(global-hl-line-mode t)
+;;(global-hl-line-mode t)
 
 ;; show column number in mode-line
 (column-number-mode t)

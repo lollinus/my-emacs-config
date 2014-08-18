@@ -8,3 +8,5 @@
                                         "Zbigniew Zagorski")) ; username on severs containing blanks
 (add-hook 'svn-pre-parse-status-hook 'svn-status-parse-fixup-user-names-including-blanks)
 
+
+;;; rc-psvn.el ends here
