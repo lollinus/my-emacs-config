@@ -87,8 +87,6 @@
 ;          (concat my-site-lisp-directory "clearcase"))
 ;   )
 (add-to-list 'load-path
-             (concat my-site-lisp-directory "git"))
-(add-to-list 'load-path
              (concat my-site-lisp-directory "chrome-edit"))
 
 ;; don't add newlines to end of buffer when scrolling
