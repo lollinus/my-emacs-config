@@ -2,9 +2,13 @@
 ;;(add-to-list 'load-path (concat my-site-lisp-directory "haskell-mode"))
 ;; (load (concat my-site-lisp-directory "haskell-mode/haskell-site-file"))
 
+(ensure-package-installed 'haskell-mode)
+
 (add-hook 'haskell-mode-hook 'turn-on-haskell-doc-mode)
 ;; indentation modules are mutually exclusive. Only one of them can be used.
-(add-hook 'haskell-mode-hook 'turn-on-haskell-indentation)
+;; (add-hook 'haskell-mode-hook 'turn-on-haskell-indentation)
+(add-hook 'haskell-mode-hook '(lambda ()
+							   haskell-indentation-mode))
 ;;(add-hook 'haskell-mode-hook 'turn-on-haskell-indent)
 ;;(add-hook 'haskell-mode-hook 'turn-on-haskell-simple-indent)
 

@@ -6,6 +6,7 @@
 (load "~/.emacs.d/rc/emacs.1.el")
 
 ;; elpa configuration -- keep it always first because other configs can try to install packages
+(load "~/.emacs.d/rc/rc-w3m.el")
 (load "~/.emacs.d/rc/rc-elpa.el")
 
 ;; individual modes loading
@@ -16,6 +17,7 @@
 (load "~/.emacs.d/rc/rc-column-marker.el")
 (load "~/.emacs.d/rc/rc-undo-tree.el")
 (load "~/.emacs.d/rc/rc-adoc-mode.el")
+(load "~/.emacs.d/rc/rc-markdown.el")
 (load "~/.emacs.d/rc/rc-doxymacs.el")
 (load "~/.emacs.d/rc/rc-makefile-mode.el")
 (load "~/.emacs.d/rc/rc-diff.el")

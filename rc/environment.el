@@ -20,12 +20,16 @@
                (getappdata) "\\PortableGit\\bin\\" ";"
                (getappdata) "\\doxygen\\bin" ";"
                "C:\\Program Files\\Java\\jdk1.7.0\\bin" ";"
+			   "c:\\Program Files\\cygwin64\\bin" ";"
+			   "c:\\Program Files\\cygwin64\\usr\\bin" ";"
                (getenv "PATH")
                )
               )
       (add-to-list 'exec-path (concat (getappdata) "/PortableGit/bin/"))
       (add-to-list 'exec-path (concat (getappdata) "/GnuWin32/bin/"))
       (add-to-list 'exec-path (concat (getappdata) "/doxygen/bin/"))
+      (add-to-list 'exec-path "c:/Program Files/cygwin64/bin/")
+      (add-to-list 'exec-path "c:/Program Files/cygwin64/usr/bin/")
       (add-to-list 'exec-path "C:/Program Files/Java/jdk1.7.0/bin")
       (add-to-list 'exec-path "c:/Program Files/Racket/")
       )
