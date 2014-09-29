@@ -7,6 +7,8 @@
 ;; Requirements:
 ;; Status: not intended to be distributed yet
 
+(ensure-package-installed 'yasnippet)
+
 (require 'yasnippet)
 
 ;; (eval-after-load 'yasnippet

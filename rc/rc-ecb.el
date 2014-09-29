@@ -1,5 +1,7 @@
 ;;; rc-ecb.el ---
 
+(ensure-package-installed 'ecb)
+
 (require 'ecb-autoloads)
 (require 'ecb)
 
