@@ -1,6 +1,6 @@
 [submodule "rc/snippets/java-mode"]
 	path = rc/snippets/java-mode
-	url = ssh://git@github.com/nekop/yasnippet-java-mode
+	url = https://github.com/nekop/yasnippet-java-mode.git
 [submodule "rc/snippets/latex-mode"]
 	path = rc/snippets/latex-mode
 	url = https://github.com/madsdk/yasnippets-latex.git

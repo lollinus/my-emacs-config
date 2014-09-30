@@ -13,8 +13,10 @@
 ;;(add-hook 'haskell-mode-hook 'turn-on-haskell-simple-indent)
 
 (setq haskell-program-name
-      (if (eq system-type 'cygwin)
-          "/cygdrive/c/ghc/ghc-6.8.1/bin/ghcii.sh"
-        "c:\\Haskell\\2012.2.0.0\\bin\\ghci.exe"))
+	  (if running-ms-windows
+		  (if (eq system-type 'cygwin)
+			  "/cygdrive/c/ghc/ghc-6.8.1/bin/ghcii.sh"
+			"c:\\Haskell\\2012.2.0.0\\bin\\ghci.exe")
+		"ghci"))
 
 ;;; rc-haskell-mode.el ends here

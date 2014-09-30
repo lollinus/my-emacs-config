@@ -24,6 +24,8 @@
 ;; autocomplete using irony  ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;;(ensure-package-installed 'ac-irony)
+
 (add-to-list 'load-path (concat my-site-lisp-directory "ac-irony"))
 (require 'ac-irony)
 
