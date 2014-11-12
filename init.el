@@ -46,7 +46,7 @@
 
 (load "~/.emacs.d/rc/rc-alpha.el")
 
-;(load "~/.emacs.d/rc/rc-haskell-mode.el")
+(load "~/.emacs.d/rc/rc-haskell-mode.el")
 (load "~/.emacs.d/rc/rc-auctex.el")
 
 (load "~/.emacs.d/rc/rc-psvn.el")
