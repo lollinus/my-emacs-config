@@ -356,11 +356,6 @@ spaces across the current buffer."
 ;;   (not (buffer-name (get-buffer buffer))))
 
 ;;--------------------------------------------------------------------------------
-;; iswitchb-mode for interactive switch buffers
-;;--------------------------------------------------------------------------------
-(iswitchb-mode 1)
-
-;;--------------------------------------------------------------------------------
 ;; time stamp writing in edited files
 ;; add Time-stamp: <> or Time-stamp: "" so emacs can write timestamp there
 ;;--------------------------------------------------------------------------------

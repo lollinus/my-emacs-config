@@ -6,8 +6,9 @@
 ;; Add the user-contributed repository
 (setq package-archives
       '(("gnu" . "http://elpa.gnu.org/packages/")
-        ("melpa" . "http://melpa.milkbox.net/packages/")
-        ("marmalade" . "http://marmalade-repo.org/packages/")))
+        ("melpa" . "http://melpa.org/packages/")
+        ("marmalade" . "https://marmalade-repo.org/packages/")
+		))
 
 (defun ensure-package-installed (&rest packages)
   "Assure every pacxkage is installed, ask for installation if it's not.

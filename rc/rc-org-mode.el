@@ -7,7 +7,8 @@
 (global-set-key (kbd "C-c l") 'org-store-link)
 (global-set-key (kbd "C-c c") 'org-capture)
 (global-set-key (kbd "C-c a") 'org-agenda)
-(global-set-key (kbd "C-c b") 'org-iswitchb)
+;; iswitchb is obsolete
+;;(global-set-key (kbd "C-c b") 'org-iswitchb)
 
 (setq org-ditaa-jar-path "~/java/ditaa0_9.jar")
 (setq org-plantuml-jar-path "~/java/plantuml.jar")
