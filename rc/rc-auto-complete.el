@@ -8,6 +8,7 @@
 (ac-config-default)
 
 ; let's define a function which initializes auto-complete-c-headers and gets called for C/C++ hooks
+(ensure-package-installed 'ac-c-headers)
 (defun my:ac-c-header-init ()
   (require 'ac-c-headers)
   (add-to-list 'ac-sources 'ac-source-c-headers)

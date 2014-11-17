@@ -11,7 +11,7 @@
   (progn
 	(ensure-package-installed 'ecb)
 
-	(require 'ecb-autoloads)
+	;;(require 'ecb-autoloads)
 	(require 'ecb)
 	)
   )

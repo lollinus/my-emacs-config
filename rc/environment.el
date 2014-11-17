@@ -73,3 +73,5 @@
                  (concat my-site-lisp-directory "cua")
                  )
   )
+
+(setq w32-pipe-read-delay '-1)
