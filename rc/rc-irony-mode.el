@@ -27,7 +27,7 @@
 ;;(ensure-package-installed 'ac-irony)
 
 (add-to-list 'load-path (concat my-site-lisp-directory "ac-irony"))
-(require 'ac-irony)
+;(require 'ac-irony)
 
 (defun my-ac-irony-setup ()
   (add-to-list 'ac-sources 'ac-source-irony)

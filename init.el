@@ -42,6 +42,7 @@
 (load "~/.emacs.d/rc/rc-git.el")
 
 ;; (load "~/.emacs.d/rc/rc-org-mode.el")
+(load "~/.emacs.d/rc/rc-org-addons.el")
 ;(load "~/.emacs.d/rc/rc-gnus.el")
 
 (load "~/.emacs.d/rc/rc-alpha.el")

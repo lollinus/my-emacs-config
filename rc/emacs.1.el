@@ -337,10 +337,3 @@ region\) apply comment-or-uncomment to the current line"
 (setq custom-file "~/.emacs.d/custom.el")
 (load custom-file 'noerror)
 
-;;--------------------------------------------------------------------------------
-;; JavaScript mode
-;;--------------------------------------------------------------------------------
-(autoload 'js-mode "JavaScript" "Start js-mode" t)
-(add-to-list 'auto-mode-alist '("\\.js$" . js-mode))
-(add-to-list 'auto-mode-alist '("\\.json$" . js-mode))
-

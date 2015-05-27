@@ -20,7 +20,7 @@ Theme is chosen depending if current window is displayed on TTY or graphical win
 Theme is chosen depending if current window is displayed on TTY or graphical window."
       (interactive "*")
       (if window-system
-          (load-theme 'tango-dark)
+          (load-theme 'misterioso)
         (load-theme 'wombat))
       )
     )
