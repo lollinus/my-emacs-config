@@ -398,7 +398,10 @@ spaces across the current buffer."
 ;;--------------------------------------------------------------------------------
 ;; Add missing support functions
 ;;--------------------------------------------------------------------------------
-(if (not (string-equal "24" (substring emacs-version 0 2)))
+(if (not (or
+		  (string-equal "24" (substring emacs-version 0 2))
+		  (string-equal "25" (substring emacs-version 0 2))
+		  ))
     (progn
       (defun utf-16-le-pre-write-conversion (start end) nil)
       (defun utf-16-le-pre-write-conversion (beg end)
@@ -410,5 +413,5 @@ spaces across the current buffer."
         nil)
       (defun utf-16-be-pre-write-conversion (start end) nil)
       )
-  "Emacs 24 should have these functions defined"
+  "Emacs >= 24 should have these functions defined"
   )

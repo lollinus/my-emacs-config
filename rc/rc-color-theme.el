@@ -1,5 +1,8 @@
 ;;; rc-color-theme.el ---
-(if (not (string-equal "24" (substring emacs-version 0 2)))
+(if (not (or
+		  (string-equal "24" (substring emacs-version 0 2))
+		  (string-equal "25" (substring emacs-version 0 2))
+		  ))
     (progn
       (add-to-list 'load-path
                    (concat my-site-lisp-directory "color-theme-library"))
