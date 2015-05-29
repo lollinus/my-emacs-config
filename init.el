@@ -5,6 +5,8 @@
 (load "~/.emacs.d/rc/emacs.0.el")
 (load "~/.emacs.d/rc/emacs.1.el")
 
+(load "~/.emacs.d/rc/rc-whitespace.el")
+
 ;; elpa configuration -- keep it always first because other configs can try to install packages
 (load "~/.emacs.d/rc/rc-w3m.el")
 (load "~/.emacs.d/rc/rc-elpa.el")
@@ -31,6 +33,8 @@
 (load "~/.emacs.d/rc/rc-ecb.el")
 (load "~/.emacs.d/rc/rc-irony-mode.el")
 (load "~/.emacs.d/rc/rc-java-mode.el")
+(load "~/.emacs.d/rc/rc-js-mode.el")
+(load "~/.emacs.d/rc/rc-web-mode.el")
 
 (load "~/.emacs.d/rc/rc-graphviz.el")
 
