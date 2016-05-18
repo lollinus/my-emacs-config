@@ -23,6 +23,7 @@
 (load "~/.emacs.d/rc/rc-doxymacs.el")
 (load "~/.emacs.d/rc/rc-makefile-mode.el")
 (load "~/.emacs.d/rc/rc-diff.el")
+(load "~/.emacs.d/rc/rc-cmake-mode.el")
 
 (load "~/.emacs.d/rc/rc-auto-complete.el")
 ;; (load "~/.emacs.d/rc/rc-flymake.el")
@@ -37,7 +38,6 @@
 (load "~/.emacs.d/rc/rc-web-mode.el")
 
 (load "~/.emacs.d/rc/rc-graphviz.el")
-
 
 ;; Load ruby only when needed
 ;;(load "~/.emacs.d/rc/rc-ruby.el")
