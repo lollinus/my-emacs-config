@@ -1,6 +1,7 @@
 ;; -*- mode: lisp; coding: utf-8-unix -*-
 ;; Load all configuration parts
 
+
 (load "~/.emacs.d/rc/environment.el")
 (load "~/.emacs.d/rc/emacs.0.el")
 (load "~/.emacs.d/rc/emacs.1.el")
@@ -35,7 +36,7 @@
 (load "~/.emacs.d/rc/rc-irony-mode.el")
 (load "~/.emacs.d/rc/rc-java-mode.el")
 (load "~/.emacs.d/rc/rc-js-mode.el")
-(load "~/.emacs.d/rc/rc-web-mode.el")
+;; (load "~/.emacs.d/rc/rc-web-mode.el")
 
 (load "~/.emacs.d/rc/rc-graphviz.el")
 
@@ -51,7 +52,7 @@
 
 (load "~/.emacs.d/rc/rc-alpha.el")
 
-(load "~/.emacs.d/rc/rc-haskell-mode.el")
+;; (load "~/.emacs.d/rc/rc-haskell-mode.el")
 (load "~/.emacs.d/rc/rc-auctex.el")
 
 (load "~/.emacs.d/rc/rc-psvn.el")

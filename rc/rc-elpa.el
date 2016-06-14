@@ -30,7 +30,7 @@
 (setq package-archives
       '(("gnu" . "http://elpa.gnu.org/packages/")
         ("melpa" . "http://melpa.org/packages/")
-        ("marmalade" . "https://marmalade-repo.org/packages/")
+;;        ("marmalade" . "https://marmalade-repo.org/packages/")
 		))
 
 (defun ensure-package-installed (&rest packages)

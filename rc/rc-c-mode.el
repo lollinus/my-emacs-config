@@ -1,48 +1,8 @@
 ;;; rc-c-mode.el ---
 ;;-------------------------------------------------------------------------------
-;; styl indentacji kodu
+;; indentation styles
 ;;-------------------------------------------------------------------------------
-(setq c-default-style
-      '((c++-mode . "stroustrup")
-        (c-mode . "linux")
-        (other . "bsd")))
-
-;;-------------------------------------------------------------------------------
-;; użycie tabulatora
-;;-------------------------------------------------------------------------------
-(setq default-tab-width 4)
-(setq indent-tabs-mode nil)
-(setq c-basic-offset 4)
-;; (require 'cc-mode)
-;; ;; personal preferences
-;; (c-set-offset 'substatement-open 0)
-;; (c-set-offset 'case-label '+)
-;; (c-set-offset 'arglist-cont-nonempty '+)
-;; (c-set-offset 'arglist-intro '+)
-;; (c-set-offset 'topmost-intro-cont '+)
-
-(add-hook 'c-mode-hook '(lambda () (setq show-trailing-whitespace t)))
-(add-hook 'c++-mode-hook '(lambda () (setq show-trailing-whitespace t)))
-(add-hook 'c-mode-hook 'font-lock-fontify-numbers)
-(add-hook 'c++-mode-hook 'font-lock-fontify-numbers)
-
-;; If makefile doesn't exist compile with g++ -Wall -o <current file name> <current file name>
-(add-hook 'c++-mode-hook
-          (lambda ()
-            (unless (or (file-exists-p "makefile")
-                        (file-exists-p "Makefile"))
-              (set (make-local-variable 'compile-command)
-                   (let ((file (file-name-nondirectory buffer-file-name)))
-                     (format "%s -c -o %s.o %s %s %s"
-                             (or (getenv "CC") "g++")
-                             (file-name-sans-extension file)
-                             (or (getenv "CPPFLAGS") "-DDEBUG=9")
-                             (or (getenv "CFLAGS") "-ansi -pedantic -Wall -g")
-                             file))))))
-
-;;-------------------------------------------------------------------------------
-;; Linux Kernel code indentation style
-;;-------------------------------------------------------------------------------
+;;   Linux Kernel code
 (defun c-lineup-arglist-tabs-only (ignored)
   "Line up argument lists by tabs, not spaces"
   (let* ((anchor (c-langelem-pos c-syntactic-element))
@@ -60,18 +20,66 @@
              c-lineup-gcc-asm-reg
              c-lineup-arglist-tabs-only))))
 
-(custom-set-variables
- '(c-default-style "linux-tabs-only")
-)
+;; My favorite C++ style
+(c-add-style "my-bsd-style"
+	     '("bsd"
+	       (c-basic-offset . 4)
+	       (tab-width . 4)
+	       (indent-tabs-mode . nil)
+	       (c-offsets-alist
+		(inline-open . 0)
+		(innamespace . 0)
+		)))
+
+;;-------------------------------------------------------------------------------
+;; styl indentacji kodu
+;;-------------------------------------------------------------------------------
+(setq c-default-style
+      '((c++-mode . "my-bsd-style")
+	(c-mode . "linux")
+	(other . "bsd")))
+
+;;(define-key c-mode-base-map (kbd "RET") 'newline-and-indent)
+
+(add-hook 'c-mode-common-hook
+	  (lambda ()
+	     (c-toggle-hungry-state 0)
+	     (setq show-trailing-whitespace t)
+	     )
+	  )
+(add-hook 'c-mode-common-hook 'font-lock-fontify-numbers)
+
+;; If makefile doesn't exist compile with g++ -Wall -o <current file name> <current file name>
+(add-hook 'c++-mode-hook
+          (lambda ()
+            (unless (or (file-exists-p "makefile")
+                        (file-exists-p "Makefile"))
+              (set (make-local-variable 'compile-command)
+                   (let ((file (file-name-nondirectory buffer-file-name)))
+                     (format "%s -c -o %s.o %s %s %s"
+                             (or (getenv "CC") "g++")
+                             (file-name-sans-extension file)
+                             (or (getenv "CPPFLAGS") "-DDEBUG=9")
+                             (or (getenv "CFLAGS") "-ansi -pedantic -Wall -g")
+                             file))))))
 
 (add-hook 'c-mode-hook
 	  (lambda ()
 	    (setq fill-column 80)
 	    (column-marker-3 80)
-		(auto-fill-mode)
-		(setq tab-width 8)
-		(setq indent-tabs-mode t)
-		(setq c-basic-offset 8)
-		))
+	    (auto-fill-mode)
+	    (setq tab-width 8)
+	    (setq indent-tabs-mode t)
+	    ))
+
+(add-hook 'c++-mode-hook
+	  (lambda ()
+	    (setq fill-column 80)
+	    (column-marker-3 80)
+	    (auto-fill-mode)
+	    (setq tab-width 4)
+	    (setq indent-tabs-mode nil)
+	    font-lock-fontify-numbers
+	    ))
 
 ;;; rc-c-mode.el ends here
