@@ -25,7 +25,7 @@
 (load "~/.emacs.d/rc/rc-cmake-mode.el")
 
 (load "~/.emacs.d/rc/rc-auto-complete.el")
-;; (load "~/.emacs.d/rc/rc-flymake.el")
+(load "~/.emacs.d/rc/rc-flymake.el")
 ;; (load "~/.emacs.d/rc/rc-google-c-style.el")
 (load "~/.emacs.d/rc/rc-iedit.el")
 ;; (load "~/.emacs.d/rc/rc-cedet.el")
