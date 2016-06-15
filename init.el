@@ -1,7 +1,5 @@
 ;; -*- mode: lisp; coding: utf-8-unix -*-
 ;; Load all configuration parts
-
-
 (load "~/.emacs.d/rc/environment.el")
 (load "~/.emacs.d/rc/emacs.0.el")
 (load "~/.emacs.d/rc/emacs.1.el")
@@ -31,7 +29,7 @@
 ;; (load "~/.emacs.d/rc/rc-google-c-style.el")
 (load "~/.emacs.d/rc/rc-iedit.el")
 ;; (load "~/.emacs.d/rc/rc-cedet.el")
-(load "~/.emacs.d/rc/rc-c-mode.el")
+(load "~/.emacs.d/rc/rc-cc-mode.el")
 (load "~/.emacs.d/rc/rc-ecb.el")
 (load "~/.emacs.d/rc/rc-irony-mode.el")
 (load "~/.emacs.d/rc/rc-java-mode.el")
