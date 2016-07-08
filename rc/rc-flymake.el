@@ -1,5 +1,7 @@
 ;;; rc-flymake.el ---
 
+(ensure-package-installed 'flymake-google-cpplint)
+
 (defun my:flymake-google-init ()
   (require 'flymake-google-cpplint)
   (custom-set-variables

@@ -399,9 +399,9 @@ spaces across the current buffer."
 ;; Add missing support functions
 ;;--------------------------------------------------------------------------------
 (if (not (or
-		  (string-equal "24" (substring emacs-version 0 2))
-		  (string-equal "25" (substring emacs-version 0 2))
-		  ))
+          (string-equal "24" (substring emacs-version 0 2))
+          (string-equal "25" (substring emacs-version 0 2))
+          ))
     (progn
       (defun utf-16-le-pre-write-conversion (start end) nil)
       (defun utf-16-le-pre-write-conversion (beg end)

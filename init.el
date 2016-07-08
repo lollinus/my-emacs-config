@@ -1,5 +1,12 @@
 ;; -*- mode: lisp; coding: utf-8-unix -*-
 ;; Load all configuration parts
+
+;; Added by Package.el.  This must come before configurations of
+;; installed packages.  Don't delete this line.  If you don't want it,
+;; just comment it out by adding a semicolon to the start of the line.
+;; You may delete these explanatory comments.
+(package-initialize)
+
 (load "~/.emacs.d/rc/environment.el")
 (load "~/.emacs.d/rc/emacs.0.el")
 (load "~/.emacs.d/rc/emacs.1.el")
@@ -48,7 +55,7 @@
 (load "~/.emacs.d/rc/rc-org-addons.el")
 ;(load "~/.emacs.d/rc/rc-gnus.el")
 
-(load "~/.emacs.d/rc/rc-alpha.el")
+;; (load "~/.emacs.d/rc/rc-alpha.el")
 
 ;; (load "~/.emacs.d/rc/rc-haskell-mode.el")
 (load "~/.emacs.d/rc/rc-auctex.el")
