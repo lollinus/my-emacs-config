@@ -60,4 +60,4 @@
 ;; (load "~/.emacs.d/rc/rc-haskell-mode.el")
 (load "~/.emacs.d/rc/rc-auctex.el")
 
-(load "~/.emacs.d/rc/rc-psvn.el")
+;; (load "~/.emacs.d/rc/rc-psvn.el")
