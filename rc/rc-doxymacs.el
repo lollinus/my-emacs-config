@@ -3,6 +3,9 @@
 
 ;;(require 'doxygen)
 ;;(setq doxymacs-doxygen-dirs "d:/Karol/Programy/doxygen/bin")
+
+(add-to-list 'load-path
+             (concat my-site-lisp-directory "doxymacs"))
 (require 'doxymacs)
 (setq doxymacs-use-external-xml-parser t)
 (if running-ms-windows
@@ -17,5 +20,7 @@
       (doxymacs-font-lock)))
 (add-hook 'font-lock-mode-hook 'my-doxymacs-font-lock-hook)
 (setq doxymacs-doxygen-style "JavaDoc")
+
+(provide 'rc-doxymacs)
 
 ;;; rc-doxymacs.el ends here

@@ -68,10 +68,19 @@
     "Name of directory where my personal additional Emacs Lisp files reside.")
   )
 
+(if running-ms-windows
+    (defvar rc-directory (concat (getenv "HOME") "\\.emacs.d\\rc\\")
+      "Name of directory where my personal additional Emacs Lisp files reside.")
+  (defvar rc-directory "~/.emacs.d/rc/"
+    "Name of directory where my personal additional Emacs Lisp files reside.")
+  )
+
 (if (string-equal "21" (substring emacs-version 0 2))
     (add-to-list 'load-path
                  (concat my-site-lisp-directory "cua")
                  )
   )
+
+(add-to-list 'load-path rc-directory)
 
 (setq w32-pipe-read-delay '-1)

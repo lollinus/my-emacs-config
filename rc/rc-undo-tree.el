@@ -4,3 +4,7 @@
 
 (require 'undo-tree)
 (global-undo-tree-mode)
+
+(provide 'rc-undo-tree)
+
+;;; rc-undo-tree.el ends here

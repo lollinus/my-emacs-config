@@ -47,6 +47,6 @@ On U*x systems Use DejaVu Sans Mono
 
 (kb-set-font)
 
-
+(provide 'rc-color-theme)
 
 ;; rc-color-theme.el ends here

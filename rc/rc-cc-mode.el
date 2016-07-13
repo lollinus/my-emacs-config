@@ -39,8 +39,6 @@
 	(c-mode . "linux")
 	(other . "bsd")))
 
-;;(define-key c-mode-base-map (kbd "RET") 'newline-and-indent)
-
 (add-hook 'c-mode-common-hook
 	  (lambda ()
 	     (c-toggle-hungry-state 0)
@@ -81,5 +79,7 @@
 	    (setq indent-tabs-mode nil)
 	    font-lock-fontify-numbers
 	    ))
+
+(provide 'rc-cc-mode)
 
 ;;; rc-c-mode.el ends here

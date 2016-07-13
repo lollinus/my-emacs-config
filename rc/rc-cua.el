@@ -11,4 +11,6 @@
   (cua-mode 'emacs)
   )
 
+(provide 'rc-cua)
+
 ;;; rc-cua.el ends here

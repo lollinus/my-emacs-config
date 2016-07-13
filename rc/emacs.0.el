@@ -1,8 +1,4 @@
 ;; -*- mode: lisp; coding: utf-8-unix -*-
-;;
-(setq user-full-name "Karol Barski")
-(setq user-mail-address "karol.barski@tieto.com")
-
 
 ;; Emacs type -- are we running XEmacs (or GNU Emacs)?
 (defvar running-xemacs (string-match "XEmacs\\|Lucid" emacs-version))
@@ -157,8 +153,6 @@
 (add-hook 'css-mode-hook 'font-lock-fontify-numbers)
 (add-hook 'emacs-lisp-mode-hook 'font-lock-fontify-numbers)
 (add-hook 'js2-mode-hook 'font-lock-fontify-numbers)
-
-(setq inhibit-splash-screen t)
 
 ;; delete all the trailing whitespaces and tabs across the current buffer
 (defun my-delete-trailing-whitespaces-and-untabify ()

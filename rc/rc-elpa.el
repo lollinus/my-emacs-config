@@ -56,7 +56,6 @@ Return a list of installed packages or nil ofr every skipped package."
 ;;(ensure-package-installed 'iedit 'magit) ; --> (nil nil) if iedit and magit are already installed
 
 ;; activate installed packages
-;; (package-initialize)
 
 (package-initialize)
 ;;; rc-elpa.el ends here

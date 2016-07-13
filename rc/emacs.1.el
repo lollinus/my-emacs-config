@@ -221,31 +221,6 @@
 
 ;; autocompletion
 (global-set-key (kbd "ESC ESC") 'dabbrev-expand) ; ESC ESC ESC not usable :-/
-;(setq skeleton-pair t)
-;(global-set-key (kbd "(") 'skeleton-pair-insert-maybe)
-;(global-set-key (kbd "{") 'skeleton-pair-insert-maybe)
-;(global-set-key (kbd "[") 'skeleton-pair-insert-maybe)
-;;(global-set-key (kbd "\"") 'skeleton-pair-insert-maybe)
-;;(global-set-key (kbd "'") 'skeleton-pair-insert-maybe)
-
-;; ;; textmate-next-line from textmate.el - github.com/defunkt/textmate.el
-;; (defun textmate-next-line ()
-;;   "Go to next line and indent wherever you are in a line"
-;;   (interactive)
-;;   (end-of-line)
-;;   (newline-and-indent))
-
-;; (global-set-key [C-return] 'textmate-next-line)
-
-;; ;; textmate-semicolon-and-next-line
-;; (defun textmate-semicolon-and-next-line ()
-;;   "Put a semicolon at the end of the line where you are then
-;; go to next line and indent wherever you are in a line"
-;;   (interactive)
-;;   (end-of-line)
-;;   (insert ";")
-;;   (newline-and-indent))
-;; (global-set-key [M-return] 'textmate-semicolon-and-next-line)
 
 ;; comment-or-uncomment-region-or-line
 ; it's almost the same as in textmate.el but I wrote it before I know about
