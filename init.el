@@ -3,6 +3,10 @@
 
 (package-initialize)
 
+;; don't let Customize mess with my .emacs
+(setq custom-file "~/.emacs.d/custom.el")
+(load custom-file 'noerror)
+
 ;;
 (setq user-full-name "Karol Barski")
 (setq user-mail-address "karol.barski@tieto.com")
@@ -27,8 +31,78 @@
       )
 
 (load "~/.emacs.d/rc/environment.el")
+;;--------------------------------------------------------------------------------
 ;;(load "~/.emacs.d/rc/emacs.0.el")
+;;--------------------------------------------------------------------------------
+
+(message "The Minibuffer...")
+
+;; ignore case when reading a file name completion
+(setq read-file-name-completion-ignore-case t)
+
+;; dim the ignored part of the file name
+(file-name-shadow-mode 1)
+
+;; minibuffer window expands vertically as necessary to hold the text that
+;; you put in the minibuffer
+(setq resize-mini-windows t)
+
+;; do not consider case significant in completion (GNU Emacs default)
+(setq completion-ignore-case t)
+
+;;--------------------------------------------------------------------------------
+;; zezwalaj na użycie poniższych komend
+;;--------------------------------------------------------------------------------
+(put 'narrow-to-page 'disabled nil)
+(put 'narrow-to-region 'disabled nil)
+(put 'upcase-region 'disabled nil)
+(put 'downcase-region 'disabled nil)
+(put 'set-goal-column 'disabled nil)
+
+;;--------------------------------------------------------------------------------
 ;;(load "~/.emacs.d/rc/emacs.1.el")
+;;--------------------------------------------------------------------------------
+;; turn menus off
+(unless window-system
+  (menu-bar-mode 0))
+
+;;--------------------------------------------------------------------------------
+;; zegarek
+;;--------------------------------------------------------------------------------
+(setq display-time-format "%H:%M %d/%m/%Y")
+(setq display-time-24hr-format t)
+(display-time)
+
+;;--------------------------------------------------------------------------------
+;; kolorowanie składni
+;;--------------------------------------------------------------------------------
+(when (fboundp 'global-font-lock-mode)
+  (global-font-lock-mode t))
+;; Set lazy-lock mode (fontifies only when not typing) with .3 sec refresh
+;; time and no minimum buffer size
+;; Lazy lock gives problems with Java files in RHEL4
+;(setq font-lock-support-mode 'lazy-lock-mode)
+(setq lazy-lock-continuity-time 0.3)
+(setq lazy-lock-minimum-size (* 1024 10))       ; Fontify small buffers
+(setq font-lock-maximum-size nil)       ; Fontify huge buffers
+(setq font-lock-maximum-decoration t)
+;; highlight non-breaking spaces
+;; (GNUEmacs
+;;     (require 'disp-table)
+;;     (aset standard-display-table
+;;           (make-char 'latin-iso8859-1 (- ?\240 128))
+;;           (vector (+ ?\267 (* 524288 (face-id 'nobreak-space))))))
+
+;; highlight FIXME, TODO and XXX as warning in some major modes
+(dolist (mode '(c-mode
+		cperl-mode
+		html-mode-hook
+		css-mode-hook
+		emacs-lisp-mode))
+  (font-lock-add-keywords mode
+			  '(("\\(XXX\\|FIXME\\|TODO\\)"
+			     1 font-lock-warning-face prepend))))
+
 
 ;; elpa configuration -- keep it always first because other configs can try to install packages
 ;;(load "~/.emacs.d/rc/rc-w3m.el")
@@ -43,7 +117,7 @@
 (require 'rc-anzu)
 
 (require 'rc-color-theme)
-;;(load "~/.emacs.d/rc/rc-column-marker.el")
+(require 'rc-column-marker)
 (require 'rc-undo-tree)
 ;;(load "~/.emacs.d/rc/rc-adoc-mode.el")
 ;;(load "~/.emacs.d/rc/rc-markdown.el")
@@ -51,7 +125,7 @@
 ;;(load "~/.emacs.d/rc/rc-makefile-mode.el")
 ;;(load "~/.emacs.d/rc/rc-cmake-mode.el")
 
-;;(load "~/.emacs.d/rc/rc-auto-complete.el")
+(require 'rc-auto-complete)
 ;;(load "~/.emacs.d/rc/rc-flymake.el")
 ;; (load "~/.emacs.d/rc/rc-google-c-style.el")
 (require 'rc-iedit)
@@ -64,7 +138,11 @@
 (require 'rc-dtrt-indent)
 (require 'rc-ws-butler)
 
-(require 'rc-global)
+;; this variables must be set before load helm-gtags
+;; you can change to any prefix key of your choice
+(setq helm-gtags-prefix-key "\C-cg")
+
+(require 'rc-ggtags)
 (require 'rc-helm)
 (require 'rc-helm-gtags)
 
@@ -104,17 +182,3 @@
 ;;(load "~/.emacs.d/rc/rc-psvn.el")
 
 (message "Init finished")
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(package-selected-packages
-   (quote
-    (company-c-headers zygospore ws-butler volatile-highlights undo-tree smartparens python-mode psvn markdown-mode magit irony iedit helm-systemd helm-swoop helm-projectile helm-gtags helm-gitignore helm-git-grep helm-git-files helm-git helm-c-yasnippet helm-c-moccur graphviz-dot-mode google-c-style git-blame git ggtags flymake-google-cpplint ecb duplicate-thing dtrt-indent company column-marker cmake-font-lock clean-aindent-mode buffer-move anzu adoc-mode ac-c-headers))))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )

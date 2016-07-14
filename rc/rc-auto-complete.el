@@ -19,4 +19,6 @@
 (add-hook 'c++-mode-hook 'my:ac-c-header-init)
 (add-hook 'c-mode-hook 'my:ac-c-header-init)
 
+(provide 'rc-auto-complete)
+
 ;;; rc-auto-complete.el ends here ---

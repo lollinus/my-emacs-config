@@ -1,6 +1,7 @@
 ;;; rc-cmake-mode.el ---
 
 (ensure-package-installed 'cmake-mode)
+(require 'rc-column-marker)
 
 ;; (add-to-list 'load-path (concat my-site-lisp-directory "cmake-mode"))
 

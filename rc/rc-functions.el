@@ -1,5 +1,25 @@
 ;;; rc-functions.el ---
 
+;;; ----[ 19.15 The (info "(emacs)Cursor Display")
+
+;; using cursor color to indicate some modes (read-only, insert and
+;; overwrite modes)
+(setq my-set-cursor-color-color "")
+(setq my-set-cursor-color-buffer "")
+
+(defun my-set-cursor-color-according-to-mode ()
+  "Change cursor color according to some minor modes."
+  (let ((color
+         (if buffer-read-only "purple1"
+           (if overwrite-mode "red"
+             "rgb:15/FF/00"))))  ;; insert mode
+    (unless (and (string= color my-set-cursor-color-color)
+                 (string= (buffer-name) my-set-cursor-color-buffer))
+      (set-cursor-color (setq my-set-cursor-color-color color))
+      (setq my-set-cursor-color-buffer (buffer-name)))))
+
+(add-hook 'post-command-hook 'my-set-cursor-color-according-to-mode)
+
 (defun prelude-move-beginning-of-line (arg)
   "Move point back to indentation of beginning of line.
 
@@ -158,6 +178,42 @@ Position the cursor at it's beginning, according to the current mode."
 
 (global-set-key (kbd "M-o") 'prelude-smart-open-line)
 (global-set-key (kbd "M-o") 'open-line)
+
+;;--------------------------------------------------------------------------------
+;; % key on paren moves cursor to matching paren
+;;--------------------------------------------------------------------------------
+(global-set-key (kbd "%") 'match-paren)
+
+(defun match-paren (arg)
+  "Go to the matching parenthesis if on parenthesis otherwise insert %."
+  (interactive "p")
+  (cond ((looking-at "\\s\(") (forward-list 1) (backward-char 1))
+        ((looking-at "\\s\)") (forward-char 1) (backward-list 1))
+        (t (self-insert-command (or arg 1)))))
+
+;; colorize number too (like constant)
+(defun font-lock-fontify-numbers ()
+  "Use this function as a hook to fontify numbers as constant"
+  (font-lock-add-keywords nil
+                          '(("[^a-zA-Z_]\\(0x[0-9a-fA-F]+\\)" 1 font-lock-constant-face) ; hexa
+                            ("[^a-zA-Z_]\\(-?[0-9]+\\.[0-9]+\\)" 1 font-lock-constant-face) ; float
+                            ("[^a-zA-Z_1-9]\\(-?[0-9]+L?\\)" 1 font-lock-constant-face)))) ; int
+;;(add-hook 'php-mode-hook 'font-lock-fontify-numbers)
+;;(add-hook 'perl-mode-hook 'font-lock-fontify-numbers)
+;;(add-hook 'css-mode-hook 'font-lock-fontify-numbers)
+;;(add-hook 'emacs-lisp-mode-hook 'font-lock-fontify-numbers)
+;;(add-hook 'js2-mode-hook 'font-lock-fontify-numbers)
+
+;; delete all the trailing whitespaces and tabs across the current buffer
+(defun my-delete-trailing-whitespaces-and-untabify ()
+  "Delete all the trailing white spaces, and convert all tabs to multiple
+spaces across the current buffer."
+  (interactive "*")
+  (delete-trailing-whitespace)
+  (untabify (point-min) (point-max))
+  )
+
+(global-set-key (kbd "C-c t") 'my-delete-trailing-whitespaces-and-untabify)
 
 (provide 'rc-functions)
 

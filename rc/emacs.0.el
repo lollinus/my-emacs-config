@@ -1,12 +1,5 @@
 ;; -*- mode: lisp; coding: utf-8-unix -*-
 
-;; Emacs type -- are we running XEmacs (or GNU Emacs)?
-(defvar running-xemacs (string-match "XEmacs\\|Lucid" emacs-version))
-
-(if running-xemacs
-    ;; don't offer migration of the init file
-    (setq load-home-init-file t))
-
 ;; --[ Variables ]-------------------------------------------------------
 ;; limit on number of Lisp variable bindings & unwind-protects
 ;; (30 times its default value)
@@ -26,21 +19,11 @@
  Various programs in Emacs store information in this directory.
  Note that this should end with a directory separator.")
 
-;; --[ Macros ]----------------------------------------------------------
-
-(defmacro GNUEmacs (&rest body)
-  "Execute any number of forms if running under GNU Emacs."
-  (list 'if (not running-xemacs) (cons 'progn body)))
-
-(defmacro XEmacs (&rest body)
-  "Execute any number of forms if running under XEmacs."
-  (list 'if running-xemacs (cons 'progn body)))
 ;; --[ Loading Libraries of Lisp Code for Emacs ]------------------------
 
 ;; make loaded files give a message
-(GNUEmacs
-    (defadvice load (before debug-log activate)
-      (message "Loading %s..." (locate-library (ad-get-arg 0)))))
+(defadvice load (before debug-log activate)
+  (message "Loading %s..." (locate-library (ad-get-arg 0))))
 
 ;;; ----[ Features
 
@@ -106,27 +89,6 @@
 
 ;; --[ 9 The (info "(emacs)Minibuffer") ]--------------------------------
 
-(message "9 The Minibuffer...")
-
-;; ignore case when reading a file name completion
-(setq read-file-name-completion-ignore-case t)
-
-;; dim the ignored part of the file name
-;;(GNUEmacs
-;;    (file-name-shadow-mode 1))
-
-;; minibuffer window expands vertically as necessary to hold the text that
-;; you put in the minibuffer
-(setq resize-mini-windows t)
-
-;; minibuffer completion incremental feedback
-(GNUEmacs
-    (icomplete-mode))
-
-;; do not consider case significant in completion (GNU Emacs default)
-(setq completion-ignore-case t)
-
-
 ;;; ----[ 19.11 (info "(emacs)Useless Whitespace")
 
 ;; highlight trailing whitespaces
@@ -137,55 +99,6 @@
         emacs-lisp-mode-hook
         shell-script-mode-hook))
 
-;; ;; highlight tabs
-;; (when (try-require 'show-wspace)
-;;   (add-hook 'font-lock-mode-hook 'highlight-tabs));
-
-;; colorize number too (like constant)
-(defun font-lock-fontify-numbers ()
-  "Use this function as a hook to fontify numbers as constant"
-  (font-lock-add-keywords nil
-                          '(("[^a-zA-Z_]\\(0x[0-9a-fA-F]+\\)" 1 font-lock-constant-face) ; hexa
-                            ("[^a-zA-Z_]\\(-?[0-9]+\\.[0-9]+\\)" 1 font-lock-constant-face) ; float
-                            ("[^a-zA-Z_1-9]\\(-?[0-9]+L?\\)" 1 font-lock-constant-face)))) ; int
-(add-hook 'php-mode-hook 'font-lock-fontify-numbers)
-(add-hook 'perl-mode-hook 'font-lock-fontify-numbers)
-(add-hook 'css-mode-hook 'font-lock-fontify-numbers)
-(add-hook 'emacs-lisp-mode-hook 'font-lock-fontify-numbers)
-(add-hook 'js2-mode-hook 'font-lock-fontify-numbers)
-
-;; delete all the trailing whitespaces and tabs across the current buffer
-(defun my-delete-trailing-whitespaces-and-untabify ()
-  "Delete all the trailing white spaces, and convert all tabs to multiple
-spaces across the current buffer."
-  (interactive "*")
-  (delete-trailing-whitespace)
-  (untabify (point-min) (point-max))
-  )
-
-(global-set-key (kbd "C-c t") 'my-delete-trailing-whitespaces-and-untabify)
-
-;;; ----[ 19.15 The (info "(emacs)Cursor Display")
-
-(GNUEmacs
-    ;; using cursor color to indicate some modes (read-only, insert and
-    ;; overwrite modes)
-    (setq my-set-cursor-color-color "")
-    (setq my-set-cursor-color-buffer "")
-
-    (defun my-set-cursor-color-according-to-mode ()
-      "Change cursor color according to some minor modes."
-      (let ((color
-             (if buffer-read-only "purple1"
-               (if overwrite-mode "red"
-                 "rgb:15/FF/00"))))  ;; insert mode
-        (unless (and (string= color my-set-cursor-color-color)
-                     (string= (buffer-name) my-set-cursor-color-buffer))
-          (set-cursor-color (setq my-set-cursor-color-color color))
-          (setq my-set-cursor-color-buffer (buffer-name)))))
-
-    (add-hook 'post-command-hook 'my-set-cursor-color-according-to-mode))
-
 ;;; ----[ 19.17 Cursor Display
 
 ;; see what I'm typing *immediately*
@@ -195,14 +108,12 @@ spaces across the current buffer."
 
 ;; make the help, apropos and completion windows the right height for their
 ;; contents
-(GNUEmacs
-    (temp-buffer-resize-mode t))
+(temp-buffer-resize-mode t)
 
 ;;; ----[ 23.18 (info "(emacs)File Conveniences")
 
 ;; show image files as images (not as semi-random bits)
-(GNUEmacs
-    (auto-image-file-mode 1))
+(auto-image-file-mode 1)
 
 ;; find file (or URL) at point
 (require 'ffap)
@@ -231,10 +142,6 @@ spaces across the current buffer."
 
 ;;; ----[ 26.16 (info "(emacs)Menu Bars")
 
-;; turn menus off
-(unless window-system
-    (menu-bar-mode 0))
-
 ;;; ----[ 26.20 (info "(emacs)Mouse Avoidance")
 
 ;; make mouse pointer stay out of the way of editing
@@ -243,8 +150,7 @@ spaces across the current buffer."
   (mouse-avoidance-mode 'animate))
 
 ;; mouse wheel support
-(GNUEmacs
-    (mwheel-install))
+(mwheel-install)
 
 ; last --------------------------------------------------------------------------------
 ;; use M-{up,right,down,left} for windmove
@@ -333,27 +239,6 @@ spaces across the current buffer."
 ;; otherwise. Two of them to emulate the mode line. %f for the file
 ;; name. Incredibly useful!
 (setq frame-title-format "Emacs: %b %+%+ %f ")
-
-;; code for including abbreviated file paths in mode line
-;; (GNUEmacs
-;;     (require 'mode-line)
-;;     (mode-line-toggle-display nil))
-
-;; fix buffer-killing for bs + gnuclient
-;; (eval-after-load "gnuclient"
-;;   '(fset 'kill-buffer 'my-server-kill-buffer))
-
-;; (defun my-server-kill-buffer (buffer)
-;;   "Call `server-kill-buffer' but make sure to return the correct value."
-;;   (interactive "bKill buffer ")
-;;   (server-kill-buffer (get-buffer buffer))
-;;   (not (buffer-name (get-buffer buffer))))
-
-;;--------------------------------------------------------------------------------
-;; time stamp writing in edited files
-;; add Time-stamp: <> or Time-stamp: "" so emacs can write timestamp there
-;;--------------------------------------------------------------------------------
-;; (add-hook 'write-file-hooks 'time-stamp)
 
 ;;--------------------------------------------------------------------------------
 ;; aspell mode

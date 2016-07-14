@@ -12,23 +12,16 @@
 (setq lazy-lock-minimum-size (* 1024 10))       ; Fontify small buffers
 (setq font-lock-maximum-size nil)       ; Fontify huge buffers
 (setq font-lock-maximum-decoration t)
-;; highlight non-breaking spaces
-;; (GNUEmacs
-;;     (require 'disp-table)
-;;     (aset standard-display-table
-;;           (make-char 'latin-iso8859-1 (- ?\240 128))
-;;           (vector (+ ?\267 (* 524288 (face-id 'nobreak-space))))))
 
 ;; highlight FIXME, TODO and XXX as warning in some major modes
-(GNUEmacs
-    (dolist (mode '(c-mode
-                    cperl-mode
-                    html-mode-hook
-                    css-mode-hook
-                    emacs-lisp-mode))
-      (font-lock-add-keywords mode
-                              '(("\\(XXX\\|FIXME\\|TODO\\)"
-                                 1 font-lock-warning-face prepend)))))
+(dolist (mode '(c-mode
+                cperl-mode
+                html-mode-hook
+                css-mode-hook
+                emacs-lisp-mode))
+  (font-lock-add-keywords mode
+                          '(("\\(XXX\\|FIXME\\|TODO\\)"
+                             1 font-lock-warning-face prepend))))
 
 ;;--------------------------------------------------------------------------------
 ;; polskie ustawienia
@@ -102,39 +95,15 @@
 (setq transient-mark-mode nil)
 
 ;;--------------------------------------------------------------------------------
-;; % key on paren moves cursor to matching paren
-;;--------------------------------------------------------------------------------
-(global-set-key (kbd "%") 'match-paren)
-
-(defun match-paren (arg)
-  "Go to the matching parenthesis if on parenthesis otherwise insert %."
-  (interactive "p")
-  (cond ((looking-at "\\s\(") (forward-list 1) (backward-char 1))
-        ((looking-at "\\s\)") (forward-char 1) (backward-list 1))
-        (t (self-insert-command (or arg 1)))))
-
-;;--------------------------------------------------------------------------------
 ;;
 ;;--------------------------------------------------------------------------------
 (setq vc-follow-symlinks t
       visible-bell t)
 
 ;;--------------------------------------------------------------------------------
-;; GUD mode
-;;--------------------------------------------------------------------------------
-(setq gdb-many-windows t)
-
-;;--------------------------------------------------------------------------------
 ;; automatyczny odczyt plików kompresowanych
 ;;--------------------------------------------------------------------------------
 (auto-compression-mode 1)
-
-;;--------------------------------------------------------------------------------
-;; zegarek
-;;--------------------------------------------------------------------------------
-(display-time)
-(setq display-time-format "%H:%M %d/%m/%Y")
-(setq display-time-24hr-format t)
 
 ;;--------------------------------------------------------------------------------
 ;; turn off blinking cursor
@@ -204,15 +173,6 @@
 ;;   (join-line 'forward-line)
 ;; )  
 ;; (global-set-key (kbd "C-j") 'my-join-line)
-
-;;--------------------------------------------------------------------------------
-;; zezwalaj na użycie poniższych komend
-;;--------------------------------------------------------------------------------
-(put 'narrow-to-page 'disabled nil)
-(put 'narrow-to-region 'disabled nil)
-(put 'upcase-region 'disabled nil)
-(put 'downcase-region 'disabled nil)
-(put 'set-goal-column 'disabled nil)
 
 ;; keep minibuffer history between session
 (if (not (string-equal "21" (substring emacs-version 0 2)))

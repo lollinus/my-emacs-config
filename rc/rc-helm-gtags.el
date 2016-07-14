@@ -3,11 +3,11 @@
 (ensure-package-installed 'helm-gtags)
 (ensure-package-installed 'helm-swoop)
 
-(require 'helm-gtags)
-
 ;; this variables must be set before load helm-gtags
 ;; you can change to any prefix key of your choice
 (setq helm-gtags-prefix-key "\C-cg")
+
+(require 'helm-gtags)
 
 ;;------------------------------------------------------------------------------
 ;; Helm gtags setup
