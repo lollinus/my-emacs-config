@@ -5,6 +5,6 @@
 ;(require 'org-mw)
 ;(require 'org-asciidoc)
 
-(require 's) ;; ox-mediawiki is using s-join
+; (require 's) ;; ox-mediawiki is using s-join
 (require 'ox-mediawiki)
 ;;; rc-org-addons.el ends here
