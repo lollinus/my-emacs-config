@@ -214,33 +214,6 @@
 (global-set-key [(control tab)] 'complete)
 
 ;;--------------------------------------------------------------------------------
-;; My customized emacs
-;;--------------------------------------------------------------------------------
-;; scroll bar on the right side
-(if window-system
-    (set-scroll-bar-mode 'right)
-  )
-
-;; fancy streching cursor
-(setq x-stretch-cursor t)
-;;(global-hl-line-mode t)
-
-;; show column number in mode-line
-(column-number-mode t)
-(line-number-mode t)
-
-;; use inactive face for mode-line in non-selected windows
-(setq mode-line-in-non-selected-windows t)
-(tool-bar-mode 0) ; disable toolbar
-(setq kill-whole-line t)
-
-;; Set the frame's title. %b is the name of the buffer. %+ indicates
-;; the state of the buffer: * if modified, % if read only, or -
-;; otherwise. Two of them to emulate the mode line. %f for the file
-;; name. Incredibly useful!
-(setq frame-title-format "Emacs: %b %+%+ %f ")
-
-;;--------------------------------------------------------------------------------
 ;; aspell mode
 ;;--------------------------------------------------------------------------------
 (if running-ms-windows

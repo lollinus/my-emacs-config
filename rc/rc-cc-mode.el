@@ -79,7 +79,7 @@
 	    (auto-fill-mode)
 	    (setq tab-width 4)
 	    (setq indent-tabs-mode nil)
-	    font-lock-fontify-numbers
+	    'font-lock-fontify-numbers
 	    ))
 
 (provide 'rc-cc-mode)
