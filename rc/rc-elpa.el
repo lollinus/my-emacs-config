@@ -28,8 +28,10 @@
 
 ;; Add the user-contributed repository
 (setq package-archives
-      '(("gnu" . "http://elpa.gnu.org/packages/")
-        ("melpa" . "http://melpa.org/packages/")
+      '(
+;;	("gnu" . "http://elpa.gnu.org/packages/")
+;;        ("melpa" . "http://melpa.org/packages/")
+	("melpa-mirror" . "https://www.mirrorservice.org/sites/melpa.org/packages/")
 ;;        ("marmalade" . "https://marmalade-repo.org/packages/")
 		))
 

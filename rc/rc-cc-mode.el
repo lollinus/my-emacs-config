@@ -1,5 +1,5 @@
 ;;; rc-c-mode.el ---
-(require 'rc-column-marker)
+;; (require 'rc-column-marker)
 
 ;;-------------------------------------------------------------------------------
 ;; indentation styles
@@ -66,7 +66,7 @@
 (add-hook 'c-mode-hook
 	  (lambda ()
 	    (setq fill-column 80)
-	    (column-marker-3 80)
+	    ;;(column-marker-3 80)
 	    (auto-fill-mode)
 	    (setq tab-width 8)
 	    (setq indent-tabs-mode t)
@@ -74,7 +74,7 @@
 
 (add-hook 'c++-mode-hook
 	  (lambda ()
-	    (setq fill-column 80)
+	    ;;(setq fill-column 80)
 	    (column-marker-3 80)
 	    (auto-fill-mode)
 	    (setq tab-width 4)

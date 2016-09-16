@@ -15,7 +15,7 @@
 (add-hook 'cmake-mode-hook
 		  (lambda ()
 			(setq fill-column 80)
-			(column-marker-3 80)
+			;;(column-marker-3 80)
 			(auto-fill-mode)
 			(setq cmake-tab-width 4)
 			(setq indent-tabs-mode nil)

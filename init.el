@@ -140,7 +140,7 @@
 (require 'rc-anzu)
 
 (require 'rc-color-theme)
-(require 'rc-column-marker)
+;; (require 'rc-column-marker)
 (require 'rc-undo-tree)
 ;;(load "~/.emacs.d/rc/rc-adoc-mode.el")
 ;;(load "~/.emacs.d/rc/rc-markdown.el")
