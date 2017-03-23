@@ -1,5 +1,6 @@
 ;;; rc-helm.el ---
 (ensure-package-installed 'helm)
+(ensure-package-installed 'helm-swoop)
 
 (require 'helm-config)
 (require 'helm-grep)
