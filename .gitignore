@@ -10,3 +10,4 @@ semanticdb
 ede-projects.el
 site-lisp/nxhtml/etc/schema/xhtml-loader.rnc
 /irony
+/projectile-bookmarks.eld
