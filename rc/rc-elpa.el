@@ -22,18 +22,25 @@
 		 (expand-file-name "~/.emacs.d/package.el"))
 	  (package-initialize))
 	)
-)
+  )
 
 (require 'package)
 
 ;; Add the user-contributed repository
 (setq package-archives
-      '(
-;;	("gnu" . "http://elpa.gnu.org/packages/")
-;;        ("melpa" . "http://melpa.org/packages/")
+      '(("gnu" . "http://elpa.gnu.org/packages/")
+        ("melpa" . "http://melpa.org/packages/")
 	("melpa-mirror" . "https://www.mirrorservice.org/sites/melpa.org/packages/")
-;;        ("marmalade" . "https://marmalade-repo.org/packages/")
-		))
+        ;;("marmalade" . "https://marmalade-repo.org/packages/")
+	))
+
+(setq package-archive-priorities
+      '(("melpa" . 0)
+	("melpa-mirror" . 1)
+	("gnu" . 2)
+	("marmalade". 3)
+	)
+      )
 
 (defun ensure-package-installed (&rest packages)
   "Assure every package is installed, ask for installation if it's not.
