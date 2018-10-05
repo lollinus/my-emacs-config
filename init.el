@@ -135,12 +135,13 @@
 
 ;; individual modes loading
 (require 'rc-cua)
+(require 'rc-smerge)
 ;;(load "~/.emacs.d/rc/rc-buffer-move.el")
 (require 'rc-yasnippet)
 (require 'rc-anzu)
 
 (require 'rc-color-theme)
-;; (require 'rc-column-marker)
+(require 'rc-column-marker)
 (require 'rc-undo-tree)
 ;;(load "~/.emacs.d/rc/rc-adoc-mode.el")
 ;;(load "~/.emacs.d/rc/rc-markdown.el")
@@ -191,6 +192,7 @@
 ;; (load "~/.emacs.d/rc/rc-ruby.el")
 ;;(load "~/.emacs.d/rc/rc-python.el")
 (require 'rc-magit)
+;;(require 'rc-magit-gerrit)
 ;;(load "~/.emacs.d/rc/rc-git.el")
 
 ;; (load "~/.emacs.d/rc/rc-org-mode.el")
@@ -203,4 +205,6 @@
 ;;(load "~/.emacs.d/rc/rc-auctex.el")
 
 ;; (load "~/.emacs.d/rc/rc-psvn.el")
+
+(require 'rc-tuareg)
 (message "Init finished")
