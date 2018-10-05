@@ -1,0 +1,12 @@
+# -*- mode: snippet -*-
+# name: ncp_exit
+# key: exit
+# --
+NCP_TRACEPOINT(Intel_AXXIA_ncp_$1,
+`(substring (which-function) 1 -2)`_exit,
+NCP_MSG_EXIT,
+"ncpStatus=%d"
+"\n",
+ncpStatus
+$0
+);

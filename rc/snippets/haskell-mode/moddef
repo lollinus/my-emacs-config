@@ -1,8 +1,0 @@
-# contributor: Alex Ott <alexott@gmail.com>
-# key: moddef
-# name: module ... where ...
-# --
-module ${1:Main}
-       where
-
-$0

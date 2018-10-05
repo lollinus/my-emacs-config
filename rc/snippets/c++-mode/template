@@ -1,4 +1,0 @@
-# key: template
-# name: template <typename ...>
-# --
-template <typename ${T}>

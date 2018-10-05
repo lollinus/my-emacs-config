@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: ncp_args
+# key: na
+# --
+"${1:arg}"
+"\n",
+$0$1
