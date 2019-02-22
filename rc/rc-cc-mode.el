@@ -45,6 +45,9 @@
 	  (lambda ()
 	     (c-toggle-hungry-state 0)
 	     (setq show-trailing-whitespace t)
+	     ;; display line numbers
+	     (setq display-line-numbers 'visual)
+	     (display-line-numbers-mode t)
 	     )
 	  )
 (add-hook 'c-mode-common-hook 'font-lock-fontify-numbers)
@@ -79,7 +82,6 @@
 	    (fci-mode)
 	    (setq tab-width 4)
 	    (setq indent-tabs-mode nil)
-	    'font-lock-fontify-numbers
 	    ))
 
 (provide 'rc-cc-mode)

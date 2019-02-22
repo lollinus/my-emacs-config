@@ -16,14 +16,13 @@
 
 (setq gc-cons-threshold 100000000)
 
-(global-set-key (kbd "M-;") 'commend-dwim-2)
-
 (setq global-mark-ring-max 5000         ; increase mark ring to contains 5000 entries
       mark-ring-max 5000                ; increase kill ring to contains 5000 entries
       mode-require-final-newline t      ; add a newline to end of file
       tab-width 4                       ; default to 4 visible spaces to display a tab
       )
 (global-set-key (kbd "RET") 'newline-and-indent)
+
 
 ;; GROUP: Editing -> Killing
 (setq kill-ring-max 5000 ; increase kill-ring capacity
@@ -60,8 +59,8 @@
 (put 'set-goal-column 'disabled nil)
 
 ;;--------------------------------------------------------------------------------
-(unless window-system (menu-bar-mode 0)) ; turn menus off
-(tool-bar-mode 0)			; disable toolbar
+(if window-system (menu-bar-mode 0)) ; turn menus off
+(if window-system (tool-bar-mode 0)) ; disable toolbar
 
 ;;--------------------------------------------------------------------------------
 ;; My customized emacs
@@ -73,7 +72,7 @@
 
 ;; fancy streching cursor
 (setq x-stretch-cursor t)
-;;(global-hl-line-mode t)
+;; (global-hl-line-mode t)
 
 ;; show column number in mode-line
 (column-number-mode t)
@@ -130,6 +129,16 @@
 ;; elpa configuration -- keep it always first because other configs can try to install packages
 ;;(load "~/.emacs.d/rc/rc-w3m.el")
 (load "~/.emacs.d/rc/rc-elpa.el")
+
+(ensure-package-installed 'use-package)
+(use-package comment-dwim-2
+  :init
+  (ensure-package-installed 'comment-dwim-2)
+  :config
+  (require 'comment-dwim-2)
+  (global-set-key (kbd "M-;") 'comment-dwim-2)
+  )
+
 (require 'rc-functions)
 (require 'rc-whitespace)
 
@@ -139,6 +148,7 @@
 ;;(load "~/.emacs.d/rc/rc-buffer-move.el")
 (require 'rc-yasnippet)
 (require 'rc-anzu)
+(require 'rc-moccur)
 
 (require 'rc-color-theme)
 (require 'rc-fill-column-indicator)
@@ -164,11 +174,56 @@
 
 ;; this variables must be set before load helm-gtags
 ;; you can change to any prefix key of your choice
-(setq helm-gtags-prefix-key "\C-cg")
+;;(setq helm-gtags-prefix-key "\C-cg")
 
 (require 'rc-ggtags)
-(require 'rc-helm)
-(require 'rc-helm-gtags)
+;;(require 'rc-helm)
+;;(require 'rc-helm-gtags)
+
+(require 'counsel)
+
+(ensure-package-installed 'all-the-icons)
+(use-package neotree
+  :bind
+  ("<f8>" . neotree-toggle)
+  :config
+  ;; needs package all-the-icons
+  (setq neo-theme (if (display-graphic-p) 'icons 'arrow))
+  ;; Disable line-numbers minor mode for neotree
+  (add-hook 'neo-after-create-hook
+	    (lambda (&rest _) (display-line-numbers-mode -1)))
+
+  ;; Every time when the neotree window is opened, let if find current
+  ;; file and jump to node.
+  (setq neo-smart-open t)
+
+  ;; track 'projectile-switch-project' (C-c p p),
+  (setq projectile-switch-project-action 'neotree-projectile-aciton)
+  )
+
+(use-package ivy
+  :bind
+  ("\C-s" . swiper)
+  ("C-c C-r" . ivy-resume)
+  ("<f6>" . ivy-resume)
+  ("M-x" . counsel-M-x)
+  ("C-x C-f" . counsel-find-file)
+  ("<f1> f" . counsel-describe-function)
+  ("<f1> v" . counsel-describe-variable)
+  ("<f1> l" . counsel-find-library)
+  ("<f2> i" . counsel-info-lookup-symbol)
+  ("<f2> u" . counsel-unicode-char)
+  ("C-c g" . counsel-git)
+  ("C-c j" . counsel-git-grep)
+  :config
+  (ivy-mode)
+  (setq ivy-use-virutal-buffers t)
+  (setq ivy-count-format "(%d/%d) ")
+  (setq enable-recursive-minibuffers t)
+  (define-key minibuffer-local-map (kbd "C-r") 'counsel-minibuffer-history)
+  )
+;;("C-c k" . counsel-ag)
+;;("C-x l" . counsel-locate)
 
 ;; (load "~/.emacs.d/rc/rc-ecb.el")
 (require 'rc-cedet)

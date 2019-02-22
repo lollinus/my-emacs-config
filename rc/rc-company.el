@@ -13,7 +13,7 @@
 ;; (define-key c-mode-map  [(control tab)] 'company-complete)
 ;; (define-key c++-mode-map  [(control tab)] 'company-complete)
 
-(setq company-backend (delete 'company-semantic 'company-backends))
+(setq company-backend (delete 'company-semantic company-backends))
 (define-key c-mode-map [(tab)] 'company-complete)
 (define-key c++-mode-map [(tab)] 'company-complete)
 

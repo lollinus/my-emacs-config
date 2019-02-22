@@ -1,5 +1,4 @@
 ;;; rc-yasnippet.el ---
-
 (ensure-package-installed 'yasnippet)
 
 (require 'yasnippet)
