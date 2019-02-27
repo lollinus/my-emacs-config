@@ -1,11 +1,7 @@
 ;;; rc-elpa.el ---
 ;; configure melpa package archive
 
-(if (or
-	 (string-equal "24" (substring emacs-version 0 2))
-	 (string-equal "25" (substring emacs-version 0 2))
-	 (string-equal "26" (substring emacs-version 0 2))
-	 )
+(if (>= (string-to-number (substring emacs-version 0 2)))
 	"Emacs >= 24 has elpa integrated"
   ;; install elpa on emacs 23
   (progn
@@ -69,6 +65,4 @@ Return a list of installed packages or nil ofr every skipped package."
 
 (package-initialize)
 
-(eval-when-compile
-  (require 'use-package))
 ;;; rc-elpa.el ends here

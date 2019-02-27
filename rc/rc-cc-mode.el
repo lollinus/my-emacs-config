@@ -1,5 +1,4 @@
 ;;; rc-c-mode.el ---
-(require 'rc-fill-column-indicator)
 
 ;;-------------------------------------------------------------------------------
 ;; indentation styles

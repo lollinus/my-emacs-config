@@ -1,38 +1,36 @@
 ;;; rc-color-theme.el ---
-(if (not (or
-		  (string-equal "24" (substring emacs-version 0 2))
-		  (string-equal "25" (substring emacs-version 0 2))
-		  (string-equal "26" (substring emacs-version 0 2))
-		  ))
-    (progn
-      (add-to-list 'load-path
-                   (concat my-site-lisp-directory "color-theme-library"))
-      (require 'color-theme)
-      (color-theme-initialize)
-      (defun switch-color-theme ()
-        "Switch color theme.
-Theme is chosen depending if current window is displayed on TTY or graphical window."
-        (interactive "*")
-        (if window-system
-            (color-theme-subtle-hacker)
-          (color-theme-hober))
-        )
-      )
-  (progn
-    (defun switch-color-theme ()
-      "Switch color theme.
-Theme is chosen depending if current window is displayed on TTY or graphical window."
-      (interactive "*")
-      (if window-system
-          (load-theme 'misterioso)
-        (load-theme 'wombat))
-      )
-    )
-  "For emacs 24 and above use builtin color-theme library"
-  )
 
-(switch-color-theme)
-(global-set-key (kbd "C-x c") 'switch-color-theme)
+(defvar my:terminal-theme 'wombat)
+(defvar my:window-theme 'misterioso)
+(defvar my:theme-window-loaded nil)
+(defvar my:theme-terminal-loaded nil)
+
+(if (daemonp)
+    (add-hook 'after-make-frame-functions
+              (lambda (frame)
+                (select-frame frame)
+                (if (window-system frame)
+                    (unless my:theme-window-loaded
+                      (if my:theme-window-loaded
+                          (enable-theme my:window-theme)
+                        (load-theme my:window-theme t))
+                      (setq my:theme-window-loaded t))
+                  (unless my:theme-terminal-loaded
+                    (if my:theme-terminal-loaded
+                        (enable-theme my:terminal-theme)
+                      (load-theme my:terminal-theme t))
+                      (setq my:theme-terminal-loaded t)))))
+  (progn
+    (if (display-graphic-p)
+	(progn 
+	  (load-theme my:window-theme t)
+	  (setq my:theme-window-loaded t)
+	  )
+      (progn
+	(load-theme my:terminal-theme t)
+	(setq my:theme-terminal-loaded t)
+        )))
+  )
 
 ; font configuration
 (defun kb-set-font ()

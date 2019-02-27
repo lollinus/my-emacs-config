@@ -21,7 +21,10 @@
 ; (add-hook 'ruby-mode-hook '(lambda () (inf-ruby-keys)))
 ; (add-hook 'ruby-mode-hook '(lambda () (setq show-trailing-whitespace t)))
 ; (add-hook 'ruby-mode-hook 'font-lock-fontify-numbers)
-
 ; (require 'ruby-electric)
+
+(use-package ruby-mode
+  :mode "\\.rb\\'"
+  :interpreter "ruby")
 
 ;;; rc-ruby.el ends here
