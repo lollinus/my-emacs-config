@@ -19,8 +19,6 @@
       mode-require-final-newline t      ; add a newline to end of file
       tab-width 4                       ; default to 4 visible spaces to display a tab
       )
-(global-set-key (kbd "RET") 'newline-and-indent)
-
 
 ;; GROUP: Editing -> Killing
 (setq kill-ring-max 5000 ; increase kill-ring capacity
@@ -28,6 +26,11 @@
       )
 
 (load "~/.emacs.d/rc/environment.el")
+
+(setq vc-follow-symlinks t)
+;; blink screen on bell
+(setq visible-bell t)
+
 ;;--------------------------------------------------------------------------------
 ;;(load "~/.emacs.d/rc/emacs.0.el")
 ;;--------------------------------------------------------------------------------
@@ -44,6 +47,11 @@
 
 ;; do not consider case significant in completion (GNU Emacs default)
 (setq completion-ignore-case t)
+
+;;--------------------------------------------------------------------------------
+;; turn off blinking cursor
+;;--------------------------------------------------------------------------------
+(blink-cursor-mode -1)
 
 ;;--------------------------------------------------------------------------------
 ;; zezwalaj na użycie poniższych komend
@@ -75,6 +83,7 @@
     )
   )
 
+(setq load-prefer-newer t)
 
 ;;--------------------------------------------------------------------------------
 ;; My customized emacs
@@ -114,6 +123,7 @@
 ;;--------------------------------------------------------------------------------
 (when (fboundp 'global-font-lock-mode)
   (global-font-lock-mode t))
+
 ;; Set lazy-lock mode (fontifies only when not typing) with .3 sec refresh
 ;; time and no minimum buffer size
 ;; Lazy lock gives problems with Java files in RHEL4
@@ -135,9 +145,11 @@
                 html-mode-hook
                 css-mode-hook
                 emacs-lisp-mode))
-  (font-lock-add-keywords mode
-                          '(("\\(XXX\\|FIXME\\|TODO\\)"
-                             1 font-lock-warning-face prepend))))
+  (font-lock-add-keywords
+   mode
+   '(("\\<\\(\\(TODO|XXX\\)\\(?:(.*)\\)?:?\\)\\>"  1 'warning prepend)
+     ("\\<\\(FIXME\\(?:(.*)\\)?:?\\)\\>" 1 'error prepend)
+     ("\\<\\(NOCOMMIT\\(?:(.*)\\)?:?\\)\\>"  1 'error prepend))))
 
 (setq smerge-command-prefix "\C-cv")
 
@@ -145,12 +157,30 @@
 ;;(load "~/.emacs.d/rc/rc-w3m.el")
 (load "~/.emacs.d/rc/rc-elpa.el")
 
-(ensure-package-installed 'use-package)
+;; Bootstrap `use-package`
+(condition-case nil
+    (require 'use-package)
+  (file-error
+   (require 'package)
+   (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
+   (package-initialize)
+   (package-refresh-contents)
+   (package-install 'use-package)
+   (require 'use-package)))
+
 (setq use-package-compute-statistics t)
 (eval-when-compile
   (require 'use-package))
 (setq use-package-verbose t)
 (setq use-package-check-before-init t)
+
+(use-package diminish
+  :ensure t
+  :config
+  (diminish 'whitespace-mode)
+  (eval-after-load "projectile" '(diminish 'projectile-mode "P"))
+  )
+
 
 (use-package emacs
   :hook (lisp-mode-hook . display-line-numbers-mode)
@@ -161,16 +191,14 @@
 
 (use-package comment-dwim-2
   :ensure t
-  :config
-  (require 'comment-dwim-2)
-  (global-set-key (kbd "M-;") 'comment-dwim-2)
+  :config (global-set-key (kbd "M-;") 'comment-dwim-2)
   )
 
 (require 'rc-functions)
 (use-package whitespace
-  :custom
-  (whitespace-style '(face lines-tail newline empty indentation
-                           big-indent space-before-tab))
+  :config
+  (setq whitespace-style '(face trailing lines-tail newline empty
+				indentation big-indent space-before-tab))
   :bind
   ("C-c w" . whitespace-mode)
   )
@@ -215,17 +243,136 @@
   )
 ;; (require 'rc-anzu)
 
+(electric-pair-mode -1)
+(setq electric-pair-preserve-balance t
+      electric-pair-delete-adjacent-pairs t
+      electric-pair-open-newline-between-pairs nil)
+(show-paren-mode 1)
+
 (use-package smartparens
+  :disabled
   :ensure t
-  :custom
-  (sp-base-key-bindings 'paredit)
-  (sp-autoskip-closing-pair 'always)
-  (sp-hybrid-kill-entire-symbol nil)
+  :diminish smartparens-mode
+  :init
+  (electric-pair-mode -1)
+  (require 'smartparens-config)
+  ;; Turn on smartparens in the minibuffer
+  (add-hook 'minibuffer-setup-hook 'turn-on-smartparens-strict-mode)
+  (define-key smartparens-mode-map (kbd "C-M-f") 'sp-forward-sexp)
+  (define-key smartparens-mode-map (kbd "C-M-b") 'sp-backward-sexp)
+
+  (define-key smartparens-mode-map (kbd "C-M-<right>") 'sp-forward-sexp)
+  (define-key smartparens-mode-map (kbd "C-M-<left>") 'sp-backward-sexp)
+  (define-key smartparens-mode-map (kbd "M-F") 'sp-forward-sexp)
+  (define-key smartparens-mode-map (kbd "M-B") 'sp-backward-sexp)
+
+  (define-key smartparens-mode-map (kbd "C-M-d") 'sp-down-sexp)
+  (define-key smartparens-mode-map (kbd "C-M-a") 'sp-backward-down-sexp)
+  (define-key smartparens-mode-map (kbd "C-S-d") 'sp-beginning-of-sexp)
+  (define-key smartparens-mode-map (kbd "C-S-a") 'sp-end-of-sexp)
+
+  (define-key smartparens-mode-map (kbd "C-M-e") 'sp-up-sexp)
+  (define-key smartparens-mode-map (kbd "C-M-u") 'sp-backward-up-sexp)
+  (define-key smartparens-mode-map (kbd "C-M-t") 'sp-transpose-sexp)
+
+  (define-key smartparens-mode-map (kbd "C-M-n") 'sp-next-sexp)
+  (define-key smartparens-mode-map (kbd "C-M-p") 'sp-previous-sexp)
+
+  (define-key smartparens-mode-map (kbd "C-M-k") 'sp-kill-sexp)
+  (define-key smartparens-mode-map (kbd "C-M-w") 'sp-copy-sexp)
+
+  (define-key smartparens-mode-map (kbd "M-r") 'sp-unwrap-sexp)
+
+  (define-key smartparens-mode-map (kbd "C-(") 'sp-forward-barf-sexp)
+  (define-key smartparens-mode-map (kbd "C-)") 'sp-forward-slurp-sexp)
+  (define-key smartparens-mode-map (kbd "M-(") 'sp-forward-barf-sexp)
+  (define-key smartparens-mode-map (kbd "M-)") 'sp-forward-slurp-sexp)
+
+  (define-key smartparens-mode-map (kbd "M-D") 'sp-splice-sexp)
+
+  ;; Handle backspace in c-like modes better for smartparens
+  (bind-key [remap c-electric-backspace]
+            'sp-backward-delete-char smartparens-strict-mode-map)
+
+  ;; ;; Bind ";" to sp-comment in elisp
+  (bind-key ";" 'sp-comment emacs-lisp-mode-map)
+
+  (defun sp--org-skip-asterisk (ms mb me)
+    (or (and (= (line-beginning-position) mb)
+             (eq 32 (char-after (1+ mb))))
+        (and (= (1+ (line-beginning-position)) me)
+             (eq 32 (char-after me)))))
+
+  ;; Org-mode
+  (sp-with-modes
+      'org-mode
+    (sp-local-pair "*" "*"
+                   :actions '(insert wrap)
+                   :unless '(sp-point-after-word-p sp-point-at-bol-p)
+                   :wrap "C-*" :skip-match 'sp--org-skip-asterisk)
+    (sp-local-pair "_" "_" :unless '(sp-point-after-word-p) :wrap "C-_")
+    (sp-local-pair "/" "/" :unless '(sp-point-after-word-p)
+                   :post-handlers '(("[d1]" "SPC")))
+    (sp-local-pair "~" "~" :unless '(sp-point-after-word-p)
+                   :post-handlers '(("[d1]" "SPC")))
+    (sp-local-pair "=" "=" :unless '(sp-point-after-word-p)
+                   :post-handlers '(("[d1]" "SPC")))
+    (sp-local-pair "«" "»"))
+
+    ;;; Java
+  (sp-with-modes
+      '(java-mode c++-mode)
+    (sp-local-pair "{" nil :post-handlers '(("||\n[i]" "RET")))
+    (sp-local-pair "/*" "*/" :post-handlers '((" | " "SPC")
+                                              ("* ||\n[i]" "RET"))))
+
+  (smartparens-global-strict-mode 1))
+
+(when (fboundp 'define-fringe-bitmap)
+  (define-fringe-bitmap 'flycheck-fringe-bitmap-double-arrow
+    [0 0 0 0 0 4 12 28 60 124 252 124 60 28 12 4 0 0 0 0]))
+
+(use-package flycheck
+  :disabled t
+  :ensure t
+  :defer 5
+  :bind (("M-g M-n" . flycheck-next-error)
+         ("M-g M-p" . flycheck-previous-error)
+         ("M-g M-=" . flycheck-list-errors))
+  :init
+  (require 'flycheck)
+  (global-flycheck-mode)
+  (setq flycheck-indication-mode 'right-fringe
+        flycheck-check-syntax-automatically '(save mode-enabled))
+  :diminish flycheck-mode
   :config
-  (sp-use-paredit-bindings)
-  (show-smartparens-global-mode +1)
-  (smartparens-global-mode 1)
-  )
+  (progn
+    (setq-default flycheck-disabled-checkers
+                  '(emacs-lisp-checkdoc json-jsonlint json-python-json))
+    (use-package flycheck-pos-tip
+      :ensure t
+      :init
+      (flycheck-pos-tip-mode)
+      (setq flycheck-pos-tip-timeout 10
+            flycheck-display-errors-delay 0.5))
+    (use-package helm-flycheck
+      :ensure t
+      :disabled t
+      :init (define-key flycheck-mode-map (kbd "C-c ! h") 'helm-flycheck))
+    (use-package flycheck-haskell
+      :ensure t
+      :disabled t
+      :init (add-hook 'flycheck-mode-hook #'flycheck-haskell-setup))))
+
+;;--------------------------------------------------------------------------------
+;; pokazuj krańcowe nawiasy
+;;--------------------------------------------------------------------------------
+(show-paren-mode 1)
+(setq show-paren-style 'mixed)
+(setq transient-mark-mode nil)
+
+
+(global-set-key (kbd "M-g") 'goto-line)
 
 ;; (use-package color-moccur
 ;;   :ensure t
@@ -262,7 +409,13 @@
                (null popup-instances))
       (setq sanityinc/fci-mode-suppressed nil)
       (turn-on-fci-mode)))
-  )
+  (setq fci-rule-width 1)
+  (setq fci-rule-color "darkblue")
+  (setq fci-rule-use-dashes t)
+  (setq fci-dash-pattern 0.42)
+  (setq fci-always-use-textual-rule t)
+  (eval-after-load 'prog-mode
+    (add-hook 'prog-mode-hook 'fci-mode)))
 (use-package undo-tree
   :ensure t
   :config (global-undo-tree-mode))
@@ -283,9 +436,13 @@
 ;;(load "~/.emacs.d/rc/rc-cmake-mode.el")
 
 ;; (require 'rc-auto-complete)
+(require 'auto-complete-config)
+(ac-config-default)
+
 ;;(load "~/.emacs.d/rc/rc-flymake.el")
 ;; (load "~/.emacs.d/rc/rc-google-c-style.el")
 (use-package iedit
+  :ensure t
   :bind ("C-c ;" . iedit-mode)
   )
 ;; (require 'rc-duplicate-thing)
@@ -293,30 +450,35 @@
 
 ;; (require 'rc-diff-mode)
 (use-package volatile-highlights
+  :ensure t
   :config (volatile-highlights-mode t))
 (use-package clean-aindent-mode
   :ensure t
-  :config (electric-indent-mode -1)
-  :custom (clean-aindent-is-simple-indent t)
+  :config
+  (electric-indent-mode -1)
+  (clean-aindent-mode)
+  (eval-after-load 'prog-mode
+    (lambda ()
+      (progn
+        (setq clean-aindent-is-simple-indent t)
+        (clean-aindent-mode t))))
   :bind (:map global-map ("<RET>" . newline-and-indent))
-  :hook (prog-mode-hook . clean-aindent-mode)
   )
 
 ;; (require 'rc-dtrt-indent)
 ;; (require 'rc-ws-butler)
 (use-package ws-butler
   :ensure t
-  :hook ((c-mode-common-hook text-mode fundamental-mode) . ws-butler-mode)
   )
 
 ;; this variables must be set before load helm-gtags
 ;; you can change to any prefix key of your choice
 ;;(setq helm-gtags-prefix-key "\C-cg")
 
-;; (require 'rc-ggtags)
 (use-package ggtags
   :ensure t
-  :hook ((c++-mode-hook c-mode-hook java-mode asm-mode) . (ggtags-mode))
+  :defer t
+  :hook ((c++-mode-hook c-mode-hook asm-mode)   . (lambda () (ggtags-mode 1)))
   :bind (:map ggtags-mode-map
               ("C-c g s" . ggtags-find-other-symbol)
               ("C-c g h" . ggtags-view-tag-history)
@@ -326,14 +488,123 @@
               ("C-c g u" . ggtags-update-tags)
               ("M-," . pop-tag-mark)
               )
+  :commands ggtags-mode
+  :config
+  (unbind-key "M-<" ggtags-mode-map)
+  (unbind-key "M->" ggtags-mode-map)
+  (add-hook 'c-mode-common-hook
+            (lambda ()
+              (when (derived-mode-p 'c-mode 'c++-mode 'java-mode 'asm-mode)
+                (ggtags-mode 1)
+                )))
   )
+
+(setq vc-handled-backends '(git svn))
+;; (use-package subword-mode
+;; :diminish subword-mode)
+
+(use-package cycle-quotes
+  :ensure t
+  :bind ("C-c q" . cycle-quotes))
+
+(defun bk/last-compilation-buffer ()
+  "Display last compilation buffer in current window."
+  (interactive)
+  (if (buffer-live-p compilation-last-buffer)
+      (set-window-buffer (get-buffer-window) compilation-last-buffer)
+    (message "Last compilation buffer is killed.")))
+
+(global-set-key (kbd "C-x c") #'bk/last-compilation-buffer)
+
+(use-package bool-flip
+  :ensure t
+  :bind ("C-c C-b" . bool-flip-do-flip))
+
+(use-package company
+  :ensure t
+  :hook (after-init-hook . global-company-mode)
+  )
+
+(use-package dtrt-indent
+  :ensure t
+  :diminish t
+  :config
+  (setq dtrt-indent-active-mode-line-info ""))
+
+(use-package highlight-numbers
+  :ensure t
+  :init
+  (add-hook 'prog-mode-hook #'highlight-numbers-mode))
+
+(use-package highlight-defined
+  :ensure t
+  :init
+  (add-hook 'emacs-lisp-hook #'highligh-defined-mode))
+
+(use-package highlight-operators
+  :ensure t
+  :init
+  (add-hook 'c-mode-common-hook #'highlight-operators-mode))
+
+(use-package highlight-escape-sequences
+  :ensure t
+  :init
+  (add-hook 'prog-mode-hook #'hes-mode))
+
+(use-package paren-face
+  :ensure t
+  :init (global-paren-face-mode))
+
+(setq-default line-spacing 0)
+
+(use-package company-c-headers
+  :after company
+  :ensure t
+  :config
+  (push 'company-c-headers company-backends))
+
+(when (executable-find "clang")
+  (use-package company-clang
+    :disabled
+    :ensure t)
+  )
+
+(use-package company-irony-c-headers
+  :if (package-installed-p 'company-irony)
+  :config
+  (eval-after-load 'company
+      (push 'company-irony-c-headers company-backends)))
+
+(use-package company-irony
+  :if (package-installed-p 'company-irony)
+  :config
+  (eval-after-load 'company
+    (push 'company-irony company-backends)))
+
+(require 'bk-java)
+
+(use-package gradle-mode
+  :config
+  (setq gradle-executable-path "/opt/gradle/gradle-5.2.1/bin/gradle")
+  (setq gradle-use-gradlew t)
+  (eval-after-load 'java-mode
+    (add-hook 'java-mode-hook (lambda () (gradle-mode 1)))))
+
+(eval-after-load 'java-mode
+  (add-hook 'java-mode-hook
+	  (lambda ()
+	    (setq fill-column 80)
+	    (fci-mode)
+	    (auto-fill-mode)
+	    (setq c-basic-offset 4
+		  tab-width 4
+		  indent-tabs-mode nil)
+	    )))
 
 ;;(require 'rc-helm)
 ;;(require 'rc-helm-gtags)
 
-(use-package all-the-icons
-  :ensure t
-  )
+(use-package all-the-icons :ensure t)
 (use-package neotree
   :ensure t
   :bind
@@ -356,15 +627,14 @@
   )
 
 
-(use-package hydra
-  :ensure t)
-(use-package counsel
-  :ensure t)
-(use-package swiper
-  :ensure t)
+(use-package hydra :ensure t)
+(use-package counsel :ensure t)
+(use-package counsel-gtags :ensure t)
+(use-package counsel-projectile :ensure t)
+(use-package swiper :ensure t)
 (use-package ivy
   :ensure t
-  :after (swiper counsel)
+  :after (swiper counsel counsel-gtags)
   :bind (("\C-s" . swiper)
          ("C-c C-r" . ivy-resume)
          ("<f6>" . ivy-resume)
@@ -377,6 +647,8 @@
          ("<f2> u" . counsel-unicode-char)
          ("C-c g" . counsel-git)
          ("C-c j" . counsel-git-grep)
+         ("C-c v" . ivy-push-view)
+         ("C-c V" . ivy-pop-view)
          :map minibuffer-local-map
          ("C-r" . 'counsel-minibuffer-history)
          )
@@ -390,12 +662,61 @@
   :ensure t
   :after (ivy hydra))
 
+
+(use-package ibuffer
+  :ensure t
+  :bind ("C-x C-b" . #'ibuffer)
+  :config
+  (setq ibuffer-saved-filter-groups
+	'(("default"
+           ("Emacs Configuration" (or (filename . ".emacs.d")
+                                      (filename . "init.el")
+                                      (filename . "package.el")
+                                      (filename . "private.el")
+                                      (filename . "emacs.d")))
+           ("Org" (or (mode . org-mode)
+                      (filename . "OrgMode")))
+           ("Magit" (name . "magit"))
+           ("Help" (or (name . "\*Help\*")
+                       (name . "\*Apropos\*")
+                       (name . "\*info\*")))
+           ("Dired" (mode . dired-mode))
+           ;; Dev has groups for all languages you program in
+           ("Dev" (or (mode . cc-mode)
+                      (filename . ".c")
+                      (filename . ".cpp")
+                      (filename . ".hpp")
+                      (filename . ".h")
+                      (filename . ".java")
+                      (filename . ".properties")
+                      (filename . ".gradle")
+                      (filename . ".am")
+                      (mode . yaml-mode))
+            )
+           ("Text" (or (filename . ".csv")
+                       (filename . ".tsv")
+                       (filename . ".txt")
+                       (filename . ".log")
+                       (filename . ".json")))
+
+           ("Emacs" (or (name . "^\\*scratch\\*$")
+			(name . "^\\*Messages\\*$")))
+           ("Gnus" (or (mode . message-mode)
+                       (mode . bbdb-mode)
+                       (mode . mail-mode)
+                       (mode . gnus-group-mode)
+                       (mode . gnus-summary-mode)
+                       (mode . gnus-article-mode)
+                       (name . "^\\.bbdb$")
+                       (name . "^\\.newsrc-dribble")))
+ 	   )))
+  )
+
 ;; (load "~/.emacs.d/rc/rc-ecb.el")
 ;; (require 'rc-cedet)
 ;; (require 'rc-company)
 ;; (require 'rc-gdb)
 
-;; (require 'rc-projectile)
 (use-package projectile
   :ensure t
   :delight '(:eval (concat " " (projectile-project-name)))
@@ -406,6 +727,7 @@
   :config (projectile-global-mode)
   ;; (helm-projectile-on)
   )
+;; (use-package treemacs :ensure t)
 (use-package zygospore
   :ensure t
   :bind ("C-x 1" . zygospore-toggle-delete-other-windows))
@@ -415,6 +737,7 @@
 ;;(load "~/.emacs.d/rc/rc-graphviz.el")
 
 (use-package groovy-mode :ensure t)
+
 ;; Load ruby only when needed
 (use-package ruby-mode
   :mode "\\.rb\\'"
@@ -433,8 +756,7 @@
   (py-smart-indentation t)
   :hook ((python-mode-hook . font-lock-fontify-numbers))
   )
-(use-package magit
-  :ensure t)
+(use-package magit :ensure t)
 (use-package magit-popup
   :if (package-installed-p 'magit-popup)
   :disabled

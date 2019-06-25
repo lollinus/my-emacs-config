@@ -1,11 +1,10 @@
 ;;; rc-elpa.el ---
 ;; configure melpa package archive
 
-(if (>= (string-to-number (substring emacs-version 0 2)))
-	"Emacs >= 24 has elpa integrated"
-  ;; install elpa on emacs 23
-  (progn
-	;; (let ((buffer (url-retrieve-synchronously
+(if (version< emacs-version "24")
+    ;; install elpa on emacs 23
+    (progn
+      ;; (let ((buffer (url-retrieve-synchronously
 	;;   	     "http://git.savannah.gnu.org/gitweb/?p=emacs.git;a=blob_plain;hb=ba08b24186711eaeb3748f3d1f23e2c2d9ed0d09;f=lisp/emacs-lisp/package.el")))
 	;;   (save-excursion
 	;;     (set-buffer buffer)
@@ -13,23 +12,22 @@
 	;;     (re-search-forward "^$" nil 'move)
 	;;     (eval-region (point) (point-max))
 	;;     (kill-buffer (current-buffer))))
-
-	(when
-		(load
-		 (expand-file-name "~/.emacs.d/package.el"))
-	  (package-initialize))
-	)
-  )
+	(when (load (expand-file-name "~/.emacs.d/package.el"))
+	  (package-initialize)))
+  "Emacs >= 24 has elpa integrated")
 
 (require 'package)
 
 ;; Add the user-contributed repository
-(setq package-archives
-      '(("gnu" . "http://elpa.gnu.org/packages/")
-        ("melpa" . "http://melpa.org/packages/")
-	("melpa-mirror" . "https://www.mirrorservice.org/sites/melpa.org/packages/")
-        ;;("marmalade" . "https://marmalade-repo.org/packages/")
-	))
+;; (add-to-list 'package-archives
+;; 	     '("gnu" . "http://elpa.gnu.org/packages/"))
+(add-to-list 'package-archives
+	     '("melpa" . "http://melpa.org/packages/"))
+(add-to-list 'package-archives
+	     '("melpa-mirror" . "https://www.mirrorservice.org/sites/melpa.org/packages/"))
+;; (add-to-list 'package-archives
+;; 	     '("marmalade" . "https://marmalade-repo.org/packages/"))
+ 
 
 (setq package-archive-priorities
       '(("melpa" . 0)

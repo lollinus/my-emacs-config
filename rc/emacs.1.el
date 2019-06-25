@@ -18,7 +18,8 @@
                 cperl-mode
                 html-mode-hook
                 css-mode-hook
-                emacs-lisp-mode))
+                emacs-lisp-mode
+		java-mode))
   (font-lock-add-keywords mode
                           '(("\\(XXX\\|FIXME\\|TODO\\)"
                              1 font-lock-warning-face prepend))))
@@ -88,27 +89,12 @@
   (edit-server-start))
 
 ;;--------------------------------------------------------------------------------
-;; pokazuj krańcowe nawiasy
-;;--------------------------------------------------------------------------------
-(show-paren-mode 1)
-(setq show-paren-style 'expression)
-(setq transient-mark-mode nil)
-
-;;--------------------------------------------------------------------------------
 ;;
 ;;--------------------------------------------------------------------------------
-(setq vc-follow-symlinks t
-      visible-bell t)
-
 ;;--------------------------------------------------------------------------------
 ;; automatyczny odczyt plików kompresowanych
 ;;--------------------------------------------------------------------------------
 (auto-compression-mode 1)
-
-;;--------------------------------------------------------------------------------
-;; turn off blinking cursor
-;;--------------------------------------------------------------------------------
-(blink-cursor-mode -1)
 
 ;;--------------------------------------------------------------------------------
 ;; klawisze skrótów
@@ -116,7 +102,7 @@
 (global-set-key (kbd "M-g") 'goto-line)
 ;; (global-set-key [(meta G)] 'what-line)
 
-(if (string-equal "21" (substring emacs-version 0 2))
+(if (version= emacs-version "21")
     (progn
       ;; ===== Function to delete a line =====
 
@@ -166,6 +152,8 @@
 ;; string-insert-rectangle is useful but not binded to any key by default
 (global-set-key (kbd "C-x r a") 'string-insert-rectangle)
 
+
+
 ;; Join lines as in Vim
 ;; (defun my-join-line()
 ;;   "Join current and next line, remove tralinig spaces leaving only one. Similar to Vim Ctrl-j"
@@ -175,9 +163,8 @@
 ;; (global-set-key (kbd "C-j") 'my-join-line)
 
 ;; keep minibuffer history between session
-(if (not (string-equal "21" (substring emacs-version 0 2)))
-    (savehist-mode t)
-  )
+(if (not (version= emacs-version "21"))
+    (savehist-mode t))
 
 ;; autocompletion
 (global-set-key (kbd "ESC ESC") 'dabbrev-expand) ; ESC ESC ESC not usable :-/
@@ -267,8 +254,3 @@ region\) apply comment-or-uncomment to the current line"
 ;; xml-mode is better than nxml-mode or html-mode
 (add-to-list 'auto-mode-alist
   '("\\.html\\'\\|\\.xml\\'\\|\\.phtml\\'" . xml-mode))
-
-;; don't let Customize mess with my .emacs
-(setq custom-file "~/.emacs.d/custom.el")
-(load custom-file 'noerror)
-

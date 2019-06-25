@@ -54,7 +54,7 @@
 ;;; ----[ Library Search
 (add-to-list 'load-path
              (concat my-site-lisp-directory "doxymacs"))
-(if (string-equal "21" (substring emacs-version 0 2))
+(if (version<= emacs-version "21")
     (add-to-list 'load-path
                  (concat my-site-lisp-directory "url"))
   )
@@ -90,14 +90,6 @@
 ;; --[ 9 The (info "(emacs)Minibuffer") ]--------------------------------
 
 ;;; ----[ 19.11 (info "(emacs)Useless Whitespace")
-
-;; highlight trailing whitespaces
-(mapc (lambda (hook)
-        (add-hook hook (lambda ()
-                         (setq show-trailing-whitespace t))))
-      '(text-mode-hook
-        emacs-lisp-mode-hook
-        shell-script-mode-hook))
 
 ;;; ----[ 19.17 Cursor Display
 
@@ -154,7 +146,7 @@
 
 ; last --------------------------------------------------------------------------------
 ;; use M-{up,right,down,left} for windmove
-(if (not (string-equal "21" (substring emacs-version 0 2)))
+(if (version<= emacs-version "21")
     (windmove-default-keybindings 'meta)
   )
 
@@ -250,10 +242,7 @@
 ;;--------------------------------------------------------------------------------
 ;; Add missing support functions
 ;;--------------------------------------------------------------------------------
-(if (not (or
-          (string-equal "24" (substring emacs-version 0 2))
-          (string-equal "25" (substring emacs-version 0 2))
-          ))
+(if (version< emacs-version "24")
     (progn
       (defun utf-16-le-pre-write-conversion (start end) nil)
       (defun utf-16-le-pre-write-conversion (beg end)
