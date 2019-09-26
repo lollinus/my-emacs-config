@@ -477,35 +477,21 @@
 ;;(load "~/.emacs.d/rc/rc-makefile-mode.el")
 ;;(load "~/.emacs.d/rc/rc-cmake-mode.el")
 
-(use-package auto-complete-config
-  :ensure auto-complete
-  :bind ("M-<tab>" . my--auto-complete)
-  :init
-  (defun my--auto-complete ()
-    (interactive)
-    (unless (boundp 'auto-complete-mode)
-      (global-auto-complete-mode 1))
-    (auto-complete))
-  )
-
-(use-package 'ac-c-headers
+;; (require 'rc-auto-complete)
+(use-package auto-complete
   :ensure t
   :config
-  (defun my:ac-c-header-init ()
-    (require 'ac-c-headers)
-    (add-to-list 'ac-sources 'ac-source-c-headers)
-    (add-to-list 'ac-sources 'ac-source-c-header-symbols t)
-    )
-  :hook
-  ((c++-mode-hook c-mode-hook) . my:ac-c-header-init)
+  (require 'auto-complete-config)
+  (ac-config-default)
   )
 
-(add-hook 'c-mode-hook
-	  (lambda ()
-	    (add-to-list 'ac-sources 'ac-source-c-headers)
-	    (add-to-list 'ac-sources 'ac-source-c-header-symbols t)))
-;;(require 'auto-complete-config)
-;;(ac-config-default)
+(use-package auto-complete-c-headers
+  :after  auto-complete
+  :ensure t
+  :config
+  (require 'auto-complete-c-headers)
+  (add-to-list 'ac-sources 'ac-source-c-headers)
+  )
 
 ;;(load "~/.emacs.d/rc/rc-flymake.el")
 ;; (load "~/.emacs.d/rc/rc-google-c-style.el")
@@ -653,7 +639,7 @@
   (eval-after-load 'company
     (push 'company-irony company-backends)))
 
-(require 'bk-java)
+;;(require 'bk-java)
 
 (use-package gradle-mode
   :config
