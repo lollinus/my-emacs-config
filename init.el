@@ -181,7 +181,6 @@
   (eval-after-load "projectile" '(diminish 'projectile-mode "P"))
   )
 
-
 (use-package emacs
   :hook (lisp-mode-hook . display-line-numbers-mode)
   :custom (display-line-numbers-type 'visual)
@@ -327,6 +326,11 @@
                                               ("* ||\n[i]" "RET"))))
 
   (smartparens-global-strict-mode 1))
+
+(global-set-key (kbd "C-c n") 'next-multiframe-window)
+(global-set-key (kbd "C-c f") 'switch-to-next-buffer)
+(global-set-key (kbd "C-c p") 'switch-to-prev-buffer)
+(global-set-key (kbd "M-o") 'ace-window)
 
 (when (fboundp 'define-fringe-bitmap)
   (define-fringe-bitmap 'flycheck-fringe-bitmap-double-arrow
@@ -629,7 +633,8 @@
 
 (use-package hydra :ensure t)
 (use-package counsel :ensure t)
-(use-package counsel-gtags :ensure t)
+(use-package counsel-gtags :ensure t
+  )
 (use-package counsel-projectile :ensure t)
 (use-package swiper :ensure t)
 (use-package ivy
@@ -645,7 +650,7 @@
          ("<f1> l" . counsel-find-library)
          ("<f2> i" . counsel-info-lookup-symbol)
          ("<f2> u" . counsel-unicode-char)
-         ("C-c g" . counsel-git)
+         ("C-c f" . counsel-git)
          ("C-c j" . counsel-git-grep)
          ("C-c v" . ivy-push-view)
          ("C-c V" . ivy-pop-view)
