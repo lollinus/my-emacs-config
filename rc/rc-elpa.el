@@ -21,19 +21,20 @@
 ;; Add the user-contributed repository
 ;; (add-to-list 'package-archives
 ;; 	     '("gnu" . "http://elpa.gnu.org/packages/"))
-(add-to-list 'package-archives
-	     '("melpa" . "http://melpa.org/packages/"))
-(add-to-list 'package-archives
-	     '("melpa-mirror" . "https://www.mirrorservice.org/sites/melpa.org/packages/"))
+;; (add-to-list 'package-archives
+;;	     '("melpa" . "http://melpa.org/packages/"))
+;;(add-to-list 'package-archives
+;;	     '("melpa-mirror" . "https://www.mirrorservice.org/sites/melpa.org/packages/"))
 ;; (add-to-list 'package-archives
 ;; 	     '("marmalade" . "https://marmalade-repo.org/packages/"))
  
 
 (setq package-archive-priorities
-      '(("melpa" . 0)
-	("melpa-mirror" . 1)
+      '(
+;;	("melpa" . 0)
+;;	("melpa-mirror" . 1)
 	("gnu" . 2)
-	("marmalade". 3)
+;;	("marmalade". 3)
 	)
       )
 

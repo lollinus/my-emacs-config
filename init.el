@@ -155,31 +155,68 @@
 
 ;; elpa configuration -- keep it always first because other configs can try to install packages
 ;;(load "~/.emacs.d/rc/rc-w3m.el")
-(load "~/.emacs.d/rc/rc-elpa.el")
+;; (load "~/.emacs.d/rc/rc-elpa.el")
+
+(if (version< emacs-version "24")
+    ;; install elpa on emacs 23
+    (progn
+      ;; (let ((buffer (url-retrieve-synchronously
+	;;   	     "http://git.savannah.gnu.org/gitweb/?p=emacs.git;a=blob_plain;hb=ba08b24186711eaeb3748f3d1f23e2c2d9ed0d09;f=lisp/emacs-lisp/package.el")))
+	;;   (save-excursion
+	;;     (set-buffer buffer)
+	;;     (goto-char (point-min))
+	;;     (re-search-forward "^$" nil 'move)
+	;;     (eval-region (point) (point-max))
+	;;     (kill-buffer (current-buffer))))
+	(when (load (expand-file-name "~/.emacs.d/package.el"))
+	  (package-initialize)))
+  "Emacs >= 24 has elpa integrated")
+
+(package-initialize)
+(setq package-check-signature nil)
+(require 'package)
+
+
+;;(add-to-list 'package-archives
+;;	     '("gnu" . "http://elpa.gnu.org/packages/"))
+(add-to-list 'package-archives
+	     '("melpa" . "https://melpa.org/packages/"))
+(when (version< emacs-version "24")
+  (add-to-list 'package-archives '("gnu" . "http://elpa.gnu.org/packages/")))
 
 ;; Bootstrap `use-package`
-(condition-case nil
-    (require 'use-package)
-  (file-error
-   (require 'package)
-   (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
-   (package-initialize)
-   (package-refresh-contents)
-   (package-install 'use-package)
-   (require 'use-package)))
+;; (condition-case nil
+;;     (require 'use-package)
+;;   (file-error
+;;    (require 'package)
+;;    (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
+;;    (add-to-list 'package-archives '("melpa-stable" . "http://stable.melpa.org/packages/"))
+;;    (package-initialize)
+;;    (package-refresh-contents)
+;;    (package-install 'use-package)
+;;    (require 'use-package)))
 
-(setq use-package-compute-statistics t)
-(eval-when-compile
-  (require 'use-package))
-(setq use-package-verbose t)
-(setq use-package-check-before-init t)
+;;(setq use-package-compute-statistics t)
+;;(eval-when-compile
+;;  (require 'use-package))
+;;(setq use-package-verbose t)
+;;(setq use-package-check-before-init t)
 
-(use-package diminish
-  :ensure t
-  :config
-  (diminish 'whitespace-mode)
-  (eval-after-load "projectile" '(diminish 'projectile-mode "P"))
-  )
+
+;;(use-package quelpa-use-package :ensure t)
+(if (require 'quelpa nil t)
+    (quelpa-self-upgrade)
+  (with-temp-buffer
+    (url-insert-file-contents "http://framagit.org/steckerhalter/quelpa/raw/master/bootstrap.el")
+    (eval-buffer)))
+
+(quelpa
+ '(quelpa-use-package
+   :fetcher git
+   :url "https://framagit.org/steckerhalter/quelpa-use-package.git"))
+(require 'quelpa-use-package)
+
+(use-package delight :ensure t :quelpa)
 
 (use-package emacs
   :hook (lisp-mode-hook . display-line-numbers-mode)
@@ -251,7 +288,8 @@
 (use-package smartparens
   :disabled
   :ensure t
-  :diminish smartparens-mode
+  ;;  :diminish smartparens-mode
+  :delight ""
   :init
   (electric-pair-mode -1)
   (require 'smartparens-config)
@@ -348,7 +386,8 @@
   (global-flycheck-mode)
   (setq flycheck-indication-mode 'right-fringe
         flycheck-check-syntax-automatically '(save mode-enabled))
-  :diminish flycheck-mode
+  ;;  :diminish flycheck-mode
+  :delight ""
   :config
   (progn
     (setq-default flycheck-disabled-checkers
@@ -424,8 +463,7 @@
   :ensure t
   :config (global-undo-tree-mode))
 ;;(load "~/.emacs.d/rc/rc-adoc-mode.el")
-(use-package markdown-mode
-  :ensure t)
+(use-package markdown-mode :ensure t)
 ;; (require 'rc-doxymacs)
 (use-package highlight-doxygen
   :if (package-installed-p 'highlight-doxygen)
@@ -439,9 +477,35 @@
 ;;(load "~/.emacs.d/rc/rc-makefile-mode.el")
 ;;(load "~/.emacs.d/rc/rc-cmake-mode.el")
 
-;; (require 'rc-auto-complete)
-(require 'auto-complete-config)
-(ac-config-default)
+(use-package auto-complete-config
+  :ensure auto-complete
+  :bind ("M-<tab>" . my--auto-complete)
+  :init
+  (defun my--auto-complete ()
+    (interactive)
+    (unless (boundp 'auto-complete-mode)
+      (global-auto-complete-mode 1))
+    (auto-complete))
+  )
+
+(use-package 'ac-c-headers
+  :ensure t
+  :config
+  (defun my:ac-c-header-init ()
+    (require 'ac-c-headers)
+    (add-to-list 'ac-sources 'ac-source-c-headers)
+    (add-to-list 'ac-sources 'ac-source-c-header-symbols t)
+    )
+  :hook
+  ((c++-mode-hook c-mode-hook) . my:ac-c-header-init)
+  )
+
+(add-hook 'c-mode-hook
+	  (lambda ()
+	    (add-to-list 'ac-sources 'ac-source-c-headers)
+	    (add-to-list 'ac-sources 'ac-source-c-header-symbols t)))
+;;(require 'auto-complete-config)
+;;(ac-config-default)
 
 ;;(load "~/.emacs.d/rc/rc-flymake.el")
 ;; (load "~/.emacs.d/rc/rc-google-c-style.el")
@@ -451,6 +515,10 @@
   )
 ;; (require 'rc-duplicate-thing)
 (require 'rc-cc-mode)
+(use-package clang-format+
+  :quelpa (clang-format+
+	   :fetcher github
+	   :repo "SavchenkoVileriy/emacs-clang-format-plus"))
 
 ;; (require 'rc-diff-mode)
 (use-package volatile-highlights
@@ -543,7 +611,7 @@
 (use-package highlight-defined
   :ensure t
   :init
-  (add-hook 'emacs-lisp-hook #'highligh-defined-mode))
+  (add-hook 'emacs-lisp-hook #'highlight-defined-mode))
 
 (use-package highlight-operators
   :ensure t
@@ -633,8 +701,7 @@
 
 (use-package hydra :ensure t)
 (use-package counsel :ensure t)
-(use-package counsel-gtags :ensure t
-  )
+(use-package counsel-gtags :ensure t)
 (use-package counsel-projectile :ensure t)
 (use-package swiper :ensure t)
 (use-package ivy
@@ -722,6 +789,8 @@
 ;; (require 'rc-company)
 ;; (require 'rc-gdb)
 
+;; :config
+;; (eval-after-load "projectile" '(diminish 'projectile-mode "P"))
 (use-package projectile
   :ensure t
   :delight '(:eval (concat " " (projectile-project-name)))
@@ -772,6 +841,9 @@
   :requires magit-popup
   :custom
   (magit-gerrit-ssh-creds "kbarskix@git-amr-3.devtools.intel.com"))
+(use-package treemacs-magit
+  :if (package-installed-p 'magit-popup)
+  :ensure t)
 
 ;; (load "~/.emacs.d/rc/rc-org-mode.el")
 ;;(load "~/.emacs.d/rc/rc-org-addons.el")
