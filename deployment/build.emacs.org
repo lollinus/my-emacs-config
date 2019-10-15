@@ -1,0 +1,22 @@
+
+
+curl -LO http://ftp.snt.utwente.nl/pub/software/gnu/emacs/emacs-26.3.tar.xz
+tar cJvf emacs-26.3.tar.xz
+mkdir -p emacs-build
+cd emacs-build
+
+# for X support
+# CentOS 8
+sudo dnf install libX11-devel libXaw-devel gnutls-devel libXrandr-devel
+sudo dnf install libXft-devel
+sudo dnf install libacl-devel
+sudo dnf install turbojpeg-devel libpng-devel libtiff-devel
+sudo dnf --enablerepo=PowerTools install giflib-devel
+sudo dnf --enablerepo=PowerTools install ImageMagick-devel
+sudo dnf install ncurses-devel
+sudo dnf install libxml2-devel
+sudo dnf install librsvg2-devel
+sudo dnf install dbus-devel
+sudo dnf install gpm-devel
+
+bash ../emacs-26.3/configure --prefix=/opt/emacs263

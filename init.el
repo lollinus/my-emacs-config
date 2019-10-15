@@ -189,9 +189,9 @@
 (condition-case nil
     (require 'use-package)
   (file-error
-   (require 'package)
-   (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
-   (package-initialize)
+;;   (require 'package)
+;;   (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
+;;   (package-initialize)
    (package-refresh-contents)
    (package-install 'use-package)
    (require 'use-package)))
@@ -481,29 +481,99 @@
 ;;(load "~/.emacs.d/rc/rc-cmake-mode.el")
 
 ;; (require 'rc-auto-complete)
-(use-package auto-complete
-  :ensure t
-  :config
-  (require 'auto-complete-config)
-  (ac-config-default)
-  )
+;;(require 'auto-complete-config)
 
-(use-package auto-complete-c-headers
-  :after  auto-complete
-  :ensure t
+(use-package auto-complete-config
+  :ensure auto-complete
+  :bind ("M-<tab>" . my--auto-complete)
+  :init
+  (defun my--auto-complete ()
+    (interactive)
+    (unless (boundp 'auto-complete-mode)
+      (global-auto-complete-mode 1))
+    (auto-complete))
   :config
-  (require 'auto-complete-c-headers)
-  (add-to-list 'ac-sources 'ac-source-c-headers)
+  (ac-set-trigger-key "TAB")
+  (ac-config-default)
+
+  (setq ac-delay 0.02)
+  (setq ac-use-menu-map t)
+  (setq ac-menu-height 50)
+  (setq ac-use-quick-help nil)
+  (setq ac-comphist-file "~/.emacs.d/ac-comphist.dat")
+  (setq ac-ignore-case nil)
+  (setq ac-dwim t)
+  (setq ac-fuzzy-enable t)
   )
 
 (use-package ac-c-headers
   :ensure t
+  :config
+  (defun my:ac-c-header-init ()
+    (require 'ac-c-headers)
+    (add-to-list 'ac-sources 'ac-source-c-headers)
+    (add-to-list 'ac-sources 'ac-source-c-header-symbols t)
+    )
   :hook
-  ((c++-mode-hook c-mode-hook) . (lambda ()
-		   (add-to-list 'ac-sources 'ac-source-c-headers)
-		   (add-to-list 'ac-sources 'ac-source-c-header-symbols t)))
-  ;; (c++-mode-hook . my:ac-c-header-init)
+  ((c++-mode-hook c-mode-hook) . my:ac-c-header-init)
   )
+
+(use-package ac-dabbrev
+  :config
+  (add-to-list 'ac-sources 'ac-source-dabbrev)
+  (setq ac-modes '(js3-mode
+		   emacs-lisp-mode
+		   lisp-mode
+		   lisp-interaction-mode
+		   slime-repl-mode
+		   c-mode
+		   cc-mode
+		   c++-mode
+		   go-mode
+		   java-mode
+		   eclim-mode
+		   malabar-mode
+		   clojure-mode
+		   clojurescript-mode
+		   scala-mode
+		   scheme-mode
+		   ocaml-mode
+		   tuareg-mode
+		   coq-mode
+		   haskell-mode
+		   agda-mode
+		   agda2-mode
+		   perl-mode
+		   cperl-mode
+		   python-mode
+		   ruby-mode
+		   enh-ruby-mode
+		   lua-mode
+		   ecmascript-mode
+		   javascript-mode
+		   js-mode
+		   js2-mode
+		   php-mode
+		   css-mode
+		   makefile-mode
+		   sh-mode
+		   fortran-mode
+		   f90-mode
+		   ada-mode
+		   xml-mode
+		   sgml-mode
+		   ts-mode
+		   sclang-mode
+		   verilog-mode))
+)
+
+(add-hook 'c-mode-hook
+	  (lambda ()
+	    (add-to-list 'ac-sources 'ac-source-c-headers)
+	    (add-to-list 'ac-sources 'ac-source-c-header-symbols t)))
+;;(require 'auto-complete-config)
+;;(ac-config-default)
+(ac-config-default)
 
 ;;(load "~/.emacs.d/rc/rc-flymake.el")
 ;; (load "~/.emacs.d/rc/rc-google-c-style.el")
