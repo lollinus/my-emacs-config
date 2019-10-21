@@ -518,54 +518,60 @@
   ((c++-mode-hook c-mode-hook) . my:ac-c-header-init)
   )
 
-(use-package ac-dabbrev
-  :config
-  (add-to-list 'ac-sources 'ac-source-dabbrev)
-  (setq ac-modes '(js3-mode
-		   emacs-lisp-mode
-		   lisp-mode
-		   lisp-interaction-mode
-		   slime-repl-mode
-		   c-mode
-		   cc-mode
-		   c++-mode
-		   go-mode
-		   java-mode
-		   eclim-mode
-		   malabar-mode
-		   clojure-mode
-		   clojurescript-mode
-		   scala-mode
-		   scheme-mode
-		   ocaml-mode
-		   tuareg-mode
-		   coq-mode
-		   haskell-mode
-		   agda-mode
-		   agda2-mode
-		   perl-mode
-		   cperl-mode
-		   python-mode
-		   ruby-mode
-		   enh-ruby-mode
-		   lua-mode
-		   ecmascript-mode
-		   javascript-mode
-		   js-mode
-		   js2-mode
-		   php-mode
-		   css-mode
-		   makefile-mode
-		   sh-mode
-		   fortran-mode
-		   f90-mode
-		   ada-mode
-		   xml-mode
-		   sgml-mode
-		   ts-mode
-		   sclang-mode
-		   verilog-mode))
-)
+(use-package pabbrev
+  :ensure t
+  :hook
+  (c-mode-common-hook . pabbrev )
+  )
+
+;; (use-package ac-dabbrev
+;;   :config
+;;   (add-to-list 'ac-sources 'ac-source-dabbrev)
+;;   (setq ac-modes '(js3-mode
+;; 		   emacs-lisp-mode
+;; 		   lisp-mode
+;; 		   lisp-interaction-mode
+;; 		   slime-repl-mode
+;; 		   c-mode
+;; 		   cc-mode
+;; 		   c++-mode
+;; 		   go-mode
+;; 		   java-mode
+;; 		   eclim-mode
+;; 		   malabar-mode
+;; 		   clojure-mode
+;; 		   clojurescript-mode
+;; 		   scala-mode
+;; 		   scheme-mode
+;; 		   ocaml-mode
+;; 		   tuareg-mode
+;; 		   coq-mode
+;; 		   haskell-mode
+;; 		   agda-mode
+;; 		   agda2-mode
+;; 		   perl-mode
+;; 		   cperl-mode
+;; 		   python-mode
+;; 		   ruby-mode
+;; 		   enh-ruby-mode
+;; 		   lua-mode
+;; 		   ecmascript-mode
+;; 		   javascript-mode
+;; 		   js-mode
+;; 		   js2-mode
+;; 		   php-mode
+;; 		   css-mode
+;; 		   makefile-mode
+;; 		   sh-mode
+;; 		   fortran-mode
+;; 		   f90-mode
+;; 		   ada-mode
+;; 		   xml-mode
+;; 		   sgml-mode
+;; 		   ts-mode
+;; 		   sclang-mode
+;; 		   verilog-mode))
+;; )
 
 (add-hook 'c-mode-hook
 	  (lambda ()
@@ -721,13 +727,14 @@
   (eval-after-load 'company
     (push 'company-irony company-backends)))
 
-(use-package gradle-mode
-  :if (package-installed-p 'gradle-mode)
-  :config
-  (setq gradle-executable-path "/opt/gradle/gradle-5.2.1/bin/gradle")
-  (setq gradle-use-gradlew t)
-  (eval-after-load 'java-mode
-    (add-hook 'java-mode-hook (lambda () (gradle-mode 1)))))
+;; (require 'bk-java)
+
+;; (use-package gradle-mode
+;;   :config
+;;   (setq gradle-executable-path "/opt/gradle/gradle-5.2.1/bin/gradle")
+;;   (setq gradle-use-gradlew t)
+;;   (eval-after-load 'java-mode
+;;     (add-hook 'java-mode-hook (lambda () (gradle-mode 1)))))
 
 (eval-after-load 'java-mode
   (add-hook 'java-mode-hook
@@ -888,12 +895,12 @@
 ;; (load "~/.emacs.d/rc/rc-web-mode.el")
 ;;(load "~/.emacs.d/rc/rc-graphviz.el")
 
-(use-package groovy-mode :ensure t)
+;; (use-package groovy-mode :ensure t)
 
 ;; Load ruby only when needed
-(use-package ruby-mode
-  :mode "\\.rb\\'"
-  :interpreter "ruby")
+;;(use-package ruby-mode
+;;  :mode "\\.rb\\'"
+;;  :interpreter "ruby")
 (use-package python
   :mode ("\\.py\\'" . python-mode)
   :interpreter ("python" . python-mode)
