@@ -506,22 +506,22 @@
   (setq ac-fuzzy-enable t)
   )
 
-(use-package ac-c-headers
-  :ensure t
-  :config
-  (defun my:ac-c-header-init ()
-    (require 'ac-c-headers)
-    (add-to-list 'ac-sources 'ac-source-c-headers)
-    (add-to-list 'ac-sources 'ac-source-c-header-symbols t)
-    )
-  :hook
-  ((c++-mode-hook c-mode-hook) . my:ac-c-header-init)
-  )
+;; (use-package ac-c-headers
+;;   :ensure t
+;;   :config
+;;   (defun my:ac-c-header-init ()
+;;     (require 'ac-c-headers)
+;;     (add-to-list 'ac-sources 'ac-source-c-headers)
+;;     (add-to-list 'ac-sources 'ac-source-c-header-symbols t)
+;;     )
+;;   :hook
+;;   ((c++-mode-hook c-mode-hook) . my:ac-c-header-init)
+;;   )
 
 (use-package pabbrev
   :ensure t
   :hook
-  (c-mode-common-hook . pabbrev )
+  (c-mode-common-hook . pabbrev)
   )
 
 ;; (use-package ac-dabbrev
@@ -617,33 +617,29 @@
   :ensure t
   )
 
-;; this variables must be set before load helm-gtags
-;; you can change to any prefix key of your choice
-;;(setq helm-gtags-prefix-key "\C-cg")
-
-(use-package ggtags
-  :ensure t
-  :defer t
-  :hook ((c++-mode-hook c-mode-hook asm-mode)   . (lambda () (ggtags-mode 1)))
-  :bind (:map ggtags-mode-map
-              ("C-c g s" . ggtags-find-other-symbol)
-              ("C-c g h" . ggtags-view-tag-history)
-              ("C-c g r" . ggtags-find-reference)
-              ("C-c g f" . ggtags-find-file)
-              ("C-c g c" . ggtags-create-tags)
-              ("C-c g u" . ggtags-update-tags)
-              ("M-," . pop-tag-mark)
-              )
-  :commands ggtags-mode
-  :config
-  (unbind-key "M-<" ggtags-mode-map)
-  (unbind-key "M->" ggtags-mode-map)
-  (add-hook 'c-mode-common-hook
-            (lambda ()
-              (when (derived-mode-p 'c-mode 'c++-mode 'java-mode 'asm-mode)
-                (ggtags-mode 1)
-                )))
-  )
+;; (use-package ggtags
+;;   :ensure t
+;;   :defer t
+;;   :hook ((c++-mode-hook c-mode-hook asm-mode)   . (lambda () (ggtags-mode 1)))
+;;   :bind (:map ggtags-mode-map
+;;               ("C-c g s" . ggtags-find-other-symbol)
+;;               ("C-c g h" . ggtags-view-tag-history)
+;;               ("C-c g r" . ggtags-find-reference)
+;;               ("C-c g f" . ggtags-find-file)
+;;               ("C-c g c" . ggtags-create-tags)
+;;               ("C-c g u" . ggtags-update-tags)
+;;               ("M-," . pop-tag-mark)
+;;               )
+;;   :commands ggtags-mode
+;;   :config
+;;   (unbind-key "M-<" ggtags-mode-map)
+;;   (unbind-key "M->" ggtags-mode-map)
+;;   (add-hook 'c-mode-common-hook
+;;             (lambda ()
+;;               (when (derived-mode-p 'c-mode 'c++-mode 'java-mode 'asm-mode)
+;;                 (ggtags-mode 1)
+;;                 )))
+;;  )
 
 (setq vc-handled-backends '(git svn))
 ;; (use-package subword-mode
@@ -668,7 +664,8 @@
 
 (use-package company
   :ensure t
-  :hook (after-init-hook . global-company-mode)
+  :config
+  (add-hook 'after-init-hook 'global-company-mode)
   )
 
 (use-package dtrt-indent
@@ -703,16 +700,29 @@
 
 (setq-default line-spacing 0)
 
-(use-package company-c-headers
-  :after company
-  :ensure t
-  :config
-  (push 'company-c-headers company-backends))
+;; (use-package company-c-headers
+;;   :after company
+;;   :ensure t
+;;   :config
+;;   (push 'company-c-headers company-backends))
 
-(when (executable-find "clang")
-  (use-package company-clang
-    :disabled
-    :ensure t)
+;; (when (executable-find "clang")
+;;   (use-package company-clang
+;;     :disabled
+;;     :ensure t)
+;;   )
+
+(when (executable-find "clang-format")
+  (use-package clang-format
+    :ensure t
+    :bind
+    (:map global-map ("C-M-'" . clang-format-region)))
+  (use-package clang-format+
+    :ensure t
+    :config
+    (setq clang-format+-context 'modification)
+    :hook (c-mode-common-hook . clang-format+-mode)
+    )
   )
 
 (use-package company-irony-c-headers
@@ -726,6 +736,50 @@
   :config
   (eval-after-load 'company
     (push 'company-irony company-backends)))
+
+(use-package lsp
+  :hook ((c++-mode-hook c-mode-hook) . lsp)
+  :commands (lsp lsp-deferred)
+  )
+(use-package company-lsp
+  :config
+  (push 'company-lsp company-backends)
+  ;;(company-lsp-cache-candidates auto)
+  ;;(company-lsp-async t)
+  ;;(company-lsp-enable-snippet t)
+  )
+(use-package lsp-clangd
+  :ensure t
+  :after lsp
+  :hook
+  (c-mode-hook . lsp-clangd-c-enable)
+  (c++-mode-hook . lsp-clangd-c++-enable)
+  (objc-mode-hook . lsp-clangd-objc-enable)
+  )
+
+
+;; autoinsert C/C++ header
+(define-auto-insert
+  (cons "\\.\\([Hh]\\|hh\\|hpp\\)\\'" "My C / C++ header")
+  '(nil
+    (let* ((noext (substring buffer-file-name 0 (match-beginning 0)))
+	   (nopath (file-name-nondirectory noext))
+	   (ident (concat (upcase nopath) "_H")))
+      (concat "#ifndef " ident "\n"
+	      "#define " ident  " 1\n\n\n"
+	      "\n\n#endif // " ident "\n"))
+    ))
+
+;; auto insert C/C++
+(define-auto-insert
+  (cons "\\.\\([Cc]\\|cc\\|cpp\\)\\'" "My C++ implementation")
+  '(nil
+    (let* ((noext (substring buffer-file-name 0 (match-beginning 0)))
+	   (nopath (file-name-nondirectory noext))
+	   (ident (concat nopath ".h")))
+      (if (file-exists-p ident)
+	  (concat "#include \"" ident "\"\n")))
+    ))
 
 ;; (require 'bk-java)
 
@@ -918,8 +972,7 @@
 (use-package magit :ensure t)
 (use-package magit-popup
   :if (package-installed-p 'magit-popup)
-  :disabled
-  :ensure t)
+  :disabled)
 (use-package magit-gerrit
   :ensure t
   :disabled
