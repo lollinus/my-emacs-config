@@ -504,10 +504,7 @@
 ;; (require 'rc-duplicate-thing)
 (require 'rc-cc-mode)
 (use-package clang-format+
-  :quelpa (clang-format+
-	   :fetcher github
-	   :repo "SavchenkoVileriy/emacs-clang-format-plus"))
-
+  :ensure t)
 ;; (require 'rc-diff-mode)
 (use-package volatile-highlights
   :ensure t
@@ -644,6 +641,7 @@
 ;;(require 'bk-java)
 
 (use-package gradle-mode
+  :if (package-installed-p 'gradle-mode)
   :config
   (setq gradle-executable-path "/opt/gradle/gradle-5.2.1/bin/gradle")
   (setq gradle-use-gradlew t)
