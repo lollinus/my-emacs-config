@@ -179,6 +179,7 @@
 
 ;;(add-to-list 'package-archives
 ;;	     '("gnu" . "http://elpa.gnu.org/packages/"))
+;;(setq gnutls-algorithm-priority "NORMAL:-VERS-TLS1.3")
 (add-to-list 'package-archives
 	     '("melpa" . "https://melpa.org/packages/"))
 (when (version< emacs-version "24")
@@ -495,6 +496,15 @@
   (add-to-list 'ac-sources 'ac-source-c-headers)
   )
 
+(use-package ac-c-headers
+  :ensure t
+  :hook
+  ((c++-mode-hook c-mode-hook) . (lambda ()
+		   (add-to-list 'ac-sources 'ac-source-c-headers)
+		   (add-to-list 'ac-sources 'ac-source-c-header-symbols t)))
+  ;; (c++-mode-hook . my:ac-c-header-init)
+  )
+
 ;;(load "~/.emacs.d/rc/rc-flymake.el")
 ;; (load "~/.emacs.d/rc/rc-google-c-style.el")
 (use-package iedit
@@ -503,8 +513,11 @@
   )
 ;; (require 'rc-duplicate-thing)
 (require 'rc-cc-mode)
+(use-package clang-format
+  :ensure t)
 (use-package clang-format+
   :ensure t)
+
 ;; (require 'rc-diff-mode)
 (use-package volatile-highlights
   :ensure t
@@ -637,8 +650,6 @@
   :config
   (eval-after-load 'company
     (push 'company-irony company-backends)))
-
-;;(require 'bk-java)
 
 (use-package gradle-mode
   :if (package-installed-p 'gradle-mode)
