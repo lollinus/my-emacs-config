@@ -185,38 +185,32 @@
   (add-to-list 'package-archives '("gnu" . "http://elpa.gnu.org/packages/")))
 
 ;; Bootstrap `use-package`
-;; (condition-case nil
-;;     (require 'use-package)
-;;   (file-error
-;;    (require 'package)
-;;    (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
-;;    (add-to-list 'package-archives '("melpa-stable" . "http://stable.melpa.org/packages/"))
-;;    (package-initialize)
-;;    (package-refresh-contents)
-;;    (package-install 'use-package)
-;;    (require 'use-package)))
+(condition-case nil
+    (require 'use-package)
+  (file-error
+   (require 'package)
+   (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
+   (package-initialize)
+   (package-refresh-contents)
+   (package-install 'use-package)
+   (require 'use-package)))
 
-;;(setq use-package-compute-statistics t)
-;;(eval-when-compile
-;;  (require 'use-package))
-;;(setq use-package-verbose t)
-;;(setq use-package-check-before-init t)
+(setq use-package-compute-statistics t)
+(eval-when-compile
+  (require 'use-package))
+(setq use-package-verbose t)
+(setq use-package-check-before-init t)
 
+;; (use-package diminish
+;;   :ensure t
+;;   :config
+;;   (diminish 'whitespace-mode)
+;;   (eval-after-load "projectile" '(diminish 'projectile-mode "P"))
+;;   )
 
-;;(use-package quelpa-use-package :ensure t)
-(if (require 'quelpa nil t)
-    (quelpa-self-upgrade)
-  (with-temp-buffer
-    (url-insert-file-contents "http://framagit.org/steckerhalter/quelpa/raw/master/bootstrap.el")
-    (eval-buffer)))
-
-(quelpa
- '(quelpa-use-package
-   :fetcher git
-   :url "https://framagit.org/steckerhalter/quelpa-use-package.git"))
-(require 'quelpa-use-package)
-
-(use-package delight :ensure t :quelpa)
+(use-package delight
+  :ensure t
+  )
 
 (use-package emacs
   :hook (lisp-mode-hook . display-line-numbers-mode)
@@ -368,7 +362,15 @@
 (global-set-key (kbd "C-c n") 'next-multiframe-window)
 (global-set-key (kbd "C-c f") 'switch-to-next-buffer)
 (global-set-key (kbd "C-c p") 'switch-to-prev-buffer)
-(global-set-key (kbd "M-o") 'ace-window)
+
+(use-package ace-window
+  :ensure t
+  :bind (:map global-map ("M-o" . ace-window)
+	      )
+  )
+
+
+;(global-set-key (kbd "M-o") 'ace-window)
 
 (when (fboundp 'define-fringe-bitmap)
   (define-fringe-bitmap 'flycheck-fringe-bitmap-double-arrow
@@ -687,7 +689,18 @@
 
 (use-package hydra :ensure t)
 (use-package counsel :ensure t)
-(use-package counsel-gtags :ensure t)
+(use-package counsel-gtags
+  :ensure t
+  :bind (:map counsel-gtags-mode-map
+	      (
+	       ("M-t" . 'counsel-gtags-find-definition)
+	       ("M-r" . 'counsel-gtags-find-reference)
+	       ("M-s" . 'counsel-gtags-find-symbol)
+	       ("M-," . 'counsel-gtags-go-backward)
+	       )
+	      )
+  :hook ((c-mode-common-hook) . counsel-gtags-mode)
+  :diminish)
 (use-package counsel-projectile :ensure t)
 (use-package swiper :ensure t)
 (use-package ivy
@@ -848,5 +861,15 @@
   :hook (tuareg-mode-hook . (lambda ()
                             (when (functionp 'prettify-symbols-mode)
                               (prettify-symbols-mode))))
+  )
+
+(use-package rust-mode
+  :ensure t
+  )
+(use-package cargo
+  :ensure t
+  )
+(use-package rustic
+  :ensure t
   )
 (message "Init finished")
