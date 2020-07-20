@@ -1,20 +1,21 @@
-;;; rc-functions.el ---
+;;; rc-functions.el --- Useful functions
+;;; Commentary:
+;;; Various useful function used during Emacs startup and runtime
 
-;;; ----[ 19.15 The (info "(emacs)Cursor Display")
-
+;;; Code:
 ;; using cursor color to indicate some modes (read-only, insert and
 ;; overwrite modes)
-(setq my-set-cursor-color-color "")
-(setq my-set-cursor-color-buffer "")
+(defvar my-set-cursor-color-color "")
+(defvar my-set-cursor-color-buffer "")
 
 (defun my-set-cursor-color-according-to-mode ()
   "Change cursor color according to some minor modes."
   (let ((color
-         (if buffer-read-only "purple1"
-           (if overwrite-mode "red"
-             "rgb:15/FF/00"))))  ;; insert mode
+	 (if buffer-read-only "purple1"
+	   (if overwrite-mode "red"
+	     "rgb:15/FF/00"))))  ;; insert mode
     (unless (and (string= color my-set-cursor-color-color)
-                 (string= (buffer-name) my-set-cursor-color-buffer))
+		 (string= (buffer-name) my-set-cursor-color-buffer))
       (set-cursor-color (setq my-set-cursor-color-color color))
       (setq my-set-cursor-color-buffer (buffer-name)))))
 
@@ -28,8 +29,8 @@ If point is already there, move to the beginning of the line.
 Effectively toggle between the first non-whitespace character and
 the beginning of the line.
 
-If ARG is not nil or 1, move forward ARG - 1 lines first. If
-point reaches the beginning or end of the buffer, stop there."
+If ARG is not nil or 1, move forward ARG - 1 lines first.
+If point reaches the beginning or end of the buffer, stop there."
   (interactive "^p")
   (setq arg (or arg 1))
 
@@ -43,24 +44,23 @@ point reaches the beginning or end of the buffer, stop there."
     (when (= orig-point (point))
       (move-beginning-of-line 1))))
 
-(global-set-key (kbd "C-a") 'prelude-move-beginning-of-line)
+;; (defadvice kill-ring-save (before slick-copy activate compile)
+;;   "Kill region or line.
+;; When called interactively with no active region, copy a single
+;; line instead."
+;;   (interactive
+;;    (if mark-active (list (region-beginning) (region-end))
+;;      (message "Copied line")
+;;      (list (line-beginning-position)
+;;            (line-beginning-position 2)))))
 
-(defadvice kill-ring-save (before slick-copy activate compile)
-  "When called interactively with no active region, copy a single
-line instead."
-  (interactive
-   (if mark-active (list (region-beginning) (region-end))
-     (message "Copied line")
-     (list (line-beginning-position)
-           (line-beginning-position 2)))))
-
-(defadvice kill-region (before slick-cut activate compile)
-  "When called interactively with no active region, kill a single
-  line instead."
-  (interactive
-   (if mark-active (list (region-beginning) (region-end))
-     (list (line-beginning-position)
-           (line-beginning-position 2)))))
+;; (defadvice kill-region (before slick-cut activate compile)
+;;   "When called interactively with no active region, kill a single
+;;   line instead."
+;;   (interactive
+;;    (if mark-active (list (region-beginning) (region-end))
+;;      (list (line-beginning-position)
+;;            (line-beginning-position 2)))))
 
 ;; kill a line, including whitespace characters until next non-whiepsace character
 ;; of next line
@@ -139,8 +139,6 @@ indent yanked text (with prefix arg don't indent)."
           (message "Indented buffer.")))
       (whitespace-cleanup))))
 
-(global-set-key (kbd "C-c i") 'indent-region-or-buffer)
-
 ;; add duplicate line function from Prelude
 ;; taken from prelude-core.el
 (defun prelude-get-positions-of-line-or-region ()
@@ -176,14 +174,6 @@ Position the cursor at it's beginning, according to the current mode."
   (forward-line -1)
   (indent-according-to-mode))
 
-(global-set-key (kbd "M-o") 'prelude-smart-open-line)
-(global-set-key (kbd "M-o") 'open-line)
-
-;;--------------------------------------------------------------------------------
-;; % key on paren moves cursor to matching paren
-;;--------------------------------------------------------------------------------
-(global-set-key (kbd "%") 'match-paren)
-
 (defun match-paren (arg)
   "Go to the matching parenthesis if on parenthesis otherwise insert %."
   (interactive "p")
@@ -213,8 +203,167 @@ spaces across the current buffer."
   (untabify (point-min) (point-max))
   )
 
-(global-set-key (kbd "C-c t") 'my-delete-trailing-whitespaces-and-untabify)
+;;--------------------------------------------------------------------------------
+;; Detect endianness of UTF-16 containing Byte Order Mark U+FEFF
+;;--------------------------------------------------------------------------------
+;; (add-to-list 'auto-coding-regexp-alist '("^\xFF\xFE" . utf-16-le) t)
+;; (add-to-list 'auto-coding-regexp-alist '("^\xFE\xFF" . utf-16-le) t)
+
+;; Detect endianness of UTF-16 containing a Byte Order Mark U+FEFF
+;; Detect EOL mode by looking for CR/LF on the first line
+;; (add-to-list 'auto-coding-regexp-alist '("^\xFF\xFE.*\x0D\x00$" . utf-16-le-dos) t)
+;; (add-to-list 'auto-coding-regexp-alist '("^\xFE\xFF.*\x0D\x00$" . utf-16-be-dos) t)
+;; (add-to-list 'auto-coding-regexp-alist '("^\xFF\xFE" . utf-16-le) t)
+;; (add-to-list 'auto-coding-regexp-alist '("^\xFE\xFF" . utf-16-be) t)
+
+;;--------------------------------------------------------------------------------
+;; Add missing support functions
+;;--------------------------------------------------------------------------------
+(if (not (fboundp 'utf-16-le-pre-write-conversion))
+    (progn
+      (defun utf-16-le-pre-write-conversion (beg end)
+	"Semi-dummy pre-write function effectively to autoload ucs-tables.
+BEG begining of conversion region.
+END end of conversion region."
+	;; Ensure translation table is loaded, if available.
+	(require 'ucs-tables nil t)
+	;; Don't do this again.
+	(coding-system-put 'utf-16-le 'pre-write-conversion nil)
+	nil)))
+
+(if (not (fboundp 'utf-16-be-pre-write-conversion))
+    (progn
+      (defun utf-16-be-pre-write-conversion (start end)
+	"Semi-dummy pre-write function effectively to autoload ucs-tables.
+BEG begining of conversion region.
+END end of conversion region."
+	;; Ensure translation table is loaded, if available.
+	(require 'ucs-tables nil t)
+	;; Don't do this again.
+	(coding-system-put 'utf-16-be 'pre-write-conversion nil)
+	nil)))
+
+;;--------------------------------------------------------------------------------
+;; rozpoznawanie odpowiednich końcówek linii plików tekstowych
+;;--------------------------------------------------------------------------------
+(defun set-buffer-file-eol-type (eol-type)
+  "Set the file `end-of-line' conversion type of the current buffer to EOL-TYPE.
+This means that when you save the buffer,
+line endings will be converted according to EOL-TYPE.
+
+ EOL-TYPE is one of three symbols:
+
+   unix (LF)
+   dos (CRLF)
+   mac (CR)
+
+ This function marks the buffer modified so that the succeeding
+ \\[save-buffer]
+ surely saves the buffer with EOL-TYPE.  From a program, if you don't want
+ to mark the buffer modified, use `coding-system-change-eol-conversion'
+ directly [weikart]."
+  (interactive "SEOL type for visited file (unix, dos, or mac): ")
+  (setq buffer-file-coding-system (coding-system-change-eol-conversion
+                                   buffer-file-coding-system eol-type))
+  (set-buffer-modified-p t)
+  (force-mode-line-update))
+
+;; Make the mode-line display the standard EOL-TYPE symbols (used above)...
+(setq eol-mnemonic-undecided "(?)" ;; unknown EOL type
+      eol-mnemonic-unix  "(unix)" ;; LF
+      eol-mnemonic-dos  "(dos)" ;; CRLF
+      eol-mnemonic-mac  "(mac)") ;; CR
+
+(defadvice load (before debug-log activate)
+  "Print out each loaded file to message buffer."
+  (message "Loading %s..." (locate-library (ad-get-arg 0))))
+
+(when (not (fboundp 'kill-whole-line))
+  (progn
+    ;; ===== Function to delete a line =====
+
+    ;; First define a variable which will store the previous column position
+    (defvar previous-column nil "Save the column position")
+
+    ;; Define the nuke-line function. The line is killed, then the newline
+    ;; character is deleted. The column which the cursor was positioned at is then
+    ;; restored. Because the kill-line function is used, the contents deleted can
+    ;; be later restored by usibackward-delete-char-untabifyng the yank commands.
+    (defun nuke-line()
+      "Kill an entire line, including the trailing newline character"
+      (interactive)
+
+      ;; Store the current column position, so it can later be restored for a more
+      ;; natural feel to the deletion
+      (setq previous-column (current-column))
+
+      ;; Now move to the end of the current line
+      (end-of-line)
+
+      ;; Test the length of the line. If it is 0, there is no need for a
+      ;; kill-line. All that happens in this case is that the new-line character
+      ;; is deleted.
+      (if (= (current-column) 0)
+          (delete-char 1)
+
+        ;; This is the 'else' clause. The current line being deleted is not zero
+        ;; in length. First remove the line by moving to its start and then
+        ;; killing, followed by deletion of the newline character, and then
+        ;; finally restoration of the column position.
+        (progn
+          (beginning-of-line)
+          (kill-line)
+          (delete-char 1)
+          (move-to-column previous-column))))
+    )
+  )
+
+;; Join lines as in Vim
+(defun kb-join-line()
+  "Join current and next line.
+Remove tralinig spaces leaving only one.  Similar to Vim Ctrl-j."
+  (interactive)
+  (join-line 'forward-line)
+)
+
+;; comment-or-uncomment-region-or-line
+; it's almost the same as in textmate.el but I wrote it before I know about
+; textmate.el, in fact that's how I found textmate.el, by googling this
+; function to see if somebody already did that in a better way than me.
+(defun comment-or-uncomment-region-or-line ()
+  "Like comment-or-uncomment-region, but if there's no mark \(that means no
+region\) apply comment-or-uncomment to the current line"
+  (interactive)
+  (if (not mark-active)
+      (comment-or-uncomment-region
+       (line-beginning-position) (line-end-position))
+    (if (< (point) (mark))
+        (comment-or-uncomment-region (point) (mark))
+      (comment-or-uncomment-region (mark) (point)))))
+
+(defun insert/date ()
+  "Insert current date yyyy-mm-dd."
+  (interactive)
+  (when (region-active-p)
+    (delete-region (region-beggining) (region-end) )
+    )
+  (insert (format-time-string "%Y-%m-%d"))
+  )
+
+(defun insert/date-time ()
+  "Insert current date-time string in full ISO 8601 format.
+Example: 2012-06-10T21:11:33+02:00
+See: URL `http://en.wikipedia.org/wiki/ISO_8601'"
+  (interactive)
+  (when (region-active-p)
+    (delete-region (region-beggining) (region-end) )
+    )
+  (insert
+   (concat
+    (format-time-string "%Y-%m-%dT%T")
+    ((lambda (x) (concat (substring x 0 3) ":" (substring x 3 5)))
+     (format-time-string "%z")))))
 
 (provide 'rc-functions)
-
 ;;; rc-functions.el ends here
+

@@ -1,6 +1,8 @@
-;; -*- mode: emacs-lisp; coding: utf-8-unix -*-
+;;; package --- emacs initialization script; -*- mode: emacs-lisp; coding: utf-8-unix -*-
+;;; Commentary:
 ;; Load all configuration parts
 
+;;; Code:
 ;; don't let Customize mess with my .emacs
 (setq custom-file "~/.emacs.d/custom.el")
 (load custom-file 'noerror)
@@ -31,10 +33,6 @@
 ;; blink screen on bell
 (setq visible-bell t)
 
-;;--------------------------------------------------------------------------------
-;;(load "~/.emacs.d/rc/emacs.0.el")
-;;--------------------------------------------------------------------------------
-
 ;; ignore case when reading a file name completion
 (setq read-file-name-completion-ignore-case t)
 
@@ -49,37 +47,23 @@
 (setq completion-ignore-case t)
 
 ;;--------------------------------------------------------------------------------
-;; turn off blinking cursor
-;;--------------------------------------------------------------------------------
-(blink-cursor-mode -1)
-
-;;--------------------------------------------------------------------------------
-;; zezwalaj na użycie poniższych komend
-;;--------------------------------------------------------------------------------
-(put 'narrow-to-page 'disabled nil)
-(put 'narrow-to-region 'disabled nil)
-(put 'upcase-region 'disabled nil)
-(put 'downcase-region 'disabled nil)
-(put 'set-goal-column 'disabled nil)
-
-;;--------------------------------------------------------------------------------
 (if (daemonp)
     (add-hook 'after-make-frame-functions
-              (lambda (frame)
-                (select-frame frame)
-                (if (window-system frame)
-                    (progn
-                      (tool-bar-mode 0)            ; turn menus off
-                      (menu-bar-mode 0)            ; disable toolbar
-                      (set-scroll-bar-mode 'right) ; scroll bar on the right side
-                      )
-                  )))
+	      (lambda (frame)
+		(select-frame frame)
+		(if (window-system frame)
+		    (progn
+		      (tool-bar-mode 0)            ; turn menus off
+		      (menu-bar-mode 0)            ; disable toolbar
+		      (set-scroll-bar-mode 'right) ; scroll bar on the right side
+		      )
+		  )))
   (if (display-graphic-p)
       (progn
-        (tool-bar-mode 0)               ; turn menus off
-        (menu-bar-mode 0)               ; disable toolbar
-        (set-scroll-bar-mode 'right)    ; scroll bar on the right side
-        )
+	(tool-bar-mode 0)               ; turn menus off
+	(menu-bar-mode 0)               ; disable toolbar
+	(set-scroll-bar-mode 'right)    ; scroll bar on the right side
+	)
     )
   )
 
@@ -98,12 +82,11 @@
 
 ;; use inactive face for mode-line in non-selected windows
 (setq mode-line-in-non-selected-windows t)
-(setq kill-whole-line t)
 ;; remap C-H to backspace
 (normal-erase-is-backspace-mode t)
 (add-hook 'terminal-init-xterm-hook
-          (lambda () (normal-erase-is-backspace-mode t))
-          )
+	  (lambda () (normal-erase-is-backspace-mode t))
+	  )
 
 ;; Set the frame's title. %b is the name of the buffer. %+ indicates
 ;; the state of the buffer: * if modified, % if read only, or -
@@ -111,71 +94,42 @@
 ;; name. Incredibly useful!
 (setq frame-title-format "Emacs: %b %+%+ %f ")
 
-;;--------------------------------------------------------------------------------
-;; zegarek
-;;--------------------------------------------------------------------------------
-(setq display-time-format "%H:%M %d/%m/%Y")
-(setq display-time-24hr-format t)
-(display-time)
-
-;;--------------------------------------------------------------------------------
-;; kolorowanie składni
-;;--------------------------------------------------------------------------------
-(when (fboundp 'global-font-lock-mode)
-  (global-font-lock-mode t))
-
-;; Set lazy-lock mode (fontifies only when not typing) with .3 sec refresh
-;; time and no minimum buffer size
-;; Lazy lock gives problems with Java files in RHEL4
-;(setq font-lock-support-mode 'lazy-lock-mode)
-(setq lazy-lock-continuity-time 0.3)
-(setq lazy-lock-minimum-size (* 1024 10))       ; Fontify small buffers
-(setq font-lock-maximum-size nil)       ; Fontify huge buffers
-(setq font-lock-maximum-decoration t)
-;; highlight non-breaking spaces
-;; (GNUEmacs
-;;     (require 'disp-table)
-;;     (aset standard-display-table
-;;           (make-char 'latin-iso8859-1 (- ?\240 128))
-;;           (vector (+ ?\267 (* 524288 (face-id 'nobreak-space))))))
-
-;; highlight FIXME, TODO and XXX as warning in some major modes
-(dolist (mode '(c-mode
-                cperl-mode
-                html-mode-hook
-                css-mode-hook
-                emacs-lisp-mode))
-  (font-lock-add-keywords
-   mode
-   '(("\\<\\(\\(TODO|XXX\\)\\(?:(.*)\\)?:?\\)\\>"  1 'warning prepend)
-     ("\\<\\(FIXME\\(?:(.*)\\)?:?\\)\\>" 1 'error prepend)
-     ("\\<\\(NOCOMMIT\\(?:(.*)\\)?:?\\)\\>"  1 'error prepend))))
-
-(setq smerge-command-prefix "\C-cv")
-
-;; elpa configuration -- keep it always first because other configs can try to install packages
-;;(load "~/.emacs.d/rc/rc-w3m.el")
-;; (load "~/.emacs.d/rc/rc-elpa.el")
-
 (if (version< emacs-version "24")
     ;; install elpa on emacs 23
     (progn
       ;; (let ((buffer (url-retrieve-synchronously
-	;;   	     "http://git.savannah.gnu.org/gitweb/?p=emacs.git;a=blob_plain;hb=ba08b24186711eaeb3748f3d1f23e2c2d9ed0d09;f=lisp/emacs-lisp/package.el")))
-	;;   (save-excursion
-	;;     (set-buffer buffer)
-	;;     (goto-char (point-min))
-	;;     (re-search-forward "^$" nil 'move)
-	;;     (eval-region (point) (point-max))
-	;;     (kill-buffer (current-buffer))))
-	(when (load (expand-file-name "~/.emacs.d/package.el"))
-	  (package-initialize)))
+      ;;	     "http://git.savannah.gnu.org/gitweb/?p=emacs.git;a=blob_plain;hb=ba08b24186711eaeb3748f3d1f23e2c2d9ed0d09;f=lisp/emacs-lisp/package.el")))
+      ;;   (save-excursion
+      ;;     (set-buffer buffer)
+      ;;     (goto-char (point-min))
+      ;;     (re-search-forward "^$" nil 'move)
+      ;;     (eval-region (point) (point-max))
+      ;;     (kill-buffer (current-buffer))))
+      (when (load (expand-file-name "~/.emacs.d/package.el"))
+	(package-initialize)))
   "Emacs >= 24 has elpa integrated")
 
 (package-initialize)
 (setq package-check-signature nil)
 (require 'package)
 
+(let* ((no-ssl (and (memq system-type '(windows-nt ms-dos))
+		    (not (gnutls-available-p))))
+       (proto (if no-ssl "http" "https")))
+  (when no-ssl
+    (warn "\
+Your version of Emacs does not support SSL connections, 
+which is unsafe because it allows man-in-the middle attacks.
+There are two things you can do about this warning:
+1. Install an Emacs version that does support SSL and be safe.
+2. Remove this  warning from your init file so you won't see it again."))
+  ;; Comment/uncomment these two lines to enable/disable MELPA and MELPA Stable as desired
+  (add-to-list 'package-archives (cons "melpa" (concat proto "://melpa.org/packages/")) t)
+  ;;(add-to-list 'package-archives (cons "melpa-stable" (concat proto "://stable.melpa.org/packages/")) t)
+  ;; (add-to-list 'package-archives (cons "melpa-mirror" (concat proto "://www.mirrorservice.org/sites/melpa.org/packages/")) t)
+  (when (< emacs-major-version 24)
+    ;; For important compatibility libraries like cl-lib
+    (add-to-list 'package-archives (cons "gnu" (concat proto "://elpa.gnu.org/packages/")))))
 
 ;;(add-to-list 'package-archives
 ;;	     '("gnu" . "http://elpa.gnu.org/packages/"))
@@ -185,59 +139,141 @@
 (when (version< emacs-version "24")
   (add-to-list 'package-archives '("gnu" . "http://elpa.gnu.org/packages/")))
 
+(defun ensure-package-installed (&rest packages)
+  "Assure every package is installed.
+Return a list of installed packages or nil ofr every skipped package.
+
+PACKAGES: list of packages to install."
+  (mapcar
+   (lambda (package)
+     ;;(package-installed-p 'evil)
+     (if (package-installed-p package)
+         package
+       (package-install package)))
+   packages))
+
+;; (setq package-archive-priorities
+;;       '(("melpa" . 0)
+;; 	;;	("melpa-mirror" . 1)
+;; 	("gnu" . 2)
+;; 	;;	("marmalade". 3)
+;; 	)
+;;       )
+
 ;; Bootstrap `use-package`
 (condition-case nil
     (require 'use-package)
   (file-error
-;;   (require 'package)
-;;   (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
-;;   (package-initialize)
+   ;;   (require 'package)
+   ;;   (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
+   ;;   (package-initialize)
    (package-refresh-contents)
    (package-install 'use-package)
    (require 'use-package)))
 
-(setq use-package-compute-statistics t)
+(setq-default use-package-compute-statistics t)
 (eval-when-compile
   (require 'use-package))
 (setq use-package-verbose t)
 (setq use-package-check-before-init t)
 
-;; (use-package diminish
-;;   :ensure t
-;;   :config
-;;   (diminish 'whitespace-mode)
-;;   (eval-after-load "projectile" '(diminish 'projectile-mode "P"))
-;;   )
-
-(use-package delight
-  :ensure t
-  )
-
 (use-package emacs
-  :hook (lisp-mode-hook . display-line-numbers-mode)
+  :hook ((emacs-lisp-mode lisp-mode) . display-line-numbers-mode)
   :custom (display-line-numbers-type 'visual)
+  :config
+  (put 'narrow-to-page 'disabled nil)
+  (put 'narrow-to-region 'disabled nil)
+  (put 'upcase-region 'disabled nil)
+  (put 'downcase-region 'disabled nil)
   )
 
-(add-hook 'emacs-lisp-mode-hook 'display-line-numbers-mode)
+(use-package simple
+  :custom
+  (kill-whole-line t)
+  :config
+  (put 'set-goal-column 'disabled nil)
+  :bind
+  ("M-g" . goto-line)
+  ("C-;" . kill-whole-line)
+  )
+
+(use-package frame
+  ;;--------------------------------------------------------------------------------
+  ;; turn off blinking cursor
+  ;;--------------------------------------------------------------------------------
+  :custom
+  (blink-cursor-blinks 3)
+  (blink-cursor-delay 1)
+  :config
+  (blink-cursor-mode))
+
+(use-package help
+  :config
+  (temp-buffer-resize-mode t))
+(use-package image
+  :config
+  (auto-image-file-mode 1))
+(use-package time
+  :custom
+  (display-time-format "%H:%M %d/%m/%Y")
+  (display-time-24hr-format t)
+  :config
+  (display-time)
+  )
+
+(use-package delight :ensure t)
+
+;;--------------------------------------------------------------------------------
+;; kolorowanie składni
+;;--------------------------------------------------------------------------------
+(use-package font-lock
+  :config (global-font-lock-mode t)
+  :custom
+  (font-lock-maximum-decoration t))
+
+;; highlight FIXME, TODO and XXX as warning in some major modes
+(dolist (mode '(c-mode
+		cperl-mode
+		html-mode-hook
+		css-mode-hook
+		emacs-lisp-mode))
+  (font-lock-add-keywords
+   mode
+   '(("\\<\\(\\(TODO|XXX\\)\\(?:(.*)\\)?:?\\)\\>"  1 'warning prepend)
+     ("\\<\\(FIXME\\(?:(.*)\\)?:?\\)\\>" 1 'error prepend)
+     ("\\<\\(NOCOMMIT\\(?:(.*)\\)?:?\\)\\>"  1 'error prepend))))
 
 (use-package comment-dwim-2
   :ensure t
-  :config (global-set-key (kbd "M-;") 'comment-dwim-2)
+  :bind ("M-;" . comment-dwim-2)
   )
 
+(use-package smerge-mode
+  :custom
+  (smerge-command-prefix (kbd "C-c v")))
+
+(add-to-list 'load-path "~/.emacs.d/rc")
 (require 'rc-functions)
+
 (use-package whitespace
-  :config
-  (setq whitespace-style '(face trailing lines-tail newline empty
-				indentation big-indent space-before-tab))
+  :custom
+  (whitespace-style '(face trailing lines-tail newline empty
+			   indentation big-indent space-before-tab))
   :bind
   ("C-c w" . whitespace-mode)
   )
 
 ;; individual modes loading
-(require 'rc-cua)
+(use-package cua-base
+  :custom
+  (cua-enable-cua-keys nil)
+  (cua-highlight-region-shift-only t) ;; no transient mark mode
+  (cua-toggle-set-mark nil) ;; original set-mark behavior, i.e. no  transient-mark-mode
+  :config
+  (cua-mode 'emacs)
+  :bind
+  ("<C-RET>" . cua-rectangle-mark-mode))
 
-;;(load "~/.emacs.d/rc/rc-buffer-move.el")
 (use-package yasnippet
   :if (package-installed-p 'yasnippet)
   :config
@@ -247,32 +283,39 @@
   (defun yas/goto-end-of-active-field ()
     (interactive)
     (let* ((snippet (car (yas--snippets-at-point)))
-           (position (yas--field-end (yas--snippet-active-field snippet))))
+	   (position (yas--field-end (yas--snippet-active-field snippet))))
       (if (= (point) position)
-          (move-end-of-line 1)
-        (goto-char position))))
+	  (move-end-of-line 1)
+	(goto-char position))))
 
   (defun yas/goto-start-of-active-field ()
     (interactive)
     (let* ((snippet (car (yas--snippets-at-point)))
-           (position (yas--field-start (yas--snippet-active-field snippet))))
+	   (position (yas--field-start (yas--snippet-active-field snippet))))
       (if (= (point) position)
-          (move-beginning-of-line 1)
-        (goto-char position))))
+	  (move-beginning-of-line 1)
+	(goto-char position))))
   :custom
   (yas-prompt-functions '(yas-ido-prompt yas-completing-prompt yas-no-prompt))
   (yas-prompt-functions '(yas/ido-prompt yas/completing-prompt))
   (yas-verbosity 1)
   (yas-wrap-around-region t)
-  :hook (term-mode-hook . (lambda() (setq yas-dont-activate t)))
+  :hook (term-mode . (lambda() (setq yas-dont-activate t)))
   :bind
   (:map yas-keymap
-        ("<return>" . yas/exit-all-snippets)
-        ("C-e" . yas/goto-end-of-active-field)
-        ("C-a" . yas/goto-start-of-active-field)
-        )
+	("<return>" . yas/exit-all-snippets)
+	("C-e" . yas/goto-end-of-active-field)
+	("C-a" . yas/goto-start-of-active-field)
+	)
   )
-;; (require 'rc-anzu)
+(use-package anzu
+  :disabled t
+  :ensure t
+  :config
+  (global-anzu-mode)
+  :bind 
+  ("M-%" . anzu-query-replace)
+  ("C-M-%" . anzu-query-replace-regexp))
 
 (electric-pair-mode -1)
 (setq electric-pair-preserve-balance t
@@ -281,134 +324,117 @@
 (show-paren-mode 1)
 
 (use-package smartparens
-  :disabled
   :ensure t
-  ;;  :diminish smartparens-mode
   :delight ""
-  :init
+  :bind
+  (:map smartparens-mode-map
+	(
+	 ("C-M-f" . sp-forward-sexp)
+	 ("C-M-b" . sp-backward-sexp)
+	 ("C-M-<right>" . sp-forward-sexp)
+	 ("C-M-<left>" . sp-backward-sexp)
+
+	 ("M-F" . sp-forward-sexp)
+	 ("M-B" . sp-backward-sexp)
+
+	 ("C-M-d" . sp-down-sexp)
+	 ("C-M-a" . sp-backward-down-sexp)
+	 ("C-S-d" . sp-beginning-of-sexp)
+	 ("C-S-a" . sp-end-of-sexp)
+
+	 ("C-M-e" . sp-up-sexp)
+	 ("C-M-u" . sp-backward-up-sexp)
+	 ("C-M-t" . sp-transpose-sexp)
+
+	 ("C-M-n" . sp-next-sexp)
+	 ("C-M-p" . sp-previous-sexp)
+
+	 ("C-M-k" . sp-kill-sexp)
+	 ("C-M-w" . sp-copy-sexp)
+
+	 ("M-r" . sp-unwrap-sexp)
+
+	 ("C-(" . sp-forward-barf-sexp)
+	 ("C-)" . sp-forward-slurp-sexp)
+	 ("M-(" . sp-forward-barf-sexp)
+	 ("M-)" . sp-forward-slurp-sexp)
+
+	 ("M-D" . sp-splice-sexp)
+	 )
+	:map emacs-lisp-mode-map (";" . sp-comment)
+	:map smartparens-strict-mode-map ([remap c-electric-backspace] . sp-backward-delete-char)
+	)
+  :hook
+  (
+   (minibuffer-setup . turn-on-smartparens-strict-mode)
+   (c-mode-common . (lambda () (require 'smartparens-c)))
+   (org-mode . (lambda () (require 'smartparens-org)))
+   )
+  :config
   (electric-pair-mode -1)
   (require 'smartparens-config)
-  ;; Turn on smartparens in the minibuffer
-  (add-hook 'minibuffer-setup-hook 'turn-on-smartparens-strict-mode)
-  (define-key smartparens-mode-map (kbd "C-M-f") 'sp-forward-sexp)
-  (define-key smartparens-mode-map (kbd "C-M-b") 'sp-backward-sexp)
-
-  (define-key smartparens-mode-map (kbd "C-M-<right>") 'sp-forward-sexp)
-  (define-key smartparens-mode-map (kbd "C-M-<left>") 'sp-backward-sexp)
-  (define-key smartparens-mode-map (kbd "M-F") 'sp-forward-sexp)
-  (define-key smartparens-mode-map (kbd "M-B") 'sp-backward-sexp)
-
-  (define-key smartparens-mode-map (kbd "C-M-d") 'sp-down-sexp)
-  (define-key smartparens-mode-map (kbd "C-M-a") 'sp-backward-down-sexp)
-  (define-key smartparens-mode-map (kbd "C-S-d") 'sp-beginning-of-sexp)
-  (define-key smartparens-mode-map (kbd "C-S-a") 'sp-end-of-sexp)
-
-  (define-key smartparens-mode-map (kbd "C-M-e") 'sp-up-sexp)
-  (define-key smartparens-mode-map (kbd "C-M-u") 'sp-backward-up-sexp)
-  (define-key smartparens-mode-map (kbd "C-M-t") 'sp-transpose-sexp)
-
-  (define-key smartparens-mode-map (kbd "C-M-n") 'sp-next-sexp)
-  (define-key smartparens-mode-map (kbd "C-M-p") 'sp-previous-sexp)
-
-  (define-key smartparens-mode-map (kbd "C-M-k") 'sp-kill-sexp)
-  (define-key smartparens-mode-map (kbd "C-M-w") 'sp-copy-sexp)
-
-  (define-key smartparens-mode-map (kbd "M-r") 'sp-unwrap-sexp)
-
-  (define-key smartparens-mode-map (kbd "C-(") 'sp-forward-barf-sexp)
-  (define-key smartparens-mode-map (kbd "C-)") 'sp-forward-slurp-sexp)
-  (define-key smartparens-mode-map (kbd "M-(") 'sp-forward-barf-sexp)
-  (define-key smartparens-mode-map (kbd "M-)") 'sp-forward-slurp-sexp)
-
-  (define-key smartparens-mode-map (kbd "M-D") 'sp-splice-sexp)
-
-  ;; Handle backspace in c-like modes better for smartparens
-  (bind-key [remap c-electric-backspace]
-            'sp-backward-delete-char smartparens-strict-mode-map)
-
-  ;; ;; Bind ";" to sp-comment in elisp
-  (bind-key ";" 'sp-comment emacs-lisp-mode-map)
-
-  (defun sp--org-skip-asterisk (ms mb me)
-    (or (and (= (line-beginning-position) mb)
-             (eq 32 (char-after (1+ mb))))
-        (and (= (1+ (line-beginning-position)) me)
-             (eq 32 (char-after me)))))
-
-  ;; Org-mode
-  (sp-with-modes
-      'org-mode
-    (sp-local-pair "*" "*"
-                   :actions '(insert wrap)
-                   :unless '(sp-point-after-word-p sp-point-at-bol-p)
-                   :wrap "C-*" :skip-match 'sp--org-skip-asterisk)
-    (sp-local-pair "_" "_" :unless '(sp-point-after-word-p) :wrap "C-_")
-    (sp-local-pair "/" "/" :unless '(sp-point-after-word-p)
-                   :post-handlers '(("[d1]" "SPC")))
-    (sp-local-pair "~" "~" :unless '(sp-point-after-word-p)
-                   :post-handlers '(("[d1]" "SPC")))
-    (sp-local-pair "=" "=" :unless '(sp-point-after-word-p)
-                   :post-handlers '(("[d1]" "SPC")))
-    (sp-local-pair "«" "»"))
-
-    ;;; Java
-  (sp-with-modes
-      '(java-mode c++-mode)
-    (sp-local-pair "{" nil :post-handlers '(("||\n[i]" "RET")))
-    (sp-local-pair "/*" "*/" :post-handlers '((" | " "SPC")
-                                              ("* ||\n[i]" "RET"))))
-
   (smartparens-global-strict-mode 1))
 
 (global-set-key (kbd "C-c n") 'next-multiframe-window)
 (global-set-key (kbd "C-c f") 'switch-to-next-buffer)
 (global-set-key (kbd "C-c p") 'switch-to-prev-buffer)
 
+;;--------------------------------------------------------------------------------
+;; recentf mode
+;;--------------------------------------------------------------------------------
+(use-package recentf
+  :config
+  (recentf-mode t)
+  :bind
+  ("<f7>" . recentf-open-files))
+
+;; keep minibuffer history between session
+(use-package savehist
+  :config
+  (savehist-mode t))
+
 (use-package ace-window
   :ensure t
-  :bind (:map global-map ("M-o" . ace-window)
-	      )
+  :bind (:map global-map ("M-o" . ace-window))
   )
 
-
-;(global-set-key (kbd "M-o") 'ace-window)
+(use-package editorconfig
+  :ensure t
+  :delight "ec"
+  :config
+  (editorconfig-mode 1))
 
 (when (fboundp 'define-fringe-bitmap)
   (define-fringe-bitmap 'flycheck-fringe-bitmap-double-arrow
     [0 0 0 0 0 4 12 28 60 124 252 124 60 28 12 4 0 0 0 0]))
 
 (use-package flycheck
-  :disabled t
   :ensure t
   :defer 5
-  :bind (("M-g M-n" . flycheck-next-error)
-         ("M-g M-p" . flycheck-previous-error)
-         ("M-g M-=" . flycheck-list-errors))
   :init
-  (require 'flycheck)
   (global-flycheck-mode)
-  (setq flycheck-indication-mode 'right-fringe
-        flycheck-check-syntax-automatically '(save mode-enabled))
-  ;;  :diminish flycheck-mode
-  :delight ""
+  :custom
+  (flycheck-indication-mode 'right-fringe)
+  (flycheck-check-syntax-automatically '(save mode-enabled))
+  )
+
+(use-package flycheck-checkpatch
+  :ensure t
+  :after flycheck
   :config
-  (progn
-    (setq-default flycheck-disabled-checkers
-                  '(emacs-lisp-checkdoc json-jsonlint json-python-json))
-    (use-package flycheck-pos-tip
-      :ensure t
-      :init
-      (flycheck-pos-tip-mode)
-      (setq flycheck-pos-tip-timeout 10
-            flycheck-display-errors-delay 0.5))
-    (use-package helm-flycheck
-      :ensure t
-      :disabled t
-      :init (define-key flycheck-mode-map (kbd "C-c ! h") 'helm-flycheck))
-    (use-package flycheck-haskell
-      :ensure t
-      :disabled t
-      :init (add-hook 'flycheck-mode-hook #'flycheck-haskell-setup))))
+  (flycheck-checkpatch-setup))
+(use-package flycheck-clang-analyzer
+  :ensure t
+  :after flycheck
+  :config
+  (flycheck-clang-analyzer-setup))
+(use-package avy-flycheck
+  :ensure t
+  :after flycheck
+  :config
+  (avy-flycheck-setup)
+  )
+
 
 ;;--------------------------------------------------------------------------------
 ;; pokazuj krańcowe nawiasy
@@ -416,23 +442,6 @@
 (show-paren-mode 1)
 (setq show-paren-style 'mixed)
 (setq transient-mark-mode nil)
-
-
-(global-set-key (kbd "M-g") 'goto-line)
-
-;; (use-package color-moccur
-;;   :ensure t
-;;   :commands (isearch-moccur isearch-all)
-;;   :bind (("M-s O" . moccur)
-;;          :map isearch-mode-map
-;;          ("M-o" . isearch-moccur)
-;;          ("M-O" . isearch-moccur-all))
-;;   :init
-;;   (setq isearch-lazy-highlight t)
-;;   :config
-;;   (use-package moccur-edit
-;;     :load-path my-site-lisp-directory)
-;;   )
 
 (require 'rc-color-theme)
 
@@ -446,13 +455,13 @@
     "Suspend fci-mode while popups are visible"
     (let ((fci-enabled (sanityinc/fci-enabled-p)))
       (when fci-enabled
-        (setq sanityinc/fci-mode-suppressed fci-enabled)
-        (turn-off-fci-mode))))
+	(setq sanityinc/fci-mode-suppressed fci-enabled)
+	(turn-off-fci-mode))))
 
   (defadvice popup-delete (after restore-fci-mode activate)
     "Restore fci-mode when all popups have closed"
     (when (and sanityinc/fci-mode-suppressed
-               (null popup-instances))
+	       (null popup-instances))
       (setq sanityinc/fci-mode-suppressed nil)
       (turn-on-fci-mode)))
   (setq fci-rule-width 1)
@@ -464,131 +473,81 @@
     (add-hook 'prog-mode-hook 'fci-mode)))
 (use-package undo-tree
   :ensure t
+  :delight ""
   :config (global-undo-tree-mode))
-;;(load "~/.emacs.d/rc/rc-adoc-mode.el")
+
 (use-package markdown-mode :ensure t)
-;; (require 'rc-doxymacs)
 (use-package highlight-doxygen
-  :if (package-installed-p 'highlight-doxygen)
+  :ensure t
   :config
-  (add-hook 'c-mode-common-hook
-            (lambda ()
-              (highlight-doxygen-mode))
-            )
+  :hook
+  (c-mode-common . (lambda () highlight-doxygen-mode))
   )
 
 ;;(load "~/.emacs.d/rc/rc-makefile-mode.el")
 ;;(load "~/.emacs.d/rc/rc-cmake-mode.el")
-
-;; (require 'rc-auto-complete)
-;;(require 'auto-complete-config)
-
-(use-package auto-complete-config
-  :ensure auto-complete
-  :bind ("M-<tab>" . my--auto-complete)
-  :init
-  (defun my--auto-complete ()
-    (interactive)
-    (unless (boundp 'auto-complete-mode)
-      (global-auto-complete-mode 1))
-    (auto-complete))
-  :config
-  (ac-set-trigger-key "TAB")
-  (ac-config-default)
-
-  (setq ac-delay 0.02)
-  (setq ac-use-menu-map t)
-  (setq ac-menu-height 50)
-  (setq ac-use-quick-help nil)
-  (setq ac-comphist-file "~/.emacs.d/ac-comphist.dat")
-  (setq ac-ignore-case nil)
-  (setq ac-dwim t)
-  (setq ac-fuzzy-enable t)
+(when (fboundp 'cmake-mode)
+  (use-package cmake-mode
+    :custom
+    (auto-mode-alist
+     (append '(("CMakeLists\\.txt\\'" . cmake-mode)) auto-mode-alist))
+    :hook
+    (cmake-mode . (lambda ()
+		    (message "CmakeMode custom")
+		    (setq fill-column 80)
+		    (auto-fill-mode)
+		    (setq cmake-tab-width 4)
+		    (setq indent-tabs-mode nil))))
   )
 
-;; (use-package ac-c-headers
-;;   :ensure t
-;;   :config
-;;   (defun my:ac-c-header-init ()
-;;     (require 'ac-c-headers)
-;;     (add-to-list 'ac-sources 'ac-source-c-headers)
-;;     (add-to-list 'ac-sources 'ac-source-c-header-symbols t)
-;;     )
-;;   :hook
-;;   ((c++-mode-hook c-mode-hook) . my:ac-c-header-init)
-;;   )
+(when (package-installed-p 'auto-complete)
+  (use-package auto-complete
+    :config
+    (require 'auto-complete-config)
+    (ac-config-default)
+    (defun kb--auto-complete ()
+      (interactive)
+      (unless (boundp 'auto-complete-mode)
+	(global-auto-complete-mode 1))
+      (auto-complete))
+    
+    (ac-set-trigger-key "TAB")
+    (ac-config-default)
+    (setq ac-delay 0.02)
+    (setq ac-use-menu-map t)
+    (setq ac-menu-height 50)
+    (setq ac-use-quick-help nil)
+    (setq ac-comphist-file "~/.emacs.d/ac-comphist.dat")
+    (setq ac-ignore-case nil)
+    (setq ac-dwim t)
+    (setq ac-fuzzy-enable t)
+    :bind ("M-<TAB>" . kb--auto-complete))
+  )
+
+(when (package-installed-p 'ac-c-headers)
+  (use-package ac-c-headers
+    :after auto-complete
+    :config
+    (defun my:ac-c-header-init ()
+      (add-to-list 'ac-sources 'ac-source-c-headers)
+      (add-to-list 'ac-sources 'ac-source-c-header-symbols t)
+      )
+    :hook ((c++-mode c-mode) . my:ac-c-header-init)
+    ))
 
 (use-package pabbrev
-  :ensure t
-  :hook
-  (c-mode-common-hook . pabbrev)
-  )
+  :delight
+  :ensure t)
 
-;; (use-package ac-dabbrev
-;;   :config
-;;   (add-to-list 'ac-sources 'ac-source-dabbrev)
-;;   (setq ac-modes '(js3-mode
-;; 		   emacs-lisp-mode
-;; 		   lisp-mode
-;; 		   lisp-interaction-mode
-;; 		   slime-repl-mode
-;; 		   c-mode
-;; 		   cc-mode
-;; 		   c++-mode
-;; 		   go-mode
-;; 		   java-mode
-;; 		   eclim-mode
-;; 		   malabar-mode
-;; 		   clojure-mode
-;; 		   clojurescript-mode
-;; 		   scala-mode
-;; 		   scheme-mode
-;; 		   ocaml-mode
-;; 		   tuareg-mode
-;; 		   coq-mode
-;; 		   haskell-mode
-;; 		   agda-mode
-;; 		   agda2-mode
-;; 		   perl-mode
-;; 		   cperl-mode
-;; 		   python-mode
-;; 		   ruby-mode
-;; 		   enh-ruby-mode
-;; 		   lua-mode
-;; 		   ecmascript-mode
-;; 		   javascript-mode
-;; 		   js-mode
-;; 		   js2-mode
-;; 		   php-mode
-;; 		   css-mode
-;; 		   makefile-mode
-;; 		   sh-mode
-;; 		   fortran-mode
-;; 		   f90-mode
-;; 		   ada-mode
-;; 		   xml-mode
-;; 		   sgml-mode
-;; 		   ts-mode
-;; 		   sclang-mode
-;; 		   verilog-mode))
-;; )
-
-(add-hook 'c-mode-hook
-	  (lambda ()
-	    (add-to-list 'ac-sources 'ac-source-c-headers)
-	    (add-to-list 'ac-sources 'ac-source-c-header-symbols t)))
 ;;(require 'auto-complete-config)
-;;(ac-config-default)
-(ac-config-default)
 
 ;;(load "~/.emacs.d/rc/rc-flymake.el")
 ;; (load "~/.emacs.d/rc/rc-google-c-style.el")
 (use-package iedit
   :ensure t
-  :bind ("C-c ;" . iedit-mode)
-  )
+  :bind ("C-c ;" . iedit-mode))
 ;; (require 'rc-duplicate-thing)
-(require 'rc-cc-mode)
+;; (require 'rc-cc-mode)
 (use-package clang-format
   :ensure t)
 (use-package clang-format+
@@ -599,51 +558,51 @@
   :ensure t
   :config (volatile-highlights-mode t))
 (use-package clean-aindent-mode
+  :disabled t
   :ensure t
+  :custom
+  (clean-aindent-is-simple-indent t)
   :config
   (electric-indent-mode -1)
-  (clean-aindent-mode)
-  (eval-after-load 'prog-mode
-    (lambda ()
-      (progn
-        (setq clean-aindent-is-simple-indent t)
-        (clean-aindent-mode t))))
   :bind (:map global-map ("<RET>" . newline-and-indent))
   )
 
-;; (require 'rc-dtrt-indent)
 ;; (require 'rc-ws-butler)
 (use-package ws-butler
   :ensure t
+  :hook
+  ((c-mode-common text-mode fundamental-mode) . ws-butler-mode)
   )
 
-;; (use-package ggtags
-;;   :ensure t
-;;   :defer t
-;;   :hook ((c++-mode-hook c-mode-hook asm-mode)   . (lambda () (ggtags-mode 1)))
-;;   :bind (:map ggtags-mode-map
-;;               ("C-c g s" . ggtags-find-other-symbol)
-;;               ("C-c g h" . ggtags-view-tag-history)
-;;               ("C-c g r" . ggtags-find-reference)
-;;               ("C-c g f" . ggtags-find-file)
-;;               ("C-c g c" . ggtags-create-tags)
-;;               ("C-c g u" . ggtags-update-tags)
-;;               ("M-," . pop-tag-mark)
-;;               )
-;;   :commands ggtags-mode
-;;   :config
-;;   (unbind-key "M-<" ggtags-mode-map)
-;;   (unbind-key "M->" ggtags-mode-map)
-;;   (add-hook 'c-mode-common-hook
-;;             (lambda ()
-;;               (when (derived-mode-p 'c-mode 'c++-mode 'java-mode 'asm-mode)
-;;                 (ggtags-mode 1)
-;;                 )))
-;;  )
+(use-package xcscope
+  :ensure t
+  :config
+  (cscope-setup)
+  )
+
+(use-package ggtags
+  :disabled t
+  :ensure t
+  :hook ((c-mode-common . (lambda ()
+			    (when (derived-mode-p 'c-mode 'c++-mode 'java-mode 'asm-mode)
+			      (ggtags-mode 1)))))
+  :bind (:map ggtags-mode-map
+              ("C-c g s" . ggtags-find-other-symbol)
+              ("C-c g h" . ggtags-view-tag-history)
+              ("C-c g r" . ggtags-find-reference)
+              ("C-c g f" . ggtags-find-file)
+              ("C-c g c" . ggtags-create-tags)
+              ("C-c g u" . ggtags-update-tags)
+              ("M-," . pop-tag-mark)
+              )
+  :config
+  (unbind-key "M-<" ggtags-mode-map)
+  (unbind-key "M->" ggtags-mode-map)
+  )
 
 (setq vc-handled-backends '(git svn))
 ;; (use-package subword-mode
-;; :diminish subword-mode)
+;; :delight subword-mode)
 
 (use-package cycle-quotes
   :ensure t
@@ -662,17 +621,61 @@
   :ensure t
   :bind ("C-c C-b" . bool-flip-do-flip))
 
-(use-package company
-  :ensure t
-  :config
-  (add-hook 'after-init-hook 'global-company-mode)
+(use-package rc-functions
+  :bind
+  ("C-'" . comment-or-uncomment-region-or-line)
+  ("C-j" . kb-join-line)
+  ("C-a" . prelude-move-beginning-of-line)
+  ("C-c i" . indent-region-or-buffer)
+  ;;("M-o" . prelude-smart-open-line)
+  ("%" . match-paren) ;; % key on paren moves cursor to matching paren
+  ("C-c t" . my-delete-trailing-whitespaces-and-untabify)
+  ("C-c u" . (lambda () (interactive) (set-buffer-file-eol-type 'unix)))
+  ("C-c d" . (lambda () (interactive) (set-buffer-file-eol-type 'dos)))
+  ("C-c m" . (lambda () (interactive) (set-buffer-file-eol-type 'mac)))
+  ("C-c C-d" . insert/date-time)
   )
 
-(use-package dtrt-indent
+(use-package rect
+  :bind
+  ;; string-insert-rectangle is useful but not binded to any key by default
+  ("C-x r a" . string-insert-rectangle))
+
+(use-package company
   :ensure t
-  :diminish t
+  :after (cc-mode)
+  :hook (after-init . global-company-mode)
+  :custom
+  (company-backend (delete 'company-semantic company-backends))
   :config
-  (setq dtrt-indent-active-mode-line-info ""))
+  (delete 'company-semantic company-backends)
+  :bind (:map c-mode-map ("\t" . company-complete)
+	      :map c++-mode-map ("\t" . company-complete))
+  )
+(use-package company-statistics
+  :ensure t
+  :after company
+  :config
+  (company-statistics-mode))
+(use-package company-c-headers
+  :ensure t
+  :config
+  (push 'company-c-headers company-backends)
+  )
+(use-package company-box
+  :ensure t
+  :delight ""
+  :hook (company-mode . company-box-mode))
+
+(when (package-installed-p 'dtrt-indent)
+  (use-package dtrt-indent
+    :ensure t
+    :delight t
+    :custom
+    (dtrt-indent-active-mode-line-info "")
+    (dtrt-indent-verbosity 1)
+    :config
+    (dtrt-indent-mode 1)))
 
 (use-package highlight-numbers
   :ensure t
@@ -721,42 +724,43 @@
     :ensure t
     :config
     (setq clang-format+-context 'modification)
-    :hook (c-mode-common-hook . clang-format+-mode)
+    :hook (c-mode-common . clang-format+-mode)
     )
   )
 
-(use-package company-irony-c-headers
-  :if (package-installed-p 'company-irony)
-  :config
-  (eval-after-load 'company
-      (push 'company-irony-c-headers company-backends)))
-
-(use-package company-irony
-  :if (package-installed-p 'company-irony)
-  :config
-  (eval-after-load 'company
-    (push 'company-irony company-backends)))
-
 (use-package lsp
-  :hook ((c++-mode-hook c-mode-hook) . lsp)
+  :hook ((c++-mode c-mode) . lsp-mode)
   :commands (lsp lsp-deferred)
   )
+(use-package lsp-ui
+  :ensure t
+  :commands lsp-ui-mode
+  :config
+  (setq lsp-ui-sideline-enable t)
+  (setq lsp-print-io nil)
+  (setq lsp-prefer-flymake :none)
+  (setq flycheck-checker-error-threshold 10000)
+  )
+(use-package lsp-ivy
+  :ensure t
+  )
 (use-package company-lsp
+  :ensure t
   :config
   (push 'company-lsp company-backends)
   ;;(company-lsp-cache-candidates auto)
   ;;(company-lsp-async t)
   ;;(company-lsp-enable-snippet t)
   )
-(use-package lsp-clangd
-  :ensure t
-  :after lsp
-  :hook
-  (c-mode-hook . lsp-clangd-c-enable)
-  (c++-mode-hook . lsp-clangd-c++-enable)
-  (objc-mode-hook . lsp-clangd-objc-enable)
-  )
-
+;;(use-package lsp-clangd
+;;  :ensure t
+;;  :after lsp
+;;  :hook
+;;  (c-mode . lsp-clangd-c-enable)
+;;  (c++-mode . lsp-clangd-c++-enable)
+;;  (objc-mode . lsp-clangd-objc-enable)
+;;  )
+;;
 
 ;; autoinsert C/C++ header
 (define-auto-insert
@@ -792,17 +796,14 @@
 
 (eval-after-load 'java-mode
   (add-hook 'java-mode-hook
-	  (lambda ()
-	    (setq fill-column 80)
-	    (fci-mode)
-	    (auto-fill-mode)
-	    (setq c-basic-offset 4
-		  tab-width 4
-		  indent-tabs-mode nil)
-	    )))
-
-;;(require 'rc-helm)
-;;(require 'rc-helm-gtags)
+	    (lambda ()
+	      (setq fill-column 80)
+	      (fci-mode)
+	      (auto-fill-mode)
+	      (setq c-basic-offset 4
+		    tab-width 4
+		    indent-tabs-mode nil)
+	      )))
 
 (use-package all-the-icons :ensure t)
 (use-package neotree
@@ -816,7 +817,7 @@
   (setq neo-theme (if (display-graphic-p) 'icons 'arrow))
   ;; Disable line-numbers minor mode for neotree
   (add-hook 'neo-after-create-hook
-            (lambda (&rest _) (display-line-numbers-mode -1)))
+	    (lambda (&rest _) (display-line-numbers-mode -1)))
 
   ;; Every time when the neotree window is opened, let if find current
   ;; file and jump to node.
@@ -828,51 +829,65 @@
 
 
 (use-package hydra :ensure t)
-(use-package counsel :ensure t)
+(use-package counsel
+  :ensure t
+  :custom
+  (counsel-file-file-at-point t)
+  (counsel-find-file-ignore-regexp (regexp-opt completion-ignored-extensions))
+  :config
+  (counsel-mode 1)
+  :bind (
+	 ("<f2> j". counsel-set-variable)
+	 ("<f2> i" . counsel-info-lookup-symbol)
+	 ("<f2> u" . counsel-unicode-char)
+	 ("<f7>" . counsel-recentf)
+	 ("C-c g" . counsel-git)
+	 ("C-c j" . counsel-git-grep)
+	 ("C-c L" . counsel-git-log)
+	 ("C-c J" . counsel-file-jump)
+	 ("C-x l" . counsel-locate)
+	 ("C-c t" . counsel-load-theme)
+	 :map minibuffer-local-map
+	 ("C-r" . counsel-minibuffer-history))
+  )
+
+(use-package multiple-cursors :ensure t)
 (use-package counsel-gtags
   :ensure t
+  :delight
+  :custom
+  (counsel-gtags-auto-update t)
   :bind (:map counsel-gtags-mode-map
 	      (
+               ("M-." . 'counsel-gtags-find-definition)
 	       ("M-t" . 'counsel-gtags-find-definition)
 	       ("M-r" . 'counsel-gtags-find-reference)
 	       ("M-s" . 'counsel-gtags-find-symbol)
-	       ("M-," . 'counsel-gtags-go-backward)
-	       )
-	      )
-  :hook ((c-mode-common-hook) . counsel-gtags-mode)
-  :diminish)
+	       ("M-," . 'counsel-gtags-go-backward)))
+  :hook (c-mode-common . counsel-gtags-mode))
 (use-package counsel-projectile :ensure t)
-(use-package swiper :ensure t)
-(use-package ivy
+(use-package swiper
   :ensure t
-  :after (swiper counsel counsel-gtags)
-  :bind (("\C-s" . swiper)
-         ("C-c C-r" . ivy-resume)
-         ("<f6>" . ivy-resume)
-         ("M-x" . counsel-M-x)
-         ("C-x C-f" . counsel-find-file)
-         ("<f1> f" . counsel-describe-function)
-         ("<f1> v" . counsel-describe-variable)
-         ("<f1> l" . counsel-find-library)
-         ("<f2> i" . counsel-info-lookup-symbol)
-         ("<f2> u" . counsel-unicode-char)
-         ("C-c f" . counsel-git)
-         ("C-c j" . counsel-git-grep)
-         ("C-c v" . ivy-push-view)
-         ("C-c V" . ivy-pop-view)
-         :map minibuffer-local-map
-         ("C-r" . 'counsel-minibuffer-history)
-         )
+  :bind ("C-s" . swiper-isearch)
+  )
+(use-package ivy
+  :after (swiper counsel)
+  :config
+  (ivy-mode 1)
+  :bind (
+	 ("C-c C-r" . ivy-resume)
+	 ("<f6>" . ivy-resume)
+	 ("C-c v" . ivy-push-view)
+	 ("C-c V" . ivy-pop-view)
+	 )
   :custom
   (ivy-use-virutal-buffers t)
   (ivy-count-format "(%d/%d) ")
   (enable-recursive-minibuffers t)
-  :config
-  (ivy-mode))
+  )
 (use-package ivy-hydra
   :ensure t
   :after (ivy hydra))
-
 
 (use-package ibuffer
   :ensure t
@@ -880,81 +895,113 @@
   :config
   (setq ibuffer-saved-filter-groups
 	'(("default"
-           ("Emacs Configuration" (or (filename . ".emacs.d")
-                                      (filename . "init.el")
-                                      (filename . "package.el")
-                                      (filename . "private.el")
-                                      (filename . "emacs.d")))
-           ("Org" (or (mode . org-mode)
-                      (filename . "OrgMode")))
-           ("Magit" (name . "magit"))
-           ("Help" (or (name . "\*Help\*")
-                       (name . "\*Apropos\*")
-                       (name . "\*info\*")))
-           ("Dired" (mode . dired-mode))
-           ;; Dev has groups for all languages you program in
-           ("Dev" (or (mode . cc-mode)
-                      (filename . ".c")
-                      (filename . ".cpp")
-                      (filename . ".hpp")
-                      (filename . ".h")
-                      (filename . ".java")
-                      (filename . ".properties")
-                      (filename . ".gradle")
-                      (filename . ".am")
-                      (mode . yaml-mode))
-            )
-           ("Text" (or (filename . ".csv")
-                       (filename . ".tsv")
-                       (filename . ".txt")
-                       (filename . ".log")
-                       (filename . ".json")))
+	   ("Emacs Configuration" (or (filename . ".emacs.d")
+				      (filename . "init.el")
+				      (filename . "package.el")
+				      (filename . "private.el")
+				      (filename . "emacs.d")))
+	   ("Org" (or (mode . org-mode)
+		      (filename . "OrgMode")))
+	   ("Magit" (name . "magit"))
+	   ("Help" (or (name . "\*Help\*")
+		       (name . "\*Apropos\*")
+		       (name . "\*info\*")))
+	   ("Dired" (mode . dired-mode))
+	   ;; Dev has groups for all languages you program in
+	   ("Dev" (or (mode . cc-mode)
+		      (filename . ".c")
+		      (filename . ".cpp")
+		      (filename . ".hpp")
+		      (filename . ".h")
+		      (filename . ".java")
+		      (filename . ".properties")
+		      (filename . ".gradle")
+		      (filename . ".am")
+		      (mode . yaml-mode))
+	    )
+	   ("Text" (or (filename . ".csv")
+		       (filename . ".tsv")
+		       (filename . ".txt")
+		       (filename . ".log")
+		       (filename . ".json")))
 
-           ("Emacs" (or (name . "^\\*scratch\\*$")
+	   ("Emacs" (or (name . "^\\*scratch\\*$")
 			(name . "^\\*Messages\\*$")))
-           ("Gnus" (or (mode . message-mode)
-                       (mode . bbdb-mode)
-                       (mode . mail-mode)
-                       (mode . gnus-group-mode)
-                       (mode . gnus-summary-mode)
-                       (mode . gnus-article-mode)
-                       (name . "^\\.bbdb$")
-                       (name . "^\\.newsrc-dribble")))
- 	   )))
+	   ("Gnus" (or (mode . message-mode)
+		       (mode . bbdb-mode)
+		       (mode . mail-mode)
+		       (mode . gnus-group-mode)
+		       (mode . gnus-summary-mode)
+		       (mode . gnus-article-mode)
+		       (name . "^\\.bbdb$")
+		       (name . "^\\.newsrc-dribble")))
+	   )))
   )
 
-;; (load "~/.emacs.d/rc/rc-ecb.el")
-;; (require 'rc-cedet)
-;; (require 'rc-company)
-;; (require 'rc-gdb)
+(when (package-installed-p 'ecb)
+  (use-package ecb))
+(use-package gdb-mi
+  :custom
+  (gdb-many-windows t)   ;; use gdb-many-windows by default
+  (gdb-show-main t) ;; Non-nil means display source file containing the main routine at startup
+)
 
-;; :config
-;; (eval-after-load "projectile" '(diminish 'projectile-mode "P"))
+;; dynamic word-completion code
+(use-package completion  ;; a.o., add completion-c-mode-hook
+  :config
+  ;; load the default completions file
+  (initialize-completions)
+  (dynamic-completion-mode)
+  :bind
+  ([(control tab)] . complete))
+
+;; load generic modes which support e.g. batch files
+(use-package generic-x)
+
 (use-package projectile
   :ensure t
   :delight '(:eval (concat " " (projectile-project-name)))
-  :custom (projectile-indexing-method 'alien)
+  :custom
+  (projectile-indexing-method 'alien)
   (projectile-completion-system 'ivy)
-  ;; (projectile-completion-system 'helm)
   (projectile-enable-caching t)
   :config (projectile-global-mode)
-  ;; (helm-projectile-on)
+  :bind (:map projectile-mode-map
+	      ("s-p" . projectile-command-map)
+	      ("C-c p" . projectile-command-map))
   )
-;; (use-package treemacs :ensure t)
+
+(use-package speedbar
+  :custom
+  ;; number of spaces used for indentation
+  (speedbar-indentation-width 2)
+  :config
+  ;; expand/collapse latex sections
+  (speedbar-add-supported-extension '(".tex" ".bib" ".w"))
+  :bind (("<f4>" . speedbar-get-focus)   ;; jump to speedbar frame
+	 :map speedbar-key-map
+	 ;; bind the arrow keys in the speedbar tree
+	 ("<right>" . speedbar-expand-line)
+	 ("<left>" . speedbar-contract-line)))
+
 (use-package zygospore
   :ensure t
   :bind ("C-x 1" . zygospore-toggle-delete-other-windows))
 
-;;(load "~/.emacs.d/rc/rc-irony-mode.el")
-;; (load "~/.emacs.d/rc/rc-web-mode.el")
-;;(load "~/.emacs.d/rc/rc-graphviz.el")
+(when (package-installed-p 'graphviz-dot-mode)
+  (use-package graphviz-dot-mode
+    :custom
+    (graphviz-dot-view-command "xdot %s")))
 
-;; (use-package groovy-mode :ensure t)
+(when (package-installed-p 'groovy-mode)
+  (use-package groovy-mode))
 
 ;; Load ruby only when needed
-;;(use-package ruby-mode
-;;  :mode "\\.rb\\'"
-;;  :interpreter "ruby")
+(when (fboundp 'ruby-mode)
+  (use-package ruby-mode
+    :mode "\\.rb\\'"
+    :interpreter "ruby"))
+
 (use-package python
   :mode ("\\.py\\'" . python-mode)
   :interpreter ("python" . python-mode)
@@ -967,7 +1014,7 @@
   (py-switch-buffers-on-execute-p t)
   (py-split-windows-on-execute-p nil)
   (py-smart-indentation t)
-  :hook ((python-mode-hook . font-lock-fontify-numbers))
+  :hook ((python-mode . font-lock-fontify-numbers))
   )
 (use-package magit :ensure t)
 (use-package magit-popup
@@ -984,31 +1031,47 @@
   :ensure t)
 
 ;; (load "~/.emacs.d/rc/rc-org-mode.el")
-;;(load "~/.emacs.d/rc/rc-org-addons.el")
-;(load "~/.emacs.d/rc/rc-gnus.el")
-
+;; (load "~/.emacs.d/rc/rc-org-addons.el")
+;; (load "~/.emacs.d/rc/rc-gnus.el")
 ;; (load "~/.emacs.d/rc/rc-alpha.el")
-
 ;; (load "~/.emacs.d/rc/rc-haskell-mode.el")
-;;(load "~/.emacs.d/rc/rc-auctex.el")
+;; (load "~/.emacs.d/rc/rc-auctex.el")
+(when (package-installed-p 'auctex)
+  (use-package auctex
+    :no-require t
+    :custom
+    (TeX-PDF-mode t)
+    (TeX-view-program-selection
+     '((output-dvi "DVI Viewer")
+       (output-pdf "PDF Viewer")
+       (output-html "HTML Viewer")))
+    (preview-image-type 'pnm)
+    :config
+    (message "AucTeX configuration")))
+
+(when
+    (executable-find "ispell") (setq ispell-program-name "ispell")
+    (executable-find "aspell") (setq ispell-program-name "aspell"))
 
 ;; (load "~/.emacs.d/rc/rc-psvn.el")
 
-(use-package tuareg
-  :if (package-installed-p 'tuareg)
-  :after (smartparens)
-  :hook (tuareg-mode-hook . (lambda ()
-                            (when (functionp 'prettify-symbols-mode)
-                              (prettify-symbols-mode))))
-  )
+;;(use-package tuareg
+;;  :if (package-installed-p 'tuareg)
+;;  :after (smartparens)
+;;  :hook (tuareg-mode . (lambda ()
+;;                            (when (functionp 'prettify-symbols-mode)
+;;                              (prettify-symbols-mode))))
+;;  )
 
-(use-package rust-mode
-  :ensure t
-  )
-(use-package cargo
-  :ensure t
-  )
-(use-package rustic
-  :ensure t
-  )
+;;(use-package rust-mode
+;;  :ensure t
+;;  )
+;;(use-package cargo
+;;  :ensure t
+;;  )
+;;(use-package rustic
+;;  :ensure t
+;;  )
+
 (message "Init finished")
+;;; init.el ends here

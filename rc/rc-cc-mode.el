@@ -1,11 +1,16 @@
-;;; rc-c-mode.el ---
-
+;;; rc-c-mode.el --- My C mode setup
+;;; Commentary:
+;; This is init setup file for C mode
+;;; Code:
 ;;-------------------------------------------------------------------------------
 ;; indentation styles
 ;;-------------------------------------------------------------------------------
+
+(require 'cc-mode)
+
 ;;   Linux Kernel code
 (defun c-lineup-arglist-tabs-only (ignored)
-  "Line up argument lists by tabs, not spaces"
+  "IGNORED Line up argument lists by tabs, not spaces."
   (let* ((anchor (c-langelem-pos c-syntactic-element))
          (column (c-langelem-2nd-pos c-syntactic-element))
          (offset (- (1+ column) anchor))
@@ -85,4 +90,4 @@
 
 (provide 'rc-cc-mode)
 
-;;; rc-c-mode.el ends here
+;;; rc-cc-mode.el ends here
