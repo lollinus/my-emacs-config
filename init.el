@@ -95,8 +95,8 @@
   "Emacs >= 24 has elpa integrated")
 
 (package-initialize)
-(setq package-check-signature nil)
-(require 'package)
+;; (setq package-check-signature nil)
+;; (require 'package)
 
 (let* ((no-ssl (and (memq system-type '(windows-nt ms-dos))
 		    (not (gnutls-available-p))))
@@ -149,9 +149,9 @@ PACKAGES: list of packages to install."
 (condition-case nil
     (require 'use-package)
   (file-error
-   ;;   (require 'package)
-   ;;   (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
-   ;;   (package-initialize)
+   (require 'package)
+   (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
+   (package-initialize)
    (package-refresh-contents)
    (package-install 'use-package)
    (require 'use-package)))
