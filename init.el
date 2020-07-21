@@ -415,25 +415,27 @@ PACKAGES: list of packages to install."
   (global-flycheck-mode)
   :custom
   (flycheck-indication-mode 'right-fringe)
-  (flycheck-check-syntax-automatically '(save mode-enabled))
-  )
-
+  (flycheck-check-syntax-automatically '(save mode-enabled)))
 (use-package flycheck-checkpatch
   :ensure t
   :after flycheck
-  :config
-  (flycheck-checkpatch-setup))
+  :hook
+  (flycheck-mode . flycheck-checkpatch-setup))
 (use-package flycheck-clang-analyzer
   :ensure t
   :after flycheck
-  :config
-  (flycheck-clang-analyzer-setup))
+  :hook
+  (flycheck-mode . flycheck-clang-analyzer-setup))
+(use-package flycheck-clang-tidy
+  :ensure t
+  :after flycheck
+  :hook
+  (flycheck-mode . flycheck-clang-tidy-setup))
 (use-package avy-flycheck
   :ensure t
   :after flycheck
-  :config
-  (avy-flycheck-setup)
-  )
+  :hook
+  (flycheck-mode . avy-flycheck-setup))
 
 
 ;;--------------------------------------------------------------------------------
@@ -479,10 +481,8 @@ PACKAGES: list of packages to install."
 (use-package markdown-mode :ensure t)
 (use-package highlight-doxygen
   :ensure t
-  :config
   :hook
-  (c-mode-common . (lambda () highlight-doxygen-mode))
-  )
+  (c-mode-common . (lambda () highlight-doxygen-mode)))
 
 ;;(load "~/.emacs.d/rc/rc-makefile-mode.el")
 ;;(load "~/.emacs.d/rc/rc-cmake-mode.el")
@@ -497,8 +497,7 @@ PACKAGES: list of packages to install."
 		    (setq fill-column 80)
 		    (auto-fill-mode)
 		    (setq cmake-tab-width 4)
-		    (setq indent-tabs-mode nil))))
-  )
+		    (setq indent-tabs-mode nil)))))
 
 (when (package-installed-p 'auto-complete)
   (use-package auto-complete
@@ -532,8 +531,7 @@ PACKAGES: list of packages to install."
       (add-to-list 'ac-sources 'ac-source-c-headers)
       (add-to-list 'ac-sources 'ac-source-c-header-symbols t)
       )
-    :hook ((c++-mode c-mode) . my:ac-c-header-init)
-    ))
+    :hook ((c++-mode c-mode) . my:ac-c-header-init)))
 
 (use-package pabbrev
   :delight
@@ -549,9 +547,9 @@ PACKAGES: list of packages to install."
 ;; (require 'rc-duplicate-thing)
 ;; (require 'rc-cc-mode)
 (use-package clang-format
-  :ensure t)
-(use-package clang-format+
-  :ensure t)
+  :ensure t
+  :bind ("C-M-;" . 'clang-format-region))
+(use-package clang-format+ :ensure t)
 
 ;; (require 'rc-diff-mode)
 (use-package volatile-highlights
@@ -560,49 +558,47 @@ PACKAGES: list of packages to install."
 (use-package clean-aindent-mode
   :disabled t
   :ensure t
-  :custom
-  (clean-aindent-is-simple-indent t)
-  :config
-  (electric-indent-mode -1)
-  :bind (:map global-map ("<RET>" . newline-and-indent))
-  )
+  :custom (clean-aindent-is-simple-indent t)
+  :config (electric-indent-mode -1)
+  :bind (:map global-map ("<RET>" . newline-and-indent)))
 
 ;; (require 'rc-ws-butler)
 (use-package ws-butler
   :ensure t
   :hook
-  ((c-mode-common text-mode fundamental-mode) . ws-butler-mode)
-  )
+  ((c-mode-common text-mode fundamental-mode) . ws-butler-mode))
 
 (use-package xcscope
   :ensure t
   :config
-  (cscope-setup)
-  )
+  (cscope-setup))
 
-(use-package ggtags
-  :disabled t
-  :ensure t
-  :hook ((c-mode-common . (lambda ()
-			    (when (derived-mode-p 'c-mode 'c++-mode 'java-mode 'asm-mode)
-			      (ggtags-mode 1)))))
-  :bind (:map ggtags-mode-map
-              ("C-c g s" . ggtags-find-other-symbol)
-              ("C-c g h" . ggtags-view-tag-history)
-              ("C-c g r" . ggtags-find-reference)
-              ("C-c g f" . ggtags-find-file)
-              ("C-c g c" . ggtags-create-tags)
-              ("C-c g u" . ggtags-update-tags)
-              ("M-," . pop-tag-mark)
-              )
-  :config
-  (unbind-key "M-<" ggtags-mode-map)
-  (unbind-key "M->" ggtags-mode-map)
-  )
+(when (package-installed-p 'ggtags)
+  (use-package ggtags
+    :ensure t
+    :hook ((c-mode-common . (lambda ()
+			      (when (derived-mode-p 'c-mode 'c++-mode 'java-mode 'asm-mode)
+				(ggtags-mode 1)))))
+    :bind (:map ggtags-mode-map
+		("C-c g s" . ggtags-find-other-symbol)
+		("C-c g h" . ggtags-view-tag-history)
+		("C-c g r" . ggtags-find-reference)
+		("C-c g f" . ggtags-find-file)
+		("C-c g c" . ggtags-create-tags)
+		("C-c g u" . ggtags-update-tags)
+		("M-," . pop-tag-mark)
+		)
+    :config
+    (unbind-key "M-<" ggtags-mode-map)
+    (unbind-key "M->" ggtags-mode-map)))
 
-(setq vc-handled-backends '(git svn))
-;; (use-package subword-mode
-;; :delight subword-mode)
+(use-package vc-hooks
+  :custom
+  (vc-handled-backends '(git svn)))
+(use-package subword-mode
+  :delight
+  :hook
+  (c-mode-common . 'subword-mode))
 
 (use-package cycle-quotes
   :ensure t
@@ -633,8 +629,7 @@ PACKAGES: list of packages to install."
   ("C-c u" . (lambda () (interactive) (set-buffer-file-eol-type 'unix)))
   ("C-c d" . (lambda () (interactive) (set-buffer-file-eol-type 'dos)))
   ("C-c m" . (lambda () (interactive) (set-buffer-file-eol-type 'mac)))
-  ("C-c C-d" . insert/date-time)
-  )
+  ("C-c C-d" . insert/date-time))
 
 (use-package rect
   :bind
@@ -643,14 +638,17 @@ PACKAGES: list of packages to install."
 
 (use-package company
   :ensure t
-  :after (cc-mode)
+  :after cc-mode
   :hook (after-init . global-company-mode)
   :custom
   (company-backend (delete 'company-semantic company-backends))
   :config
   (delete 'company-semantic company-backends)
-  :bind (:map c-mode-map ("\t" . company-complete)
-	      :map c++-mode-map ("\t" . company-complete))
+  :bind (
+	 :map
+	 (c-mode-map ("\t" . company-complete))
+	 :map
+	 (c++-mode-map ("\t" . company-complete)))
   )
 (use-package company-statistics
   :ensure t
@@ -865,7 +863,9 @@ PACKAGES: list of packages to install."
 	       ("M-s" . 'counsel-gtags-find-symbol)
 	       ("M-," . 'counsel-gtags-go-backward)))
   :hook (c-mode-common . counsel-gtags-mode))
-(use-package counsel-projectile :ensure t)
+(use-package counsel-projectile
+  :ensure t
+  :after counsel)
 (use-package swiper
   :ensure t
   :bind ("C-s" . swiper-isearch)
