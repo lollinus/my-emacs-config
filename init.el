@@ -546,10 +546,6 @@ PACKAGES: list of packages to install."
   :bind ("C-c ;" . iedit-mode))
 ;; (require 'rc-duplicate-thing)
 ;; (require 'rc-cc-mode)
-(use-package clang-format
-  :ensure t
-  :bind ("C-M-;" . 'clang-format-region))
-(use-package clang-format+ :ensure t)
 
 ;; (require 'rc-diff-mode)
 (use-package volatile-highlights
@@ -644,11 +640,8 @@ PACKAGES: list of packages to install."
   (company-backend (delete 'company-semantic company-backends))
   :config
   (delete 'company-semantic company-backends)
-  :bind (
-	 :map
-	 (c-mode-map ("\t" . company-complete))
-	 :map
-	 (c++-mode-map ("\t" . company-complete)))
+  :bind (:map c-mode-map ("\t" . company-complete))
+  :bind (:map c++-mode-map ("\t" . company-complete))
   )
 (use-package company-statistics
   :ensure t
@@ -750,15 +743,16 @@ PACKAGES: list of packages to install."
   ;;(company-lsp-async t)
   ;;(company-lsp-enable-snippet t)
   )
-;;(use-package lsp-clangd
-;;  :ensure t
-;;  :after lsp
-;;  :hook
-;;  (c-mode . lsp-clangd-c-enable)
-;;  (c++-mode . lsp-clangd-c++-enable)
-;;  (objc-mode . lsp-clangd-objc-enable)
-;;  )
-;;
+;; (when (executable-find "clangd")
+;;       (use-package lsp-clangd
+;; 	:ensure t
+;; 	:after lsp
+;; 	:hook
+;; 	(c-mode . lsp-clangd-c-enable)
+;; 	(c++-mode . lsp-clangd-c++-enable)
+;; 	(objc-mode . lsp-clangd-objc-enable)
+;; 	)
+;;)
 
 ;; autoinsert C/C++ header
 (define-auto-insert
