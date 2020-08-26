@@ -5,21 +5,21 @@
 ;;; Code:
 ;; using cursor color to indicate some modes (read-only, insert and
 ;; overwrite modes)
-(defvar my-set-cursor-color-color "")
-(defvar my-set-cursor-color-buffer "")
+(defvar kb/set-cursor-color-color "")
+(defvar kb/set-cursor-color-buffer "")
 
-(defun my-set-cursor-color-according-to-mode ()
+(defun kb/set-cursor-color-according-to-mode ()
   "Change cursor color according to some minor modes."
   (let ((color
 	 (if buffer-read-only "purple1"
 	   (if overwrite-mode "red"
 	     "rgb:15/FF/00"))))  ;; insert mode
-    (unless (and (string= color my-set-cursor-color-color)
-		 (string= (buffer-name) my-set-cursor-color-buffer))
-      (set-cursor-color (setq my-set-cursor-color-color color))
-      (setq my-set-cursor-color-buffer (buffer-name)))))
+    (unless (and (string= color kb/set-cursor-color-color)
+		 (string= (buffer-name) kb/set-cursor-color-buffer))
+      (set-cursor-color (setq kb/set-cursor-color-color color))
+      (setq kb/set-cursor-color-buffer (buffer-name)))))
 
-(add-hook 'post-command-hook 'my-set-cursor-color-according-to-mode)
+(add-hook 'post-command-hook 'kb/set-cursor-color-according-to-mode)
 
 (defun prelude-move-beginning-of-line (arg)
   "Move point back to indentation of beginning of line.
@@ -104,8 +104,9 @@ indent yanked text (with prefix arg don't indent)."
         (yank-advised-indent-function (region-beginning) (region-end)))))
 
 (defadvice yank-pop (after yank-pop-indent activate)
-  "If current mode is one of `yank-indent-modes',
-indent yanked text (with prefix arg don't indent)."
+  "If current mode is one of `yank-indent-modes', indent yanked text.
+
+ With prefix arg don't indent."
   (when (and (not (ad-get-arg 0))
              (not (member major-mode yank-indent-blacklisted-modes))
              (or (derived-mode-p 'prog-mode)

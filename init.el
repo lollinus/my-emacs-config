@@ -539,8 +539,30 @@ PACKAGES: list of packages to install."
 
 ;;(require 'auto-complete-config)
 
-;;(load "~/.emacs.d/rc/rc-flymake.el")
-;; (load "~/.emacs.d/rc/rc-google-c-style.el")
+;; Prefer flycheck
+(use-package flymake
+  :disabled t
+  :config
+  (defun kb/flymake-google-init ()
+    (require 'flymake-google-cpplint)
+    (custom-set-variables
+     '(flymake-google-cpplint-command "~/.emacs.d/scripts/cpplint.py"))
+    (flymake-google-cpplint-load)
+    )
+  :hook ((c-mode c++-mode) . bk/flymake-google-init)
+  )
+(when (package-installed-p 'flymake-gradle)
+  (use-package flymake-gradle
+    :ensure t
+    :hook ((java-mode kotlin-mode) . flymake-gradle-add-hook)
+    ))
+
+
+(use-package google-c-style
+  :hook
+  (c-mode-common . (google-c-style google-make-newline-indent))
+)
+
 (use-package iedit
   :ensure t
   :bind ("C-c ;" . iedit-mode))

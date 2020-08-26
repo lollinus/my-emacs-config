@@ -3,7 +3,7 @@
 
 ;;; Code:
 ;; font configuration
-(defun kb-set-font ()
+(defun kb/set-font ()
   "Function set screen font.
 If Emacs is run in MS Windows then use Arial Unicode MS
 On U*x systems Use DejaVu Sans Mono"
@@ -13,12 +13,12 @@ On U*x systems Use DejaVu Sans Mono"
     (set-frame-parameter nil 'font "DejaVu Sans Mono"))
   )
 
-(kb-set-font)
+(kb/set-font)
 
-(defvar my:terminal-theme 'wombat)
-(defvar my:window-theme 'misterioso)
-(defvar my:theme-window-loaded nil)
-(defvar my:theme-terminal-loaded nil)
+(defvar kb/terminal-theme 'wombat)
+(defvar kb/window-theme 'misterioso)
+(defvar kb/theme-window-loaded nil)
+(defvar kb/theme-terminal-loaded nil)
 
 (if (daemonp)
     (add-hook 'after-make-frame-functions
@@ -26,27 +26,27 @@ On U*x systems Use DejaVu Sans Mono"
                 (select-frame frame)
                 (if (window-system frame)
 		    (progn
-		      (unless my:theme-window-loaded
-			(if my:theme-window-loaded
-			    (enable-theme my:window-theme)
-			  (load-theme my:window-theme t))
-			(setq my:theme-window-loaded t))
-		      (kb-set-font)
+		      (unless kb/theme-window-loaded
+			(if kb/theme-window-loaded
+			    (enable-theme kb/window-theme)
+			  (load-theme kb/window-theme t))
+			(setq kb/theme-window-loaded t))
+		      (kb/set-font)
 		      )
-                  (unless my:theme-terminal-loaded
-                    (if my:theme-terminal-loaded
-                        (enable-theme my:terminal-theme)
-                      (load-theme my:terminal-theme t))
-		    (setq my:theme-terminal-loaded t)))))
+                  (unless kb/theme-terminal-loaded
+                    (if kb/theme-terminal-loaded
+                        (enable-theme kb/terminal-theme)
+                      (load-theme kb/terminal-theme t))
+		    (setq kb/theme-terminal-loaded t)))))
   (progn
     (if (display-graphic-p)
 	(progn
-	  (load-theme my:window-theme t)
-	  (setq my:theme-window-loaded t)
+	  (load-theme kb/window-theme t)
+	  (setq kb/theme-window-loaded t)
 	  )
       (progn
-	(load-theme my:terminal-theme t)
-	(setq my:theme-terminal-loaded t)
+	(load-theme kb/terminal-theme t)
+	(setq kb/theme-terminal-loaded t)
         )))
   )
 
