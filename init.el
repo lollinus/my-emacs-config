@@ -373,7 +373,8 @@ PACKAGES: list of packages to install."
   :config
   (electric-pair-mode -1)
   (require 'smartparens-config)
-  (smartparens-global-strict-mode 1))
+  ;; (smartparens-global-strict-mode 1)
+  )
 
 (global-set-key (kbd "C-c n") 'next-multiframe-window)
 (global-set-key (kbd "C-c f") 'switch-to-next-buffer)
