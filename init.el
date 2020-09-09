@@ -259,6 +259,7 @@ PACKAGES: list of packages to install."
   :custom
   (whitespace-style '(face trailing lines-tail newline empty
 			   indentation big-indent space-before-tab))
+  (whitespace-line-column '100)
   :bind
   ("C-c w" . whitespace-mode)
   )
