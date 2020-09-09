@@ -11,33 +11,19 @@
 (setq user-full-name "Karol Barski")
 (setq user-mail-address "karol.barski@tieto.com")
 
-(setq inhibit-splash-screen t)
-(setq inhibit-startup-message t)
-
 (setq gc-cons-threshold 100000000)
 
-(setq global-mark-ring-max 5000         ; increase mark ring to contains 5000 entries
-      mark-ring-max 5000                ; increase kill ring to contains 5000 entries
-      mode-require-final-newline t      ; add a newline to end of file
+(setq mode-require-final-newline t      ; add a newline to end of file
       tab-width 4                       ; default to 4 visible spaces to display a tab
-      )
-
-;; GROUP: Editing -> Killing
-(setq kill-ring-max 5000 ; increase kill-ring capacity
-      kill-whole-line t  ; if NIL, kill whole line and move the next line up
       )
 
 (load "~/.emacs.d/rc/environment.el")
 
-(setq vc-follow-symlinks t)
 ;; blink screen on bell
 (setq visible-bell t)
 
-;; ignore case when reading a file name completion
-(setq read-file-name-completion-ignore-case t)
-
 ;; dim the ignored part of the file name
-(file-name-shadow-mode 1)
+;;(file-name-shadow-mode 1)
 
 ;; minibuffer window expands vertically as necessary to hold the text that
 ;; you put in the minibuffer
@@ -56,13 +42,18 @@
 		      (tool-bar-mode 0)            ; turn menus off
 		      (menu-bar-mode 0)            ; disable toolbar
 		      (set-scroll-bar-mode 'right) ; scroll bar on the right side
+		      (setq scroll-bar-width 10)
+		      (set-face-background 'scroll-bar "orchid3")
+		      (set-face-foreground 'scroll-bar "grey93")
 		      )
 		  )))
   (if (display-graphic-p)
       (progn
 	(tool-bar-mode 0)               ; turn menus off
 	(menu-bar-mode 0)               ; disable toolbar
-	(set-scroll-bar-mode 'right)    ; scroll bar on the right side
+	(setq scroll-bar-width 10)
+	(set-face-background 'scroll-bar "green")
+	(scroll-bar-mode 'right)
 	)
     )
   )
@@ -75,10 +66,6 @@
 ;; fancy streching cursor
 (setq x-stretch-cursor t)
 ;; (global-hl-line-mode t)
-
-;; show column number in mode-line
-(column-number-mode t)
-(line-number-mode t)
 
 ;; use inactive face for mode-line in non-selected windows
 (setq mode-line-in-non-selected-windows t)
@@ -118,7 +105,7 @@
        (proto (if no-ssl "http" "https")))
   (when no-ssl
     (warn "\
-Your version of Emacs does not support SSL connections, 
+Your version of Emacs does not support SSL connections,
 which is unsafe because it allows man-in-the middle attacks.
 There are two things you can do about this warning:
 1. Install an Emacs version that does support SSL and be safe.
@@ -179,7 +166,9 @@ PACKAGES: list of packages to install."
 
 (use-package emacs
   :hook ((emacs-lisp-mode lisp-mode) . display-line-numbers-mode)
-  :custom (display-line-numbers-type 'visual)
+  :custom
+  (display-line-numbers-type 'visual)
+  (inhibit-startup-screen t)
   :config
   (put 'narrow-to-page 'disabled nil)
   (put 'narrow-to-region 'disabled nil)
@@ -187,14 +176,33 @@ PACKAGES: list of packages to install."
   (put 'downcase-region 'disabled nil)
   )
 
+;; ignore case when reading a file name completion
+(use-package minibuffer
+  :custom
+  (read-file-name-completion-ignore-case t)
+  )
+
+
+
 (use-package simple
   :custom
+  (global-mark-ring-max 5000)         ; increase mark ring to contains 5000 entries
+  (mark-ring-max 5000)                ; increase kill ring to contains 5000 entries
+  (column-number-mode t)
+  (line-number-mode t)
+  (size-indication-mode t)
+  (kill-ring-max 5000) ; increase kill-ring capacity
   (kill-whole-line t)
-  :config
+:config
   (put 'set-goal-column 'disabled nil)
   :bind
   ("M-g" . goto-line)
   ("C-;" . kill-whole-line)
+  )
+
+(use-package vc
+  :custom
+  (vc-follow-symlinks t)
   )
 
 (use-package frame
@@ -253,7 +261,8 @@ PACKAGES: list of packages to install."
   (smerge-command-prefix (kbd "C-c v")))
 
 (add-to-list 'load-path "~/.emacs.d/rc")
-(require 'rc-functions)
+
+(load "~/.emacs.d/rc/rc-functions.el")
 
 (use-package whitespace
   :custom
@@ -279,11 +288,11 @@ PACKAGES: list of packages to install."
   :if (package-installed-p 'yasnippet)
   :config
   (add-to-list 'yas-snippet-dirs "~/.emacs.d/rc/snippets")
-  (yas/global-mode 1)
+  (yas-global-mode 1)
   ;; Inter-field navigation
   (defun yas/goto-end-of-active-field ()
     (interactive)
-    (let* ((snippet (car (yas--snippets-at-point)))
+    (let* ((snippet (car (yas-active-snippets)))
 	   (position (yas--field-end (yas--snippet-active-field snippet))))
       (if (= (point) position)
 	  (move-end-of-line 1)
@@ -291,7 +300,7 @@ PACKAGES: list of packages to install."
 
   (defun yas/goto-start-of-active-field ()
     (interactive)
-    (let* ((snippet (car (yas--snippets-at-point)))
+    (let* ((snippet (car (yas-active-snippets)))
 	   (position (yas--field-start (yas--snippet-active-field snippet))))
       (if (= (point) position)
 	  (move-beginning-of-line 1)
@@ -301,28 +310,41 @@ PACKAGES: list of packages to install."
   (yas-prompt-functions '(yas/ido-prompt yas/completing-prompt))
   (yas-verbosity 1)
   (yas-wrap-around-region t)
-  :hook (term-mode . (lambda() (setq yas-dont-activate t)))
+  :hook (term-mode . (lambda() (setq yas-dont-activate-functions t)))
   :bind
   (:map yas-keymap
-	("<return>" . yas/exit-all-snippets)
+	("<return>" . yas-exit-all-snippets)
 	("C-e" . yas/goto-end-of-active-field)
 	("C-a" . yas/goto-start-of-active-field)
 	)
   )
+(use-package ivy-yasnippet
+  :if (package-installed-p 'ivy-yasnippet)
+  )
+
 (use-package anzu
   :disabled t
   :ensure t
   :config
   (global-anzu-mode)
-  :bind 
+  :bind
   ("M-%" . anzu-query-replace)
   ("C-M-%" . anzu-query-replace-regexp))
 
-(electric-pair-mode -1)
-(setq electric-pair-preserve-balance t
+(use-package elec-pair
+  :disabled t
+  :config
+  (electric-pair-mode -1)
+  :custom
+  (electric-pair-preserve-balance t
       electric-pair-delete-adjacent-pairs t
       electric-pair-open-newline-between-pairs nil)
-(show-paren-mode 1)
+  )
+
+(use-package paren
+  :config
+  (show-paren-mode 1)
+  )
 
 (use-package smartparens
   :ensure t
@@ -396,8 +418,16 @@ PACKAGES: list of packages to install."
   (savehist-mode t))
 
 (use-package ace-window
+  :disabled
   :ensure t
   :bind (:map global-map ("M-o" . ace-window))
+  )
+(use-package winum
+  :ensure t
+  :custom
+  (winum-auto-setup-mode-line t)
+  :config
+  (winum-mode)
   )
 
 (use-package editorconfig
@@ -447,9 +477,46 @@ PACKAGES: list of packages to install."
 (setq show-paren-style 'mixed)
 (setq transient-mark-mode nil)
 
-(require 'rc-color-theme)
+(use-package custom
+  :config
+  (defvar kb/terminal-theme 'wombat)
+  (defvar kb/window-theme 'misterioso)
+  (defvar kb/theme-window-loaded nil)
+  (defvar kb/theme-terminal-loaded nil)
+  (defun kb/load-grapics-theme ()
+    (interactive)
+    (load-theme kb/window-theme t)
+    (setq kb/theme-window-loaded t))
+  (defun kb/load-terminal-theme ()
+    (interactive)
+    (load-theme kb/terminal-theme t)
+    (setq kb/theme-terminal-loaded t))
+  (defun kb/load-frame-theme (frame)
+    (message "kb/load-frame-theme %s" frame)
+    (select-frame frame)
+    (if (window-system frame)
+	(progn
+	  (unless kb/theme-window-loaded
+	    (if kb/theme-window-loaded
+		(enable-theme kb/window-theme)
+	      (load-theme kb/window-theme t))
+	    (setq kb/theme-window-loaded t))
+	  (kb/set-font)
+	  )
+      (unless kb/theme-terminal-loaded
+        (if kb/theme-terminal-loaded
+            (enable-theme kb/terminal-theme)
+          (load-theme kb/terminal-theme t))
+	(setq kb/theme-terminal-loaded t))))
 
+  (if (display-graphic-p)
+      (kb/load-terminal-theme)
+    (kb/load-grapics-theme))
+  :hook (after-make-frame-functions . kb/load-frame-theme)
+  )
+  
 (use-package fill-column-indicator
+  :disabled
   :ensure t
   :config
   (defun sanityinc/fci-enabled-p () (symbol-value 'fci-mode))
@@ -480,66 +547,67 @@ PACKAGES: list of packages to install."
   :delight ""
   :config (global-undo-tree-mode))
 
-(use-package markdown-mode :ensure t)
+(use-package markdown-mode :ensure t
+  :config
+  (add-to-list 'auto-mode-alist '("\\.text\\'" . markdown-mode))
+  (add-to-list 'auto-mode-alist '("\\.markdown\\'" . markdown-mode))
+  (add-to-list 'auto-mode-alist '("\\.md\\'" . markdown-mode))
+  )
 (use-package highlight-doxygen
   :ensure t
   :hook
   (c-mode-common . (lambda () highlight-doxygen-mode)))
 
-;;(load "~/.emacs.d/rc/rc-makefile-mode.el")
-;;(load "~/.emacs.d/rc/rc-cmake-mode.el")
-(when (fboundp 'cmake-mode)
-  (use-package cmake-mode
-    :custom
-    (auto-mode-alist
-     (append '(("CMakeLists\\.txt\\'" . cmake-mode)) auto-mode-alist))
-    :hook
-    (cmake-mode . (lambda ()
-		    (message "CmakeMode custom")
-		    (setq fill-column 80)
-		    (auto-fill-mode)
-		    (setq cmake-tab-width 4)
-		    (setq indent-tabs-mode nil)))))
+(use-package cmake-mode
+  :if (package-installed-p 'cmake-mode)
+  :custom
+  (auto-mode-alist
+   (append '(("CMakeLists\\.txt\\'" . cmake-mode)) auto-mode-alist))
+  :hook
+  (cmake-mode . (lambda ()
+		  (message "CmakeMode custom")
+		  (setq fill-column 80)
+		  (auto-fill-mode)
+		  (setq cmake-tab-width 4)
+		  (setq indent-tabs-mode nil))))
 
-(when (package-installed-p 'auto-complete)
-  (use-package auto-complete
-    :config
-    (require 'auto-complete-config)
-    (ac-config-default)
-    (defun kb--auto-complete ()
-      (interactive)
-      (unless (boundp 'auto-complete-mode)
-	(global-auto-complete-mode 1))
-      (auto-complete))
-    
-    (ac-set-trigger-key "TAB")
-    (ac-config-default)
-    (setq ac-delay 0.02)
-    (setq ac-use-menu-map t)
-    (setq ac-menu-height 50)
-    (setq ac-use-quick-help nil)
-    (setq ac-comphist-file "~/.emacs.d/ac-comphist.dat")
-    (setq ac-ignore-case nil)
-    (setq ac-dwim t)
-    (setq ac-fuzzy-enable t)
-    :bind ("M-<TAB>" . kb--auto-complete))
-  )
+(use-package auto-complete
+  :if (package-installed-p 'auto-complete)
+  :custom
+  (ac-delay 0.02)
+  (ac-use-menu-map t)
+  (ac-menu-height 50)
+  (ac-use-quick-help nil)
+  (ac-comphist-file "~/.emacs.d/ac-comphist.dat")
+  (ac-ignore-case nil)
+  (ac-dwim t)
+  (ac-fuzzy-enable t)
+  :config
+  (require 'auto-complete-config)
+  (ac-config-default)
+  (defun kb--auto-complete ()
+    (interactive)
+    (unless (boundp 'auto-complete-mode)
+      (global-auto-complete-mode 1))
+    (auto-complete))
 
-(when (package-installed-p 'ac-c-headers)
-  (use-package ac-c-headers
-    :after auto-complete
-    :config
-    (defun my:ac-c-header-init ()
-      (add-to-list 'ac-sources 'ac-source-c-headers)
-      (add-to-list 'ac-sources 'ac-source-c-header-symbols t)
-      )
-    :hook ((c++-mode c-mode) . my:ac-c-header-init)))
+  (ac-set-trigger-key "TAB")
+  (ac-config-default)
+  :bind ("M-<tab>" . kb--auto-complete))
+
+(use-package ac-c-headers
+  :if (package-installed-p 'ac-c-headers)
+  :after auto-complete
+  :config
+  (defun my:ac-c-header-init ()
+    (add-to-list 'ac-sources 'ac-source-c-headers)
+    (add-to-list 'ac-sources 'ac-source-c-header-symbols t)
+    )
+  :hook ((c++-mode c-mode) . my:ac-c-header-init))
 
 (use-package pabbrev
   :delight
   :ensure t)
-
-;;(require 'auto-complete-config)
 
 ;; Prefer flycheck
 (use-package flymake
@@ -553,11 +621,11 @@ PACKAGES: list of packages to install."
     )
   :hook ((c-mode c++-mode) . bk/flymake-google-init)
   )
-(when (package-installed-p 'flymake-gradle)
-  (use-package flymake-gradle
-    :ensure t
-    :hook ((java-mode kotlin-mode) . flymake-gradle-add-hook)
-    ))
+
+(use-package flymake-gradle
+  :if (package-installed-p 'flymake-gradle)
+  :hook ((java-mode kotlin-mode) . flymake-gradle-add-hook)
+  )
 
 
 (use-package google-c-style
@@ -571,7 +639,65 @@ PACKAGES: list of packages to install."
 ;; (require 'rc-duplicate-thing)
 ;; (require 'rc-cc-mode)
 
-;; (require 'rc-diff-mode)
+(defun kb/cc-compile-command-hook ()
+    "Compile C/C++ files with gcc if makefile doesn't exist."
+  (unless (or (file-exists-p "makefile")
+              (file-exists-p "Makefile"))
+    (set (make-local-variable 'compile-command)
+         (let ((file (file-name-nondirectory buffer-file-name)))
+           (format "%s -c -o %s.o %s %s %s"
+                   (or (getenv "CC") "g++")
+                   (file-name-sans-extension file)
+                   (or (getenv "CPPFLAGS") "-DDEBUG=9")
+                   (or (getenv "CFLAGS") "-ansi -pedantic -Wall -g")
+                   file)))))
+
+(use-package cc-mode
+  :config
+  (add-hook 'c-mode  (lambda ()
+		       (setq fill-column 100)
+		       (auto-fill-mode)
+		       (fci-mode)
+		       (setq tab-width 8)
+		       (setq indent-tabs-mode t)
+		       ))
+  (add-hook 'c++-mode (lambda ()
+			(setq fill-column 100)
+			(auto-fill-mode)
+			(fci-mode)
+			(setq tab-width 4)
+			(setq indent-tabs-mode nil)
+			))
+  (add-hook 'c++-mode 'kb/cc-compile-command-hook)
+)
+
+(use-package display-line-numbers
+  :hook
+  (c-mode-common . display-line-numbers-mode)
+  )
+
+(use-package diff-mode
+  :hook
+  (diff-mode . (lambda ()
+		 (setq-local whitespace-style
+			     '(face
+			       tabs
+			       tab-mark
+			       spaces
+			       space-mark
+			       trailing
+			       indentation::space
+			       indentation::tab
+			       newline
+			       newline-mark))
+		 (whitespace-mode 1)
+		 (if (file-exists-p "./scripts/checkpatch.pl")
+		     (progn (print "setting compile-command")
+			    (set (make-local-variable 'compile-command)
+				 (concat "./scripts/checkpatch.pl --emacs "
+					 (buffer-file-name))))
+		   (print "checkpatch not found"))))
+  )
 (use-package volatile-highlights
   :ensure t
   :config (volatile-highlights-mode t))
@@ -593,24 +719,23 @@ PACKAGES: list of packages to install."
   :config
   (cscope-setup))
 
-(when (package-installed-p 'ggtags)
-  (use-package ggtags
-    :ensure t
-    :hook ((c-mode-common . (lambda ()
-			      (when (derived-mode-p 'c-mode 'c++-mode 'java-mode 'asm-mode)
-				(ggtags-mode 1)))))
-    :bind (:map ggtags-mode-map
-		("C-c g s" . ggtags-find-other-symbol)
-		("C-c g h" . ggtags-view-tag-history)
-		("C-c g r" . ggtags-find-reference)
-		("C-c g f" . ggtags-find-file)
-		("C-c g c" . ggtags-create-tags)
-		("C-c g u" . ggtags-update-tags)
-		("M-," . pop-tag-mark)
-		)
-    :config
-    (unbind-key "M-<" ggtags-mode-map)
-    (unbind-key "M->" ggtags-mode-map)))
+(use-package ggtags
+  :if (package-installed-p 'ggtags)
+  :hook ((c-mode-common . (lambda ()
+			    (when (derived-mode-p 'c-mode 'c++-mode 'java-mode 'asm-mode)
+			      (ggtags-mode 1)))))
+  :bind (:map ggtags-mode-map
+	      ("C-c g s" . ggtags-find-other-symbol)
+	      ("C-c g h" . ggtags-view-tag-history)
+	      ("C-c g r" . ggtags-find-reference)
+	      ("C-c g f" . ggtags-find-file)
+	      ("C-c g c" . ggtags-create-tags)
+	      ("C-c g u" . ggtags-update-tags)
+	      ("M-," . pop-tag-mark)
+	      )
+  :config
+  (unbind-key "M-<" ggtags-mode-map)
+  (unbind-key "M->" ggtags-mode-map))
 
 (use-package vc-hooks
   :custom
@@ -682,15 +807,14 @@ PACKAGES: list of packages to install."
   :delight ""
   :hook (company-mode . company-box-mode))
 
-(when (package-installed-p 'dtrt-indent)
-  (use-package dtrt-indent
-    :ensure t
-    :delight t
-    :custom
-    (dtrt-indent-active-mode-line-info "")
-    (dtrt-indent-verbosity 1)
-    :config
-    (dtrt-indent-mode 1)))
+(use-package dtrt-indent
+  :if (package-installed-p 'dtrt-indent)
+  :delight t
+  :custom
+  (dtrt-indent-active-mode-line-info "")
+  (dtrt-indent-verbosity 1)
+  :config
+  (dtrt-indent-mode 1))
 
 (use-package highlight-numbers
   :ensure t
@@ -752,12 +876,12 @@ PACKAGES: list of packages to install."
   :commands lsp-ui-mode
   :config
   (setq lsp-ui-sideline-enable t)
-  (setq lsp-print-io nil)
-  (setq lsp-prefer-flymake :none)
+  (setq lsp-log-io nil)
   (setq flycheck-checker-error-threshold 10000)
   )
 (use-package lsp-ivy
   :ensure t
+  :bind ()
   )
 (use-package company-lsp
   :ensure t
@@ -813,7 +937,7 @@ PACKAGES: list of packages to install."
 (eval-after-load 'java-mode
   (add-hook 'java-mode-hook
 	    (lambda ()
-	      (setq fill-column 80)
+	      (setq fill-column 100)
 	      (fci-mode)
 	      (auto-fill-mode)
 	      (setq c-basic-offset 4
@@ -826,22 +950,158 @@ PACKAGES: list of packages to install."
   :ensure t
   :bind
   ([f8] . neotree-toggle)
-  :requires (all-the-icons)
   :after (all-the-icons)
+  :custom
+  ;; Every time when the neotree window is opened, let if find current
+  ;; file and jump to node.
+  (neo-smart-open t)
+  ;; track 'projectile-switch-project' (C-c p p),
+  (projectile-switch-project-action 'neotree-projectile-aciton)
   :config
   ;; needs package all-the-icons
   (setq neo-theme (if (display-graphic-p) 'icons 'arrow))
   ;; Disable line-numbers minor mode for neotree
   (add-hook 'neo-after-create-hook
 	    (lambda (&rest _) (display-line-numbers-mode -1)))
-
-  ;; Every time when the neotree window is opened, let if find current
-  ;; file and jump to node.
-  (setq neo-smart-open t)
-
-  ;; track 'projectile-switch-project' (C-c p p),
-  (setq projectile-switch-project-action 'neotree-projectile-aciton)
   )
+
+(use-package spaceline
+  :ensure t
+  :config
+  (setq-default mode-line-format
+		(list
+                 " "
+                 mode-line-misc-info ; for eyebrowse
+		 
+                 '(:eval (when-let (vc vc-mode)
+                           (list " "
+                                 (propertize (substring vc 5)
+                                             'face 'font-lock-comment-face)
+                                 " ")))
+		 
+                 '(:eval (list
+                          ;; the buffer name; the file name as a tool tip
+                          (propertize " %b" 'face 'font-lock-type-face
+                                      'help-echo (buffer-file-name))
+                          (when (buffer-modified-p)
+                            (propertize
+                             " "
+                             'face (if (kb/line-selected-window-active-p)
+                                       'kb/line-modified-face
+                                     'kb/line-modified-face-inactive)))
+                          (when buffer-read-only
+                            (propertize
+                             ""
+                             'face (if (kb/line-selected-window-active-p)
+                                       'kb/line-read-only-face
+                                     'kb/line-read-only-face-inactive)))
+                          " "))
+		 
+                 ;; relative position in file
+                 (propertize "%p" 'face 'font-lock-constant-face)
+		 
+                 ;; spaces to align right
+                 '(:eval (propertize
+                          " " 'display
+                          `((space :align-to (- (+ right right-fringe right-margin)
+						,(+ 3 (string-width mode-name)))))))
+		 
+                 ;; the current major mode
+                 (propertize " %m " 'face 'font-lock-string-face)))
+  
+  )
+;;; (use-package spaceline
+;;;   :ensure t
+;;;   :config
+;;;   (defface kb/line-modified-face
+;;;     `((t (:foreground "#8be9fd" :background nil)))
+;;;     "Modeline modified-file face"
+;;;     :group `kb)
+;;;   (defface kb/line-modified-face-inactive
+;;;     `((t (:foreground "#6272a4" :background nil)))
+;;;     "Modeline modified-file face for inactive windows"
+;;;     :group `kb)
+;;;   (defface kb/line-read-only-face
+;;;     `((t (:foreground "#ff5555")))
+;;;     "Modeline readonly face."
+;;;     :group `kb)
+;;;   (defface kb/line-read-only-face-inactive
+;;;     `((t (:foreground "#aa4949")))
+;;;     "Modeline readonly face for inactive windows."
+;;;     :group `kb)
+;;;   (defface kb/line-buffer-name-face
+;;;     `((t (:inherit 'font-lock-type-face)))
+;;;     "Modeline buffer name face."
+;;;     :group `kb)
+;;;   (defvar kb/line-selected-window (frame-selected-window))
+;;;   (defun kb/line-set-selected-window (&rest _args)
+;;;     (when (not (minibuffer-window-active-p (frame-selected-window)))
+;;;       (setq kb/line-selected-window (frame-selected-window))
+;;;       (force-mode-line-update)))
+;;;   (defun kb/line-unset-selected-window ()
+;;;     (setq kb/line-selected-window nil)
+;;;     (force-mode-line-update))
+;;; 
+;;;   (defun kb/line-selected-window-active-p ()
+;;;     (eq kb/line-selected-window (selected-window)))
+;;; 
+;;;   (defun kb/line-scan-active-frame ()
+;;;     "Scan frames and set modeline depending on frame focus."
+;;;     (interactive)
+;;;     (if (frame-focus-state)
+;;; 	(kb/line-set-selected-window)
+;;;       (kb/line-unset-selected-window)))
+;;;   
+;;;   (setq-default mode-line-format
+;;;               (list
+;;;                " "
+;;;                mode-line-misc-info ; for eyebrowse
+;;; 
+;;;                '(:eval (when-let (vc vc-mode)
+;;;                          (list " "
+;;;                                (propertize (substring vc 5)
+;;;                                            'face 'font-lock-comment-face)
+;;;                                " ")))
+;;; 
+;;;                '(:eval (list
+;;;                         ;; the buffer name; the file name as a tool tip
+;;;                         (propertize " %b" 'face 'font-lock-type-face
+;;;                                     'help-echo (buffer-file-name))
+;;;                         (when (buffer-modified-p)
+;;;                           (propertize
+;;;                            " "
+;;;                            'face (if (kb/line-selected-window-active-p)
+;;;                                      'kb/line-modified-face
+;;;                                    'kb/line-modified-face-inactive)))
+;;;                         (when buffer-read-only
+;;;                           (propertize
+;;;                            ""
+;;;                            'face (if (kb/line-selected-window-active-p)
+;;;                                      'kb/line-read-only-face
+;;;                                    'kb/line-read-only-face-inactive)))
+;;;                         " "))
+;;; 
+;;;                ;; relative position in file
+;;;                (propertize "%p" 'face 'font-lock-constant-face)
+;;; 
+;;;                ;; spaces to align right
+;;;                '(:eval (propertize
+;;;                         " " 'display
+;;;                         `((space :align-to (- (+ right right-fringe right-margin)
+;;;                                               ,(+ 3 (string-width mode-name)))))))
+;;; 
+;;;                ;; the current major mode
+;;;                (propertize " %m " 'face 'font-lock-string-face)))
+;;; 
+;;;   (add-function :after after-focus-change-function #'kb/line-scan-active-frame)
+;;;   :hook
+;;;   (window-configuration-change . kb/line-set-selected-window)
+;;;   )
+(use-package spaceline-all-the-icons
+  :after (spaceline all-the-icons)
+  :ensure t
+  :config
+  (spaceline-all-the-icons-theme))
 
 
 (use-package hydra :ensure t)
@@ -983,7 +1243,7 @@ PACKAGES: list of packages to install."
   (projectile-indexing-method 'alien)
   (projectile-completion-system 'ivy)
   (projectile-enable-caching t)
-  :config (projectile-global-mode)
+  :config (projectile-mode)
   :bind (:map projectile-mode-map
 	      ("s-p" . projectile-command-map)
 	      ("C-c p" . projectile-command-map))
@@ -997,7 +1257,7 @@ PACKAGES: list of packages to install."
   ;; expand/collapse latex sections
   (speedbar-add-supported-extension '(".tex" ".bib" ".w"))
   :bind (("<f4>" . speedbar-get-focus)   ;; jump to speedbar frame
-	 :map speedbar-key-map
+	 :map speedbar-mode-map
 	 ;; bind the arrow keys in the speedbar tree
 	 ("<right>" . speedbar-expand-line)
 	 ("<left>" . speedbar-contract-line)))
@@ -1067,11 +1327,11 @@ PACKAGES: list of packages to install."
     :config
     (message "AucTeX configuration")))
 
-(when
-    (executable-find "ispell") (setq ispell-program-name "ispell")
-    (executable-find "aspell") (setq ispell-program-name "aspell"))
-
-;; (load "~/.emacs.d/rc/rc-psvn.el")
+(use-package ispell
+  :config
+  (when
+      (executable-find "enchant") (setq ispell-program-name "ispell"))
+  )
 
 ;;(use-package tuareg
 ;;  :if (package-installed-p 'tuareg)

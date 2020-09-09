@@ -62,9 +62,9 @@ If point reaches the beginning or end of the buffer, stop there."
 ;;      (list (line-beginning-position)
 ;;            (line-beginning-position 2)))))
 
-;; kill a line, including whitespace characters until next non-whiepsace character
-;; of next line
 (defadvice kill-line (before check-position activate)
+  "Kill whole line.
+Include whitespace characters until next non-whiepsace character of next line."
   (if (member major-mode
               '(emacs-lisp-mode scheme-mode lisp-mode
                                 c-mode c++-mode objc-mode
@@ -89,13 +89,16 @@ Only modes that don't derive from `prog-mode' should be listed here.")
   "Threshold (# chars) over which indentation does not automatically occur.")
 
 (defun yank-advised-indent-function (beg end)
-  "Do indentation, as long as the region isn't too large."
+  "Do indentation, as long as the region isn't too large.
+
+BEG beginning of a insert region.
+END of a inert region."
   (if (<= (- end beg) yank-advised-indent-threshold)
       (indent-region beg end nil)))
 
 (defadvice yank (after yank-indent activate)
-  "If current mode is one of 'yank-indent-modes,
-indent yanked text (with prefix arg don't indent)."
+  "If current mode is one of 'yank-indent-modes.
+Indent yanked text (with prefix arg don't indent)."
   (if (and (not (ad-get-arg 0))
            (not (member major-mode yank-indent-blacklisted-modes))
            (or (derived-mode-p 'prog-mode)
@@ -366,5 +369,6 @@ See: URL `http://en.wikipedia.org/wiki/ISO_8601'"
      (format-time-string "%z")))))
 
 (provide 'rc-functions)
+
 ;;; rc-functions.el ends here
 
