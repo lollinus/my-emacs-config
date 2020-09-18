@@ -72,11 +72,6 @@
 
 ;; use inactive face for mode-line in non-selected windows
 (setq mode-line-in-non-selected-windows t)
-;; remap C-H to backspace
-(normal-erase-is-backspace-mode t)
-(add-hook 'terminal-init-xterm-hook
-	  (lambda () (normal-erase-is-backspace-mode t))
-	  )
 
 ;; Set the frame's title. %b is the name of the buffer. %+ indicates
 ;; the state of the buffer: * if modified, % if read only, or -
@@ -195,6 +190,11 @@ PACKAGES: list of packages to install."
   (kill-ring-max 5000) ; increase kill-ring capacity
   (kill-whole-line t)
   (transient-mark-mode nil)
+  ;; remap C-H to backspace
+  ;;(normal-erase-is-backspace-mode t)
+  :hook
+  ;; remap C-H to backspace
+  (terminal-init-xterm . (lambda () (normal-erase-is-backspace-mode t)))
   :config
   (put 'set-goal-column 'disabled nil)
   :bind
@@ -473,21 +473,34 @@ PACKAGES: list of packages to install."
 ;; pokazuj krańcowe nawiasy
 ;;--------------------------------------------------------------------------------
 (use-package custom
+  :bind
+  ("C-c o" . kb/switch-font)
   :config
   (defvar kb/terminal-theme 'wombat)
   (defvar kb/window-theme 'misterioso)
   (defvar kb/theme-window-loaded nil)
+  (defvar kb/theme-window-font (if (eq system-type 'windows-nt)
+				   "Unifont"
+					;(set-frame-parameter nil 'font "Arial Unicode MS")
+				 "DejaVu Sans Mono"))
   (defvar kb/theme-terminal-loaded nil)
+  (defvar kb/theme-original-font nil)
+
   ;; font configuration
-  (defun kb/set-font ()
+  (defun kb/set-window-font ()
     "Function set screen font.
 If Emacs is run in MS Windows then use Arial Unicode MS
 On U*x systems Use DejaVu Sans Mono"
-    (if (eq system-type 'windows-nt)
-	(set-frame-parameter nil 'font "Unifont")
-					;(set-frame-parameter nil 'font "Arial Unicode MS")
-      (set-frame-parameter nil 'font "DejaVu Sans Mono"))
-    )
+    (setq kb/theme-original-font (frame-parameter nil 'font))
+    (set-frame-parameter nil 'font kb/theme-window-font))
+
+  (defun kb/switch-font ()
+    "Function set screen font.
+Set original font."
+    (interactive)
+    (if (and kb/theme-original-font (eq kb/theme-original-font (frame-parameter nil 'font)))
+	(kb/set-window-font)
+      (set-frame-parameter nil 'font kb/theme-original-font)))
 
   (defun kb/load-grapics-theme ()
     (interactive)
@@ -515,9 +528,12 @@ If theme is'n loaded then it will be loaded at first"
 	(progn
 	  (if (kb/load-grapics-theme)
 	      (enable-theme kb/window-theme))
-	  (kb/set-font))
+	  (kb/set-window-font))
       (if (kb/load-terminal-theme)
 	  (enable-theme kb/terminal-theme))))
+
+  (print kb/theme-original-font)
+  (print kb/theme-window-font)
   
   (defun kb/activate-theme (&optional frame)
     "Set theme on active FRAME."
