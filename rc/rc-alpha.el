@@ -4,7 +4,6 @@
 ;; transparent emacs window on M$
 ;;--------------------------------------------------------------------------------
 (set-frame-parameter (selected-frame) 'alpha '(100 100))
-(eval-when-compile (require 'cl))
 (defun kb/toggle-transparency ()
   (interactive)
   (if (/=

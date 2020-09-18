@@ -12,6 +12,7 @@
 (setq user-mail-address "karol.barski@tieto.com")
 
 (setq gc-cons-threshold 100000000)
+(setq read-process-output-max (* 4 1024 1024))
 
 (setq mode-require-final-newline t      ; add a newline to end of file
       tab-width 4                       ; default to 4 visible spaces to display a tab
@@ -43,16 +44,18 @@
 		      (menu-bar-mode 0)            ; disable toolbar
 		      (set-scroll-bar-mode 'right) ; scroll bar on the right side
 		      (setq scroll-bar-width 10)
-		      (set-face-background 'scroll-bar "orchid3")
-		      (set-face-foreground 'scroll-bar "grey93")
+;;		      (set-face-background 'scroll-bar "orchid3")
+;;		      (set-face-foreground 'scroll-bar "grey93")
 		      )
 		  )))
   (if (display-graphic-p)
       (progn
 	(tool-bar-mode 0)               ; turn menus off
 	(menu-bar-mode 0)               ; disable toolbar
+	(set-scroll-bar-mode 'right) ; scroll bar on the right side
 	(setq scroll-bar-width 10)
-	(set-face-background 'scroll-bar "green")
+;;	(set-face-background 'scroll-bar "orchid3")
+;;	(set-face-foreground 'scroll-bar "grey93")
 	(scroll-bar-mode 'right)
 	)
     )
@@ -182,8 +185,6 @@ PACKAGES: list of packages to install."
   (read-file-name-completion-ignore-case t)
   )
 
-
-
 (use-package simple
   :custom
   (global-mark-ring-max 5000)         ; increase mark ring to contains 5000 entries
@@ -193,12 +194,12 @@ PACKAGES: list of packages to install."
   (size-indication-mode t)
   (kill-ring-max 5000) ; increase kill-ring capacity
   (kill-whole-line t)
-:config
+  (transient-mark-mode nil)
+  :config
   (put 'set-goal-column 'disabled nil)
   :bind
   ("M-g" . goto-line)
-  ("C-;" . kill-whole-line)
-  )
+  ("C-;" . kill-whole-line))
 
 (use-package vc
   :custom
@@ -213,7 +214,9 @@ PACKAGES: list of packages to install."
   (blink-cursor-blinks 3)
   (blink-cursor-delay 1)
   :config
-  (blink-cursor-mode))
+  (blink-cursor-mode)
+  :bind
+  ("C-c n" . next-multiframe-window))
 
 (use-package help
   :config
@@ -235,21 +238,23 @@ PACKAGES: list of packages to install."
 ;; kolorowanie składni
 ;;--------------------------------------------------------------------------------
 (use-package font-lock
-  :config (global-font-lock-mode t)
   :custom
-  (font-lock-maximum-decoration t))
-
-;; highlight FIXME, TODO and XXX as warning in some major modes
-(dolist (mode '(c-mode
-		cperl-mode
-		html-mode-hook
-		css-mode-hook
-		emacs-lisp-mode))
-  (font-lock-add-keywords
-   mode
-   '(("\\<\\(\\(TODO|XXX\\)\\(?:(.*)\\)?:?\\)\\>"  1 'warning prepend)
-     ("\\<\\(FIXME\\(?:(.*)\\)?:?\\)\\>" 1 'error prepend)
-     ("\\<\\(NOCOMMIT\\(?:(.*)\\)?:?\\)\\>"  1 'error prepend))))
+  (font-lock-maximum-decoration t)
+  :config
+  (global-font-lock-mode t)
+  ;; highlight FIXME, TODO and XXX as warning in some major modes
+  ;; (dolist (mode '(c-mode
+  ;; 		  cperl-mode
+  ;; 		  html-mode-hook
+  ;; 		  css-mode-hook
+  ;; 		  emacs-lisp-mode))
+  ;;   (progn
+  ;;     (font-lock-add-keywords
+  ;;      mode
+  ;;      '(("\\<\\(\\(TODO|XXX\\)\\(?:(.*)\\)?:?\\)\\>"  1 'warning prepend)
+  ;; 	 ("\\<\\(FIXME\\(?:(.*)\\)?:?\\)\\>" 1 'error prepend)
+  ;; 	 ("\\<\\(NOCOMMIT\\(?:(.*)\\)?:?\\)\\>"  1 'error prepend)))))
+  )
 
 (use-package comment-dwim-2
   :ensure t
@@ -261,7 +266,6 @@ PACKAGES: list of packages to install."
   (smerge-command-prefix (kbd "C-c v")))
 
 (add-to-list 'load-path "~/.emacs.d/rc")
-
 (load "~/.emacs.d/rc/rc-functions.el")
 
 (use-package whitespace
@@ -280,9 +284,9 @@ PACKAGES: list of packages to install."
   (cua-highlight-region-shift-only t) ;; no transient mark mode
   (cua-toggle-set-mark nil) ;; original set-mark behavior, i.e. no  transient-mark-mode
   :config
-  (cua-mode 'emacs)
+  (cua-mode)
   :bind
-  ("<C-RET>" . cua-rectangle-mark-mode))
+  ("C-<RET>" . cua-rectangle-mark-mode))
 
 (use-package yasnippet
   :if (package-installed-p 'yasnippet)
@@ -311,19 +315,14 @@ PACKAGES: list of packages to install."
   (yas-verbosity 1)
   (yas-wrap-around-region t)
   :hook (term-mode . (lambda() (setq yas-dont-activate-functions t)))
-  :bind
-  (:map yas-keymap
-	("<return>" . yas-exit-all-snippets)
-	("C-e" . yas/goto-end-of-active-field)
-	("C-a" . yas/goto-start-of-active-field)
-	)
-  )
+  :bind (:map yas-keymap
+	      ("<return>" . yas-exit-all-snippets)
+	      ("C-e" . yas/goto-end-of-active-field)
+	      ("C-a" . yas/goto-start-of-active-field)))
 (use-package ivy-yasnippet
-  :if (package-installed-p 'ivy-yasnippet)
-  )
+  :if (package-installed-p 'ivy-yasnippet))
 
 (use-package anzu
-  :disabled t
   :ensure t
   :config
   (global-anzu-mode)
@@ -336,23 +335,22 @@ PACKAGES: list of packages to install."
   :config
   (electric-pair-mode -1)
   :custom
-  (electric-pair-preserve-balance t
-      electric-pair-delete-adjacent-pairs t
-      electric-pair-open-newline-between-pairs nil)
-  )
+  ((electric-pair-preserve-balance t)
+   (electric-pair-delete-adjacent-pairs t)
+   (electric-pair-open-newline-between-pairs nil)))
 
 (use-package paren
-  :config
-  (show-paren-mode 1)
-  )
+  :custom ((show-paren-style 'mixed)
+	   (show-paren-when-point-inside-paren t)
+	   (show-paren-when-point-in-periphery t))
+  :config (show-paren-mode 1))
 
 (use-package smartparens
   :ensure t
   :delight ""
   :bind
   (:map smartparens-mode-map
-	(
-	 ("C-M-f" . sp-forward-sexp)
+	(("C-M-f" . sp-forward-sexp)
 	 ("C-M-b" . sp-backward-sexp)
 	 ("C-M-<right>" . sp-forward-sexp)
 	 ("C-M-<left>" . sp-backward-sexp)
@@ -382,24 +380,19 @@ PACKAGES: list of packages to install."
 	 ("M-(" . sp-forward-barf-sexp)
 	 ("M-)" . sp-forward-slurp-sexp)
 
-	 ("M-D" . sp-splice-sexp)
-	 )
+	 ("M-D" . sp-splice-sexp))
 	:map emacs-lisp-mode-map (";" . sp-comment)
-	:map smartparens-strict-mode-map ([remap c-electric-backspace] . sp-backward-delete-char)
-	)
+	:map smartparens-strict-mode-map ([remap c-electric-backspace] . sp-backward-delete-char))
   :hook
-  (
-   (minibuffer-setup . turn-on-smartparens-strict-mode)
+  ((minibuffer-setup . turn-on-smartparens-strict-mode)
    (c-mode-common . (lambda () (require 'smartparens-c)))
-   (org-mode . (lambda () (require 'smartparens-org)))
-   )
+   (org-mode . (lambda () (require 'smartparens-org))))
   :config
   (electric-pair-mode -1)
   (require 'smartparens-config)
   ;; (smartparens-global-strict-mode 1)
   )
 
-(global-set-key (kbd "C-c n") 'next-multiframe-window)
 (global-set-key (kbd "C-c f") 'switch-to-next-buffer)
 (global-set-key (kbd "C-c p") 'switch-to-prev-buffer)
 
@@ -436,10 +429,6 @@ PACKAGES: list of packages to install."
   :config
   (editorconfig-mode 1))
 
-(when (fboundp 'define-fringe-bitmap)
-  (define-fringe-bitmap 'flycheck-fringe-bitmap-double-arrow
-    [0 0 0 0 0 4 12 28 60 124 252 124 60 28 12 4 0 0 0 0]))
-
 (use-package flycheck
   :ensure t
   :defer 5
@@ -447,73 +436,99 @@ PACKAGES: list of packages to install."
   (global-flycheck-mode)
   :custom
   (flycheck-indication-mode 'right-fringe)
-  (flycheck-check-syntax-automatically '(save mode-enabled)))
+  (flycheck-check-syntax-automatically '(save mode-enabled))
+  :config
+  (when (fboundp 'define-fringe-bitmap)
+    (define-fringe-bitmap 'flycheck-fringe-bitmap-double-arrow
+      [0 0 0 0 0 4 12 28 60 124 252 124 60 28 12 4 0 0 0 0]
+      )))
 (use-package flycheck-checkpatch
+  :disabled
   :ensure t
   :after flycheck
-  :hook
-  (flycheck-mode . flycheck-checkpatch-setup))
+  :hook (flycheck-mode . flycheck-checkpatch-setup)
+  ;; :config
+  ;; (defadvice flycheck-checkpatch-set-executable (after kb/flycheck-checkpatch-executable activate)
+  ;;   "Setup flycheck-checkpatch-executable if function couldn't pickup it from project."
+  ;;   (let ((my-checkpatch (executable-find "~/.emacs.d/scripts/checkpatch.pl")))
+  ;;     (message "running advice for flycheck-checkpatch-set-executable %S -> %S" flycheck-checkpatch-executable my-checkpatch)
+  ;;     (unless (and flycheck-checkpatch-executable (executable-find flycheck-checkpatch-executable))
+  ;; 	(setq-local flycheck-checkpatch-executable my-checkpatch))))
+  )
 (use-package flycheck-clang-analyzer
   :ensure t
   :after flycheck
-  :hook
-  (flycheck-mode . flycheck-clang-analyzer-setup))
+  :hook (flycheck-mode . flycheck-clang-analyzer-setup))
 (use-package flycheck-clang-tidy
   :ensure t
   :after flycheck
-  :hook
-  (flycheck-mode . flycheck-clang-tidy-setup))
+  :hook (flycheck-mode . flycheck-clang-tidy-setup))
 (use-package avy-flycheck
   :ensure t
   :after flycheck
-  :hook
-  (flycheck-mode . avy-flycheck-setup))
-
+  :hook (flycheck-mode . avy-flycheck-setup))
+(use-package ivy-avy :ensure t)
 
 ;;--------------------------------------------------------------------------------
 ;; pokazuj krańcowe nawiasy
 ;;--------------------------------------------------------------------------------
-(show-paren-mode 1)
-(setq show-paren-style 'mixed)
-(setq transient-mark-mode nil)
-
 (use-package custom
   :config
   (defvar kb/terminal-theme 'wombat)
   (defvar kb/window-theme 'misterioso)
   (defvar kb/theme-window-loaded nil)
   (defvar kb/theme-terminal-loaded nil)
+  ;; font configuration
+  (defun kb/set-font ()
+    "Function set screen font.
+If Emacs is run in MS Windows then use Arial Unicode MS
+On U*x systems Use DejaVu Sans Mono"
+    (if (eq system-type 'windows-nt)
+	(set-frame-parameter nil 'font "Unifont")
+					;(set-frame-parameter nil 'font "Arial Unicode MS")
+      (set-frame-parameter nil 'font "DejaVu Sans Mono"))
+    )
+
   (defun kb/load-grapics-theme ()
     (interactive)
-    (load-theme kb/window-theme t)
-    (setq kb/theme-window-loaded t))
+    (if kb/theme-window-loaded
+	(message "Theme %S already loaded" kb/window-theme)
+      (setq kb/theme-window-loaded (load-theme kb/window-theme t t)))
+    (message "Theme `%S' loaded %S" kb/window-theme kb/theme-window-loaded)
+    kb/theme-window-loaded)
+
   (defun kb/load-terminal-theme ()
     (interactive)
-    (load-theme kb/terminal-theme t)
-    (setq kb/theme-terminal-loaded t))
-  (defun kb/load-frame-theme (frame)
-    (message "kb/load-frame-theme %s" frame)
+    (unless kb/theme-terminal-loaded
+      (setq kb/theme-terminal-loaded (load-theme kb/terminal-theme t t)))
+    (message "Theme `%S' loaded %S" kb/terminal-theme kb/theme-terminal-loaded)
+    kb/theme-terminal-loaded)
+
+  (defun kb/activate-frame-theme (frame)
+    "Activate theme depending on current FRAME window system.
+
+If theme is'n loaded then it will be loaded at first"
+    (interactive)
+    (message "kb/activate-frame-theme %s" frame)
     (select-frame frame)
     (if (window-system frame)
 	(progn
-	  (unless kb/theme-window-loaded
-	    (if kb/theme-window-loaded
-		(enable-theme kb/window-theme)
-	      (load-theme kb/window-theme t))
-	    (setq kb/theme-window-loaded t))
-	  (kb/set-font)
-	  )
-      (unless kb/theme-terminal-loaded
-        (if kb/theme-terminal-loaded
-            (enable-theme kb/terminal-theme)
-          (load-theme kb/terminal-theme t))
-	(setq kb/theme-terminal-loaded t))))
+	  (if (kb/load-grapics-theme)
+	      (enable-theme kb/window-theme))
+	  (kb/set-font))
+      (if (kb/load-terminal-theme)
+	  (enable-theme kb/terminal-theme))))
+  
+  (defun kb/activate-theme (&optional frame)
+    "Set theme on active FRAME."
+    (interactive)
+    (let ((frame (or frame (selected-frame))))
+      (if (frame-focus-state frame)
+ 	  (kb/activate-frame-theme frame))))
+  (kb/activate-theme)
 
-  (if (display-graphic-p)
-      (kb/load-terminal-theme)
-    (kb/load-grapics-theme))
-  :hook (after-make-frame-functions . kb/load-frame-theme)
-  )
+  (add-function :after after-focus-change-function #'kb/activate-theme)
+  :hook (after-make-frame-functions . kb/load-frame-theme))
   
 (use-package fill-column-indicator
   :disabled
@@ -542,6 +557,7 @@ PACKAGES: list of packages to install."
   (setq fci-always-use-textual-rule t)
   (eval-after-load 'prog-mode
     (add-hook 'prog-mode-hook 'fci-mode)))
+
 (use-package undo-tree
   :ensure t
   :delight ""
@@ -714,11 +730,6 @@ PACKAGES: list of packages to install."
   :hook
   ((c-mode-common text-mode fundamental-mode) . ws-butler-mode))
 
-(use-package xcscope
-  :ensure t
-  :config
-  (cscope-setup))
-
 (use-package ggtags
   :if (package-installed-p 'ggtags)
   :hook ((c-mode-common . (lambda ()
@@ -749,14 +760,16 @@ PACKAGES: list of packages to install."
   :ensure t
   :bind ("C-c q" . cycle-quotes))
 
-(defun bk/last-compilation-buffer ()
-  "Display last compilation buffer in current window."
-  (interactive)
-  (if (buffer-live-p compilation-last-buffer)
-      (set-window-buffer (get-buffer-window) compilation-last-buffer)
-    (message "Last compilation buffer is killed.")))
-
-(global-set-key (kbd "C-x c") #'bk/last-compilation-buffer)
+(use-package compile
+  :config
+  (defun bk/last-compilation-buffer ()
+    "Display last compilation buffer in current window."
+    (interactive)
+    (if (buffer-live-p compilation-last-buffer)
+	(set-window-buffer (get-buffer-window) compilation-last-buffer)
+      (message "Last compilation buffer is killed.")))
+  :bind (:map global-map ("C-x c" . bk/last-compilation-buffer))
+  )
 
 (use-package bool-flip
   :ensure t
@@ -785,10 +798,10 @@ PACKAGES: list of packages to install."
   :ensure t
   :after cc-mode
   :hook (after-init . global-company-mode)
-  :custom
-  (company-backend (delete 'company-semantic company-backends))
-  :config
-  (delete 'company-semantic company-backends)
+  ;;:custom
+  ;;(company-backend (delete 'company-semantic company-backends))
+  ;;:config
+  ;;(delete 'company-semantic company-backends)
   :bind (:map c-mode-map ("\t" . company-complete))
   :bind (:map c++-mode-map ("\t" . company-complete))
   )
@@ -867,10 +880,19 @@ PACKAGES: list of packages to install."
     )
   )
 
-(use-package lsp
-  :hook ((c++-mode c-mode) . lsp-mode)
-  :commands (lsp lsp-deferred)
-  )
+(use-package lsp-mode
+  :ensure t
+  :custom
+  ;;(lsp-print-performance t)
+  ;; (lsp-enable-xref t)
+  (lsp-idle-delay 1.0)
+  (lsp-keymap-prefix "C-c l")
+  (lsp-completion-provider :capf)
+  :hook (((c++-mode c-mode) . lsp-deferred)
+	 (lsp-mode . (lsp-enable-which-key-integration lsp-headerline-breadcrumb-mode)))
+  :bind (:map lsp-mode-map ("M-." . lsp-find-declaration))
+  :commands (lsp lsp-deferred))
+
 (use-package lsp-ui
   :ensure t
   :commands lsp-ui-mode
@@ -881,8 +903,14 @@ PACKAGES: list of packages to install."
   )
 (use-package lsp-ivy
   :ensure t
-  :bind ()
+  :commands
+  lsp-ivy-workspace-symbol
   )
+(use-package lsp-treemacs :ensure t :commands lsp-treemacs-errors-list)
+(use-package dap-mode :ensure t)
+(use-package dap-gdb-lldb :after dap-mode)
+(use-package which-key :ensure :config (which-key-mode))
+
 (use-package company-lsp
   :ensure t
   :config
@@ -946,6 +974,20 @@ PACKAGES: list of packages to install."
 	      )))
 
 (use-package all-the-icons :ensure t)
+(use-package all-the-icons-dired
+  :ensure t
+  :hook (dired-mode . all-the-icons-dired-mode))
+(use-package all-the-icons-ibuffer :ensure t
+  :hook (ibuffer-load-hook . (lambda () (all-the-icons-ibuffer-mode 1))))
+(use-package treemacs-all-the-icons :ensure t)
+(use-package treemacs-icons-dired :ensure t)
+(use-package all-the-icons-ivy
+  :ensure t
+  :config
+  (all-the-icons-ivy-setup))
+(use-package all-the-icons-ivy-rich
+  :ensure t
+  :config (all-the-icons-ivy-rich-mode 1))
 (use-package neotree
   :ensure t
   :bind
@@ -968,6 +1010,26 @@ PACKAGES: list of packages to install."
 (use-package spaceline
   :ensure t
   :config
+  (defface kb/line-modified-face
+    `((t (:foreground "#8be9fd" :background nil)))
+    "Modeline modified-file face"
+    :group `kb)
+  (defface kb/line-modified-face-inactive
+    `((t (:foreground "#6272a4" :background nil)))
+    "Modeline modified-file face for inactive windows"
+    :group `kb)
+  (defface kb/line-read-only-face
+    `((t (:foreground "#ff5555")))
+    "Modeline readonly face."
+    :group `kb)
+  (defface kb/line-read-only-face-inactive
+    `((t (:foreground "#aa4949")))
+    "Modeline readonly face for inactive windows."
+    :group `kb)
+  (defface kb/line-buffer-name-face
+    `((t (:inherit 'font-lock-type-face)))
+    "Modeline buffer name face."
+    :group `kb)
   (setq-default mode-line-format
 		(list
                  " "
@@ -1008,7 +1070,6 @@ PACKAGES: list of packages to install."
 		 
                  ;; the current major mode
                  (propertize " %m " 'face 'font-lock-string-face)))
-  
   )
 ;;; (use-package spaceline
 ;;;   :ensure t
@@ -1143,7 +1204,7 @@ PACKAGES: list of packages to install."
   :hook (c-mode-common . counsel-gtags-mode))
 (use-package counsel-projectile
   :ensure t
-  :after counsel)
+  :after counsel projectile)
 (use-package swiper
   :ensure t
   :bind ("C-s" . swiper-isearch)
@@ -1237,7 +1298,7 @@ PACKAGES: list of packages to install."
 (use-package generic-x)
 
 (use-package projectile
-  :ensure t
+  :if (package-installed-p 'projectile)
   :delight '(:eval (concat " " (projectile-project-name)))
   :custom
   (projectile-indexing-method 'alien)
@@ -1246,8 +1307,7 @@ PACKAGES: list of packages to install."
   :config (projectile-mode)
   :bind (:map projectile-mode-map
 	      ("s-p" . projectile-command-map)
-	      ("C-c p" . projectile-command-map))
-  )
+	      ("C-c p" . projectile-command-map)))
 
 (use-package speedbar
   :custom
@@ -1266,19 +1326,18 @@ PACKAGES: list of packages to install."
   :ensure t
   :bind ("C-x 1" . zygospore-toggle-delete-other-windows))
 
-(when (package-installed-p 'graphviz-dot-mode)
-  (use-package graphviz-dot-mode
-    :custom
-    (graphviz-dot-view-command "xdot %s")))
+(use-package graphviz-dot-mode
+  :if (package-installed-p 'graphviz-dot-mode)
+  :custom (graphviz-dot-view-command "xdot %s"))
 
-(when (package-installed-p 'groovy-mode)
-  (use-package groovy-mode))
+(use-package groovy-mode
+  :if (package-installed-p 'groovy-mode))
 
 ;; Load ruby only when needed
-(when (fboundp 'ruby-mode)
-  (use-package ruby-mode
-    :mode "\\.rb\\'"
-    :interpreter "ruby"))
+(use-package ruby-mode
+  :if (fboundp 'ruby-mode)
+  :mode "\\.rb\\'"
+  :interpreter "ruby")
 
 (use-package python
   :mode ("\\.py\\'" . python-mode)
@@ -1292,8 +1351,7 @@ PACKAGES: list of packages to install."
   (py-switch-buffers-on-execute-p t)
   (py-split-windows-on-execute-p nil)
   (py-smart-indentation t)
-  :hook ((python-mode . font-lock-fontify-numbers))
-  )
+  :hook ((python-mode . font-lock-fontify-numbers)))
 (use-package magit :ensure t)
 (use-package magit-popup
   :if (package-installed-p 'magit-popup)
@@ -1302,8 +1360,7 @@ PACKAGES: list of packages to install."
   :ensure t
   :disabled
   :requires magit-popup
-  :custom
-  (magit-gerrit-ssh-creds "kbarskix@git-amr-3.devtools.intel.com"))
+  :custom (magit-gerrit-ssh-creds "kbarskix@git-amr-3.devtools.intel.com"))
 (use-package treemacs-magit
   :if (package-installed-p 'magit-popup)
   :ensure t)
@@ -1314,24 +1371,20 @@ PACKAGES: list of packages to install."
 ;; (load "~/.emacs.d/rc/rc-alpha.el")
 ;; (load "~/.emacs.d/rc/rc-haskell-mode.el")
 ;; (load "~/.emacs.d/rc/rc-auctex.el")
-(when (package-installed-p 'auctex)
-  (use-package auctex
-    :no-require t
-    :custom
-    (TeX-PDF-mode t)
-    (TeX-view-program-selection
-     '((output-dvi "DVI Viewer")
-       (output-pdf "PDF Viewer")
-       (output-html "HTML Viewer")))
-    (preview-image-type 'pnm)
-    :config
-    (message "AucTeX configuration")))
-
-(use-package ispell
+(use-package auctex
+  :if (package-installed-p 'auctex)
+  :no-require t
+  :custom
+  (TeX-PDF-mode t)
+  (TeX-view-program-selection
+   '((output-dvi "DVI Viewer")
+     (output-pdf "PDF Viewer")
+     (output-html "HTML Viewer")))
+  (preview-image-type 'pnm)
   :config
-  (when
-      (executable-find "enchant") (setq ispell-program-name "ispell"))
-  )
+  (message "AucTeX configuration"))
+
+;; (use-package ispell :config (when (executable-find "enchant-2") (setq ispell-program-name "enchant-2")))
 
 ;;(use-package tuareg
 ;;  :if (package-installed-p 'tuareg)

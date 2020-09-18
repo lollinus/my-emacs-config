@@ -25,3 +25,52 @@
 ** Install in /opt/emacs263
 
    bash ../emacs-26.3/configure --prefix=/opt/emacs263
+
+* Ubuntu 20.04
+
+
+    git clone --depth=1 --single-branch --branch emacs-27 https://github.com/emacs-mirror/emacs.git
+    cd emacs
+    ./autogen.sh
+    cd ..
+    mkdir -p emacs-build
+    ../emacs/configure CC=clang \
+		   --with-libotf LIBOTF_LIBS="$(pkg-config --libs libotf)" LIBOTF_CFLAGS="$(pkg-config --cflags libotf)" \
+		   --with-harfbuzz HARFBUZZ_LIBS="$(pkg-config --libs harfbuzz)" HARFBUZZ_CFLAGS="$(pkg-config --cflags harfbuzz)" \
+		   --with-zlib --with-compress-install --with-gpm --with-threads \
+		   --with-mailutils --with-json --with-modules --prefix=/usr/local \
+		   --with-included-regex --with-xpm --with-jpeg --with-tiff --with-gif \
+		   --with-png --with-rsvg --with-imagemagick --with-xft \
+		   --with-dbus \
+		   --with-x-toolkit=lucid \
+		   --without-pop --with-mailutils \
+		   --without-toolkit-scroll-bars
+    make
+
+** deps
+
+    make
+    gcc
+    clang
+    texinfo
+    automake
+    libtiff-dev
+    libgif-dev
+    libjpeg-dev
+    libpng-dev
+    libxpm-dev
+    librsvg2-dev
+    libsvg-dev
+    imagemagick
+    libmagickwand-dev
+    libxaw7-dev
+    gnutls-dev
+    libjansson-dev
+    libgpm-dev
+    libacl1-dev
+    libharfbuzz-dev
+    libharfbuzz-bin
+    libotf-dev
+    libsystemd-dev
+    libasound2-dev
+    libfreetype-dev
