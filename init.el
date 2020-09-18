@@ -167,11 +167,21 @@ PACKAGES: list of packages to install."
   :custom
   (display-line-numbers-type 'visual)
   (inhibit-startup-screen t)
+  (help-char "? M-?")
   :config
   (put 'narrow-to-page 'disabled nil)
   (put 'narrow-to-region 'disabled nil)
   (put 'upcase-region 'disabled nil)
   (put 'downcase-region 'disabled nil)
+  (define-key help-map "?" 'describe-key-briefly)
+  :bind
+  ("C-h" . 'delete-backward-char)
+  ("C-?" . 'delete-char)
+  ("ESC C-h" . 'backward-kill-word)
+  ("ESC C-?" . 'kill-word)
+  ("<f1>" . 'help-command)
+  ("ESC ?" . 'help-command)
+  ("ESC ? F" . 'view-emacs-FAQ)
   )
 
 ;; ignore case when reading a file name completion
@@ -425,7 +435,7 @@ PACKAGES: list of packages to install."
 
 (use-package editorconfig
   :ensure t
-  :delight "ec"
+  :delight ""
   :config
   (editorconfig-mode 1))
 
@@ -732,7 +742,13 @@ If theme is'n loaded then it will be loaded at first"
   )
 (use-package volatile-highlights
   :ensure t
-  :config (volatile-highlights-mode t))
+  :after undo-tree
+  :custom
+  (Vhl/highlight-zero-width-ranges t)
+  :config (volatile-highlights-mode t)
+  (vhl/define-extension 'undo-tree 'undo-tree-yank 'undo-tree-move)
+  (vhl/install-extension 'undo-tree)
+  )
 (use-package clean-aindent-mode
   :disabled t
   :ensure t
