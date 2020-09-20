@@ -167,7 +167,7 @@ PACKAGES: list of packages to install."
   :custom
   (display-line-numbers-type 'visual)
   (inhibit-startup-screen t)
-  (help-char "? M-?")
+  ;; (help-char "? M-?")
   :config
   (put 'narrow-to-page 'disabled nil)
   (put 'narrow-to-region 'disabled nil)
@@ -175,13 +175,13 @@ PACKAGES: list of packages to install."
   (put 'downcase-region 'disabled nil)
   (define-key help-map "?" 'describe-key-briefly)
   :bind
-  ("C-h" . 'delete-backward-char)
-  ("C-?" . 'delete-char)
-  ("ESC C-h" . 'backward-kill-word)
-  ("ESC C-?" . 'kill-word)
-  ("<f1>" . 'help-command)
-  ("ESC ?" . 'help-command)
-  ("ESC ? F" . 'view-emacs-FAQ)
+  ;; ("C-h" . 'delete-backward-char)
+  ;; ("C-?" . 'delete-char)
+  ;; ("ESC C-h" . 'backward-kill-word)
+  ;; ("ESC C-?" . 'kill-word)
+  ;; ("<f1>" . 'help-command)
+  ;; ("ESC ?" . 'help-command)
+  ;; ("ESC ? F" . 'view-emacs-FAQ)
   )
 
 ;; ignore case when reading a file name completion
@@ -1005,26 +1005,32 @@ If theme is'n loaded then it will be loaded at first"
 		    indent-tabs-mode nil)
 	      )))
 
-(use-package all-the-icons :ensure t)
-(use-package all-the-icons-dired
-  :ensure t
-  :hook (dired-mode . all-the-icons-dired-mode))
-(use-package all-the-icons-ibuffer :ensure t
-  :hook (ibuffer-load-hook . (lambda () (all-the-icons-ibuffer-mode 1))))
-(use-package treemacs-all-the-icons :ensure t)
-(use-package treemacs-icons-dired :ensure t)
-(use-package all-the-icons-ivy
+(when (package-installed-p 'all-the-icons)
+  (use-package all-the-icons)
+  (use-package all-the-icons-dired
+    :ensure t
+    :hook (dired-mode . all-the-icons-dired-mode))
+  (use-package all-the-icons-ibuffer :ensure t
+    :hook (ibuffer-load-hook . (lambda () (all-the-icons-ibuffer-mode 1))))
+  (use-package treemacs-all-the-icons :ensure t)
+  (use-package treemacs-icons-dired :ensure t)
+  (use-package all-the-icons-ivy
+    :ensure t
+    :config
+    (all-the-icons-ivy-setup))
+  (use-package all-the-icons-ivy-rich
+    :ensure t
+    :config (all-the-icons-ivy-rich-mode 1))
+(use-package spaceline-all-the-icons
+  :after (spaceline all-the-icons)
   :ensure t
   :config
-  (all-the-icons-ivy-setup))
-(use-package all-the-icons-ivy-rich
-  :ensure t
-  :config (all-the-icons-ivy-rich-mode 1))
+  (spaceline-all-the-icons-theme))
+)
 (use-package neotree
   :ensure t
   :bind
   ([f8] . neotree-toggle)
-  :after (all-the-icons)
   :custom
   ;; Every time when the neotree window is opened, let if find current
   ;; file and jump to node.
@@ -1033,7 +1039,7 @@ If theme is'n loaded then it will be loaded at first"
   (projectile-switch-project-action 'neotree-projectile-aciton)
   :config
   ;; needs package all-the-icons
-  (setq neo-theme (if (display-graphic-p) 'icons 'arrow))
+  ;;(setq neo-theme (if (display-graphic-p) 'icons 'arrow))
   ;; Disable line-numbers minor mode for neotree
   (add-hook 'neo-after-create-hook
 	    (lambda (&rest _) (display-line-numbers-mode -1)))
@@ -1190,11 +1196,6 @@ If theme is'n loaded then it will be loaded at first"
 ;;;   :hook
 ;;;   (window-configuration-change . kb/line-set-selected-window)
 ;;;   )
-(use-package spaceline-all-the-icons
-  :after (spaceline all-the-icons)
-  :ensure t
-  :config
-  (spaceline-all-the-icons-theme))
 
 
 (use-package hydra :ensure t)
