@@ -1,4 +1,0 @@
-# key: fopen
-# name: FILE *fp = fopen(..., ...);
-# --
-FILE *${fp} = fopen(${"file"}, "${r}");

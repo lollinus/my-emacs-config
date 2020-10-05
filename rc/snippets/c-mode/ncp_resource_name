@@ -1,5 +1,0 @@
-# -*- mode: snippet -*-
-# name: ncp_resource_name
-# key: nn
-# --
-((${1:arg}) ? ($1->name) : "(null)")

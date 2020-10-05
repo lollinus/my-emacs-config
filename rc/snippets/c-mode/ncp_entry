@@ -1,9 +1,0 @@
-# -*- mode: snippet -*-
-# name: ncp_entry
-# key: entry
-# --
-NCP_TRACEPOINT(Intel_AXXIA_ncp_$1,
-`(substring (which-function) 1 -2)`_entry,
-NCP_MSG_ENTRY,
-$0
-);

@@ -1,5 +1,0 @@
-# -*- mode: snippet -*-
-# name: ncp_ptr
-# key: np
-# --
-(${1:arg}) ? (*$1) : 0

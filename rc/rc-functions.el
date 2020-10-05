@@ -192,11 +192,6 @@ Position the cursor at it's beginning, according to the current mode."
                           '(("[^a-zA-Z_]\\(0x[0-9a-fA-F]+\\)" 1 font-lock-constant-face) ; hexa
                             ("[^a-zA-Z_]\\(-?[0-9]+\\.[0-9]+\\)" 1 font-lock-constant-face) ; float
                             ("[^a-zA-Z_1-9]\\(-?[0-9]+L?\\)" 1 font-lock-constant-face)))) ; int
-;;(add-hook 'php-mode-hook 'font-lock-fontify-numbers)
-;;(add-hook 'perl-mode-hook 'font-lock-fontify-numbers)
-;;(add-hook 'css-mode-hook 'font-lock-fontify-numbers)
-;;(add-hook 'emacs-lisp-mode-hook 'font-lock-fontify-numbers)
-;;(add-hook 'js2-mode-hook 'font-lock-fontify-numbers)
 
 ;; delete all the trailing whitespaces and tabs across the current buffer
 (defun my-delete-trailing-whitespaces-and-untabify ()
@@ -224,28 +219,26 @@ spaces across the current buffer."
 ;; Add missing support functions
 ;;--------------------------------------------------------------------------------
 (if (not (fboundp 'utf-16-le-pre-write-conversion))
-    (progn
-      (defun utf-16-le-pre-write-conversion (beg end)
-	"Semi-dummy pre-write function effectively to autoload ucs-tables.
+    (defun utf-16-le-pre-write-conversion (beg end)
+      "Semi-dummy pre-write function effectively to autoload ucs-tables.
 BEG begining of conversion region.
 END end of conversion region."
-	;; Ensure translation table is loaded, if available.
-	(require 'ucs-tables nil t)
-	;; Don't do this again.
-	(coding-system-put 'utf-16-le 'pre-write-conversion nil)
-	nil)))
+      ;; Ensure translation table is loaded, if available.
+      (require 'ucs-tables nil t)
+      ;; Don't do this again.
+      (coding-system-put 'utf-16-le 'pre-write-conversion nil)
+      nil))
 
 (if (not (fboundp 'utf-16-be-pre-write-conversion))
-    (progn
-      (defun utf-16-be-pre-write-conversion (start end)
-	"Semi-dummy pre-write function effectively to autoload ucs-tables.
+    (defun utf-16-be-pre-write-conversion (start end)
+      "Semi-dummy pre-write function effectively to autoload ucs-tables.
 BEG begining of conversion region.
 END end of conversion region."
-	;; Ensure translation table is loaded, if available.
-	(require 'ucs-tables nil t)
-	;; Don't do this again.
-	(coding-system-put 'utf-16-be 'pre-write-conversion nil)
-	nil)))
+      ;; Ensure translation table is loaded, if available.
+      (require 'ucs-tables nil t)
+      ;; Don't do this again.
+      (coding-system-put 'utf-16-be 'pre-write-conversion nil)
+      nil))
 
 ;;--------------------------------------------------------------------------------
 ;; rozpoznawanie odpowiednich końcówek linii plików tekstowych
