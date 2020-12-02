@@ -178,23 +178,42 @@ Position the cursor at it's beginning, according to the current mode."
   (forward-line -1)
   (indent-according-to-mode))
 
-(defun match-paren (arg)
-  "Go to the matching parenthesis if on parenthesis otherwise insert %."
-  (interactive "p")
-  (cond ((looking-at "\\s\(") (forward-list 1) (backward-char 1))
-        ((looking-at "\\s\)") (forward-char 1) (backward-list 1))
-        (t (self-insert-command (or arg 1)))))
+;;;
+;;; Matching parentheses
+;;;
+(defun match-parenthesis (arg)
+  "Match the current character according to the syntax table.
 
-;; colorize number too (like constant)
-(defun font-lock-fontify-numbers ()
-  "Use this function as a hook to fontify numbers as constant"
-  (font-lock-add-keywords nil
-                          '(("[^a-zA-Z_]\\(0x[0-9a-fA-F]+\\)" 1 font-lock-constant-face) ; hexa
-                            ("[^a-zA-Z_]\\(-?[0-9]+\\.[0-9]+\\)" 1 font-lock-constant-face) ; float
-                            ("[^a-zA-Z_1-9]\\(-?[0-9]+L?\\)" 1 font-lock-constant-face)))) ; int
+Based on the freely available match-paren.el by Kayvan Sylvan.
+I merged code from goto-matching-paren-or-insert and match-it.
+
+You can define new \"parentheses\" (matching pairs).
+Example: angle brackets. Add the following to your .emacs file:
+
+	(modify-syntax-entry ?< \"(>\" )
+	(modify-syntax-entry ?> \")<\" )
+
+You can set hot keys to perform matching with one keystroke.
+Example: f6 and Control-C 6.
+
+	(global-set-key \"\\C-c6\" 'match-parenthesis)
+	(global-set-key [f6] 'match-parenthesis)
+
+Simon Hawkin <cema@cs.umd.edu> 03/14/1998"
+  (interactive "p")
+  (let
+      ((syntax (char-syntax (following-char))))
+    (cond
+     ((= syntax ?\()
+      (forward-sexp 1) (backward-char))
+     ((= syntax ?\))
+      (forward-char) (backward-sexp 1))
+     (t (self-insert-command (or arg 1)))
+     )
+    ))
 
 ;; delete all the trailing whitespaces and tabs across the current buffer
-(defun my-delete-trailing-whitespaces-and-untabify ()
+(defun kb/delete-trailing-whitespaces-and-untabify ()
   "Delete all the trailing white spaces, and convert all tabs to multiple
 spaces across the current buffer."
   (interactive "*")
@@ -265,15 +284,29 @@ line endings will be converted according to EOL-TYPE.
   (set-buffer-modified-p t)
   (force-mode-line-update))
 
+(defun set-buffer-eol-unix ()
+  "Set current buffer EOL type to unix."
+  (interactive)
+  (set-buffer-file-eol-type 'unix)
+  )
+
+(defun set-buffer-eol-dos ()
+  "Set current buffer EOL type to DOS."
+  (interactive)
+  (set-buffer-file-eol-type 'dos)
+  )
+
+(defun set-buffer-eol-mac ()
+  "Set current buffer EOL type to MAC."
+  (interactive)
+  (set-buffer-file-eol-type 'mac)
+  )
+
 ;; Make the mode-line display the standard EOL-TYPE symbols (used above)...
 (setq eol-mnemonic-undecided "(?)" ;; unknown EOL type
       eol-mnemonic-unix  "(unix)" ;; LF
       eol-mnemonic-dos  "(dos)" ;; CRLF
       eol-mnemonic-mac  "(mac)") ;; CR
-
-(defadvice load (before debug-log activate)
-  "Print out each loaded file to message buffer."
-  (message "Loading %s..." (locate-library (ad-get-arg 0))))
 
 (when (not (fboundp 'kill-whole-line))
   (progn
@@ -282,11 +315,11 @@ line endings will be converted according to EOL-TYPE.
     ;; First define a variable which will store the previous column position
     (defvar previous-column nil "Save the column position")
 
-    ;; Define the nuke-line function. The line is killed, then the newline
+    ;; Define the kb-kill-whole-line function. The line is killed, then the newline
     ;; character is deleted. The column which the cursor was positioned at is then
     ;; restored. Because the kill-line function is used, the contents deleted can
     ;; be later restored by usibackward-delete-char-untabifyng the yank commands.
-    (defun nuke-line()
+    (defun kb-kill-whole-line()
       "Kill an entire line, including the trailing newline character"
       (interactive)
 
@@ -321,13 +354,13 @@ line endings will be converted according to EOL-TYPE.
 Remove tralinig spaces leaving only one.  Similar to Vim Ctrl-j."
   (interactive)
   (join-line 'forward-line)
-)
+  )
 
 ;; comment-or-uncomment-region-or-line
 ; it's almost the same as in textmate.el but I wrote it before I know about
 ; textmate.el, in fact that's how I found textmate.el, by googling this
 ; function to see if somebody already did that in a better way than me.
-(defun comment-or-uncomment-region-or-line ()
+(defun comment-or-uncomment-region-or-line () ;
   "Like comment-or-uncomment-region, but if there's no mark \(that means no
 region\) apply comment-or-uncomment to the current line"
   (interactive)

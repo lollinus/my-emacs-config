@@ -18,10 +18,12 @@
 # make prefix=~/emacs-install install
 # tar cJvf ~/emacs-install.tar.xz -C ~/emacs-install .
 ## Prepare uninstall script
-# find ~/emacs-install/ -type f -printf 'rm ${PREFIX}/%P\n' > ~/emacs-remove.sh
+# echo "#!/bin/sh" > ~/emacs-remove.sh
+# echo "INSTALL_PREFIX=${PREFIX:=/usr/local}" >> ~/emacs-remove.sh
+# find ~/emacs-install/ -type f -printf 'rm ${PREFIX}/%P\n' >> ~/emacs-remove.sh
 # find ~/emacs-install/ -mindepth 1 -type d -printf 'rmdir ${PREFIX}/%P\n' | sort -r  >> ~/emacs-remove.sh
 ## Install
-# sudo tar xJvf ~/emacs-install.tar.xz -C /usr/local/
+# sudo tar -xJv --no-same-owner -f ~/emacs-install.tar.xz -C /usr/local/
 ## Remove steps
 # sudo PREFIX=/usr/local bash ~/emacs-remove.sh
 

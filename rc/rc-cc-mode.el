@@ -54,7 +54,6 @@
 	     (display-line-numbers-mode t)
 	     )
 	  )
-(add-hook 'c-mode-common-hook 'font-lock-fontify-numbers)
 
 ;; If makefile doesn't exist compile with g++ -Wall -o <current file name> <current file name>
 (add-hook 'c++-mode-hook
