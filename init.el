@@ -627,6 +627,12 @@ If theme is'n loaded then it will be loaded at first"
   :delight ""
   :config (global-undo-tree-mode))
 
+(use-package beacon
+  :ensure t
+  :pin melpa
+  :config (beacon-mode 1)
+  )
+
 (use-package markdown-mode :ensure t
   :config
   (add-to-list 'auto-mode-alist '("\\.text\\'" . markdown-mode))
@@ -986,6 +992,64 @@ If theme is'n loaded then it will be loaded at first"
 (use-package dap-mode :ensure t)
 (use-package dap-gdb-lldb :after dap-mode)
 (use-package which-key :ensure :config (which-key-mode))
+
+
+(use-package meson-mode
+  :ensure t
+  :hook (meson-mode . company-mode))
+(use-package ninja-mode :ensure t)
+(use-package yaml-mode :ensure t)
+
+(use-package yang-mode
+  :ensure t
+  :config (setq blink-matching-paren-distance nil)
+  (defun my-yang-mode-hook ()
+    "Configuration for YANG Mode.  Add this to `yang-mode-hook'."
+    (if window-system
+        (progn
+          (c-set-style "BSD")
+          (setq indent-tabs-mode nil)
+          (setq c-basic-offset 2)
+          (setq font-lock-maximum-decoration t)
+          (font-lock-mode t))))
+  
+  (add-hook 'yang-mode-hook 'my-yang-mode-hook)
+
+  (defun show-onelevel ()
+    "show entry and children in outline mode"
+    (interactive)
+    (outline-show-entry)
+    (outline-show-children))
+
+  (defun my-outline-bindings ()
+    "sets shortcut bindings for outline minor mode"
+    (interactive)
+    (local-set-key [?\C-,] 'hide-body)
+    (local-set-key [?\C-.] 'show-all)
+    (local-set-key [C-up] 'outline-previous-visible-heading)
+    (local-set-key [C-down] 'outline-next-visible-heading)
+    (local-set-key [C-left] 'hide-subtree)
+    (local-set-key [C-right] 'show-onelevel)
+    (local-set-key [M-up] 'outline-backward-same-level)
+    (local-set-key [M-down] 'outline-forward-same-level)
+    (local-set-key [M-left] 'hide-subtree)
+    (local-set-key [M-right] 'show-subtree))
+
+  (add-hook
+   'outline-minor-mode-hook
+   'my-outline-bindings)
+
+  (defconst sort-of-yang-identifier-regexp "[-a-zA-Z0-9_\\.:]*")
+  
+  (add-hook
+   'yang-mode-hook
+   '(lambda ()
+      (outline-minor-mode)
+      (setq outline-regexp
+            (concat "^ *" sort-of-yang-identifier-regexp " *"
+                    sort-of-yang-identifier-regexp
+                    " *{"))))
+  )
 
 (use-package spaceline
   :ensure t
