@@ -7,31 +7,6 @@ My emacs configuration files. -*- mode: org mode: auto-fill -*-
 
 ** U*x
 
-* Files
-
-* Modes
-
-Additional modes which I use and can be installed from elpa.
-
-** undo-tree
-
-** yasnippet
-
-** markdown-mode
-
-** markdown-mode+
-
-** haskell-mode
-
-** psvn
-
-** auto-complete
-
-** auto-complete-c-headers
-
-** flymake-google-cpplint
-
-** flymake-cursor
-
-** iedit
-
+   Depending on Linux distribution follow build instructions in
+   =./deployment/emacs-config-*.sh= and =./deployment/build.emacs.org=.
+   List of 3rd party libs required to build can be found in =./deployment/emacs-pkgs*.txt=.

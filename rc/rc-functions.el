@@ -315,11 +315,11 @@ line endings will be converted according to EOL-TYPE.
     ;; First define a variable which will store the previous column position
     (defvar previous-column nil "Save the column position")
 
-    ;; Define the kb-kill-whole-line function. The line is killed, then the newline
+    ;; Define the kb/kill-whole-line function. The line is killed, then the newline
     ;; character is deleted. The column which the cursor was positioned at is then
     ;; restored. Because the kill-line function is used, the contents deleted can
     ;; be later restored by usibackward-delete-char-untabifyng the yank commands.
-    (defun kb-kill-whole-line()
+    (defun kb/kill-whole-line()
       "Kill an entire line, including the trailing newline character"
       (interactive)
 
@@ -349,7 +349,7 @@ line endings will be converted according to EOL-TYPE.
   )
 
 ;; Join lines as in Vim
-(defun kb-join-line()
+(defun kb/join-line()
   "Join current and next line.
 Remove tralinig spaces leaving only one.  Similar to Vim Ctrl-j."
   (interactive)

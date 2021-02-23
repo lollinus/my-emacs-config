@@ -11,7 +11,7 @@
 (setq user-full-name "Karol Barski")
 (setq user-mail-address "karol.barski@tieto.com")
 
-(setq gc-cons-threshold 100000000)
+(setq gc-cons-threshold (* 50 1000 1000))
 (setq read-process-output-max (* 4 1024 1024))
 
 (setq mode-require-final-newline t      ; add a newline to end of file
@@ -33,32 +33,31 @@
 
 ;; do not consider case significant in completion (GNU Emacs default)
 (setq completion-ignore-case t)
+(setq load-prefer-newer t)
 
 ;;--------------------------------------------------------------------------------
-(if (daemonp)
-    (add-hook 'after-make-frame-functions
-              (lambda (frame)
-                (select-frame frame)
-                (if (window-system frame)
-                    (progn
-                      (tool-bar-mode 0)            ; turn menus off
-                      (menu-bar-mode 0)            ; disable toolbar
-                      (set-scroll-bar-mode 'right) ; scroll bar on the right side
-                      (setq scroll-bar-width 10)
-                      )
-                  )))
-  (if (display-graphic-p)
-      (progn
-        (tool-bar-mode 0)               ; turn menus off
-        (menu-bar-mode 0)               ; disable toolbar
-        (set-scroll-bar-mode 'right) ; scroll bar on the right side
-        (setq scroll-bar-width 10)
-        (scroll-bar-mode 'right)
-        )
-    )
+;; Default frame parameters
+;;--------------------------------------------------------------------------------
+;; (fullscreen-restore . fullheight)
+;; (fullscreen . fullboth)
+(defconst kb/frame-config '(
+			    ;; (top . 1)
+			    ;; (left . 1)
+			    ;; (fullscreen . maximized)
+			    (menu-bar-lines . 0)       ; turn menus off
+			    (tool-bar-lines . 0)       ; disable toolbar
+			    (scroll-bar-width . 10)
+			    (vertical-scroll-bars . right)
+			    (background-mode . dark))
   )
 
-(setq load-prefer-newer t)
+(setq initial-frame-alist kb/frame-config)
+(setq default-frame-alist kb/frame-config)
+
+;; turn off blinking cursor
+(setq blink-cursor-blinks 3)
+(setq blink-cursor-delay 1)
+(blink-cursor-mode)
 
 ;;--------------------------------------------------------------------------------
 ;; My customized emacs
@@ -76,6 +75,9 @@
 ;; name. Incredibly useful!
 (setq frame-title-format "Emacs: %b %+%+ %f ")
 
+;;--------------------------------------------------------------------------------
+;; Elpa setup
+;;--------------------------------------------------------------------------------
 (if (version< emacs-version "24")
     ;; install elpa on emacs 23
     (progn
@@ -88,15 +90,18 @@
       ;;     (eval-region (point) (point-max))
       ;;     (kill-buffer (current-buffer))))
       (when (load (expand-file-name "~/.emacs.d/package.el"))
-        (package-initialize)))
+	(package-initialize)))
   "Emacs >= 24 has elpa integrated")
 
 (package-initialize)
 ;; (setq package-check-signature nil)
 ;; (require 'package)
 
+(defvar kb/package-archives ()
+  "Set of achives which will be finally set to package-achives.")
+
 (let* ((no-ssl (and (memq system-type '(windows-nt ms-dos))
-                    (not (gnutls-available-p))))
+		    (not (gnutls-available-p))))
        (proto (if no-ssl "http" "https")))
   (when no-ssl
     (warn "\
@@ -106,20 +111,22 @@ There are two things you can do about this warning:
 1. Install an Emacs version that does support SSL and be safe.
 2. Remove this  warning from your init file so you won't see it again."))
   ;; Comment/uncomment these two lines to enable/disable MELPA and MELPA Stable as desired
-  (add-to-list 'package-archives (cons "melpa" (concat proto "://melpa.org/packages/")) t)
-  ;;(add-to-list 'package-archives (cons "melpa-stable" (concat proto "://stable.melpa.org/packages/")) t)
-  ;; (add-to-list 'package-archives (cons "melpa-mirror" (concat proto "://www.mirrorservice.org/sites/melpa.org/packages/")) t)
+  (add-to-list 'kb/package-archives (cons "melpa" (concat proto "://melpa.org/packages/")) t)
+  (add-to-list 'kb/package-archives (cons "org" (concat proto "://orgmode.org/elpa/")) t)
+
   (when (< emacs-major-version 24)
     ;; For important compatibility libraries like cl-lib
-    (add-to-list 'package-archives (cons "gnu" (concat proto "://elpa.gnu.org/packages/")))))
+    (add-to-list 'kb/package-archives (cons "elpa" (concat proto "://elpa.gnu.org/packages/")) t)
+    )
+  )
 
 ;;(add-to-list 'package-archives
 ;;           '("gnu" . "http://elpa.gnu.org/packages/"))
 ;;(setq gnutls-algorithm-priority "NORMAL:-VERS-TLS1.3")
-(add-to-list 'package-archives
-             '("melpa" . "https://melpa.org/packages/"))
-(when (version< emacs-version "24")
-  (add-to-list 'package-archives '("gnu" . "http://elpa.gnu.org/packages/")))
+(add-to-list 'kb/package-archives '("melpa" . "https://melpa.org/packages/") t)
+(add-to-list 'kb/package-archives '("org" . "https://orgmode.org/elpa/") t)
+(add-to-list 'kb/package-archives '("elpa" . "http://elpa.gnu.org/packages/") t)
+(setq package-archives kb/package-archives)
 
 (defun ensure-package-installed (&rest packages)
   "Assure every package is installed.
@@ -130,7 +137,7 @@ PACKAGES: list of packages to install."
    (lambda (package)
      ;;(package-installed-p 'evil)
      (if (package-installed-p package)
-         package
+	 package
        (package-install package)))
    packages))
 
@@ -148,126 +155,266 @@ PACKAGES: list of packages to install."
   (require 'use-package))
 (setq use-package-verbose t)
 (setq use-package-check-before-init t)
-
-(use-package emacs
-  :custom
-  (inhibit-startup-screen t)
-  (line-spacing 0)
-  ;; (help-char "? M-?")
-  :config
-  (put 'narrow-to-page 'disabled nil)
-  (put 'narrow-to-region 'disabled nil)
-  (put 'upcase-region 'disabled nil)
-  (put 'downcase-region 'disabled nil)
-  (define-key help-map "?" 'describe-key-briefly)
-  :bind
-  ("C-c f" . 'switch-to-next-buffer)
-  ("C-c p" . 'switch-to-prev-buffer)
-  ;; ("C-h" . 'delete-backward-char)
-  ;; ("C-?" . 'delete-char)
-  ;; ("ESC C-h" . 'backward-kill-word)
-  ;; ("ESC C-?" . 'kill-word)
-  ;; ("<f1>" . 'help-command)
-  ;; ("ESC ?" . 'help-command)
-  ;; ("ESC ? F" . 'view-emacs-FAQ)
-  )
-
-;; ignore case when reading a file name completion
-(use-package minibuffer
-  :custom
-  (read-file-name-completion-ignore-case t)
-  )
-
-(use-package simple
-  :custom
-  (global-mark-ring-max 5000)         ; increase mark ring to contains 5000 entries
-  (mark-ring-max 5000)                ; increase kill ring to contains 5000 entries
-  (column-number-mode t)
-  (line-number-mode t)
-  (size-indication-mode t)
-  (kill-ring-max 5000) ; increase kill-ring capacity
-  (kill-whole-line t)
-  (transient-mark-mode nil)
-  ;; remap C-H to backspace
-  (normal-erase-is-backspace t)
-  :hook
-  ;; remap C-H to backspace
-  (terminal-init-xterm . (lambda () (normal-erase-is-backspace-mode t)))
-  :config
-  (put 'set-goal-column 'disabled nil)
-  :bind
-  ("C-;" . kill-whole-line))
-
-(use-package vc
-  :custom
-  (vc-follow-symlinks t)
-  )
-
-(use-package frame
-  ;;--------------------------------------------------------------------------------
-  ;; turn off blinking cursor
-  ;;--------------------------------------------------------------------------------
-  :custom
-  (blink-cursor-blinks 3)
-  (blink-cursor-delay 1)
-  :config
-  (blink-cursor-mode)
-  :bind
-  ("C-c n" . next-multiframe-window))
-
-(use-package help
-  :config
-  (temp-buffer-resize-mode t))
-(use-package image
-  :config
-  (auto-image-file-mode 1))
-(use-package time
-  :custom
-  (display-time-format "%H:%M %d/%m/%Y")
-  (display-time-24hr-format t)
-  :config
-  (display-time)
-  )
-
-(use-package autoinsert
-  :disabled
-  :config
-  (auto-insert-mode 1)
-
-  ;; autoinsert C/C++ header
-  (define-auto-insert
-    (cons "\\.\\([Hh]\\|hh\\|hpp\\)\\'" "My C / C++ header")
-    '(nil
-      (let* ((noext (substring buffer-file-name 0 (match-beginning 0)))
-             (nopath (file-name-nondirectory noext))
-             (ident (concat (upcase nopath) "_H")))
-        (concat "#ifndef " ident "\n"
-                "#define " ident  " 1\n\n\n"
-                "\n\n#endif // " ident "\n"))
-      ))
-  ;; auto insert C/C++
-  (define-auto-insert
-    (cons "\\.\\([Cc]\\|cc\\|cpp\\)\\'" "My C++ implementation")
-    '(nil
-      (let* ((noext (substring buffer-file-name 0 (match-beginning 0)))
-             (nopath (file-name-nondirectory noext))
-             (ident (concat nopath ".h")))
-        (if (file-exists-p ident)
-            (concat "#include \"" ident "\"\n")))
-      ))
-  )
-
-(use-package delight :ensure t)
+(setq use-package-always-ensure t)
 
 ;;--------------------------------------------------------------------------------
+;; My emacs config
+;;--------------------------------------------------------------------------------
+(setq inhibit-startup-screen t)
+(setq line-spacing 0)
+;; (help-char "? M-?")
+(put 'narrow-to-page 'disabled nil)
+(put 'narrow-to-region 'disabled nil)
+(put 'upcase-region 'disabled nil)
+(put 'downcase-region 'disabled nil)
+
+(define-key help-map "?" 'describe-key-briefly)
+
+;; ("C-h" . 'delete-backward-char)
+;; ("C-?" . 'delete-char)
+;; ("ESC C-h" . 'backward-kill-word)
+;; ("ESC C-?" . 'kill-word)
+;; ("<f1>" . 'help-command)
+;; ("ESC ?" . 'help-command)
+;; ("ESC ? F" . 'view-emacs-FAQ)
+
+;;--------------------------------------------------------------------------------
+;; Emacs simple config
+;;--------------------------------------------------------------------------------
+(setq global-mark-ring-max 5000)         ; increase mark ring to contains 5000 entries
+(setq mark-ring-max 5000)                ; increase kill ring to contains 5000 entries
+(setq column-number-mode t)
+(setq line-number-mode t)
+(setq size-indication-mode t)
+(setq kill-ring-max 5000) ; increase kill-ring capacity
+(setq kill-whole-line t)
+(setq transient-mark-mode nil)
+;; remap C-H to backspace
+(setq normal-erase-is-backspace t)
+;; remap C-H to backspace
+(add-hook 'terminal-init-xterm-hook '(lambda () (normal-erase-is-backspace-mode t)))
+(put 'set-goal-column 'disabled nil)
+(define-key global-map (kbd "C-;") 'kill-whole-line)
+
+;; VC
+(setq vc-follow-symlinks t)
+;; help
+(setq temp-buffer-resize-mode t)
+;; image
+(setq auto-image-file-mode 1)
+;; time
+(setq display-time-format "%H:%M %d/%m/%Y")
+(setq display-time-24hr-format t)
+(display-time)
+
 ;; kolorowanie składni
+(setq font-lock-maximum-decoration t)
+(global-font-lock-mode t)
+
+;; smerge-mode
+(setq-default smerge-command-prefix (kbd "C-c v"))
+
+(add-to-list 'load-path "~/.emacs.d/rc")
+(load "~/.emacs.d/rc/rc-functions.el")
+
+(defun set-buffer-eol-unix () (set-buffer-file-eol-type 'unix))
+(defun set-buffer-eol-dos () (set-buffer-file-eol-type 'dos))
+(defun set-buffer-eol-mac () (set-buffer-file-eol-type 'mac))
+
+(define-key global-map (kbd "C-j") 'kb/join-line)
+(define-key global-map (kbd "C-a") 'prelude-move-beginning-of-line)
+;;  (define-key global-map (kbd "C-c i") 'indent-region-or-buffer)
+(define-key global-map (kbd "M-o") 'prelude-smart-open-line)
+(define-key global-map (kbd "%") 'match-parenthesis) ;; % key on paren moves cursor to matching paren
+(define-key global-map (kbd "C-c T") 'kb/delete-trailing-whitespaces-and-untabify)
+(define-key global-map (kbd "C-c u") 'set-buffer-eol-unix)
+(define-key global-map (kbd "C-c d") 'set-buffer-eol-dos)
+;; (define-key global-map (kbd "C-c m") 'set-buffer-eol-mac)
+(define-key global-map (kbd "C-c C-d") 'insert/date-time)
+
+;; string-insert-rectangle is useful but not binded to any key by default
+;; (define-key global-map (kbd "C-x r a") 'string-insert-rectangle) ;; use string-rectange instead "C-x r t"
+(define-key global-map (kbd "C-x r l") 'rectangle-number-lines)
+
+;; whitespace setup
+(add-hook 'whitespace-load-hook
+	  '(lambda ()
+	     (setq whitespace-style '(face trailing lines-tail newline empty indentation big-indent space-before-tab))
+	     (setq whitespace-line-column '100)
+	     (define-key global-map (kbd "C-c w") 'whitespace-mode)))
+
+;; keep minibuffer history between session
+(savehist-mode t)
+
+;; recentf mode
+(recentf-mode t)
+(define-key global-map (kbd "<f7>") 'recentf-open-files)
+
+(define-key global-map (kbd "C-c o") 'kb/switch-font)
+
 ;;--------------------------------------------------------------------------------
-(use-package font-lock
-  :custom
-  (font-lock-maximum-decoration t)
-  :config
-  (global-font-lock-mode t)
-  )
+;; Set Theme depending if emacs frame is inside TTY o GUI
+;;--------------------------------------------------------------------------------
+(defvar kb/terminal-theme 'wombat)
+(defvar kb/window-theme 'misterioso)
+(defvar kb/theme-window-loaded nil)
+(defvar kb/theme-window-font (if (eq system-type 'windows-nt)
+				 "Unifont"
+					;(set-frame-parameter nil 'font "Arial Unicode MS")
+			       "DejaVu Sans Mono"))
+(defvar kb/theme-terminal-loaded nil)
+(defvar kb/theme-original-font nil)
+
+;; font configuration
+(defun kb/set-window-font ()
+  "Function set screen font.
+If Emacs is run in MS Windows then use Arial Unicode MS
+On U*x systems Use DejaVu Sans Mono"
+  (setq kb/theme-original-font (frame-parameter nil 'font))
+  (set-frame-parameter nil 'font kb/theme-window-font))
+
+(defun kb/switch-font ()
+  "Function set screen font.
+Set original font."
+  (interactive)
+  (if (and kb/theme-original-font (eq kb/theme-original-font (frame-parameter nil 'font)))
+      (kb/set-window-font)
+    (set-frame-parameter nil 'font kb/theme-original-font)))
+
+(defun kb/load-grapics-theme ()
+  (interactive)
+  (unless kb/theme-window-loaded
+    (setq kb/theme-window-loaded (load-theme kb/window-theme t t))
+    (message "Theme `%S' loaded %S" kb/window-theme kb/theme-window-loaded))
+  kb/theme-window-loaded)
+
+(defun kb/load-terminal-theme ()
+  (interactive)
+  (unless kb/theme-terminal-loaded
+    (setq kb/theme-terminal-loaded (load-theme kb/terminal-theme t t))
+    (message "Theme `%S' loaded %S" kb/terminal-theme kb/theme-terminal-loaded))
+  kb/theme-terminal-loaded)
+
+(defun kb/activate-frame-theme (frame)
+  "Activate theme depending on current FRAME window system.
+
+If theme is'n loaded then it will be loaded at first"
+  (interactive)
+  (select-frame frame)
+  (if (window-system frame)
+      (progn
+	(if (kb/load-grapics-theme)
+	    (enable-theme kb/window-theme))
+	(kb/set-window-font))
+    (if (kb/load-terminal-theme)
+	(enable-theme kb/terminal-theme))))
+
+(defun kb/activate-theme (&optional frame)
+  "Set theme on active FRAME."
+  (interactive)
+  (let ((frame (or frame (selected-frame))))
+    (if (frame-focus-state frame)
+	(kb/activate-frame-theme frame))))
+(kb/activate-theme)
+
+(add-function :after after-focus-change-function #'kb/activate-theme)
+(add-hook 'after-make-frame-functions-hook 'kb/load-frame-theme)
+
+;;--------------------------------------------------------------------------------
+;; Programming modes
+;;--------------------------------------------------------------------------------
+;; (defun kb/cc-compile-command-hook ()
+;;     "Compile C/C++ files with gcc if makefile doesn't exist."
+;;   (unless (or (file-exists-p "makefile")
+;;               (file-exists-p "Makefile"))
+;;     (set (make-local-variable 'compile-command)
+;;          (let ((file (file-name-nondirectory buffer-file-name)))
+;;            (format "%s -c -o %s.o %s %s %s"
+;;                    (or (getenv "CC") "g++")
+;;                    (file-name-sans-extension file)
+;;                    (or (getenv "CPPFLAGS") "-DDEBUG=9")
+;;                    (or (getenv "CFLAGS") "-ansi -pedantic -Wall -g")
+;;                    file)))))
+
+;; (Use-package cc-mode
+;;   :config
+;;   (add-hook 'c-mode  (lambda ()
+;;                     (setq fill-column 100)
+;;                     (auto-fill-mode)
+;;                     (fci-mode)
+;;                     (setq tab-width 8)
+;;                     (setq indent-tabs-mode t)
+;;                     ))
+;;   (add-hook 'c++-mode (lambda ()
+;;                      (setq fill-column 100)
+;;                      (auto-fill-mode)
+;;                      (fci-mode)
+;;                      (setq tab-width 4)
+;;                      (setq indent-tabs-mode nil)
+;;                      ))
+;;   (add-hook 'c++-mode 'kb/cc-compile-command-hook)
+;; )
+
+(font-lock-add-keywords 'c-mode '("\\<\\(and\\|or\\|not\\)\\>"))
+(font-lock-add-keywords 'c-mode
+			'(("\\<\\(\\(TODO\\|XXX\\)\\(?:(.*)\\)?:?\\)\\>"  1 'warning prepend)
+			  ("\\<\\(FIXME\\(?:(.*)\\)?:?\\)\\>" 1 'error prepend)
+			  ("\\<\\(NOCOMMIT\\(?:(.*)\\)?:?\\)\\>"  1 'error prepend)))
+
+;; display-line-numbers
+(setq display-line-numbers-type 'visual)
+;; Display line number for programming modes
+(dolist (mode '(emacs-lisp-mode-hook
+		lisp-mode-hook
+		c-mode-common-hook))
+  (add-hook mode (lambda () (display-line-numbers-mode))))
+
+(defun kb/whitespace-setup ()
+  "Enable whitespace mode for diff files."
+  (lambda ()
+    (setq-local whitespace-style
+		'(face
+		  tabs
+		  tab-mark
+		  spaces
+		  space-mark
+		  trailing
+		  indentation::space
+		  indentation::tab
+		  newline
+		  newline-mark))
+    (whitespace-mode 1)))
+(add-hook 'diff-mode-hook 'kb/whitespace-setup)
+
+(defun kb/checkpatch-enable ()
+  "Add checkpatch for diff files if project provides checkpatch.pl script."
+  (if (file-exists-p "./scripts/checkpatch.pl")
+      (progn (print "setting compile-command")
+	     (set (make-local-variable 'compile-command)
+		  (concat "./scripts/checkpatch.pl --emacs "
+			  (buffer-file-name))))
+    (print "checkpatch not found")))
+(add-hook 'diff-mode-hook 'kb/checkpatch-enable)
+
+;; vc-hooks
+(setq vc-handled-backends '(git svn))
+
+;; subword-mode
+(add-hook 'c-mode-common 'subword-mode)
+
+;; compile
+(defun bk/last-compilation-buffer ()
+  "Display last compilation buffer in current window."
+  (interactive)
+  (if (buffer-live-p compilation-last-buffer)
+      (set-window-buffer (get-buffer-window) compilation-last-buffer)
+    (message "Last compilation buffer is killed.")))
+(define-key global-map (kbd "C-x c") 'bk/last-compilation-buffer)
+
+;;--------------------------------------------------------------------------------
+;; Additional packages
+;;--------------------------------------------------------------------------------
+(use-package delight)
 
 (use-package comment-dwim-2
   :ensure t
@@ -279,33 +426,6 @@ PACKAGES: list of packages to install."
       )
   )
 
-(use-package smerge-mode
-  :custom
-  (smerge-command-prefix (kbd "C-c v")))
-
-(add-to-list 'load-path "~/.emacs.d/rc")
-(load "~/.emacs.d/rc/rc-functions.el")
-
-(use-package whitespace
-  :custom
-  (whitespace-style '(face trailing lines-tail newline empty
-                           indentation big-indent space-before-tab))
-  (whitespace-line-column '100)
-  :bind
-  ("C-c w" . whitespace-mode)
-  )
-
-;; individual modes loading
-;; (use-package cua-base
-;;   :custom
-;;   (cua-enable-cua-keys nil)
-;;   (cua-highlight-region-shift-only t) ;; no transient mark mode
-;;   (cua-toggle-set-mark nil) ;; original set-mark behavior, i.e. no  transient-mark-mode
-;;   :config
-;;   (cua-mode)
-;;   :bind
-;;   ("C-<RET>" . cua-rectangle-mark-mode))
-
 (use-package yasnippet
   :if (package-installed-p 'yasnippet)
   :defines (yas-snippet-dirs yas-active-snippets)
@@ -316,27 +436,27 @@ PACKAGES: list of packages to install."
   (defun yas/goto-end-of-active-field ()
     (interactive)
     (let* ((snippet (car (yas-active-snippets)))
-           (position (yas--field-end (yas--snippet-active-field snippet))))
+	   (position (yas--field-end (yas--snippet-active-field snippet))))
       (if (= (point) position)
-          (move-end-of-line 1)
-        (goto-char position))))
+	  (move-end-of-line 1)
+	(goto-char position))))
 
   (defun yas/goto-start-of-active-field ()
     (interactive)
     (let* ((snippet (car (yas-active-snippets)))
-           (position (yas--field-start (yas--snippet-active-field snippet))))
+	   (position (yas--field-start (yas--snippet-active-field snippet))))
       (if (= (point) position)
-          (move-beginning-of-line 1)
-        (goto-char position))))
+	  (move-beginning-of-line 1)
+	(goto-char position))))
   :custom
   (yas-prompt-functions '(yas/ido-prompt yas/completing-prompt))
   (yas-verbosity 1)
   (yas-wrap-around-region t)
   :hook (term-mode . (lambda() (setq yas-dont-activate-functions t)))
   :bind (:map yas-keymap
-              ("<return>" . yas-exit-all-snippets)
-              ("C-e" . yas/goto-end-of-active-field)
-              ("C-a" . yas/goto-start-of-active-field)))
+	      ("<return>" . yas-exit-all-snippets)
+	      ("C-e" . yas/goto-end-of-active-field)
+	      ("C-a" . yas/goto-start-of-active-field)))
 (use-package yasnippet-snippets
   :if (package-installed-p 'yasnippet)
   :ensure)
@@ -349,7 +469,6 @@ PACKAGES: list of packages to install."
   :ensure ivy-yasnippet)
 
 (use-package anzu
-  :ensure t
   :custom
   (anzu-mode-ligther "")
   (anzu-deactivate-region t)
@@ -359,16 +478,16 @@ PACKAGES: list of packages to install."
   :config
   (global-anzu-mode +1)
   (set-face-attribute 'anzu-mode-line nil
-                      :foreground "yellow" :weight 'bold)
+		      :foreground "yellow" :weight 'bold)
   :bind
   (:map isearch-mode-map (([remap isearch-query-replace] . anzu-query-replace)
-        ([remap isearch-query-replace-regexp] . anzu-query-replace-regexp))))
+			  ([remap isearch-query-replace-regexp] . anzu-query-replace-regexp))))
 
 (if (not (package-installed-p 'smartparens))
     (use-package paren
       :custom ((show-paren-style 'parenthesis)
-               (show-paren-when-point-inside-paren t)
-               (show-paren-when-point-in-periphery t))
+	       (show-paren-when-point-inside-paren t)
+	       (show-paren-when-point-in-periphery t))
       :config (show-paren-mode 1))
 
   (use-package smartparens
@@ -426,47 +545,26 @@ PACKAGES: list of packages to install."
     )
   )
 
-;;--------------------------------------------------------------------------------
-;; recentf mode
-;;--------------------------------------------------------------------------------
-(use-package recentf
-  :config
-  (recentf-mode t)
-  :bind
-  ("<f7>" . recentf-open-files))
-
-;; keep minibuffer history between session
-(use-package savehist
-  :config
-  (savehist-mode t))
-
-(use-package ace-window
-  :disabled
-  :ensure t
-  :bind (:map global-map ("M-o" . ace-window))
-  )
 (use-package winum
-  :ensure t
   :custom
   (winum-auto-setup-mode-line t)
   :config
   (winum-mode)
   )
 
-(use-package editorconfig
-  :ensure t
+(use-package editorconfig :ensure t
   :delight ""
   :config
   (editorconfig-mode 1))
 
-(use-package flycheck
-  :ensure t
+(use-package flycheck :ensure t
   :defer 5
   :init
   (global-flycheck-mode)
   :custom
   (flycheck-indication-mode 'right-fringe)
   (flycheck-check-syntax-automatically '(save mode-enabled))
+  (flycheck-checker-error-threshold 10000)
   :config
   (when (fboundp 'define-fringe-bitmap)
     (define-fringe-bitmap 'flycheck-fringe-bitmap-double-arrow
@@ -475,9 +573,9 @@ PACKAGES: list of packages to install."
   (when (package-installed-p 'hydra)
     (defhydra hydra-flycheck
       (global-map "C-c ! j"
-                  :pre (flycheck-list-errors)
-                  :post (quit-windows-on "*Flycheck errors*")
-                  :hint nil)
+		  :pre (flycheck-list-errors)
+		  :post (quit-windows-on "*Flycheck errors*")
+		  :hint nil)
       "Errors"
       ("f" flycheck-error-list-set-filter "Filter")
       ("j" flycheck-next-error "Next")
@@ -488,105 +586,110 @@ PACKAGES: list of packages to install."
     )
   )
 
-(use-package flycheck-checkpatch
-  :disabled
-  :ensure t
-  :after flycheck
-  :hook (flycheck-mode . flycheck-checkpatch-setup)
-  ;; :config
-  ;; (defadvice flycheck-checkpatch-set-executable (after kb/flycheck-checkpatch-executable activate)
-  ;;   "Setup flycheck-checkpatch-executable if function couldn't pickup it from project."
-  ;;   (let ((my-checkpatch (executable-find "~/.emacs.d/scripts/checkpatch.pl")))
-  ;;     (message "running advice for flycheck-checkpatch-set-executable %S -> %S" flycheck-checkpatch-executable my-checkpatch)
-  ;;     (unless (and flycheck-checkpatch-executable (executable-find flycheck-checkpatch-executable))
-  ;;    (setq-local flycheck-checkpatch-executable my-checkpatch))))
-  )
-(use-package flycheck-clang-analyzer
-  :ensure t
+(use-package flycheck-clang-analyzer :ensure t
   :after flycheck
   :hook (flycheck-mode . flycheck-clang-analyzer-setup))
-(use-package flycheck-clang-tidy
-  :ensure t
+(use-package flycheck-clang-tidy :ensure t
   :after flycheck
   :hook (flycheck-mode . flycheck-clang-tidy-setup))
-(use-package avy-flycheck
-  :ensure t
+(use-package flycheck-projectile :ensure t
+  :after flycheck)
+(use-package avy-flycheck :ensure t
   :after flycheck
   :hook (flycheck-mode . avy-flycheck-setup))
 (use-package ivy-avy :ensure t)
 
-;;--------------------------------------------------------------------------------
-;; pokazuj krańcowe nawiasy
-;;--------------------------------------------------------------------------------
-(use-package custom
-  :bind
-  ("C-c o" . kb/switch-font)
-  :config
-  (defvar kb/terminal-theme 'wombat)
-  (defvar kb/window-theme 'misterioso)
-  (defvar kb/theme-window-loaded nil)
-  (defvar kb/theme-window-font (if (eq system-type 'windows-nt)
-                                   "Unifont"
-                                        ;(set-frame-parameter nil 'font "Arial Unicode MS")
-                                 "DejaVu Sans Mono"))
-  (defvar kb/theme-terminal-loaded nil)
-  (defvar kb/theme-original-font nil)
+
+;;================================================================================
+;; Spell checking
+;;================================================================================
 
-  ;; font configuration
-  (defun kb/set-window-font ()
-    "Function set screen font.
-If Emacs is run in MS Windows then use Arial Unicode MS
-On U*x systems Use DejaVu Sans Mono"
-    (setq kb/theme-original-font (frame-parameter nil 'font))
-    (set-frame-parameter nil 'font kb/theme-window-font))
+;; if (aspell installed) { use aspell}
+;; else if (hunspell installed) { use hunspell }
+;; whatever spell checker I use, I always use English dictionary
+;; I prefer use aspell because:
+;; 1. aspell is older
+;; 2. looks Kevin Atkinson still get some road map for aspell:
+;; @see http://lists.gnu.org/archive/html/aspell-announce/2011-09/msg00000.html
+(defun flyspell-detect-ispell-args (&optional run-together)
+  "If RUN-TOGETHER is true, spell check the CamelCase words."
+  (let (args)
+    (cond
+     ((string-match  "aspell$" ispell-program-name)
+      ;; Force the English dictionary for aspell
+      ;; Support Camel Case spelling check (tested with aspell 0.6)
+      (setq args (list "--sug-mode=ultra" "--lang=en_US"))
+      (when run-together
+	(cond
+	 ;; Kevin Atkinson said now aspell supports camel case directly
+	 ;; https://github.com/redguardtoo/emacs.d/issues/796
+	 ((string-match-p "--camel-case"
+			  (shell-command-to-string (concat ispell-program-name " --help")))
+	  (setq args (append args '("--camel-case"))))
 
-  (defun kb/switch-font ()
-    "Function set screen font.
-Set original font."
-    (interactive)
-    (if (and kb/theme-original-font (eq kb/theme-original-font (frame-parameter nil 'font)))
-        (kb/set-window-font)
-      (set-frame-parameter nil 'font kb/theme-original-font)))
+	 ;; old aspell uses "--run-together". Please note we are not dependent on this option
+	 ;; to check camel case word. wucuo is the final solution. This aspell options is just
+	 ;; some extra check to speed up the whole process.
+	 (t
+	  (setq args (append args '("--run-together" "--run-together-limit=16")))))))
+     ((string-match "hunspell$" ispell-program-name)
+      ;; Force the English dictionary for hunspell
+      (setq args "-d en_US")))
+    args))
 
-  (defun kb/load-grapics-theme ()
-    (interactive)
-    (unless kb/theme-window-loaded
-      (setq kb/theme-window-loaded (load-theme kb/window-theme t t))
-      (message "Theme `%S' loaded %S" kb/window-theme kb/theme-window-loaded))
-    kb/theme-window-loaded)
+(cond
+ ((executable-find "aspell")
+  ;; you may also need `ispell-extra-args'
+  (setq ispell-program-name "aspell"))
+ ((executable-find "hunspell")
+  (setq ispell-program-name "hunspell")
 
-  (defun kb/load-terminal-theme ()
-    (interactive)
-    (unless kb/theme-terminal-loaded
-      (setq kb/theme-terminal-loaded (load-theme kb/terminal-theme t t))
-      (message "Theme `%S' loaded %S" kb/terminal-theme kb/theme-terminal-loaded))
-    kb/theme-terminal-loaded)
+  ;; Please note that `ispell-local-dictionary` itself will be passed to hunspell cli with "-d"
+  ;; it's also used as the key to lookup ispell-local-dictionary-alist
+  ;; if we use different dictionary
+  (setq ispell-local-dictionary "en_US")
+  (setq ispell-local-dictionary-alist
+	'(("en_US" "[[:alpha:]]" "[^[:alpha:]]" "[']" nil ("-d" "en_US") nil utf-8))))
+ (t (setq ispell-program-name nil)))
 
-  (defun kb/activate-frame-theme (frame)
-    "Activate theme depending on current FRAME window system.
+;; ispell-cmd-args is useless, it's the list of *extra* arguments we will append to the ispell process when "ispell-word" is called.
+;; ispell-extra-args is the command arguments which will *always* be used when start ispell process
+;; Please note when you use hunspell, ispell-extra-args will NOT be used.
+;; Hack ispell-local-dictionary-alist instead.
+(setq-default ispell-extra-args (flyspell-detect-ispell-args t))
+;; (setq ispell-cmd-args (flyspell-detect-ispell-args))
+(defadvice ispell-word (around my-ispell-word activate)
+  (let ((old-ispell-extra-args ispell-extra-args))
+    (ispell-kill-ispell t)
+    (setq ispell-extra-args (flyspell-detect-ispell-args))
+    ad-do-it
+    (setq ispell-extra-args old-ispell-extra-args)
+    (ispell-kill-ispell t)))
 
-If theme is'n loaded then it will be loaded at first"
-    (interactive)
-    (select-frame frame)
-    (if (window-system frame)
-        (progn
-          (if (kb/load-grapics-theme)
-              (enable-theme kb/window-theme))
-          (kb/set-window-font))
-      (if (kb/load-terminal-theme)
-          (enable-theme kb/terminal-theme))))
+(defadvice flyspell-auto-correct-word (around my-flyspell-auto-correct-word activate)
+  (let ((old-ispell-extra-args ispell-extra-args))
+    (ispell-kill-ispell t)
+    ;; use emacs original arguments
+    (setq ispell-extra-args (flyspell-detect-ispell-args))
+    ad-do-it
+    ;; restore our own ispell arguments
+    (setq ispell-extra-args old-ispell-extra-args)
+    (ispell-kill-ispell t)))
 
-  (defun kb/activate-theme (&optional frame)
-    "Set theme on active FRAME."
-    (interactive)
-    (let ((frame (or frame (selected-frame))))
-      (if (frame-focus-state frame)
-          (kb/activate-frame-theme frame))))
-  (kb/activate-theme)
+(defun text-mode-hook-setup ()
+  ;; Turn off RUN-TOGETHER option when spell check text-mode
+  (setq-local ispell-extra-args (flyspell-detect-ispell-args)))
+(add-hook 'text-mode-hook 'text-mode-hook-setup)
 
-  (add-function :after after-focus-change-function #'kb/activate-theme)
-  :hook (after-make-frame-functions . kb/load-frame-theme))
-
+(when (or (executable-find "aspell") (executable-find "hunspell"))
+  (use-package flycheck-aspell :ensure t
+    :config
+    (advice-add #'ispell-pdict-save :after #'flycheck-maybe-recheck)
+    (defun flycheck-maybe-recheck (_)
+      (when (bound-and-true-p flycheck-mode)
+	(flycheck-buffer)))
+    )
+  )
 
 (use-package unicode-fonts
   :ensure t
@@ -605,13 +708,13 @@ If theme is'n loaded then it will be loaded at first"
     "Suspend fci-mode while popups are visible"
     (let ((fci-enabled (sanityinc/fci-enabled-p)))
       (when fci-enabled
-        (setq sanityinc/fci-mode-suppressed fci-enabled)
-        (turn-off-fci-mode))))
+	(setq sanityinc/fci-mode-suppressed fci-enabled)
+	(turn-off-fci-mode))))
 
   (defadvice popup-delete (after restore-fci-mode activate)
     "Restore fci-mode when all popups have closed"
     (when (and sanityinc/fci-mode-suppressed
-               (null popup-instances))
+	       (null popup-instances))
       (setq sanityinc/fci-mode-suppressed nil)
       (turn-on-fci-mode)))
   (setq fci-rule-width 1)
@@ -653,96 +756,20 @@ If theme is'n loaded then it will be loaded at first"
    (append '(("CMakeLists\\.txt\\'" . cmake-mode)) auto-mode-alist))
   :hook
   (cmake-mode . (lambda ()
-                  (message "CmakeMode custom")
-                  (setq fill-column 80)
-                  (auto-fill-mode)
-                  (setq cmake-tab-width 4)
-                  (setq indent-tabs-mode nil))))
+		  (message "CmakeMode custom")
+		  (setq fill-column 80)
+		  (auto-fill-mode)
+		  (setq cmake-tab-width 4)
+		  (setq indent-tabs-mode nil))))
 
 
-(use-package pabbrev
-  :delight
-  :ensure t)
+(use-package pabbrev :delight)
 
 (use-package iedit
-  :ensure t
   :bind ("C-c ;" . iedit-mode))
 
-;; (defun kb/cc-compile-command-hook ()
-;;     "Compile C/C++ files with gcc if makefile doesn't exist."
-;;   (unless (or (file-exists-p "makefile")
-;;               (file-exists-p "Makefile"))
-;;     (set (make-local-variable 'compile-command)
-;;          (let ((file (file-name-nondirectory buffer-file-name)))
-;;            (format "%s -c -o %s.o %s %s %s"
-;;                    (or (getenv "CC") "g++")
-;;                    (file-name-sans-extension file)
-;;                    (or (getenv "CPPFLAGS") "-DDEBUG=9")
-;;                    (or (getenv "CFLAGS") "-ansi -pedantic -Wall -g")
-;;                    file)))))
-
-;; (Use-package cc-mode
-;;   :config
-;;   (add-hook 'c-mode  (lambda ()
-;;                     (setq fill-column 100)
-;;                     (auto-fill-mode)
-;;                     (fci-mode)
-;;                     (setq tab-width 8)
-;;                     (setq indent-tabs-mode t)
-;;                     ))
-;;   (add-hook 'c++-mode (lambda ()
-;;                      (setq fill-column 100)
-;;                      (auto-fill-mode)
-;;                      (fci-mode)
-;;                      (setq tab-width 4)
-;;                      (setq indent-tabs-mode nil)
-;;                      ))
-;;   (add-hook 'c++-mode 'kb/cc-compile-command-hook)
-;; )
-
-(use-package cc-mode
-  :config
-  (font-lock-add-keywords 'c-mode '("\\<\\(and\\|or\\|not\\)\\>"))
-  )
-
-(use-package prog-mode
-  :config
-  (font-lock-add-keywords 'c-mode
-                          '(("\\<\\(\\(TODO\\|XXX\\)\\(?:(.*)\\)?:?\\)\\>"  1 'warning prepend)
-                            ("\\<\\(FIXME\\(?:(.*)\\)?:?\\)\\>" 1 'error prepend)
-                            ("\\<\\(NOCOMMIT\\(?:(.*)\\)?:?\\)\\>"  1 'error prepend))))
-
-(use-package display-line-numbers
-  :custom
-  (display-line-numbers-type 'visual)
-  :hook
-  ((emacs-lisp-mode lisp-mode c-mode-common) . display-line-numbers-mode)
-  )
-
-(use-package diff-mode
-  :hook
-  (diff-mode . (lambda ()
-                 (setq-local whitespace-style
-                             '(face
-                               tabs
-                               tab-mark
-                               spaces
-                               space-mark
-                               trailing
-                               indentation::space
-                               indentation::tab
-                               newline
-                               newline-mark))
-                 (whitespace-mode 1)
-                 (if (file-exists-p "./scripts/checkpatch.pl")
-                     (progn (print "setting compile-command")
-                            (set (make-local-variable 'compile-command)
-                                 (concat "./scripts/checkpatch.pl --emacs "
-                                         (buffer-file-name))))
-                   (print "checkpatch not found"))))
-  )
-(use-package volatile-highlights
-  :ensure t
+(use-package volatile-highlights :ensure t
+  :diminish
   :after undo-tree
   :custom
   (Vhl/highlight-zero-width-ranges t)
@@ -750,93 +777,49 @@ If theme is'n loaded then it will be loaded at first"
   (vhl/define-extension 'undo-tree 'undo-tree-yank 'undo-tree-move)
   (vhl/install-extension 'undo-tree)
   )
-(use-package clean-aindent-mode
-  :disabled t
-  :ensure t
-  :custom (clean-aindent-is-simple-indent t)
-  :config (electric-indent-mode -1)
-  :bind (:map global-map ("<RET>" . newline-and-indent)))
 
 (use-package ws-butler
   :ensure t
   :hook
   ((c-mode-common text-mode fundamental-mode) . ws-butler-mode))
 
-(use-package ggtags
-  :if (package-installed-p 'ggtags)
-  :defines (ggtags-mode-map)
-  :hook ((c-mode-common . (lambda ()
-                            (when (derived-mode-p 'c-mode 'c++-mode 'java-mode 'asm-mode)
-                              (ggtags-mode 1)))))
-  :bind (:map ggtags-mode-map
-              ("C-c g s" . ggtags-find-other-symbol)
-              ("C-c g h" . ggtags-view-tag-history)
-              ("C-c g r" . ggtags-find-reference)
-              ("C-c g f" . ggtags-find-file)
-              ("C-c g c" . ggtags-create-tags)
-              ("C-c g u" . ggtags-update-tags)
-              ("M-," . pop-tag-mark)
-              )
-  :config
-  (unbind-key "M-<" ggtags-mode-map)
-  (unbind-key "M->" ggtags-mode-map))
-
-(use-package vc-hooks
-  :custom
-  (vc-handled-backends '(git svn)))
-(use-package subword-mode
-  :delight
-  :hook
-  (c-mode-common . subword-mode))
+(if (package-installed-p 'ggtags)
+    (use-package ggtags
+      :defines (ggtags-mode-map)
+      :hook ((c-mode-common . (lambda ()
+				(when (derived-mode-p 'c-mode 'c++-mode 'java-mode 'asm-mode)
+				  (ggtags-mode 1)))))
+      :bind (:map ggtags-mode-map
+		  ("C-c g s" . ggtags-find-other-symbol)
+		  ("C-c g h" . ggtags-view-tag-history)
+		  ("C-c g r" . ggtags-find-reference)
+		  ("C-c g f" . ggtags-find-file)
+		  ("C-c g c" . ggtags-create-tags)
+		  ("C-c g u" . ggtags-update-tags)
+		  ("M-," . pop-tag-mark)
+		  )
+      :config
+      (unbind-key "M-<" ggtags-mode-map)
+      (unbind-key "M->" ggtags-mode-map))
+  "ggtas mode not installed"
+  )
 
 (use-package cycle-quotes
   :ensure t
   :bind ("C-c q" . cycle-quotes))
 
-(use-package compile
-  :config
-  (defun bk/last-compilation-buffer ()
-    "Display last compilation buffer in current window."
-    (interactive)
-    (if (buffer-live-p compilation-last-buffer)
-        (set-window-buffer (get-buffer-window) compilation-last-buffer)
-      (message "Last compilation buffer is killed.")))
-  :bind (:map global-map ("C-x c" . bk/last-compilation-buffer))
-  )
-
 (use-package bool-flip
   :ensure t
   :bind ("C-c C-b" . bool-flip-do-flip))
-
-(use-package rc-functions
-  :config
-  (defun set-buffer-eol-unix () (set-buffer-file-eol-type 'unix))
-  (defun set-buffer-eol-dos () (set-buffer-file-eol-type 'dos))
-  (defun set-buffer-eol-mac () (set-buffer-file-eol-type 'mac))
-  :bind
-  ("C-'" . comment-or-uncomment-region-or-line)
-  ("C-j" . kb-join-line)
-  ("C-a" . prelude-move-beginning-of-line)
-  ("C-c i" . indent-region-or-buffer)
-  ("M-o" . prelude-smart-open-line)
-  ("%" . match-parenthesis) ;; % key on paren moves cursor to matching paren
-  ("C-c T" . kb-delete-trailing-whitespaces-and-untabify)
-  ("C-c u" . set-buffer-eol-unix)
-  ("C-c d" . set-buffer-eol-dos)
-  ("C-c m" . set-buffer-eol-mac)
-  ("C-c C-d" . insert/date-time))
-
-(use-package rect
-  :bind
-  ;; string-insert-rectangle is useful but not binded to any key by default
-  ("C-x r a" . string-insert-rectangle)
-  ("C-x r l" . rectangle-number-lines)
-  )
 
 (use-package amx :ensure t)
 (use-package company
   :ensure t
   :hook (after-init . global-company-mode)
+  :custom
+  (company-minimum-prefix-length 1)
+  (company-idle-delay 0.0)
+  (company-clang-excecutable "clang-11")
   :config
   (delete 'company-semantic company-backends)
   (delete 'company-gtags company-backends)
@@ -846,6 +829,8 @@ If theme is'n loaded then it will be loaded at first"
   ;; ((:map c-mode-map ("TAB" . company-complete))
   ;;  (:map c++-mode-map ("TAB" . company-complete)))
   (:map global-map ([remap dabbrev-expand] . company-dabbrev))
+  (:map company-active-map ("<tab>" . company-complete-selection))
+  (:map lsp-mode-map ("<tab>" . company-indent-or-complete-common))
   )
 
 (use-package company-statistics
@@ -855,33 +840,30 @@ If theme is'n loaded then it will be loaded at first"
   (company-statistics-mode))
 
 (use-package company-box
-  :ensure t
-  :after company
-  :custom
-  (company-box-frame-behavior 'default)
+  :custom (company-box-frame-behavior 'default)
   :hook (company-mode . company-box-mode)
   :config
   ;; company-capf menu colors
 
   (add-to-list 'company-box-backends-colors
-               '(company-capf . (:candidate (:background "lime green" :foreground "black")
-                                            :annotation (:background "green" :foreground "black")
-                                            :selected (:background "yellow" :foreground "black")
-                                            )))
+	       '(company-capf . (:candidate (:background "lime green" :foreground "black")
+					    :annotation (:background "green" :foreground "black")
+					    :selected (:background "yellow" :foreground "black")
+					    )))
   ;; company-clang menu colors
-  (add-to-list 'company-box-backends-colors
-               '(company-clang . (:candidate (:background "dark blue" :foreground "white")
-                                             :annotation (:background "dark blue" :foreground "white")
-                                             :selected (:background "gold" :foreground "dark blue"))))
+  ;; (add-to-list 'company-box-backends-colors
+  ;;              '(company-clang . (:candidate (:background "dark blue" :foreground "white")
+  ;;                                            :annotation (:background "dark blue" :foreground "white")
+  ;;                                            :selected (:background "gold" :foreground "dark blue"))))
+
   ;; company-dabbrev menu colors
+  (add-to-list 'company-box-backends-colors
+	       '(company-dabbrev . (:candidate (:background "grey" :foreground "green")
+					       :annotation (:background "grey" :foreground "green")
+					       :selected (:background "chartreuse" :foreground "dark blue"))))
 
   (add-to-list 'company-box-backends-colors
-               '(company-dabbrev . (:candidate (:background "grey" :foreground "green")
-                                               :annotation (:background "grey" :foreground "green")
-                                               :selected (:background "chartreuse" :foreground "dark blue"))))
-
-  (add-to-list 'company-box-backends-colors
-               '(company-dabbrev-code . (:candidate (:background "magenta" :foreground "GreenYellow"))))
+	       '(company-dabbrev-code . (:candidate (:background "magenta" :foreground "GreenYellow"))))
   )
 
 (use-package company-c-headers
@@ -891,10 +873,10 @@ If theme is'n loaded then it will be loaded at first"
   (add-to-list 'company-backends 'company-c-headers)
   (if (boundp 'company-box-backends-colors)
       (add-to-list 'company-box-backends-colors
-                   '(company-c-headers . (:candidate (:background "wheat" :foreground "black")
-                                          :annotation (:background "grey" :foreground "green")
-                                          :selected (:background "PaleVioletRed1" :foreground "SaddleBrown")
-                                                         ))))
+		   '(company-c-headers . (:candidate (:background "wheat" :foreground "black")
+						     :annotation (:background "grey" :foreground "green")
+						     :selected (:background "PaleVioletRed1" :foreground "SaddleBrown")
+						     ))))
   )
 
 (use-package company-ctags
@@ -943,45 +925,50 @@ If theme is'n loaded then it will be loaded at first"
 (use-package lsp-mode
   :ensure t
   :commands (lsp lsp-deferred)
+  :init
+  (setq lsp-keymap-prefix "C-c l") ;; Or 'C-l', 's-l'
   :custom
   ;; (lsp-print-performance t)
   ;; (lsp-enable-xref t)
+  (lsp-log-io nil)
   (lsp-idle-delay 1.0)
   (lsp-keymap-prefix "C-c l")
   (lsp-completion-provider :capf)
   (lsp-headerline-breadcrumb-enable t)
+  (lsp-headerline-breadcrumb-segments '(file symbols project path-up-to-project))
 
   :hook
   ((c++-mode . lsp-deferred)
    (c-mode . lsp-deferred))
   :bind (:map lsp-mode-map ("M-." . lsp-find-declaration))
   :config
+  (lsp-enable-which-key-integration t)
   (if (package-installed-p 'yasnippet)
       (setq lsp-enable-snippet t)
     (setq lsp-enable-snippet nil)
     )
-  (add-hook 'lsp-headerline-breadcrumb-mode-hook
-            (lambda ()
-              "Fix headerlime colors for breadcrumbs"
-              (set-face-foreground 'lsp-headerline-breadcrumb-symbols-face "yellow")
-              (set-face-background 'lsp-headerline-breadcrumb-symbols-face "forest green")
-              (set-face-foreground 'lsp-headerline-breadcrumb-prefix-face "yellow")
-              (set-face-background 'lsp-headerline-breadcrumb-prefix-face "dark green")
-              (set-face-foreground 'lsp-headerline-breadcrumb-separator-face "yellow")
-              (set-face-background 'lsp-headerline-breadcrumb-separator-face "lime green")
-              (set-face-foreground 'lsp-headerline-breadcrumb-project-prefix-face "yellow")
-              (set-face-background 'lsp-headerline-breadcrumb-project-prefix-face "lime green")
-              (set-face-foreground 'header-line "yellow")
-              (set-face-background 'header-line "dark green"))
-  ))
+  ;; (add-hook 'lsp-headerline-breadcrumb-mode-hook
+  ;;            (lambda ()
+  ;;              "Fix headerlime colors for breadcrumbs"
+  ;;              (set-face-foreground 'lsp-headerline-breadcrumb-symbols-face "yellow")
+  ;;              ;; (set-face-background 'lsp-headerline-breadcrumb-symbols-face "black")
+  ;;              ;; (set-face-foreground 'lsp-headerline-breadcrumb-prefix-face "yellow")
+  ;;              ;; (set-face-background 'lsp-headerline-breadcrumb-prefix-face "dark green")
+  ;;              (set-face-foreground 'lsp-headerline-breadcrumb-separator-face "light green")
+  ;;              ;; (set-face-background 'lsp-headerline-breadcrumb-separator-face "black")
+  ;;              (set-face-foreground 'lsp-headerline-breadcrumb-project-prefix-face "Green")
+  ;;              ;; (set-face-background 'lsp-headerline-breadcrumb-project-prefix-face "black")
+  ;;              (set-face-foreground 'header-line "black")
+  ;;              (set-face-background 'header-line "black")))
+  )
 
-(use-package lsp-ui
-  :ensure t
-  :commands lsp-ui-mode
-  :config
-  (setq lsp-ui-sideline-enable t)
-  (setq lsp-log-io nil)
-  (setq flycheck-checker-error-threshold 10000)
+(use-package lsp-ui :ensure t
+  :hook (lsp-mode . lsp-ui-mode)
+  :custom
+  (lsp-ui-sideline-enable t)
+  (lsp-ui-doc-position 'bottom)
+  (lsp-ui-doc-header t)
+  (lsp-ui-doc-include-signature t)
   )
 (use-package lsp-ivy
   :ensure t
@@ -989,30 +976,31 @@ If theme is'n loaded then it will be loaded at first"
   (lsp-ivy-workspace-symbol)
   )
 (use-package lsp-treemacs :ensure t :commands lsp-treemacs-errors-list)
-(use-package dap-mode :ensure t)
-(use-package dap-gdb-lldb :after dap-mode)
-(use-package which-key :ensure :config (which-key-mode))
-
+(use-package dap-mode)
+(use-package which-key :config (which-key-mode))
 
 (use-package meson-mode
-  :ensure t
   :hook (meson-mode . company-mode))
-(use-package ninja-mode :ensure t)
-(use-package yaml-mode :ensure t)
+(use-package ninja-mode)
+(use-package yaml-mode)
 
-(use-package yang-mode
-  :ensure t
+(use-package ietf-docs
+  :bind
+  (:map global-map
+	("C-c k o" . ietf-docs-open-at-point)))
+(use-package rfc-mode :ensure t)
+(use-package yang-mode :ensure t
   :config (setq blink-matching-paren-distance nil)
   (defun my-yang-mode-hook ()
     "Configuration for YANG Mode.  Add this to `yang-mode-hook'."
     (if window-system
-        (progn
-          (c-set-style "BSD")
-          (setq indent-tabs-mode nil)
-          (setq c-basic-offset 2)
-          (setq font-lock-maximum-decoration t)
-          (font-lock-mode t))))
-  
+	(progn
+	  (c-set-style "BSD")
+	  (setq indent-tabs-mode nil)
+	  (setq c-basic-offset 2)
+	  (setq font-lock-maximum-decoration t)
+	  (font-lock-mode t))))
+
   (add-hook 'yang-mode-hook 'my-yang-mode-hook)
 
   (defun show-onelevel ()
@@ -1040,19 +1028,28 @@ If theme is'n loaded then it will be loaded at first"
    'my-outline-bindings)
 
   (defconst sort-of-yang-identifier-regexp "[-a-zA-Z0-9_\\.:]*")
-  
+
   (add-hook
    'yang-mode-hook
    '(lambda ()
       (outline-minor-mode)
       (setq outline-regexp
-            (concat "^ *" sort-of-yang-identifier-regexp " *"
-                    sort-of-yang-identifier-regexp
-                    " *{"))))
+	    (concat "^ *" sort-of-yang-identifier-regexp " *"
+		    sort-of-yang-identifier-regexp
+		    " *{"))))
+  )
+(use-package flycheck-yang :ensure t
+  :hook (yang-mode . (lambda () flycheck-mode))
+  )
+(use-package protobuf-mode :ensure t
+  :config
+  (defconst kb/protobuf-style
+    '((c-basic-offset . 4)
+      (indent-tabs-mode . nil)))
+  :hook (protobuf-mode . (lambda () (c-add-style "kb/style" kb/protobuf-style t)))
   )
 
-(use-package spaceline
-  :ensure t
+(use-package spaceline :ensure t
   :config
   (defvar kb/line-selected-window (frame-selected-window))
   (defun kb/line-selected-window-active-p ()
@@ -1078,45 +1075,45 @@ If theme is'n loaded then it will be loaded at first"
     "Modeline buffer name face."
     :group `kb)
   (setq-default mode-line-format
-                (list
-                 " "
-                 mode-line-misc-info ; for eyebrowse
+		(list
+		 " "
+		 mode-line-misc-info ; for eyebrowse
 
-                 '(:eval (when-let (vc vc-mode)
-                           (list " "
-                                 (propertize (substring vc 5)
-                                             'face 'font-lock-comment-face)
-                                 " ")))
+		 '(:eval (when-let (vc vc-mode)
+			   (list " "
+				 (propertize (substring vc 5)
+					     'face 'font-lock-comment-face)
+				 " ")))
 
-                 '(:eval (list
-                          ;; the buffer name; the file name as a tool tip
-                          (propertize " %b" 'face 'font-lock-type-face
-                                      'help-echo (buffer-file-name))
-                          (when (buffer-modified-p)
-                            (propertize
-                             " "
-                             'face (if (kb/line-selected-window-active-p)
-                                       'kb/line-modified-face
-                                     'kb/line-modified-face-inactive)))
-                          (when buffer-read-only
-                            (propertize
-                             ""
-                             'face (if (kb/line-selected-window-active-p)
-                                       'kb/line-read-only-face
-                                     'kb/line-read-only-face-inactive)))
-                          " "))
+		 '(:eval (list
+			  ;; the buffer name; the file name as a tool tip
+			  (propertize " %b" 'face 'font-lock-type-face
+				      'help-echo (buffer-file-name))
+			  (when (buffer-modified-p)
+			    (propertize
+			     " "
+			     'face (if (kb/line-selected-window-active-p)
+				       'kb/line-modified-face
+				     'kb/line-modified-face-inactive)))
+			  (when buffer-read-only
+			    (propertize
+			     ""
+			     'face (if (kb/line-selected-window-active-p)
+				       'kb/line-read-only-face
+				     'kb/line-read-only-face-inactive)))
+			  " "))
 
-                 ;; relative position in file
-                 (propertize "%p" 'face 'font-lock-constant-face)
+		 ;; relative position in file
+		 (propertize "%p" 'face 'font-lock-constant-face)
 
-                 ;; spaces to align right
-                 '(:eval (propertize
-                          " " 'display
-                          `((space :align-to (- (+ right right-fringe right-margin)
-                                                ,(+ 3 (string-width mode-name)))))))
+		 ;; spaces to align right
+		 '(:eval (propertize
+			  " " 'display
+			  `((space :align-to (- (+ right right-fringe right-margin)
+						,(+ 3 (string-width mode-name)))))))
 
-                 ;; the current major mode
-                 (propertize " %m " 'face 'font-lock-string-face)))
+		 ;; the current major mode
+		 (propertize " %m " 'face 'font-lock-string-face)))
   )
 
 ;;; (use-package spaceline
@@ -1210,19 +1207,16 @@ If theme is'n loaded then it will be loaded at first"
 
 (when (package-installed-p 'all-the-icons)
   (use-package all-the-icons)
-  (use-package all-the-icons-dired
-    :ensure t
+  (use-package all-the-icons-dired :ensure t
     :hook (dired-mode . all-the-icons-dired-mode))
-  ;; (use-package all-the-icons-ibuffer :ensure t
-  ;;   :hook (ibuffer-load-hook . (lambda () (all-the-icons-ibuffer-mode 1))))
+  (use-package all-the-icons-ibuffer :ensure t
+    :hook (ibuffer-load . (lambda () (all-the-icons-ibuffer-mode 1))))
   (use-package treemacs-all-the-icons :ensure t)
   (use-package treemacs-icons-dired :ensure t)
-  (use-package all-the-icons-ivy
-    :ensure t
+  (use-package all-the-icons-ivy :ensure t
     :config
     (all-the-icons-ivy-setup))
-  (use-package all-the-icons-ivy-rich
-    :ensure t
+  (use-package all-the-icons-ivy-rich :ensure t
     :config (all-the-icons-ivy-rich-mode 1))
   (use-package spaceline-all-the-icons
     :after (spaceline all-the-icons)
@@ -1230,6 +1224,8 @@ If theme is'n loaded then it will be loaded at first"
     :config
     (spaceline-all-the-icons-theme))
   )
+(when (package-installed-p 'major-moje-icons)
+  (use-package major-mode-icons))
 
 (use-package neotree
   :ensure t
@@ -1246,7 +1242,7 @@ If theme is'n loaded then it will be loaded at first"
   ;;(setq neo-theme (if (display-graphic-p) 'icons 'arrow))
   ;; Disable line-numbers minor mode for neotree
   (add-hook 'neo-after-create-hook
-            (lambda (&rest _) (display-line-numbers-mode -1)))
+	    (lambda (&rest _) (display-line-numbers-mode -1)))
   )
 
 (use-package hydra
@@ -1258,7 +1254,19 @@ If theme is'n loaded then it will be loaded at first"
     ("j" next-error "next")
     ("k" previous-error "prev")
     ("v" recenter-top-bottom "recenter")
-    ("q" nil "quit")))
+    ("q" nil "quit"))
+
+  (defhydra hydra-switch-buffers
+    (global-map "C-c s"
+		:timeout 4
+		:hint "Switch Buffers and windows")
+    "Buffers"
+    ("n" next-multiframe-window "Next window")
+    ("p" previous-multiframe-window "Previous window")
+    ("j" switch-to-next-buffer "Next buffe")
+    ("k" switch-to-prev-buffer "Previous buffer")
+    ("q" nil "done" :exit t))
+  )
 
 ;; (use-package hercules :ensure t)
 
@@ -1270,40 +1278,73 @@ If theme is'n loaded then it will be loaded at first"
   :config
   (counsel-mode 1)
   :bind (
-         ("<f2> j". counsel-set-variable)
-         ("<f2> i" . counsel-info-lookup-symbol)
-         ("<f2> u" . counsel-unicode-char)
-         ("<f7>" . counsel-recentf)
-         ("C-c g" . counsel-git)
-         ("C-c j" . counsel-git-grep)
-         ("C-c L" . counsel-git-log)
-         ("C-c J" . counsel-file-jump)
-         ("C-x l" . counsel-locate)
-         ("C-c t" . counsel-load-theme)
-         :map minibuffer-local-map
-         ("C-r" . counsel-minibuffer-history))
+	 ("<f2> j". counsel-set-variable)
+	 ("<f2> i" . counsel-info-lookup-symbol)
+	 ("<f2> u" . counsel-unicode-char)
+	 ("<f7>" . counsel-recentf)
+	 ("C-c g" . counsel-git)
+	 ("C-c j" . counsel-git-grep)
+	 ("C-c L" . counsel-git-log)
+	 ("C-c J" . counsel-file-jump)
+	 ("C-x l" . counsel-locate)
+	 ("C-c t" . counsel-load-theme)
+	 ("C-c C-o" . counsel-imenu)
+	 :map minibuffer-local-map
+	 ("C-r" . counsel-minibuffer-history))
   )
-;;(use-package multiple-cursors :ensure t)
 
-(use-package counsel-projectile
-  :ensure t
-  :after counsel projectile)
+(use-package counsel-projectile :ensure t
+  :after counsel projectile
+  :config(counsel-projectile-mode))
+
+(use-package helpful :ensure t
+  :custom
+  (counsel-describe-function-function #'helpful-callable)
+  (counsel-describe-variable-function #'helpful-variable)
+  (counsel-describe-symbol-function #'helpful-symbol)
+  :bind
+  ([remap describe-function] . counsel-describe-function)
+  ([remap describe-command] . helpful-command)
+  ([remap describe-variable] . counsel-describe-variable)
+  ([remap describe-key] . helpful-key)
+  )
+
 (use-package swiper
   :ensure t
-  :bind ("C-s" . swiper-isearch)
+  :bind ([remap isearch-forward] . swiper-isearch)
   )
 
 
 (use-package ivy
-  :demand
+  :diminish
   :config
+  (defun kb/ivy-switch-project ()
+    (interactive)
+    (ivy-read
+     "Switch to project: "
+     (if (projectile-project-p)
+	 (cons (abbreviate-file-name (projectile-project-root))
+	       (projectile-relevant-known-projects))
+       projectile-known-projects)
+     :action #'projectile-switch-project-by-name))
+
+  (ivy-set-actions
+   'kb/ivy-switch-project
+   '(("d" dired "Open Dired in project's directory")
+     ("v" counsel-projectile-switch-project-action-vc "Open project root in vc-dir or magit")
+     ("e" counsel-projectile-switch-project-action-run-eshell "Switch to Eshell")
+     ("f" counsel-projectile-switch-project-action-find-file "Find file in project")
+     ("g" counsel-projectile-switch-project-action-grep "Grep in projects")
+     ("a" counsel-projectile-switch-project-action-ag "AG in projects")
+     ("c" counsel-projectile-switch-project-action-compile "Compile project")
+     ("r" counsel-projectile-switch-project-action-remove-known-project "Remove project(s)")))
+
   (ivy-mode 1)
-  :bind (
-         ("C-c C-r" . ivy-resume)
-         ("<f6>" . ivy-resume)
-         ("C-c v" . ivy-push-view)
-         ("C-c V" . ivy-pop-view)
-         )
+  :bind (("C-c C-r" . ivy-resume)
+	 ("<f6>" . ivy-resume)
+	 ("C-c v" . ivy-push-view)
+	 ("C-c V" . ivy-pop-view)
+	 ("C-c m" . kb/ivy-switch-project))
   :custom
   (ivy-use-virutal-buffers t)
   (ivy-count-format "(%d/%d) ")
@@ -1319,48 +1360,48 @@ If theme is'n loaded then it will be loaded at first"
   :bind ("C-x C-b" . #'ibuffer)
   :config
   (setq ibuffer-saved-filter-groups
-        '(("default"
-           ("Emacs Configuration" (or (filename . ".emacs.d")
-                                      (filename . "init.el")
-                                      (filename . "package.el")
-                                      (filename . "private.el")
-                                      (filename . "emacs.d")))
-           ("Org" (or (mode . org-mode)
-                      (filename . "OrgMode")))
-           ("Magit" (name . "magit"))
-           ("Help" (or (name . "\*Help\*")
-                       (name . "\*Apropos\*")
-                       (name . "\*info\*")))
-           ("Dired" (mode . dired-mode))
-           ;; Dev has groups for all languages you program in
-           ("Dev" (or (mode . cc-mode)
-                      (filename . ".c")
-                      (filename . ".cpp")
-                      (filename . ".hpp")
-                      (filename . ".h")
-                      (filename . ".java")
-                      (filename . ".properties")
-                      (filename . ".gradle")
-                      (filename . ".am")
-                      (mode . yaml-mode))
-            )
-           ("Text" (or (filename . ".csv")
-                       (filename . ".tsv")
-                       (filename . ".txt")
-                       (filename . ".log")
-                       (filename . ".json")))
+	'(("default"
+	   ("Emacs Configuration" (or (filename . ".emacs.d")
+				      (filename . "init.el")
+				      (filename . "package.el")
+				      (filename . "private.el")
+				      (filename . "emacs.d")))
+	   ("Org" (or (mode . org-mode)
+		      (filename . "OrgMode")))
+	   ("Magit" (name . "magit"))
+	   ("Help" (or (name . "\*Help\*")
+		       (name . "\*Apropos\*")
+		       (name . "\*info\*")))
+	   ("Dired" (mode . dired-mode))
+	   ;; Dev has groups for all languages you program in
+	   ("Dev" (or (mode . cc-mode)
+		      (filename . ".c")
+		      (filename . ".cpp")
+		      (filename . ".hpp")
+		      (filename . ".h")
+		      (filename . ".java")
+		      (filename . ".properties")
+		      (filename . ".gradle")
+		      (filename . ".am")
+		      (mode . yaml-mode))
+	    )
+	   ("Text" (or (filename . ".csv")
+		       (filename . ".tsv")
+		       (filename . ".txt")
+		       (filename . ".log")
+		       (filename . ".json")))
 
-           ("Emacs" (or (name . "^\\*scratch\\*$")
-                        (name . "^\\*Messages\\*$")))
-           ("Gnus" (or (mode . message-mode)
-                       (mode . bbdb-mode)
-                       (mode . mail-mode)
-                       (mode . gnus-group-mode)
-                       (mode . gnus-summary-mode)
-                       (mode . gnus-article-mode)
-                       (name . "^\\.bbdb$")
-                       (name . "^\\.newsrc-dribble")))
-           )))
+	   ("Emacs" (or (name . "^\\*scratch\\*$")
+			(name . "^\\*Messages\\*$")))
+	   ("Gnus" (or (mode . message-mode)
+		       (mode . bbdb-mode)
+		       (mode . mail-mode)
+		       (mode . gnus-group-mode)
+		       (mode . gnus-summary-mode)
+		       (mode . gnus-article-mode)
+		       (name . "^\\.bbdb$")
+		       (name . "^\\.newsrc-dribble")))
+	   )))
   )
 
 (use-package gdb-mi
@@ -1376,6 +1417,8 @@ If theme is'n loaded then it will be loaded at first"
   :ensure t
   :bind ("C-x 1" . zygospore-toggle-delete-other-windows))
 
+(if (executable-find "ag")
+    (use-package ag :ensure t))
 
 (use-package projectile
   :if (package-installed-p 'projectile)
@@ -1384,10 +1427,10 @@ If theme is'n loaded then it will be loaded at first"
   (projectile-indexing-method 'alien)
   (projectile-completion-system 'ivy)
   (projectile-enable-caching t)
-  :config (projectile-mode)
+  :config (projectile-mode +1)
   :bind (:map projectile-mode-map
-              ("s-p" . projectile-command-map)
-              ("C-c p" . projectile-command-map)))
+	      ("s-p" . projectile-command-map)
+	      ("C-c p" . projectile-command-map)))
 
 (use-package speedbar
   :custom
@@ -1397,10 +1440,10 @@ If theme is'n loaded then it will be loaded at first"
   ;; expand/collapse latex sections
   (speedbar-add-supported-extension '(".tex" ".bib" ".w"))
   :bind (("<f4>" . speedbar-get-focus)   ;; jump to speedbar frame
-         :map speedbar-mode-map
-         ;; bind the arrow keys in the speedbar tree
-         ("<right>" . speedbar-expand-line)
-         ("<left>" . speedbar-contract-line)))
+	 :map speedbar-mode-map
+	 ;; bind the arrow keys in the speedbar tree
+	 ("<right>" . speedbar-expand-line)
+	 ("<left>" . speedbar-contract-line)))
 
 (use-package graphviz-dot-mode
   :if (package-installed-p 'graphviz-dot-mode)
@@ -1422,7 +1465,11 @@ If theme is'n loaded then it will be loaded at first"
 ;;   (py-split-windows-on-execute-p nil)
 ;;   (py-smart-indentation t)
 
-(use-package magit :ensure t)
+(use-package magit :ensure t
+  :commands magit-status
+  :custom
+  (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1)
+  )
 (use-package treemacs-magit
   :if (package-installed-p 'magit-popup)
   :ensure t)
