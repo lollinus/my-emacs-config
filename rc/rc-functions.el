@@ -214,8 +214,7 @@ Simon Hawkin <cema@cs.umd.edu> 03/14/1998"
 
 ;; delete all the trailing whitespaces and tabs across the current buffer
 (defun kb/delete-trailing-whitespaces-and-untabify ()
-  "Delete all the trailing white spaces, and convert all tabs to multiple
-spaces across the current buffer."
+  "Delete all the trailing white spaces, and convert all tabs to multiple spaces across the current buffer."
   (interactive "*")
   (delete-trailing-whitespace)
   (untabify (point-min) (point-max))
@@ -356,22 +355,7 @@ Remove tralinig spaces leaving only one.  Similar to Vim Ctrl-j."
   (join-line 'forward-line)
   )
 
-;; comment-or-uncomment-region-or-line
-; it's almost the same as in textmate.el but I wrote it before I know about
-; textmate.el, in fact that's how I found textmate.el, by googling this
-; function to see if somebody already did that in a better way than me.
-(defun comment-or-uncomment-region-or-line () ;
-  "Like comment-or-uncomment-region, but if there's no mark \(that means no
-region\) apply comment-or-uncomment to the current line"
-  (interactive)
-  (if (not mark-active)
-      (comment-or-uncomment-region
-       (line-beginning-position) (line-end-position))
-    (if (< (point) (mark))
-        (comment-or-uncomment-region (point) (mark))
-      (comment-or-uncomment-region (mark) (point)))))
-
-(defun insert/date ()
+(defun kb/insert-date ()
   "Insert current date yyyy-mm-dd."
   (interactive)
   (when (region-active-p)
@@ -380,7 +364,7 @@ region\) apply comment-or-uncomment to the current line"
   (insert (format-time-string "%Y-%m-%d"))
   )
 
-(defun insert/date-time ()
+(defun kb/insert-date-time ()
   "Insert current date-time string in full ISO 8601 format.
 Example: 2012-06-10T21:11:33+02:00
 See: URL `http://en.wikipedia.org/wiki/ISO_8601'"
