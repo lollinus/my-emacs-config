@@ -4,13 +4,6 @@
 #+DATE:      2012-10-13 So
 
 
-* Font
-
-Recommend to install fixed unicode font from [[http://unifoundry.com/unifont.html][unifoundry]] page.
-Link to latest version from date when this document was written
-[[http://unifoundry.com/unifont-5.1.20080907.zip][unifont-5.1.20080907.zip]]
-
-
 #+DESCRIPTION:
 #+KEYWORDS:
 #+STARTUP: showall
@@ -23,3 +16,32 @@ Link to latest version from date when this document was written
 #+LINK_UP:   
 #+LINK_HOME: 
 #+XSLT:
+
+
+* Font
+
+** Unifont
+
+Recommend to install fixed unicode font from [[http://unifoundry.com/unifont.html][unifoundry]] page.
+Link to latest version from date when this document was written
+[[http://unifoundry.com/pub/unifont/unifont-13.0.06/font-builds/unifont-13.0.06.ttf][unifont-13.0.06.ttf]]
+
+** DejaVu
+
+[[https://dejavu-fonts.github.io][DejaVu]] is another set of useful fonts to be used by my setup.
+
+Ubuntu install:
+#+BEGIN_SRC sh
+  apt install fonts-dejavu
+  apt install ttf-dejavu
+#+END_SRC
+
+** Cantarell
+
+Yet another set of fonts used by my setup.
+
+Ubuntu install:
+#+BEGIN_SRC sh
+  apt install fonts-cantarell
+#+END_SRC
+

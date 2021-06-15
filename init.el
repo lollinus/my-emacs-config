@@ -193,7 +193,7 @@ PACKAGES: list of packages to install."
 (setq kill-whole-line t)
 (setq transient-mark-mode nil)
 ;; remap C-H to backspace
-(setq normal-erase-is-backspace t)
+;; (normal-erase-is-backspace-mode t)
 ;; remap C-H to backspace
 (add-hook 'terminal-init-xterm-hook '(lambda () (normal-erase-is-backspace-mode t)))
 (put 'set-goal-column 'disabled nil)
@@ -233,7 +233,7 @@ PACKAGES: list of packages to install."
 (define-key global-map (kbd "C-j") 'kb/join-line)
 (define-key global-map (kbd "C-a") 'prelude-move-beginning-of-line)
 ;;  (define-key global-map (kbd "C-c i") 'indent-region-or-buffer)
-(define-key global-map (kbd "M-o") 'prelude-smart-open-line)
+;; (define-key global-map (kbd "M-o") 'prelude-smart-open-line)
 (define-key global-map (kbd "%") 'match-parenthesis) ;; % key on paren moves cursor to matching paren
 (define-key global-map (kbd "C-c T") 'kb/delete-trailing-whitespaces-and-untabify)
 (define-key global-map (kbd "C-c u") 'kb/set-buffer-eol-unix)
@@ -253,7 +253,8 @@ PACKAGES: list of packages to install."
 	     (define-key global-map (kbd "C-c w") 'whitespace-mode)))
 
 ;; keep minibuffer history between session
-(savehist-mode t)
+;;(savehist-mode t)
+;;(add-to-list 'savehist-additional-variables register-alist)
 
 ;; recentf mode
 (recentf-mode t)
@@ -357,7 +358,8 @@ If theme is'n loaded then it will be loaded at first"
     (indent-tabs-mode . nil)
     (c-offsets-alist . ((innamespace . 0)
 			(inline-open . 0)
-			(substatement-open . 0)))
+			(substatement-open . 0)
+			(statement-cont . ++)))
     (c-hanging-braces-alist . ((brace-list-open . before)
 			       (brace-entry-open . before)
 			       (substatement-open . before)
@@ -369,7 +371,8 @@ If theme is'n loaded then it will be loaded at first"
 (defun kb/c++-mode-hook ()
   "My style used while editing C++ sources."
   (c-add-style "kb/c++-style" kb/c++-style t)
-  (auto-fill-mode))
+  (auto-fill-mode)
+  (display-fill-column-indicator-mode))
 (add-hook 'c++-mode-hook 'kb/c++-mode-hook)
 
 (defun kb/cc-compile-command-hook ()
@@ -438,7 +441,7 @@ If theme is'n loaded then it will be loaded at first"
 (setq vc-handled-backends '(git svn))
 
 ;; subword-mode
-(add-hook 'c-mode-common 'subword-mode)
+(add-hook 'c-mode-common-hook 'subword-mode)
 
 ;; compile
 (defun kb/last-compilation-buffer ()
@@ -513,6 +516,22 @@ If theme is'n loaded then it will be loaded at first"
 		      (mode . gnus-article-mode)
 		      (name . "^\\.bbdb$")
 		      (name . "^\\.newsrc-dribble")))))))
+(use-package ibuffer-projectile
+  :hook (ibuffer . (lambda ()
+		     (ibuffer-projectile-set-filter-groups)
+		     (unless (eq ibuffer-sorting-mode 'alphabetic)
+		       (ibuffer-do-sort-by-alphabetic))))
+  :custom
+  (ibuffer-formats '((mark modified ready-only " "
+			   (name 18 18 :left :elide)
+			   " "
+			   (size 9 -1 :right)
+			   " "
+			   (mode 16 16 :left :elide)
+			   " "
+			   project-relative-file)))
+  )
+(use-package ibuffer-vc)
 
 
 ;;--------------------------------------------------------------------------------
@@ -551,9 +570,14 @@ If theme is'n loaded then it will be loaded at first"
 
 (use-package winum
   :custom
-  (winum-auto-setup-mode-line t)
+  (winum-auto-setup-mode-line nil)
   :config
+  (winum-set-keymap-prefix (kbd "M-p"))
   (winum-mode)
+  )
+(use-package golden-ratio
+  :config
+  (golden-ratio-mode)
   )
 
 (use-package editorconfig :ensure t
@@ -598,11 +622,17 @@ If theme is'n loaded then it will be loaded at first"
 (use-package flycheck-google-cpplint
   :config
   (eval-after-load 'flycheck
-    #'(flycheck-add-next-checker 'c/c++-cppcheck
-				 'c/c++-googlelint 'append)))
+    '(flycheck-add-next-checker 'c/c++-cppcheck
+				'c/c++-googlelint 'append)))
 (use-package flycheck-projectile)
 (use-package avy-flycheck
   :hook (flycheck-mode . avy-flycheck-setup))
+
+(use-package posframe
+  :config
+  (with-eval-after-load 'posframe
+    (setq posframe-mouse-banish '(100 . 100))
+    ))
 (use-package flycheck-posframe
   :disabled
   :config
@@ -666,36 +696,36 @@ If theme is'n loaded then it will be loaded at first"
 	'(("en_US" "[[:alpha:]]" "[^[:alpha:]]" "[']" nil ("-d" "en_US") nil utf-8))))
  (t (setq ispell-program-name nil)))
 
-;; ispell-cmd-args is useless, it's the list of *extra* arguments we will append to the ispell process when "ispell-word" is called.
-;; ispell-extra-args is the command arguments which will *always* be used when start ispell process
-;; Please note when you use hunspell, ispell-extra-args will NOT be used.
-;; Hack ispell-local-dictionary-alist instead.
-(setq-default ispell-extra-args (flyspell-detect-ispell-args t))
-;; (setq ispell-cmd-args (flyspell-detect-ispell-args))
-(defadvice ispell-word (around my-ispell-word activate)
-  (let ((old-ispell-extra-args ispell-extra-args))
-    (ispell-kill-ispell t)
-    (setq ispell-extra-args (flyspell-detect-ispell-args))
-    ad-do-it
-    (setq ispell-extra-args old-ispell-extra-args)
-    (ispell-kill-ispell t)))
+(when ispell-program-name
+  ;; ispell-cmd-args is useless, it's the list of *extra* arguments we will append to the ispell process when "ispell-word" is called.
+  ;; ispell-extra-args is the command arguments which will *always* be used when start ispell process
+  ;; Please note when you use hunspell, ispell-extra-args will NOT be used.
+  ;; Hack ispell-local-dictionary-alist instead.
+  (setq-default ispell-extra-args (flyspell-detect-ispell-args t))
+  ;; (setq ispell-cmd-args (flyspell-detect-ispell-args))
+  (defadvice ispell-word (around my-ispell-word activate)
+    (let ((old-ispell-extra-args ispell-extra-args))
+      (ispell-kill-ispell t)
+      (setq ispell-extra-args (flyspell-detect-ispell-args))
+      ad-do-it
+      (setq ispell-extra-args old-ispell-extra-args)
+      (ispell-kill-ispell t)))
 
-(defadvice flyspell-auto-correct-word (around my-flyspell-auto-correct-word activate)
-  (let ((old-ispell-extra-args ispell-extra-args))
-    (ispell-kill-ispell t)
-    ;; use emacs original arguments
-    (setq ispell-extra-args (flyspell-detect-ispell-args))
-    ad-do-it
-    ;; restore our own ispell arguments
-    (setq ispell-extra-args old-ispell-extra-args)
-    (ispell-kill-ispell t)))
+  (defadvice flyspell-auto-correct-word (around my-flyspell-auto-correct-word activate)
+    (let ((old-ispell-extra-args ispell-extra-args))
+      (ispell-kill-ispell t)
+      ;; use emacs original arguments
+      (setq ispell-extra-args (flyspell-detect-ispell-args))
+      ad-do-it
+      ;; restore our own ispell arguments
+      (setq ispell-extra-args old-ispell-extra-args)
+      (ispell-kill-ispell t)))
 
-(defun text-mode-hook-setup ()
-  ;; Turn off RUN-TOGETHER option when spell check text-mode
-  (setq-local ispell-extra-args (flyspell-detect-ispell-args)))
-(add-hook 'text-mode-hook 'text-mode-hook-setup)
+  (defun text-mode-hook-setup ()
+    ;; Turn off RUN-TOGETHER option when spell check text-mode
+    (setq-local ispell-extra-args (flyspell-detect-ispell-args)))
+  (add-hook 'text-mode-hook 'text-mode-hook-setup)
 
-(when (or (executable-find "aspell") (executable-find "hunspell"))
   (use-package flycheck-aspell :ensure t
     :config
     (advice-add #'ispell-pdict-save :after #'flycheck-maybe-recheck)
@@ -829,36 +859,13 @@ This function is based on work of David Wilson.
   :hook
   ((c-mode-common text-mode fundamental-mode) . ws-butler-mode))
 
-(if (package-installed-p 'ggtags)
-    (use-package ggtags
-      :defines (ggtags-mode-map)
-      :hook ((c-mode-common . (lambda ()
-				(when (derived-mode-p 'c-mode 'c++-mode 'java-mode 'asm-mode)
-				  (ggtags-mode 1)))))
-      :bind (:map ggtags-mode-map
-		  ("C-c g s" . ggtags-find-other-symbol)
-		  ("C-c g h" . ggtags-view-tag-history)
-		  ("C-c g r" . ggtags-find-reference)
-		  ("C-c g f" . ggtags-find-file)
-		  ("C-c g c" . ggtags-create-tags)
-		  ("C-c g u" . ggtags-update-tags)
-		  ("M-," . pop-tag-mark)
-		  )
-      :config
-      (unbind-key "M-<" ggtags-mode-map)
-      (unbind-key "M->" ggtags-mode-map))
-  "ggtas mode not installed"
-  )
-
 (use-package cycle-quotes
-  :ensure t
   :bind ("C-c q" . cycle-quotes))
 
 (use-package bool-flip
-  :ensure t
   :bind ("C-c C-b" . bool-flip-do-flip))
 
-(use-package amx :ensure t)
+(use-package amx)
 (use-package company
   :hook (after-init . kb/company-hook)
   :custom
@@ -890,10 +897,10 @@ This function is based on work of David Wilson.
   (company-statistics-mode))
 (use-package company-posframe
   :disabled
-  :hook (company-mode . company-posframe-mode-hook)
-  ;; :config
+  ;; :hook (company-mode . company-posframe-mode-hook)
+  :config
   ;; (require 'company-posframe)
-  ;; (eval-after-load 'company #'(company-posframe-mode 1))
+  (eval-after-load 'company #'(company-posframe-mode 1))
   )
 (use-package company-quickhelp
   :disabled
@@ -1033,15 +1040,16 @@ This function is based on work of David Wilson.
   :hook
   ((c++-mode . lsp-deferred)
    (c-mode . lsp-deferred))
-  :bind (:map lsp-mode-map ("M-." . lsp-find-declaration))
+  ;; :bind (:map lsp-mode-map ("M-." . lsp-find-declaration))
   :config
   (eval-after-load 'lsp-mode
     '(define-key lsp-mode-map (kbd "<tab>") 'company-indent-or-complete-common))
-  (lsp-enable-which-key-integration t)
-  (if (package-installed-p 'yasnippet)
-      (setq lsp-enable-snippet t)
-    (setq lsp-enable-snippet nil)
-    )
+  (if (package-installed-p 'which-key)
+      (lsp-enable-which-key-integration t))
+  ;; (if (package-installed-p 'yasnippet)
+  ;;     (setq lsp-enable-snippet t)
+  ;;   (setq lsp-enable-snippet nil)
+  ;;   )
   (defun kb/lsp-breadcrumb-face-setup ()
     "Fix headerlime colors for breadcrumbs"
     (set-face-attribute 'lsp-headerline-breadcrumb-symbols-face nil :foreground "yellow" :background nil   :width 'ultra-condensed)
@@ -1053,20 +1061,42 @@ This function is based on work of David Wilson.
   (add-hook 'lsp-headerline-breadcrumb-mode-hook 'kb/lsp-breadcrumb-face-setup)
   )
 
-(use-package lsp-ui :ensure t
+;; (define-key lsp-ui-mode-map (kbd "M-.") #'lsp-ui-peek-find-definitions)
+(use-package lsp-ui
   :hook (lsp-mode . lsp-ui-mode)
+  :bind (:map lsp-ui-mode-map
+	      ([remap xref-find-definitions] . #'lsp-ui-peek-find-definitions)
+	      ([remap xref-find-references] . #'lsp-ui-peek-find-references))
   :custom
   (lsp-ui-sideline-enable t)
   (lsp-ui-doc-position 'bottom)
   (lsp-ui-doc-header t)
   (lsp-ui-doc-include-signature t)
+  (lsp-ui-doc-delay 1)
+  :config
+  (lsp-ui-peek-enable t)
   )
 (use-package lsp-ivy
   :ensure t
   :commands
   (lsp-ivy-workspace-symbol)
   )
-(use-package lsp-treemacs :ensure t :commands lsp-treemacs-errors-list)
+(use-package treemacs
+  :bind
+  ([f8] . treemacs)
+  :custom-face
+  ;; update font size
+  (treemacs-directory-face ((t (:inherit font-lock-function-name-face :height 0.8))))
+  (treemacs-file-face ((t (:inherit default :height 0.9))))
+  (treemacs-root-face ((t (:inherit font-lock-constant :height 1.1))))
+  (treemacs-root-unreadable-face ((t (:inherit treemacs-root-face :height 0.9))))
+  (treemacs-root-remote-face ((t (:inherit font-lock-function-name-face :height 2.0))))
+  (treemacs-git-modified-face ((t (:inherit font-lock-variable-name-face :height 0.9))))
+  (treemacs-git-ignored-face ((t (:inherit font-lock-comment-face :height 0.9))))
+  (treemacs-git-untracked-face ((t (:inherit font-lock-string-face :height 0.9))))
+  )
+(use-package lsp-treemacs
+  :commands lsp-treemacs-errors-list)
 (use-package dap-mode)
 
 (use-package which-key
@@ -1079,9 +1109,10 @@ This function is based on work of David Wilson.
 
   (add-to-list 'which-key-replacement-alist
 	       '((nil . "\\`hydra-\\(.+\\)/body\\'") . (nil . "h/\\1")))
+  (which-key-setup-side-window-right)
   )
+
 (use-package which-key-posframe
-  :disabled
   :config (which-key-posframe-mode))
 
 (use-package meson-mode
@@ -1247,23 +1278,6 @@ This function is based on work of David Wilson.
     )
   )
 
-(use-package neotree
-  :bind
-  ([f8] . neotree-toggle)
-  :custom
-  ;; Every time when the neotree window is opened, let if find current
-  ;; file and jump to node.
-  (neo-smart-open t)
-  ;; track 'projectile-switch-project' (C-c p p),
-  (projectile-switch-project-action 'neotree-projectile-action)
-  :config
-  ;; needs package all-the-icons
-  ;;(setq neo-theme (if (display-graphic-p) 'icons 'arrow))
-  ;; Disable line-numbers minor mode for neotree
-  (add-hook 'neo-after-create-hook
-	    (lambda (&rest _) (display-line-numbers-mode -1)))
-  )
-
 (use-package hydra
   :config
   (defhydra hydra-goto (global-map "M-g")
@@ -1306,12 +1320,16 @@ This function is based on work of David Wilson.
 	 ("C-x l" . counsel-locate)
 	 ;; ("C-c t" . counsel-load-theme)
 	 ("C-c C-o" . counsel-imenu)
+	 ([remap insert-register] . counsel-register)
 	 :map minibuffer-local-map
 	 ("C-r" . counsel-minibuffer-history))
   )
 
 (use-package counsel-projectile
   :config(counsel-projectile-mode))
+(use-package counsel-ag-popup)
+(use-package counsel-edit-mode
+  :config (counsel-edit-mode-setup-ivy))
 
 (use-package helpful
   :custom
@@ -1368,18 +1386,19 @@ This function is based on work of David Wilson.
   (enable-recursive-minibuffers t)
   )
 (use-package ivy-posframe
-  :disabled
   :defines
   (ivy-posframe-display-functions-alist)
   :config
   ;; display at `ivy-posframe-style'
-  ;;(setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display)))
-  (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-frame-top-center)))
+  (defun ivy-posframe-display-at-frame-top-right (str)
+    (ivy-posframe--display str #'posframe-poshandler-frame-top-right-corner))
+
+  (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-frame-top-right)
+					       (t . ivy-posframe-display-at-frame-top-center)))
   ;; (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-frame-center)))
   ;; (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-window-center)))
   ;; (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-frame-bottom-left)))
   ;; (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-window-bottom-left)))
-  ;; (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-frame-top-center)))
   (ivy-posframe-mode 1)
   )
 
@@ -1390,6 +1409,14 @@ This function is based on work of David Wilson.
 (use-package ivy-avy)
 (use-package ivy-hydra)
 
+(use-package fuz
+  :config
+  (require 'fuz)
+  (unless (require 'fuz-core nil t)
+    (fuz-build-and-load-dymod))
+  )
+(use-package ivy-fuz)
+
 (use-package smart-compile)
 
 ;; load generic modes which support e.g. batch files
@@ -1398,8 +1425,11 @@ This function is based on work of David Wilson.
 (use-package zygospore
   :bind ("C-x 1" . zygospore-toggle-delete-other-windows))
 
-(if (executable-find "ag")
-    (use-package ag :ensure t))
+;; Use silversearcher-ag if available.
+(when (executable-find "ag")
+  (use-package ag)
+  (use-package wgrep-ag)
+  )
 
 ;; :delight '(:eval (concat " " (projectile-project-name)))
 (use-package projectile
@@ -1410,9 +1440,17 @@ This function is based on work of David Wilson.
   :config
   (message "Running projectile mode")
   (projectile-mode)
+  (when (require 'magit nil t)
+    (mapc #'projectile-add-known-project
+          (mapcar #'file-name-as-directory (magit-list-repos)))
+    ;; Optionally write to persistent `projectile-known-projects-file'
+    (projectile-save-known-projects))
   :bind (:map projectile-mode-map
 	      ("s-p" . projectile-command-map)
 	      ("C-c p" . projectile-command-map)))
+
+(use-package treemacs-projectile)
+
 
 ;; (use-package python
 ;;   :mode ("\\.py\\'" . python-mode)
@@ -1431,6 +1469,7 @@ This function is based on work of David Wilson.
   :commands magit-status
   :custom
   (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1)
+  (magit-repository-directories '(("~/projects" . 2)))
   )
 (use-package transient-posframe
   :config

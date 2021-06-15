@@ -74,88 +74,88 @@ Include whitespace characters until next non-whiepsace character of next line."
                  (just-one-space 0)
                  (backward-char 1)))))
 
-;; taken from prelude-editor.el
-;; automatically indenting yanked text if in programming-modes
-(defvar yank-indent-modes
-  '(LaTeX-mode TeX-mode)
-  "Modes in which to indent regions that are yanked (or yank-popped).
-Only modes that don't derive from `prog-mode' should be listed here.")
+;; ;; taken from prelude-editor.el
+;; ;; automatically indenting yanked text if in programming-modes
+;; (defvar yank-indent-modes
+;;   '(LaTeX-mode TeX-mode)
+;;   "Modes in which to indent regions that are yanked (or yank-popped).
+;; Only modes that don't derive from `prog-mode' should be listed here.")
 
-(defvar yank-indent-blacklisted-modes
-  '(python-mode slim-mode haml-mode)
-  "Modes for which auto-indenting is suppressed.")
+;; (defvar yank-indent-blacklisted-modes
+;;   '(python-mode slim-mode haml-mode)
+;;   "Modes for which auto-indenting is suppressed.")
 
-(defvar yank-advised-indent-threshold 1000
-  "Threshold (# chars) over which indentation does not automatically occur.")
+;; (defvar yank-advised-indent-threshold 1000
+;;   "Threshold (# chars) over which indentation does not automatically occur.")
 
-(defun yank-advised-indent-function (beg end)
-  "Do indentation, as long as the region isn't too large.
+;; (defun yank-advised-indent-function (beg end)
+;;   "Do indentation, as long as the region isn't too large.
 
-BEG beginning of a insert region.
-END of a inert region."
-  (if (<= (- end beg) yank-advised-indent-threshold)
-      (indent-region beg end nil)))
+;; BEG beginning of a insert region.
+;; END of a inert region."
+;;   (if (<= (- end beg) yank-advised-indent-threshold)
+;;       (indent-region beg end nil)))
 
-(defadvice yank (after yank-indent activate)
-  "If current mode is one of 'yank-indent-modes.
-Indent yanked text (with prefix arg don't indent)."
-  (if (and (not (ad-get-arg 0))
-           (not (member major-mode yank-indent-blacklisted-modes))
-           (or (derived-mode-p 'prog-mode)
-               (member major-mode yank-indent-modes)))
-      (let ((transient-mark-mode nil))
-        (yank-advised-indent-function (region-beginning) (region-end)))))
+;; (defadvice yank (after yank-indent activate)
+;;   "If current mode is one of 'yank-indent-modes.
+;; Indent yanked text (with prefix arg don't indent)."
+;;   (if (and (not (ad-get-arg 0))
+;;            (not (member major-mode yank-indent-blacklisted-modes))
+;;            (or (derived-mode-p 'prog-mode)
+;;                (member major-mode yank-indent-modes)))
+;;       (let ((transient-mark-mode nil))
+;;         (yank-advised-indent-function (region-beginning) (region-end)))))
 
-(defadvice yank-pop (after yank-pop-indent activate)
-  "If current mode is one of `yank-indent-modes', indent yanked text.
+;; (defadvice yank-pop (after yank-pop-indent activate)
+;;   "If current mode is one of `yank-indent-modes', indent yanked text.
 
- With prefix arg don't indent."
-  (when (and (not (ad-get-arg 0))
-             (not (member major-mode yank-indent-blacklisted-modes))
-             (or (derived-mode-p 'prog-mode)
-                 (member major-mode yank-indent-modes)))
-    (let ((transient-mark-mode nil))
-      (yank-advised-indent-function (region-beginning) (region-end)))))
+;;  With prefix arg don't indent."
+;;   (when (and (not (ad-get-arg 0))
+;;              (not (member major-mode yank-indent-blacklisted-modes))
+;;              (or (derived-mode-p 'prog-mode)
+;;                  (member major-mode yank-indent-modes)))
+;;     (let ((transient-mark-mode nil))
+;;       (yank-advised-indent-function (region-beginning) (region-end)))))
 
-;; prelude-core.el
-(defun indent-buffer ()
-  "Indent the currently visited buffer."
-  (interactive)
-  (indent-region (point-min) (point-max)))
+;; ;; prelude-core.el
+;; (defun indent-buffer ()
+;;   "Indent the currently visited buffer."
+;;   (interactive)
+;;   (indent-region (point-min) (point-max)))
 
-;; prelude-editing.el
-(defcustom prelude-indent-sensitive-modes
-  '(coffee-mode python-mode slim-mode haml-mode yaml-mode)
-  "Modes for which auto-indenting is suppressed."
-  :type 'list)
+;; ;; prelude-editing.el
+;; (defcustom prelude-indent-sensitive-modes
+;;   '(coffee-mode python-mode slim-mode haml-mode yaml-mode)
+;;   "Modes for which auto-indenting is suppressed."
+;;   :type 'list)
 
-(defun indent-region-or-buffer ()
-  "Indent a region if selected, otherwise the whole buffer."
-  (interactive)
-  (unless (member major-mode prelude-indent-sensitive-modes)
-    (save-excursion
-      (if (region-active-p)
-          (progn
-            (indent-region (region-beginning) (region-end))
-            (message "Indented selected region."))
-        (progn
-          (indent-buffer)
-          (message "Indented buffer.")))
-      (whitespace-cleanup))))
+;; (defun indent-region-or-buffer ()
+;;   "Indent a region if selected, otherwise the whole buffer."
+;;   (interactive)
+;;   (unless (member major-mode prelude-indent-sensitive-modes)
+;;     (save-excursion
+;;       (if (region-active-p)
+;;           (progn
+;;             (indent-region (region-beginning) (region-end))
+;;             (message "Indented selected region."))
+;;         (progn
+;;           (indent-buffer)
+;;           (message "Indented buffer.")))
+;;       (whitespace-cleanup))))
 
-;; add duplicate line function from Prelude
-;; taken from prelude-core.el
-(defun prelude-get-positions-of-line-or-region ()
-  "Return positions (beg . end) of the current line
-or region."
-  (let (beg end)
-    (if (and mark-active (> (point) (mark)))
-        (exchange-point-and-mark))
-    (setq beg (line-beginning-position))
-    (if mark-active
-        (exchange-point-and-mark))
-    (setq end (line-end-position))
-    (cons beg end)))
+;; ;; add duplicate line function from Prelude
+;; ;; taken from prelude-core.el
+;; (defun prelude-get-positions-of-line-or-region ()
+;;   "Return positions (beg . end) of the current line
+;; or region."
+;;   (let (beg end)
+;;     (if (and mark-active (> (point) (mark)))
+;;         (exchange-point-and-mark))
+;;     (setq beg (line-beginning-position))
+;;     (if mark-active
+;;         (exchange-point-and-mark))
+;;     (setq end (line-end-position))
+;;     (cons beg end)))
 
 ;; smart openline
 (defun prelude-smart-open-line (arg)

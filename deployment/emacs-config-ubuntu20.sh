@@ -6,11 +6,14 @@
 		   --with-zlib --with-compress-install --with-gpm --with-threads \
 		   --with-mailutils --with-json --with-modules --prefix=/usr/local \
 		   --with-included-regex --with-xpm --with-jpeg --with-tiff --with-gif \
-		   --with-png --with-rsvg --with-imagemagick --with-xft \
+		   --with-png --with-rsvg --with-xft \
 		   --with-dbus \
 		   --with-x-toolkit=lucid \
 		   --without-pop --with-mailutils \
-		   --without-toolkit-scroll-bars
+		   --without-toolkit-scroll-bars \
+		   --with-cairo
+
+ #--with-imagemagick
 
 ## Build steps
 # make -j$(nproc --ignore=2)
