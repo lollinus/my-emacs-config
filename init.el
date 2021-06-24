@@ -368,9 +368,34 @@ If theme is'n loaded then it will be loaded at first"
     )
   "Style used for C++ source editing.")
 
+(defconst kb/c++-mavenir
+  '(
+    (fill-column . 100)
+    (c-basic-offset . 4)
+    (tab-width . 4)
+    (indent-tabs-mode . nil)
+    (c-offsets-alist . ((innamespace . 0)
+			(inline-open . 0)
+			(substatement-open . 0)
+			(arglist-intro . ++)
+			;; (func-decl-cont . ++)
+			(statement-cont . ++)
+			(statement-case-open . 0)
+			;; (statement-case-intro  . 0)
+			(case-label . +)
+			))
+    (c-hanging-braces-alist . ((brace-list-open . before)
+			       (brace-entry-open . before)
+			       (substatement-open . before)
+			       ;; (namespace-open . before)
+			       ))
+    )
+  "Style used for C++ source editing at mavenir.")
+
 (defun kb/c++-mode-hook ()
   "My style used while editing C++ sources."
-  (c-add-style "kb/c++-style" kb/c++-style t)
+  (c-add-style "kb/c++-style" kb/c++-style)
+  (c-add-style "kb/c++-mavenir" kb/c++-mavenir t)
   (auto-fill-mode)
   (display-fill-column-indicator-mode))
 (add-hook 'c++-mode-hook 'kb/c++-mode-hook)
@@ -587,6 +612,7 @@ If theme is'n loaded then it will be loaded at first"
 
 (use-package flycheck
   :defer 5
+  :after hydra
   :init
   (global-flycheck-mode)
   :custom
@@ -1299,8 +1325,9 @@ This function is based on work of David Wilson.
     ("k" switch-to-prev-buffer "Previous buffer" :group "HSB" :which-key "Prev Buffer")
     ("q" nil "done" :exit t :group "HSB" :which-key "Quit"))
   )
+(use-package use-package-hydra)
 
-;; (use-package hercules :ensure t)
+(use-package hercules)
 
 (use-package counsel
   :custom
@@ -1552,6 +1579,7 @@ This function is based on work of David Wilson.
 (if (package-installed-p 'yasnippet)
     '(progn
        (use-package yasnippet
+	 :after hydra
 	 :defines (yas-snippet-dirs yas-active-snippets)
 	 :pin melpa
 	 :config
@@ -1578,10 +1606,33 @@ This function is based on work of David Wilson.
 	 (yas-verbosity 1)
 	 (yas-wrap-around-region t)
 	 :hook (term-mode . (lambda() (setq yas-dont-activate-functions t)))
-	 :bind (:map yas-keymap
-		     ("<return>" . yas-exit-all-snippets)
-		     ("C-e" . yas/goto-end-of-active-field)
-		     ("C-a" . yas/goto-start-of-active-field)))
+	 :bind ((:map yas-keymap
+		      ("<return>" . yas-exit-all-snippets)
+		      ("C-e" . yas/goto-end-of-active-field)
+		      ("C-a" . yas/goto-start-of-active-field))
+		(:map yas-minor-mode-map ("<f2>" . hydra-yas/body)))
+	 :hydra (hydra-yas (:color blue :hint nil)
+   "
+              ^YASnippets^
+--------------------------------------------
+  Modes:    Load/Visit:    Actions:
+
+ _g_lobal  _d_irectory    _i_nsert
+ _m_inor   _f_ile         _t_ryout
+ _e_xtra   _l_ist         _n_ew
+         _a_ll
+"
+          ("d" yas-load-directory)
+          ("e" yas-activate-extra-mode)
+          ("i" yas-insert-snippet)
+          ("f" yas-visit-snippet-file :color blue)
+          ("n" yas-new-snippet)
+          ("t" yas-tryout-snippet)
+          ("l" yas-describe-tables)
+          ("g" yas/global-mode)
+          ("m" yas/minor-mode)
+          ("a" yas-reload-all))
+	 )
        (use-package yasnippet-snippets)
        (use-package yasnippet-classic-snippets)
        (use-package ivy-yasnippet)
