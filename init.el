@@ -1640,5 +1640,18 @@ This function is based on work of David Wilson.
   "yasnippet not installed"
   )
 
+(use-package plantuml-mode
+  :custom
+  (plantuml-jar-path (expand-file-name "~/.java/libs/plantuml.1.2021.8.jar"))
+  (plantuml-default-exec-mode 'jar)
+  :config
+  (plantuml-set-output-type "svg")
+  )
+(use-package flycheck-plantuml
+  :config
+  (with-eval-after-load 'flycheck
+    (require 'flycheck-plantuml)
+    (flycheck-plantuml-setup)))
+
 (message "Init finished")
 ;;; init.el ends here
