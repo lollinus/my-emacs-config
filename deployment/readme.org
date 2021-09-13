@@ -26,6 +26,10 @@ Recommend to install fixed unicode font from [[http://unifoundry.com/unifont.htm
 Link to latest version from date when this document was written
 [[http://unifoundry.com/pub/unifont/unifont-13.0.06/font-builds/unifont-13.0.06.ttf][unifont-13.0.06.ttf]]
 
+#+begin_src bash
+  apt install unifont
+#+end_src
+
 ** DejaVu
 
 [[https://dejavu-fonts.github.io][DejaVu]] is another set of useful fonts to be used by my setup.

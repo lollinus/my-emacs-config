@@ -9,7 +9,7 @@
 
 ;;
 (setq user-full-name "Karol Barski")
-(setq user-mail-address "karol.barski@tieto.com")
+(setq user-mail-address "karol.barski@tietoevry.com")
 
 (setq gc-cons-threshold (* 50 1000 1000))
 (setq read-process-output-max (* 4 1024 1024))
@@ -65,8 +65,8 @@
 ;; My customized emacs
 ;;--------------------------------------------------------------------------------
 ;; fancy streching cursor
-(setq x-stretch-cursor t)
-;; (global-hl-line-mode t)
+(setq x-stretch-cursor nil)
+;; (global-hl-line-mode nil)
 
 ;; use inactive face for mode-line in non-selected windows
 (setq mode-line-in-non-selected-windows t)
@@ -182,7 +182,7 @@ PACKAGES: list of packages to install."
 ;; ("ESC ? F" . 'view-emacs-FAQ)
 
 ;;--------------------------------------------------------------------------------
-;; Emacs simple config
+;; Emacs (simple) config
 ;;--------------------------------------------------------------------------------
 (setq global-mark-ring-max 5000)         ; increase mark ring to contains 5000 entries
 (setq mark-ring-max 5000)                ; increase kill ring to contains 5000 entries
@@ -240,6 +240,28 @@ PACKAGES: list of packages to install."
 (define-key global-map (kbd "C-c d") 'kb/set-buffer-eol-dos)
 ;; (define-key global-map (kbd "C-c m") 'set-buffer-eol-mac)
 (define-key global-map (kbd "C-c C-d") 'insert/date-time)
+
+(defun kb/update-env (fn)
+  "Update environment variables reading FN file.
+
+To prepare FN file issue following command in session of which variables
+should be imported.
+`printenv -o > ~/env.txt'"
+  (interactive "fEnvironment file:")
+  (let ((str
+         (with-temp-buffer
+           (insert-file-contents fn)
+           (buffer-string))) lst)
+    (setq lst (split-string str "\000"))
+    (while lst
+      (setq cur (car lst))
+      (when (string-match "^\\(.*?\\)=\\(.*\\)" cur)
+        (setq var (match-string 1 cur))
+        (setq value (match-string 2 cur))
+        (setenv var value))
+      (setq lst (cdr lst)))))
+
+;; (define-key global-map (kbd "") 'kb/update-env)
 
 ;; string-insert-rectangle is useful but not binded to any key by default
 ;; (define-key global-map (kbd "C-x r a") 'string-insert-rectangle) ;; use string-rectange instead "C-x r t"
@@ -493,6 +515,20 @@ If theme is'n loaded then it will be loaded at first"
      (define-key speedbar-mode-map (kbd "<left>") 'speedbar-contract-line)
      ))
 
+;; speedup tramp
+(use-package tramp
+  :pin "elpa"
+  :custom (setq vc-ignore-dir-regexp
+		(format "\\(%s\\)\\|\\(%s\\)"
+			vc-ignore-dir-regexp
+			tramp-file-name-regexp))
+  (setq tramp-verbose 1)
+  (tramp-recompile-elpa)
+  )
+(use-package counsel-tramp
+  :after counsel
+  )
+
 ;;--------------------------------------------------------------------------------
 ;; iBuffer
 ;;--------------------------------------------------------------------------------
@@ -576,7 +612,7 @@ If theme is'n loaded then it will be loaded at first"
 
 (use-package rainbow-delimiters
   :hook (prog-mode . rainbow-delimiters-mode))
-  
+
 
 (use-package anzu
   :custom
@@ -668,7 +704,7 @@ If theme is'n loaded then it will be loaded at first"
   )
 
 (use-package cov)
-  
+
 
 ;;================================================================================
 ;; Spell checking
@@ -794,7 +830,7 @@ This function is based on work of David Wilson.
                   (org-level-6 . 1.1)
                   (org-level-7 . 1.1)
                   (org-level-8 . 1.1)))
-    (set-face-attribute (car face) nil :font "Cantarell" :weight 'regular :height (cdr face)))
+    (set-face-attribute (car face) nil :font "cantarell" :weight 'regular :height (cdr face)))
   
 
   ;; Ensure that anything that should be fixed-pitch in Org files appears that way
@@ -819,13 +855,21 @@ This function is based on work of David Wilson.
   (org-log-done 'time)
   (org-log-into-drawer t)
   (org-todo-keywords
-	'((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d!)")
-	  (sequence "BACKLOG(b)" "PLAN(p)" "READY(r)" "ACTIVE(a)" "REVIEW(v)" "WAIT(w@/!)" "HOLD(h)" "|" "COMPLETED(c)" "CANC(k@)")))
+   '((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d!)")
+     (sequence "BACKLOG(b)" "PLAN(p)" "READY(r)" "ACTIVE(a)" "REVIEW(v)" "WAIT(w@/!)" "HOLD(h)" "|" "COMPLETED(c)" "CANC(k@)")))
   :config
   (defun kb/org-mode-setup ()
     (org-indent-mode)
     ;;(variable-pitch-mode 1)
     (visual-line-mode 1)
+    (org-babel-do-load-languages
+     'org-babel-load-languages
+     '((emacs-lisp . t)
+       (python . t)
+       (eshell . t)
+       (screen . t)
+       (shell . t)
+       ))
     )
 
   (kb/org-font-setup)
@@ -837,6 +881,17 @@ This function is based on work of David Wilson.
   :hook (org-mode . org-bullets-mode)
   :custom
   (org-bullets-bullet-list '("◉" "○" "●" "○" "●" "○" "●")))
+
+(use-package htmlize)
+
+(use-package org-journal
+  :custom (org-journal-dir "~/projects/journal/")
+  )
+(use-package deft
+  :custom
+  (deft-directory org-journal-dir)
+  (deft-recursive t)
+  )
 
 (use-package markdown-mode :ensure t
   :config
@@ -1453,9 +1508,12 @@ This function is based on work of David Wilson.
   :bind ("C-x 1" . zygospore-toggle-delete-other-windows))
 
 ;; Use silversearcher-ag if available.
-(when (executable-find "ag")
-  (use-package ag)
-  (use-package wgrep-ag)
+(if (executable-find "ag")
+    (progn
+      (use-package ag)
+      (use-package wgrep-ag)
+      )
+  (warn "silversearcher-ag not found")
   )
 
 ;; :delight '(:eval (concat " " (projectile-project-name)))
@@ -1491,6 +1549,12 @@ This function is based on work of David Wilson.
 ;;   (py-switch-buffers-on-execute-p t)
 ;;   (py-split-windows-on-execute-p nil)
 ;;   (py-smart-indentation t)
+
+(use-package lsp-python-ms
+  :hook (python-mode . (lambda ()
+			 (require 'lsp-python-ms)
+			 (lsp)))
+  :init (setq lsp-python-ms-auto-install-server t))
 
 (use-package magit
   :commands magit-status
@@ -1644,6 +1708,13 @@ This function is based on work of David Wilson.
   :custom
   (plantuml-jar-path (expand-file-name "~/.java/libs/plantuml.1.2021.8.jar"))
   (plantuml-default-exec-mode 'jar)
+  (plantuml-indent-level 4)
+  :hook (plantuml-mode . (lambda ()
+			   (set-fill-column 100)
+			   (display-fill-column-indicator-mode)
+			   ))
+  :bind (:map plantuml-mode-map
+	      ("C-c C-p" . plantuml-preview-buffer))
   :config
   (plantuml-set-output-type "svg")
   )
