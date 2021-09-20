@@ -1475,8 +1475,23 @@ This function is based on work of David Wilson.
   (defun ivy-posframe-display-at-frame-top-right (str)
     (ivy-posframe--display str #'posframe-poshandler-frame-top-right-corner))
 
-  (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-frame-top-right)
-					       (t . ivy-posframe-display-at-frame-top-center)))
+  ;; (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-frame-top-right)
+  ;; 					       (t . ivy-posframe-display-at-frame-top-center)))
+  (setq ivy-posframe-height-alist '((swiper . 20)
+                                    (t      . 40)))
+  (setq ivy-posframe-display-functions-alist
+	'((swiper			.	ivy-display-function-fallback)
+          (complete-symbol		.	ivy-posframe-display-at-point)
+          (counsel-M-x			.	ivy-posframe-display-at-window-bottom-left)
+	  (ivy-switch-buffer		.	ivy-posframe-display-at-window-center)
+	  (counsel-find-file		.	ivy-posframe-display-at-window-bottom-left)
+	  (counsel-describe-variable	.	ivy-posframe-display-at-frame-top-right)
+	  (t				.	ivy-posframe-display-at-frame-top-right)
+          ;; (t               . ivy-posframe-display)
+	  ))
+  (setq ivy-posframe-parameters
+	'((left-fringe . 8)
+          (right-fringe . 8)))
   ;; (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-frame-center)))
   ;; (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-window-center)))
   ;; (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-frame-bottom-left)))
@@ -1536,19 +1551,17 @@ This function is based on work of David Wilson.
 
 (use-package treemacs-projectile)
 
-
-;; (use-package python
-;;   :mode ("\\.py\\'" . python-mode)
-;;   :interpreter ("python" . python-mode)
-;;   :custom
-;;   (py-shell-name "ipython")
-;;   (py-which-bufname "IPython")
-;;   (py-python-command-args '("--gui=wx" "--pylab=wx" "-colors" "Linux"))
-;;   (py-force-py-shell-name-p t)
-;;   (py-shell-switch-buffers-on-execute-p t)
-;;   (py-switch-buffers-on-execute-p t)
-;;   (py-split-windows-on-execute-p nil)
-;;   (py-smart-indentation t)
+(use-package python
+  :mode ("\\.py\\'" . python-mode)
+  :interpreter ("python3" . python-mode)
+  :custom
+  (python-shell-interpreter (executable-find "python3"))
+  (py-python-command-args '("--gui=wx" "--pylab=wx" "-colors" "Linux"))
+  (py-force-py-shell-name-p t)
+  (py-shell-switch-buffers-on-execute-p t)
+  (py-switch-buffers-on-execute-p t)
+  (py-split-windows-on-execute-p nil)
+  (py-smart-indentation t))
 
 (use-package lsp-python-ms
   :hook (python-mode . (lambda ()
