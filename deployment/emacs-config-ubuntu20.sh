@@ -11,6 +11,7 @@
 		   --with-x-toolkit=lucid \
 		   --without-pop --with-mailutils \
 		   --without-toolkit-scroll-bars \
+		   --with-native-compilation \
 		   --with-cairo
 
  #--with-imagemagick

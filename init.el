@@ -4,21 +4,40 @@
 
 ;;; Code:
 ;; don't let Customize mess with my .emacs
-(setq custom-file "~/.emacs.d/custom.el")
-(load custom-file 'noerror)
+(defconst kb/emacs-directory (concat (getenv "HOME") "/.emacs.d/"))
+(defun kb/emacs-subdirectory (d) (expand-file-name d kb/emacs-directory))
+
+(setq custom-file (expand-file-name "custom.el" kb/emacs-directory))
+(when (file-exists-p custom-file)
+  (load custom-file 'noerror))
 
 ;;
 (setq user-full-name "Karol Barski")
 (setq user-mail-address "karol.barski@tietoevry.com")
 
+
+(defconst kb/environment-script (expand-file-name "environment.el" (kb/emacs-subdirectory "rc")))
+(when (file-exists-p kb/environment-script)
+  (load-file "~/.emacs.d/rc/environment.el"))
+
+(add-to-list 'load-path (kb/emacs-subdirectory "rc"))
+
+(when (file-exists-p (expand-file-name "rc-functions.el" (kb/emacs-subdirectory "rc")))
+  (load "~/.emacs.d/rc/rc-functions.el"))
+
 (setq gc-cons-threshold (* 50 1000 1000))
+(setq large-file-warning-threshold 100000000)
 (setq read-process-output-max (* 4 1024 1024))
 
 (setq mode-require-final-newline t      ; add a newline to end of file
       tab-width 4                       ; default to 4 visible spaces to display a tab
       )
+(setq tab-always-indent 'complete)
 
-(load "~/.emacs.d/rc/environment.el")
+(prefer-coding-system 'utf-8)
+(set-default-coding-systems 'utf-8)
+(set-terminal-coding-system 'utf-8)
+(set-keyboard-coding-system 'utf-8)
 
 ;; blink screen on bell
 (setq visible-bell t)
@@ -34,6 +53,9 @@
 ;; do not consider case significant in completion (GNU Emacs default)
 (setq completion-ignore-case t)
 (setq load-prefer-newer t)
+
+(setq mouse-highlight 10)
+(setq make-pointer-invisible t)
 
 
 ;;--------------------------------------------------------------------------------
@@ -52,13 +74,21 @@
 			    (background-mode . dark))
   )
 
+(when (fboundp 'horizontal-scroll-bar-mode)
+  (horizontal-scroll-bar-mode -1))
+
+
 (setq initial-frame-alist kb/frame-config)
 (setq default-frame-alist kb/frame-config)
 
 ;; turn off blinking cursor
-(setq blink-cursor-blinks 3)
-(setq blink-cursor-delay 1)
-(blink-cursor-mode)
+;; (setq blink-cursor-blinks 3)
+;; (setq blink-cursor-delay 1)
+(blink-cursor-mode -1)
+(scroll-bar-mode -1)
+(menu-bar-mode -1)
+(tool-bar-mode -1)
+
 
 
 ;;--------------------------------------------------------------------------------
@@ -66,7 +96,7 @@
 ;;--------------------------------------------------------------------------------
 ;; fancy streching cursor
 (setq x-stretch-cursor nil)
-;; (global-hl-line-mode nil)
+;; (global-hl-line-mode -1)
 
 ;; use inactive face for mode-line in non-selected windows
 (setq mode-line-in-non-selected-windows t)
@@ -75,7 +105,12 @@
 ;; the state of the buffer: * if modified, % if read only, or -
 ;; otherwise. Two of them to emulate the mode line. %f for the file
 ;; name. Incredibly useful!
-(setq frame-title-format "Emacs: %b %+%+ %f ")
+(setq frame-title-format '((:eval (if (buffer-file-name)
+				      (concat (abbreviate-file-name (buffer-file-name)) " %+%+ ")
+				    "%b %+%+ %f"))))
+(setq scroll-margin 0
+      scroll-conservatively 100000
+      scroll-preserve-screen-position 1)
 
 
 ;;--------------------------------------------------------------------------------
@@ -96,6 +131,7 @@
 	(package-initialize)))
   "Emacs >= 24 has elpa integrated")
 
+(require 'cl-lib)
 (package-initialize)
 ;; (setq package-check-signature nil)
 ;; (require 'package)
@@ -133,12 +169,11 @@ There are two things you can do about this warning:
 
 (defun kb/ensure-package-installed (&rest packages)
   "Assure every package is installed.
-Return a list of installed packages or nil ofr every skipped package.
+Return a list of installed packages or nil of every skipped package.
 
 PACKAGES: list of packages to install."
   (mapcar
    (lambda (package)
-     ;;(package-installed-p 'evil)
      (if (package-installed-p package)
 	 package
        (package-install package)))
@@ -159,6 +194,12 @@ PACKAGES: list of packages to install."
 (setq use-package-verbose t)
 (setq use-package-check-before-init t)
 (setq use-package-always-ensure t)
+
+(use-package auto-compile
+  :config (auto-compile-on-load-mode))
+
+(setq load-prefer-newer t)
+
 
 ;;--------------------------------------------------------------------------------
 ;; My emacs config
@@ -186,18 +227,22 @@ PACKAGES: list of packages to install."
 ;;--------------------------------------------------------------------------------
 (setq global-mark-ring-max 5000)         ; increase mark ring to contains 5000 entries
 (setq mark-ring-max 5000)                ; increase kill ring to contains 5000 entries
-(column-number-mode)
-(setq line-number-mode t)
-(setq size-indication-mode t)
+(column-number-mode +1)
+(line-number-mode +1)
+(size-indication-mode t)
 (setq kill-ring-max 5000) ; increase kill-ring capacity
 (setq kill-whole-line t)
 (setq transient-mark-mode nil)
 ;; remap C-H to backspace
 ;; (normal-erase-is-backspace-mode t)
 ;; remap C-H to backspace
-(add-hook 'terminal-init-xterm-hook '(lambda () (normal-erase-is-backspace-mode t)))
+(add-hook 'terminal-init-xterm-hook (lambda () (normal-erase-is-backspace-mode t)))
 (put 'set-goal-column 'disabled nil)
 (define-key global-map (kbd "C-;") 'kill-whole-line)
+(define-key global-map (kbd "M-o") 'other-window)
+
+;; Use M-/ for `company` completion
+(define-key input-decode-map "\e[1;2A" [S-up])
 
 ;; VC
 (setq vc-follow-symlinks t)
@@ -216,9 +261,6 @@ PACKAGES: list of packages to install."
 
 ;; smerge-mode
 (setq-default smerge-command-prefix (kbd "C-c v"))
-
-(add-to-list 'load-path "~/.emacs.d/rc")
-(load "~/.emacs.d/rc/rc-functions.el")
 
 (defun kb/set-buffer-eol-unix ()
   "Set current buffer EOL type to unix."
@@ -268,11 +310,22 @@ should be imported.
 (define-key global-map (kbd "C-x r l") 'rectangle-number-lines)
 
 ;; whitespace setup
-(add-hook 'whitespace-load-hook
-	  '(lambda ()
-	     (setq whitespace-style '(face trailing lines-tail newline empty indentation big-indent space-before-tab))
-	     (setq whitespace-line-column '100)
-	     (define-key global-map (kbd "C-c w") 'whitespace-mode)))
+(with-eval-after-load 'whitespace
+  ;; (setq whitespace-style '(face trailing lines-tail newline empty indentation big-indent space-before-tab))
+  (setq whitespace-style '(newline-mark newline))
+  (setq whitespace-line-column nil)
+  (setq whitespace-display-mappings '((space-mark 32 [183] [46])
+				      (newline-mark 10 [9166 10])
+				      (tab-mark 9 [9654 9] [92 9])))
+  
+  
+  
+  (define-key global-map (kbd "C-c w") 'whitespace-mode)
+  (set-face-attribute 'whitespace-space nil :foreground "#666666" :background nil)
+  (set-face-attribute 'whitespace-newline nil :foreground "#666666" :background nil)
+  (set-face-attribute 'whitespace-indentation nil :foreground "#666666" :background nil))
+
+(global-whitespace-mode)
 
 ;; keep minibuffer history between session
 ;;(savehist-mode t)
@@ -287,13 +340,26 @@ should be imported.
 ;;--------------------------------------------------------------------------------
 ;; Set Theme depending if emacs frame is inside TTY o GUI
 ;;--------------------------------------------------------------------------------
+(use-package doom-themes
+  ;; :config
+  ;; (load-theme 'doom-one t)
+  ;; (doom-themes-visual-bell-config)
+  )
+
 (defvar kb/terminal-theme 'wombat)
-(defvar kb/window-theme 'misterioso)
+;; (defvar kb/window-theme 'doom-one)
+(defvar kb/window-theme 'doom-snazzy)
+;; (defvar kb/window-theme 'misterioso)
 (defvar kb/theme-window-loaded nil)
 (defvar kb/theme-window-font (if (eq system-type 'windows-nt)
 				 "Unifont"
 					;(set-frame-parameter nil 'font "Arial Unicode MS")
-			       "DejaVu Sans Mono"))
+			       ;; "DejaVu Sans Mono"
+			       "Hack"
+			       ))
+;; (set-frame-font "Hack" nil t)
+
+
 (defvar kb/theme-terminal-loaded nil)
 (defvar kb/theme-original-font nil)
 
@@ -369,8 +435,9 @@ If theme is'n loaded then it will be loaded at first"
 (defun kb/c-mode-hook ()
   "My style used while editing C sources."
   (c-add-style "kb/c-style" kb/c-style t)
-  (auto-fill-mode))
+  (turn-on-auto-fill))
 (add-hook 'c-mode-hook 'kb/c-mode-hook)
+
 
 (defconst kb/c++-style
   '(
@@ -436,11 +503,21 @@ If theme is'n loaded then it will be loaded at first"
 		   file)))))
 ;; (add-hook 'c++-mode 'kb/cc-compile-command-hook)
 
-(font-lock-add-keywords 'c-mode '("\\<\\(and\\|or\\|not\\)\\>"))
-(font-lock-add-keywords 'c-mode
-			'(("\\<\\(\\(TODO\\|XXX\\)\\(?:(.*)\\)?:?\\)\\>"  1 'warning prepend)
-			  ("\\<\\(FIXME\\(?:(.*)\\)?:?\\)\\>" 1 'error prepend)
-			  ("\\<\\(NOCOMMIT\\(?:(.*)\\)?:?\\)\\>"  1 'error prepend)))
+;; (font-lock-add-keywords 'c-mode '("\\<\\(and\\|or\\|not\\)\\>"))
+
+(use-package hl-todo
+  :bind
+  (:map hl-todo-mode-map
+	("C-c t p" . #'hl-todo-previous)
+	("C-c t n" . #'hl-todo-next)
+	("C-c t o" . #'hl-todo-occur)
+	("C-c t i" . #'hl-todo-insert))
+  :custom
+  (add-to-list 'hl-todo-keyword-faces '("NOCOMMIT" . "#ff00ff"))
+  :config
+  (global-hl-todo-mode)
+  )
+
 ;;--------------------------------------------------------------------------------
 ;; GDB
 ;;--------------------------------------------------------------------------------
@@ -448,7 +525,7 @@ If theme is'n loaded then it will be loaded at first"
 (setq gdb-show-main t) ;; Non-nil means display source file containing the main routine at startup
 
 ;; display-line-numbers
-(setq-default display-line-numbers-type 'visual)
+;; (setq-default display-line-numbers-type 'relative)
 (setq-default display-line-numbers-width-start t)
 ;; Display line number for programming modes
 (dolist (mode '(emacs-lisp-mode-hook
@@ -458,7 +535,9 @@ If theme is'n loaded then it will be loaded at first"
 		))
   (add-hook mode (lambda () (display-line-numbers-mode))))
 
-(defun kb/whitespace-setup ()
+(global-prettify-symbols-mode t)
+
+(defun kb/whitespace-diff-setup ()
   "Enable whitespace mode for diff files."
   (setq-local whitespace-style
 	      '(face
@@ -472,7 +551,22 @@ If theme is'n loaded then it will be loaded at first"
 		newline
 		newline-mark))
   (whitespace-mode 1))
-(add-hook 'diff-mode-hook 'kb/whitespace-setup)
+(add-hook 'diff-mode-hook 'kb/whitespace-diff-setup)
+
+(defun kb/whitespace-progmode-setup ()
+  "Enable whitespace mode for programming modes."
+  (setq-local whitespace-style
+	      '(face
+		trailing
+		lines-tail
+		newline
+		empty
+		indentation
+		big-indent
+		space-before-tab
+		))
+  )
+(add-hook 'c-mode-common-hook 'kb/whitespace-progmode-setup)
 
 (defun kb/checkpatch-enable ()
   "Add checkpatch for diff files if project provides checkpatch.pl script."
@@ -483,6 +577,12 @@ If theme is'n loaded then it will be loaded at first"
 			  (buffer-file-name))))
     (print "checkpatch not found")))
 (add-hook 'diff-mode-hook 'kb/checkpatch-enable)
+
+;; Highlight uncommitted changes
+(use-package diff-hl
+  :hook
+  (prog-mode . turn-on-diff-hl-mode)
+  (vc-dir-mode . turn-on-diff-hl-mode))
 
 ;; vc-hooks
 (setq vc-handled-backends '(git svn))
@@ -503,17 +603,16 @@ If theme is'n loaded then it will be loaded at first"
 ;; Speedbar setup
 ;;--------------------------------------------------------------------------------
 (define-key global-map (kbd "<f4>") 'speedbar-get-focus)
-(eval-after-load 'speedbar
+(with-eval-after-load 'speedbar
   ;; number of spaces used for indentation
-  '(progn
-     (setq speedbar-indentation-width 1)
-     ;; expand/collapse latex sections
-     ;; (speedbar-add-supported-extension '(".tex" ".bib" ".w"))
-     ;; jump to speedbar frame
-     ;; bind the arrow keys in the speedbar tree
-     (define-key speedbar-mode-map (kbd "<right>") 'speedbar-expand-line)
-     (define-key speedbar-mode-map (kbd "<left>") 'speedbar-contract-line)
-     ))
+  (setq speedbar-indentation-width 1)
+  ;; expand/collapse latex sections
+  ;; (speedbar-add-supported-extension '(".tex" ".bib" ".w"))
+  ;; jump to speedbar frame
+  ;; bind the arrow keys in the speedbar tree
+  (define-key speedbar-mode-map (kbd "<right>") 'speedbar-expand-line)
+  (define-key speedbar-mode-map (kbd "<left>") 'speedbar-contract-line)
+  )
 
 ;; speedup tramp
 (use-package tramp
@@ -613,7 +712,6 @@ If theme is'n loaded then it will be loaded at first"
 (use-package rainbow-delimiters
   :hook (prog-mode . rainbow-delimiters-mode))
 
-
 (use-package anzu
   :custom
   (anzu-mode-ligther "")
@@ -626,8 +724,13 @@ If theme is'n loaded then it will be loaded at first"
   (set-face-attribute 'anzu-mode-line nil
 		      :foreground "yellow" :weight 'bold)
   :bind
-  (:map isearch-mode-map (([remap isearch-query-replace] . anzu-query-replace)
-			  ([remap isearch-query-replace-regexp] . anzu-query-replace-regexp))))
+  (:map isearch-mode-map
+	([remap isearch-query-replace] . #'anzu-query-replace)
+	([remap isearch-query-replace-regexp] . #'anzu-query-replace-regexp))
+  (:map global-map
+	([remap query-replace] . #'anzu-query-replace)
+	([remap query-replace-regexp] . #'anzu-query-replace-regexp))
+  )
 
 (use-package winum
   :custom
@@ -677,24 +780,22 @@ If theme is'n loaded then it will be loaded at first"
   )
 (use-package flycheck-clang-analyzer
   :config
-  (eval-after-load 'flycheck #'flycheck-clang-analyzer-setup))
+  (with-eval-after-load 'flycheck
+    'flycheck-clang-analyzer-setup))
 (use-package flycheck-clang-tidy
   :config
-  (eval-after-load 'flycheck #'flycheck-clang-tidy-setup))
+  (with-eval-after-load 'flycheck
+    'flycheck-clang-tidy-setup))
 (use-package flycheck-google-cpplint
   :config
-  (eval-after-load 'flycheck
+  (with-eval-after-load 'flycheck
     '(flycheck-add-next-checker 'c/c++-cppcheck
 				'c/c++-googlelint 'append)))
 (use-package flycheck-projectile)
 (use-package avy-flycheck
   :hook (flycheck-mode . avy-flycheck-setup))
 
-(use-package posframe
-  :config
-  (with-eval-after-load 'posframe
-    (setq posframe-mouse-banish '(100 . 100))
-    ))
+(use-package posframe)
 (use-package flycheck-posframe
   :disabled
   :config
@@ -846,14 +947,20 @@ This function is based on work of David Wilson.
   (set-face-attribute 'line-number nil :inherit 'fixed-pitch)
   (set-face-attribute 'line-number-current-line nil :inherit 'fixed-pitch))
 
+(use-package gnuplot)
+
 (use-package org
   :pin org
   :commands (org-capture org-agenda)
   :custom
   (org-ellipsis " ▾")
+  (org-hide-leading-stars t)
   (org-agenda-start-with-log-mode t)
   (org-log-done 'time)
   (org-log-into-drawer t)
+  (org-src-fontify-natively t)
+  (org-export-with-smart-quotes t)
+  (org-html-postamble nil)
   (org-todo-keywords
    '((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d!)")
      (sequence "BACKLOG(b)" "PLAN(p)" "READY(r)" "ACTIVE(a)" "REVIEW(v)" "WAIT(w@/!)" "HOLD(h)" "|" "COMPLETED(c)" "CANC(k@)")))
@@ -869,9 +976,10 @@ This function is based on work of David Wilson.
        (eshell . t)
        (screen . t)
        (shell . t)
+       (dot . t)
+       (gnuplot . t)
        ))
     )
-
   (kb/org-font-setup)
 
   :hook (org-mode . kb/org-mode-setup)
@@ -882,7 +990,14 @@ This function is based on work of David Wilson.
   :custom
   (org-bullets-bullet-list '("◉" "○" "●" "○" "●" "○" "●")))
 
+
 (use-package htmlize)
+
+(use-package ox-reveal
+  :custom
+  (org-reveal-root "https://cdn.jsdelivr.net/npm/reveal.js")
+  (org-reveal-mathjax t)
+  )
 
 (use-package org-journal
   :custom (org-journal-dir "~/projects/journal/")
@@ -963,8 +1078,9 @@ This function is based on work of David Wilson.
   (delete 'company-gtags company-backends)
   (if (fboundp 'yas-expand)
       (add-hook 'c-mode-common (lambda ()
-				 (message "Yo this is yasnippet backend")
-				 (add-to-list (make-local-variable 'company-backends) 'company-yasnippet))))
+                                 (message "Yo this is yasnippet backend")
+                                 (add-to-list (make-local-variable 'company-backends) 'company-yasnippet))))
+
   :bind
   ;; ((:map c-mode-map ("TAB" . company-complete))
   ;;  (:map c++-mode-map ("TAB" . company-complete)))
@@ -981,15 +1097,15 @@ This function is based on work of David Wilson.
   ;; :hook (company-mode . company-posframe-mode-hook)
   :config
   ;; (require 'company-posframe)
-  (eval-after-load 'company #'(company-posframe-mode 1))
+  (with-eval-after-load 'company (company-posframe-mode 1))
   )
 (use-package company-quickhelp
   :disabled
   :config
-  (eval-after-load 'company #'(progn
-				(company-quickhelp-mode)
-				(define-key company-active-map (kbd "C-c h") #'company-quickhelp-manual-begin))
-		   ))
+  (with-eval-after-load 'company 
+    (company-quickhelp-mode)
+    (define-key company-active-map (kbd "C-c h") #'company-quickhelp-manual-begin))
+  )
 ;; Disabled for now as I'm using company-posframe instead
 (use-package company-box
   :disabled
@@ -1123,14 +1239,15 @@ This function is based on work of David Wilson.
    (c-mode . lsp-deferred))
   ;; :bind (:map lsp-mode-map ("M-." . lsp-find-declaration))
   :config
-  (eval-after-load 'lsp-mode
+  (with-eval-after-load 'lsp-mode
     '(define-key lsp-mode-map (kbd "<tab>") 'company-indent-or-complete-common))
   (if (package-installed-p 'which-key)
       (lsp-enable-which-key-integration t))
-  ;; (if (package-installed-p 'yasnippet)
-  ;;     (setq lsp-enable-snippet t)
-  ;;   (setq lsp-enable-snippet nil)
-  ;;   )
+  
+  (setq lsp-enable-snippet nil)
+  (with-eval-after-load 'yasnippet
+    (setq lsp-enable-snippet t))
+  
   (defun kb/lsp-breadcrumb-face-setup ()
     "Fix headerlime colors for breadcrumbs"
     (set-face-attribute 'lsp-headerline-breadcrumb-symbols-face nil :foreground "yellow" :background nil   :width 'ultra-condensed)
@@ -1148,6 +1265,7 @@ This function is based on work of David Wilson.
   :bind (:map lsp-ui-mode-map
 	      ([remap xref-find-definitions] . #'lsp-ui-peek-find-definitions)
 	      ([remap xref-find-references] . #'lsp-ui-peek-find-references))
+  :commands lsp-ui-mode
   :custom
   (lsp-ui-sideline-enable t)
   (lsp-ui-doc-position 'bottom)
@@ -1155,7 +1273,12 @@ This function is based on work of David Wilson.
   (lsp-ui-doc-include-signature t)
   (lsp-ui-doc-delay 1)
   :config
-  (lsp-ui-peek-enable t)
+  (setq lsp-ui-doc-enable nil
+	lsp-ui-peek-enable t
+	lsp-ui-sideline-enable t
+	lsp-ui-imenu-enable t
+	;; lsp-ui-flycheck-enable t
+	)
   )
 (use-package lsp-ivy
   :ensure t
@@ -1179,6 +1302,9 @@ This function is based on work of David Wilson.
 (use-package lsp-treemacs
   :commands lsp-treemacs-errors-list)
 (use-package dap-mode)
+
+(use-package ztree
+  :pin elpa)
 
 (use-package which-key
   :defer 0
@@ -1213,7 +1339,7 @@ This function is based on work of David Wilson.
     '("BSD"
       (c-basic-offset . 2))
     "Style used for YANG source editing.")
-  
+
   (defun kb/yang-mode-hook ()
     "My style used while editing YANG sources."
     (c-add-style "kb/yang-style" kb/yang-style t)
@@ -1249,25 +1375,28 @@ This function is based on work of David Wilson.
 
   (defconst sort-of-yang-identifier-regexp "[-a-zA-Z0-9_\\.:]*")
 
-  (add-hook
-   'yang-mode-hook
-   '(lambda ()
-      (outline-minor-mode)
-      (setq outline-regexp
-	    (concat "^ *" sort-of-yang-identifier-regexp " *"
-		    sort-of-yang-identifier-regexp
-		    " *{"))))
+  :hook
+  (yang-mode . (lambda ()
+		 (outline-minor-mode)
+		 (setq outline-regexp
+		       (concat "^ *" sort-of-yang-identifier-regexp " *"
+			       sort-of-yang-identifier-regexp
+			       " *{"))))
   )
-(use-package flycheck-yang :ensure t
+(use-package flycheck-yang
   :hook (yang-mode . (lambda () flycheck-mode))
   )
 (use-package protobuf-mode :ensure t
   :config
   (defconst kb/protobuf-style
-    '((c-basic-offset . 4)
+    '("linux"
+      (c-basic-offset . 4)
       (indent-tabs-mode . nil)))
   :hook (protobuf-mode . (lambda () (c-add-style "kb/protobuf" kb/protobuf-style t)))
   )
+
+;; (use-package doom-modeline
+  ;; :init (doom-modeline-mode -1))
 
 (use-package spaceline
   ;; :config
@@ -1342,7 +1471,8 @@ This function is based on work of David Wilson.
     :hook (dired-mode . all-the-icons-dired-mode))
   (use-package all-the-icons-ibuffer
     :config
-    (eval-after-load 'ibuffer '(all-the-icons-ibuffer-mode 1)))
+    (with-eval-after-load 'ibuffer
+      '(all-the-icons-ibuffer-mode 1)))
   (use-package treemacs-all-the-icons)
   (use-package treemacs-icons-dired)
   (use-package all-the-icons-ivy
@@ -1357,7 +1487,24 @@ This function is based on work of David Wilson.
     (setq spaceline-all-the-icons-slim-render t)
     (spaceline-all-the-icons-theme)
     )
+  (use-package all-the-icons-completion
+    :config
+    (all-the-icons-completion-mode)
+    (add-hook 'marginalia-mode-hook #'all-the-icons-completion-marginalia-setup))
   )
+
+(use-package marginalia
+  ;; Either bind `marginalia-cycle` globally or only in the minibuffer
+  :bind (("M-A" . marginalia-cycle)
+	 :map minibuffer-local-map
+	 ("M-A" . marginalia-cycle))
+  ;; THe :init configuration is always executed (Not lazy!)
+  :init
+
+  ;; Must be in the :init section of use-package such that the mode
+  ;; gets enabled right away. Note that this forces loading the
+  ;; package
+  (marginalia-mode))
 
 (use-package hydra
   :config
@@ -1412,6 +1559,9 @@ This function is based on work of David Wilson.
 (use-package counsel-ag-popup)
 (use-package counsel-edit-mode
   :config (counsel-edit-mode-setup-ivy))
+(when (executable-find "jq")
+  (use-package counsel-jq)
+  )
 
 (use-package helpful
   :custom
@@ -1454,6 +1604,19 @@ This function is based on work of David Wilson.
      ("c" counsel-projectile-switch-project-action-compile "Compile project")
      ("r" counsel-projectile-switch-project-action-remove-known-project "Remove project(s)")))
 
+  (defun kb/ivy-switch-git ()
+    (interactive)
+    (ivy-read
+     "Switch GIT repository: "
+     (magit-list-repos)
+     :action #'magit-status))
+
+  (ivy-set-actions
+   'kb/ivy-switch-git
+   '(("d" dired "Open Dired in GIT directory")
+     ("f" magit-fetch "Fetch")
+     ("F" magit-find-file "Find file in git")))
+  
   (ivy-mode 1)
 
   :bind (("C-c C-r" . ivy-resume)
@@ -1461,6 +1624,7 @@ This function is based on work of David Wilson.
 	 ("C-c v" . ivy-push-view)
 	 ("C-c V" . ivy-pop-view)
 	 ("C-c m" . kb/ivy-switch-project)
+	 ("C-c n" . kb/ivy-switch-git)
 	 )
   :custom
   (ivy-use-virutal-buffers t)
@@ -1477,8 +1641,9 @@ This function is based on work of David Wilson.
 
   ;; (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-frame-top-right)
   ;; 					       (t . ivy-posframe-display-at-frame-top-center)))
-  (setq ivy-posframe-height-alist '((swiper . 20)
-                                    (t      . 40)))
+  (setq ivy-posframe-height-alist '((swiper-isearch	.	10)
+				    (swiper		.	10)
+                                    (t			.	40)))
   (setq ivy-posframe-display-functions-alist
 	'((swiper			.	ivy-display-function-fallback)
           (complete-symbol		.	ivy-posframe-display-at-point)
@@ -1505,6 +1670,19 @@ This function is based on work of David Wilson.
 
 (use-package ivy-avy)
 (use-package ivy-hydra)
+
+(use-package ivy-emoji
+  :config
+  (set-fontset-font t 'symbol
+                    (font-spec :family "Noto Color Emoji") nil 'prepend)
+  ;; (set-fontset-font t 'symbol
+  ;;                     (font-spec :family "Symbola") nil 'prepend)
+
+  ;; Download Noto Color Emoji
+  ;; https://noto-website-2.storage.googleapis.com/pkgs/NotoColorEmoji-unhinted.zip
+  ;; Unzip -> copy NotoColorEmoji.ttf to ~/.local/share/fonts/
+  ;; Run fc-cache -fv
+  )
 
 (use-package fuz
   :config
@@ -1533,6 +1711,7 @@ This function is based on work of David Wilson.
 
 ;; :delight '(:eval (concat " " (projectile-project-name)))
 (use-package projectile
+  :diminish projectile-mode
   :custom
   (projectile-indexing-method 'alien)
   (projectile-completion-system 'ivy)
@@ -1571,10 +1750,18 @@ This function is based on work of David Wilson.
 
 (use-package magit
   :commands magit-status
+  ;; :bind (:map global-map
+  ;; 	      ("C-c n". magit-list-repos))
   :custom
   (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1)
-  (magit-repository-directories '(("~/projects" . 2)))
+  (magit-repository-directories '(("~/projects" . 2)
+				  ("~/projects/mavenir-dev/files/subprojects" . 2)))
+  :config 
+  (setq git-commit-summary-max-length 50)
   )
+
+(use-package git-timemachine)
+
 (use-package transient-posframe
   :config
   (transient-posframe-mode))
@@ -1645,51 +1832,54 @@ This function is based on work of David Wilson.
     )
   )
 
+(use-package ox-jira)
+
 (if (executable-find "dot")
     (use-package graphviz-dot-mode
       :custom
       (when (executable-find "xdot")
-	(graphviz-dot-view-command "xdot %s")))
+	(graphviz-dot-view-command "xdot %s"))
+      :config
+      (add-to-list 'org-src-lang-modes '("dot" . graphviz-dot)))
   "dot command not found in system"
   )
 
-(if (package-installed-p 'yasnippet)
-    '(progn
-       (use-package yasnippet
-	 :after hydra
-	 :defines (yas-snippet-dirs yas-active-snippets)
-	 :pin melpa
-	 :config
-	 (add-to-list 'yas-snippet-dirs "~/.emacs.d/rc/snippets")
-	 (yas-global-mode 1)
-	 ;; Inter-field navigation
-	 (defun yas/goto-end-of-active-field ()
-	   (interactive)
-	   (let* ((snippet (car (yas-active-snippets)))
-		  (position (yas--field-end (yas--snippet-active-field snippet))))
-	     (if (= (point) position)
-		 (move-end-of-line 1)
-	       (goto-char position))))
+(when (package-installed-p 'yasnippet)
+  (use-package yasnippet
+    :after hydra
+    :defines (yas-snippet-dirs yas-active-snippets)
+    :pin melpa
+    :config
+    (add-to-list 'yas-snippet-dirs "~/.emacs.d/rc/snippets")
+    (yas-global-mode 1)
+    ;; Inter-field navigation
+    (defun yas/goto-end-of-active-field ()
+      (interactive)
+      (let* ((snippet (car (yas-active-snippets)))
+	     (position (yas--field-end (yas--snippet-active-field snippet))))
+	(if (= (point) position)
+	    (move-end-of-line 1)
+	  (goto-char position))))
 
-	 (defun yas/goto-start-of-active-field ()
-	   (interactive)
-	   (let* ((snippet (car (yas-active-snippets)))
-		  (position (yas--field-start (yas--snippet-active-field snippet))))
-	     (if (= (point) position)
-		 (move-beginning-of-line 1)
-	       (goto-char position))))
-	 :custom
-	 (yas-prompt-functions '(yas/ido-prompt yas/completing-prompt))
-	 (yas-verbosity 1)
-	 (yas-wrap-around-region t)
-	 :hook (term-mode . (lambda() (setq yas-dont-activate-functions t)))
-	 :bind ((:map yas-keymap
-		      ("<return>" . yas-exit-all-snippets)
-		      ("C-e" . yas/goto-end-of-active-field)
-		      ("C-a" . yas/goto-start-of-active-field))
-		(:map yas-minor-mode-map ("<f2>" . hydra-yas/body)))
-	 :hydra (hydra-yas (:color blue :hint nil)
-   "
+    (defun yas/goto-start-of-active-field ()
+      (interactive)
+      (let* ((snippet (car (yas-active-snippets)))
+	     (position (yas--field-start (yas--snippet-active-field snippet))))
+	(if (= (point) position)
+	    (move-beginning-of-line 1)
+	  (goto-char position))))
+    :custom
+    (yas-prompt-functions '(yas/ido-prompt yas/completing-prompt))
+    (yas-verbosity 1)
+    (yas-wrap-around-region t)
+    :hook (term-mode . (lambda() (setq yas-dont-activate-functions t)))
+    :bind ((:map yas-keymap
+		 ("<return>" . yas-exit-all-snippets)
+		 ("C-e" . yas/goto-end-of-active-field)
+		 ("C-a" . yas/goto-start-of-active-field))
+	   (:map yas-minor-mode-map ("<f2>" . hydra-yas/body)))
+    :hydra (hydra-yas (:color blue :hint nil)
+		      "
               ^YASnippets^
 --------------------------------------------
   Modes:    Load/Visit:    Actions:
@@ -1699,27 +1889,25 @@ This function is based on work of David Wilson.
  _e_xtra   _l_ist         _n_ew
          _a_ll
 "
-          ("d" yas-load-directory)
-          ("e" yas-activate-extra-mode)
-          ("i" yas-insert-snippet)
-          ("f" yas-visit-snippet-file :color blue)
-          ("n" yas-new-snippet)
-          ("t" yas-tryout-snippet)
-          ("l" yas-describe-tables)
-          ("g" yas/global-mode)
-          ("m" yas/minor-mode)
-          ("a" yas-reload-all))
-	 )
-       (use-package yasnippet-snippets)
-       (use-package yasnippet-classic-snippets)
-       (use-package ivy-yasnippet)
-       )
-  "yasnippet not installed"
+		      ("d" yas-load-directory)
+		      ("e" yas-activate-extra-mode)
+		      ("i" yas-insert-snippet)
+		      ("f" yas-visit-snippet-file :color blue)
+		      ("n" yas-new-snippet)
+		      ("t" yas-tryout-snippet)
+		      ("l" yas-describe-tables)
+		      ("g" yas/global-mode)
+		      ("m" yas/minor-mode)
+		      ("a" yas-reload-all))
+    )
+  (use-package yasnippet-snippets)
+  (use-package yasnippet-classic-snippets)
+  (use-package ivy-yasnippet)
   )
 
 (use-package plantuml-mode
   :custom
-  (plantuml-jar-path (expand-file-name "~/.java/libs/plantuml.1.2021.8.jar"))
+  (plantuml-jar-path (expand-file-name "~/.java/libs/plantuml-nodot.1.2021.12.jar"))
   (plantuml-default-exec-mode 'jar)
   (plantuml-indent-level 4)
   :hook (plantuml-mode . (lambda ()
@@ -1739,3 +1927,4 @@ This function is based on work of David Wilson.
 
 (message "Init finished")
 ;;; init.el ends here
+(put 'magit-clean 'disabled nil)
