@@ -748,11 +748,30 @@ config.status: executing etc-refcards-emacsver.tex commands
 
 * Fonts
 ** Hack
-#+begin_src sh :results silent :dir ~/.emacs.d/deployment/work :exports code
-  curl -Lo Hack-v3.003-ttf.zip https://github.com/source-foundry/Hack/releases/download/v3.003/Hack-v3.003-ttf.zip
-  unzip Hack-v3.003-ttf.zip -d ~/.local/share/fonts
+#+NAME: hack-font-install
+#+begin_src sh :results scalar verbatim :dir ~/.emacs.d/deployment :exports code
+  mkdir -p work
+  curl -Lo work/Hack-v3.003-ttf.zip https://github.com/source-foundry/Hack/releases/download/v3.003/Hack-v3.003-ttf.zip
+  unzip -j work/Hack-v3.003-ttf.zip -d ~/.local/share/fonts
   fc-cache -frv
 #+end_src
+
+#+RESULTS: hack-font-install
+#+begin_example
+Archive:  work/Hack-v3.003-ttf.zip
+/usr/share/fonts: caching, new cache contents: 0 fonts, 1 dirs
+/usr/share/fonts/truetype: caching, new cache contents: 0 fonts, 1 dirs
+/usr/share/fonts/truetype/dejavu: caching, new cache contents: 6 fonts, 0 dirs
+/usr/local/share/fonts: caching, new cache contents: 0 fonts, 0 dirs
+/home/barskkar/.local/share/fonts: caching, new cache contents: 37 fonts, 0 dirs
+/home/barskkar/.fonts: skipping, no such directory
+/usr/share/fonts/truetype: skipping, looped directory detected
+/usr/share/fonts/truetype/dejavu: skipping, looped directory detected
+/var/cache/fontconfig: not cleaning unwritable cache directory
+/home/barskkar/.cache/fontconfig: cleaning cache directory
+/home/barskkar/.fontconfig: not cleaning non-existent cache directory
+fc-cache: succeeded
+#+end_example
 
 ** Unifont
 
@@ -777,11 +796,30 @@ Yet another set of fonts used by my setup.
 
 *** Local home
 
-#+begin_src sh :results silent :dir ~/.emacs.d/deployment/tmp :exports code
-  curl -L -o cantarell.zip https://fonts.google.com/download?family=Cantarell
-  unzip ~/cantarell.zip -d ~/.local/share/fonts
+#+NAME: cantarell-font-install
+#+begin_src sh :results scalar verbatim :dir ~/.emacs.d/deployment :exports code
+  mkdir -p work
+  curl -L -o work/cantarell.zip https://fonts.google.com/download?family=Cantarell
+  unzip -j work/cantarell.zip -d ~/.local/share/fonts
   fc-cache -frv
 #+end_src
+
+#+RESULTS: cantarell-font-install
+#+begin_example
+Archive:  work/cantarell.zip
+/usr/share/fonts: caching, new cache contents: 0 fonts, 1 dirs
+/usr/share/fonts/truetype: caching, new cache contents: 0 fonts, 1 dirs
+/usr/share/fonts/truetype/dejavu: caching, new cache contents: 6 fonts, 0 dirs
+/usr/local/share/fonts: caching, new cache contents: 0 fonts, 0 dirs
+/home/barskkar/.local/share/fonts: caching, new cache contents: 37 fonts, 0 dirs
+/home/barskkar/.fonts: skipping, no such directory
+/usr/share/fonts/truetype: skipping, looped directory detected
+/usr/share/fonts/truetype/dejavu: skipping, looped directory detected
+/var/cache/fontconfig: not cleaning unwritable cache directory
+/home/barskkar/.cache/fontconfig: cleaning cache directory
+/home/barskkar/.fontconfig: not cleaning non-existent cache directory
+fc-cache: succeeded
+#+end_example
 
 *** Ubuntu
 #+BEGIN_SRC sh :exports code
@@ -799,15 +837,97 @@ Yet another set of fonts used by my setup.
 #+END_SRC
 
 *** Local home
-#+begin_src sh :results silent :dir ~/ :exports code
-  curl -L -o dejavu-fonts-ttf-2.37.tar.bz2 http://sourceforge.net/projects/dejavu/files/dejavu/2.37/dejavu-fonts-ttf-2.37.tar.bz2
-  tar -xjv -C ~/.local/share/fonts -f dejavu-fonts-ttf-2.37.tar.bz2 dejavu-fonts-ttf-2.37/ttf --strip-components=2
+#+name: dejavu-font-install
+#+begin_src sh :results scalar verbatim :dir ~/.emacs.d/deployment :exports code
+  mkdir -p work
+  curl -L -o work/dejavu-fonts-ttf-2.37.tar.bz2 http://sourceforge.net/projects/dejavu/files/dejavu/2.37/dejavu-fonts-ttf-2.37.tar.bz2
+  mkdir -p ~/.local/share/fonts
+  tar -xjv -C ~/.local/share/fonts -f work/dejavu-fonts-ttf-2.37.tar.bz2 dejavu-fonts-ttf-2.37/ttf --strip-components=2
 #+end_src
+
+#+RESULTS: dejavu-font-install
+#+begin_example
+dejavu-fonts-ttf-2.37/ttf/DejaVuSerifCondensed-BoldItalic.ttf
+dejavu-fonts-ttf-2.37/ttf/DejaVuSerif-Bold.ttf
+dejavu-fonts-ttf-2.37/ttf/DejaVuSerif-Italic.ttf
+dejavu-fonts-ttf-2.37/ttf/DejaVuSansMono-Oblique.ttf
+dejavu-fonts-ttf-2.37/ttf/DejaVuSansCondensed-Oblique.ttf
+dejavu-fonts-ttf-2.37/ttf/DejaVuSans-Bold.ttf
+dejavu-fonts-ttf-2.37/ttf/DejaVuMathTeXGyre.ttf
+dejavu-fonts-ttf-2.37/ttf/DejaVuSansMono-BoldOblique.ttf
+dejavu-fonts-ttf-2.37/ttf/DejaVuSerifCondensed-Bold.ttf
+dejavu-fonts-ttf-2.37/ttf/DejaVuSans-Oblique.ttf
+dejavu-fonts-ttf-2.37/ttf/DejaVuSansMono.ttf
+dejavu-fonts-ttf-2.37/ttf/DejaVuSerif-BoldItalic.ttf
+dejavu-fonts-ttf-2.37/ttf/DejaVuSans-ExtraLight.ttf
+dejavu-fonts-ttf-2.37/ttf/DejaVuSerif.ttf
+dejavu-fonts-ttf-2.37/ttf/DejaVuSansCondensed.ttf
+dejavu-fonts-ttf-2.37/ttf/DejaVuSansCondensed-Bold.ttf
+dejavu-fonts-ttf-2.37/ttf/DejaVuSerifCondensed.ttf
+dejavu-fonts-ttf-2.37/ttf/DejaVuSerifCondensed-Italic.ttf
+dejavu-fonts-ttf-2.37/ttf/DejaVuSansCondensed-BoldOblique.ttf
+dejavu-fonts-ttf-2.37/ttf/DejaVuSans.ttf
+dejavu-fonts-ttf-2.37/ttf/DejaVuSans-BoldOblique.ttf
+dejavu-fonts-ttf-2.37/ttf/DejaVuSansMono-Bold.ttf
+#+end_example
 
 ** Refresh cache and list installed fonts
 
-#+begin_src sh :results silent
+#+NAME: font cache list
+#+begin_src sh :results scalar verbatim :dir ~/ :exports code
     fc-cache -frv
     fc-list
 #+end_src
+
+#+RESULTS: font cache list
+#+begin_example
+/usr/share/fonts: caching, new cache contents: 0 fonts, 1 dirs
+/usr/share/fonts/truetype: caching, new cache contents: 0 fonts, 1 dirs
+/usr/share/fonts/truetype/dejavu: caching, new cache contents: 6 fonts, 0 dirs
+/usr/local/share/fonts: caching, new cache contents: 0 fonts, 0 dirs
+/home/barskkar/.local/share/fonts: caching, new cache contents: 30 fonts, 0 dirs
+/home/barskkar/.fonts: skipping, no such directory
+/usr/share/fonts/truetype: skipping, looped directory detected
+/usr/share/fonts/truetype/dejavu: skipping, looped directory detected
+/var/cache/fontconfig: not cleaning unwritable cache directory
+/home/barskkar/.cache/fontconfig: cleaning cache directory
+/home/barskkar/.fontconfig: not cleaning non-existent cache directory
+fc-cache: succeeded
+/home/barskkar/.local/share/fonts/DejaVuSansCondensed-Bold.ttf: DejaVu Sans,DejaVu Sans Condensed:style=Condensed Bold,Bold
+/usr/share/fonts/truetype/dejavu/DejaVuSerif-Bold.ttf: DejaVu Serif:style=Bold
+/home/barskkar/.local/share/fonts/Cantarell-Italic.ttf: Cantarell:style=Oblique
+/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf: DejaVu Sans Mono:style=Book
+/home/barskkar/.local/share/fonts/DejaVuSerifCondensed.ttf: DejaVu Serif,DejaVu Serif Condensed:style=Condensed,Book
+/home/barskkar/.local/share/fonts/DejaVuSans-Oblique.ttf: DejaVu Sans:style=Oblique
+/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf: DejaVu Sans:style=Book
+/home/barskkar/.local/share/fonts/Hack-BoldItalic.ttf: Hack:style=Bold Italic
+/home/barskkar/.local/share/fonts/DejaVuSerif-BoldItalic.ttf: DejaVu Serif:style=Bold Italic
+/home/barskkar/.local/share/fonts/DejaVuSans-ExtraLight.ttf: DejaVu Sans,DejaVu Sans Light:style=ExtraLight
+/home/barskkar/.local/share/fonts/DejaVuSerif-Italic.ttf: DejaVu Serif:style=Italic
+/home/barskkar/.local/share/fonts/DejaVuSerifCondensed-Bold.ttf: DejaVu Serif,DejaVu Serif Condensed:style=Condensed Bold,Bold
+/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf: DejaVu Sans:style=Bold
+/home/barskkar/.local/share/fonts/DejaVuSansCondensed.ttf: DejaVu Sans,DejaVu Sans Condensed:style=Condensed,Book
+/home/barskkar/.local/share/fonts/DejaVuMathTeXGyre.ttf: DejaVu Math TeX Gyre:style=Regular
+/home/barskkar/.local/share/fonts/DejaVuSerif.ttf: DejaVu Serif:style=Book
+/home/barskkar/.local/share/fonts/DejaVuSerif-Bold.ttf: DejaVu Serif:style=Bold
+/home/barskkar/.local/share/fonts/Hack-Italic.ttf: Hack:style=Italic
+/home/barskkar/.local/share/fonts/Cantarell-Regular.ttf: Cantarell:style=Regular
+/usr/share/fonts/truetype/dejavu/DejaVuSansMono-Bold.ttf: DejaVu Sans Mono:style=Bold
+/home/barskkar/.local/share/fonts/DejaVuSansMono.ttf: DejaVu Sans Mono:style=Book
+/home/barskkar/.local/share/fonts/Cantarell-BoldItalic.ttf: Cantarell:style=BoldOblique
+/home/barskkar/.local/share/fonts/DejaVuSansMono-BoldOblique.ttf: DejaVu Sans Mono:style=Bold Oblique
+/home/barskkar/.local/share/fonts/DejaVuSans-Bold.ttf: DejaVu Sans:style=Bold
+/home/barskkar/.local/share/fonts/Cantarell-Bold.ttf: Cantarell:style=Bold
+/home/barskkar/.local/share/fonts/DejaVuSansMono-Bold.ttf: DejaVu Sans Mono:style=Bold
+/home/barskkar/.local/share/fonts/DejaVuSans-BoldOblique.ttf: DejaVu Sans:style=Bold Oblique
+/home/barskkar/.local/share/fonts/Hack-Bold.ttf: Hack:style=Bold
+/home/barskkar/.local/share/fonts/DejaVuSerifCondensed-BoldItalic.ttf: DejaVu Serif,DejaVu Serif Condensed:style=Condensed Bold Italic,Bold Italic
+/home/barskkar/.local/share/fonts/DejaVuSansCondensed-BoldOblique.ttf: DejaVu Sans,DejaVu Sans Condensed:style=Condensed Bold Oblique,Bold Oblique
+/home/barskkar/.local/share/fonts/Hack-Regular.ttf: Hack:style=Regular
+/home/barskkar/.local/share/fonts/DejaVuSansMono-Oblique.ttf: DejaVu Sans Mono:style=Oblique
+/home/barskkar/.local/share/fonts/DejaVuSans.ttf: DejaVu Sans:style=Book
+/home/barskkar/.local/share/fonts/DejaVuSansCondensed-Oblique.ttf: DejaVu Sans,DejaVu Sans Condensed:style=Condensed Oblique,Oblique
+/home/barskkar/.local/share/fonts/DejaVuSerifCondensed-Italic.ttf: DejaVu Serif,DejaVu Serif Condensed:style=Condensed Italic,Italic
+/usr/share/fonts/truetype/dejavu/DejaVuSerif.ttf: DejaVu Serif:style=Book
+#+end_example
 
