@@ -360,8 +360,18 @@ should be imported.
 (use-package solaire-mode
   :config
   (solaire-global-mode))
-;; (use-package doom-modeline
-;;   :hook (after-init . doom-modeline-mode))
+
+(use-package doom-modeline
+  :hook (after-init . doom-modeline-mode)
+  :config
+  (setq doom-modeline-hud t)
+  (setq doom-modeline-buffer-file-name-style 'truncate-with-project)
+  ;; (setq doom-modeline-enable-word-count nil)
+  (setq doom-modeline-buffer-encoding 'nondefault)
+  (setq doom-modeline-default-coding-system 'utf-8)
+  (setq doom-modeline-default-eol-type 0)
+  (setq doom-modeline-vcs-max-length 24)
+  )
 
 (defvar kb/terminal-theme 'wombat)
 ;; (defvar kb/window-theme 'doom-one)
@@ -1402,73 +1412,6 @@ This function is based on work of David Wilson.
   :hook (protobuf-mode . (lambda () (c-add-style "kb/protobuf" kb/protobuf-style t)))
   )
 
-(use-package spaceline
-  ;; :config
-  ;; (defvar kb/line-selected-window (frame-selected-window))
-  ;; (defun kb/line-selected-window-active-p ()
-  ;;   (eq kb/line-selected-window (selected-window)))
-  ;; (defface kb/line-modified-face
-  ;;   `((t (:foreground "#8be9fd" :background nil)))
-  ;;   "Modeline modified-file face"
-  ;;   :group `kb)
-  ;; (defface kb/line-modified-face-inactive
-  ;;   `((t (:foreground "#6272a4" :background nil)))
-  ;;   "Modeline modified-file face for inactive windows"
-  ;;   :group `kb)
-  ;; (defface kb/line-read-only-face
-  ;;   `((t (:foreground "#ff5555")))
-  ;;   "Modeline readonly face."
-  ;;   :group `kb)
-  ;; (defface kb/line-read-only-face-inactive
-  ;;   `((t (:foreground "#aa4949")))
-  ;;   "Modeline readonly face for inactive windows."
-  ;;   :group `kb)
-  ;; (defface kb/line-buffer-name-face
-  ;;   `((t (:inherit 'font-lock-type-face)))
-  ;;   "Modeline buffer name face."
-  ;;   :group `kb)
-  ;; (setq-default mode-line-format
-  ;;		(list
-  ;;		 " "
-  ;;		 mode-line-misc-info ; for eyebrowse
-
-  ;;		 '(:eval (when-let (vc vc-mode)
-  ;;			   (list " "
-  ;;				 (propertize (substring vc 5)
-  ;;					     'face 'font-lock-comment-face)
-  ;;				 " ")))
-
-  ;;		 '(:eval (list
-  ;;			  ;; the buffer name; the file name as a tool tip
-  ;;			  (propertize " %b" 'face 'font-lock-type-face
-  ;;				      'help-echo (buffer-file-name))
-  ;;			  (when (buffer-modified-p)
-  ;;			    (propertize
-  ;;			     " "
-  ;;			     'face (if (kb/line-selected-window-active-p)
-  ;;				       'kb/line-modified-face
-  ;;				     'kb/line-modified-face-inactive)))
-  ;;			  (when buffer-read-only
-  ;;			    (propertize
-  ;;			     ""
-  ;;			     'face (if (kb/line-selected-window-active-p)
-  ;;				       'kb/line-read-only-face
-  ;;				     'kb/line-read-only-face-inactive)))
-  ;;			  " "))
-
-  ;;		 ;; relative position in file
-  ;;		 (propertize "%p" 'face 'font-lock-constant-face)
-
-  ;;		 ;; spaces to align right
-  ;;		 '(:eval (propertize
-  ;;			  " " 'display
-  ;;			  `((space :align-to (- (+ right right-fringe right-margin)
-  ;;						,(+ 3 (string-width mode-name)))))))
-
-  ;;		 ;; the current major mode
-  ;;		 (propertize " %m " 'face 'font-lock-string-face)))
-  )
-
 (when (package-installed-p 'all-the-icons)
   (use-package all-the-icons
     :config
@@ -1487,13 +1430,6 @@ This function is based on work of David Wilson.
     (all-the-icons-ivy-setup))
   (use-package all-the-icons-ivy-rich
     :config (all-the-icons-ivy-rich-mode 1))
-  (use-package spaceline-all-the-icons
-    :config
-    (setq spaceline-all-the-icons-separator-type 'arrow)
-    (setq spaceline-all-the-icons-separators-invert-direction nil)
-    (setq spaceline-all-the-icons-slim-render t)
-    (spaceline-all-the-icons-theme)
-    )
   (use-package all-the-icons-completion
     :config
     (all-the-icons-completion-mode)
