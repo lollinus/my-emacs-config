@@ -13,6 +13,29 @@
 #+creator: Emacs 28.0.60 (Org mode 9.5)
 #+cite_export:*
 * Configuration
+** Clone
+
+1. prepare directories
+   #+begin_src sh :dir ~/
+     mkdir -p ~/projects/emacs-build
+   #+end_src
+
+   #+RESULTS:
+
+2. clone emacs
+   Clone emacs-28 repository
+   #+begin_src sh :dir ~/projects/ :results scalar verbatim :exports code
+     git clone -b emacs-28 git://git.sv.gnu.org/emacs.git emacs
+   #+end_src
+
+3. pull latest changes
+   #+begin_src sh :dir ~/projects/emacs :results scalar verbatim
+     git pull origin emacs-28
+   #+end_src
+
+   #+RESULTS:
+   : Already up to date.
+
 ** Ubuntu 18.04
 This are the installation steps for emacs-28 on ubuntu 18.04.
 *** libs
@@ -21,13 +44,6 @@ Install libgccjit in order to enable native lisp compilation feature.
 #+begin_src sh :dir /sudo:root@localhost:~/
   apt install gcc-10 libgccjit0 libgccjit-10-dev
 #+end_src
-
-#+begin_src sh :dir ~/projects/emacs-build :results scalar verbatim :var CC='clang'
-  echo $CC
-#+end_src
-
-#+RESULTS:
-: clang
 
 *** configure
 #+begin_src sh :dir ~/projects/emacs-build :results scalar verbatim :var CC='clang' :exports code
@@ -359,6 +375,14 @@ checking for vfork... yes
 checking for working fork... yes
 checking for working vfork... (cached) yes
 checking for snprintf... yes
+checking spawn.h usability... yes
+checking spawn.h presence... yes
+checking for spawn.h... yes
+checking for posix_spawn... yes
+checking for posix_spawn_file_actions_addchdir... no
+checking for posix_spawn_file_actions_addchdir_np... no
+checking for posix_spawnattr_setflags... yes
+checking whether POSIX_SPAWN_SETSID is declared... yes
 checking whether GLib is linked in... yes
 checking for nl_langinfo and CODESET... yes
 checking for nl_langinfo and _NL_PAPER_WIDTH... yes
@@ -655,25 +679,27 @@ config.status: creating admin/charsets/Makefile
 config.status: creating admin/unidata/Makefile
 config.status: creating admin/grammars/Makefile
 config.status: creating src/config.h
-config.status: src/config.h is unchanged
 config.status: executing src/epaths.h commands
 config.status: executing src/.gdbinit commands
 config.status: executing doc/emacs/emacsver.texi commands
 config.status: executing etc-refcards-emacsver.tex commands
 #+end_example
 
-Temporary excluded config options:
-: --with-native-compilation
-: --with-included-regex
+- Temporary excluded config options:
+  : --with-native-compilation
+  : --with-included-regex
 *** build
 
-#+begin_src sh :dir ~/projects/emacs-build :exports code
+#+NAME: build
+#+begin_src sh :dir ~/projects/emacs-build :results scalar verbatim :exports code
   make -j$(nproc --ignore=2)
 #+end_src
+
 *** create package
-#+begin_src sh :dir ~/projects/emacs-build :results scalar verbatim :exports code
-  rm -rf ~/emacs-install
-  make prefix=~/emacs-install install
+#+NAME: make package
+#+begin_src sh :dir ~/projects/emacs-build :var INSTALL=(expand-file-name "~/emacs-install") :results scalar verbatim :exports code
+  rm -rf $INSTALL
+  make prefix=$INSTALL install
 #+end_src
 
 #+NAME: emacs-rev
@@ -682,16 +708,17 @@ Temporary excluded config options:
 #+end_src
 
 #+RESULTS: emacs-rev
-: - 307d164c9c
+: - 044dd1e210
 
-#+NAME: emacs-package.txt
+#+NAME: emacs-package
 #+begin_src sh :dir ~/emacs-install :var REV=emacs-rev :results scalar file :file-ext txt :output-dir ~/ :exports code
   tar cJvf ~/emacs-28-${REV}.tar.xz .
 #+end_src
 
 #+RESULTS: emacs-package.txt
-[[file:../../emacs-28-307d164c9c-package.txt]]
+[[file:../../emacs-package.txt]]
 
+#+NAME: remove script
 #+begin_src sh :dir ~/ :var REV=emacs-rev :results scalar file :file emacs-remove.sh :output-dir ~/ :exports code
   echo "#!/bin/sh"
 
@@ -707,14 +734,17 @@ Temporary excluded config options:
 #+end_src
 
 #+RESULTS:
-[[file:../../emacs-28-307d164c9c.remove.sh]]
+[[file:../../emacs-remove.sh]]
 
 
 *** install
 
-#+begin_src sh :dir (concat "/sudo:root@localhost:" (expand-file-name "~/")) :var REV=emacs-rev :exports code
-  tar xJvf ~/emacs-28-$REV.tar.xz
+#+NAME: package installation
+#+begin_src sh :dir (concat "/sudo:root@localhost:" (expand-file-name "~/")) :var REV=emacs-rev :exports code :results
+  tar -xJv --no-same-owner -f emacs-28-$REV.tar.xz -C /usr/local
 #+end_src
+
+#+RESULTS:
 
 * Fonts
 ** Hack
@@ -724,7 +754,7 @@ Temporary excluded config options:
   fc-cache -frv
 #+end_src
 
-**  Unifont
+** Unifont
 
 Recommend to install fixed unicode font from [[http://unifoundry.com/unifont.html][unifoundry]] page.
 Link to latest version from date when this document was written

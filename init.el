@@ -341,24 +341,41 @@ should be imported.
 ;; Set Theme depending if emacs frame is inside TTY o GUI
 ;;--------------------------------------------------------------------------------
 (use-package doom-themes
-  ;; :config
+  :defines (doom-themes-treemacs-theme)
+  :config
+  (setq doom-themes-enable-bold t)
+  (setq doom-themes-enable-italic t)
   ;; (load-theme 'doom-one t)
   ;; (doom-themes-visual-bell-config)
+  ;; (when (fboundp doom-dark+-blue-modeline)
+  ;; (setq doom-dark+-blue-modeline t)
+  ;; (setq doom-dark+-padded-modeline nil)
+  ;; )
+  (doom-themes-visual-bell-config)
+  ;; (doom-themes-neotree-config)
+  (setq doom-themes-treemacs-theme "doom-atom")
+  (doom-themes-treemacs-config)
+  (doom-themes-org-config)
   )
+(use-package solaire-mode
+  :config
+  (solaire-global-mode))
+;; (use-package doom-modeline
+;;   :hook (after-init . doom-modeline-mode))
 
 (defvar kb/terminal-theme 'wombat)
 ;; (defvar kb/window-theme 'doom-one)
-(defvar kb/window-theme 'doom-snazzy)
+;; (defvar kb/window-theme 'doom-snazzy)
+(defvar kb/window-theme 'doom-monokai-machine)
+;; (defvar kb/window-theme 'doom-one)
 ;; (defvar kb/window-theme 'misterioso)
 (defvar kb/theme-window-loaded nil)
 (defvar kb/theme-window-font (if (eq system-type 'windows-nt)
 				 "Unifont"
 					;(set-frame-parameter nil 'font "Arial Unicode MS")
-			       ;; "DejaVu Sans Mono"
 			       "Hack"
 			       ))
 ;; (set-frame-font "Hack" nil t)
-
 
 (defvar kb/theme-terminal-loaded nil)
 (defvar kb/theme-original-font nil)
@@ -367,7 +384,7 @@ should be imported.
 (defun kb/set-window-font ()
   "Function set screen font.
 If Emacs is run in MS Windows then use Arial Unicode MS
-On U*x systems Use DejaVu Sans Mono"
+On U*x systems Use Hack"
   (setq kb/theme-original-font (frame-parameter nil 'font))
   (set-frame-parameter nil 'font kb/theme-window-font))
 
@@ -797,7 +814,6 @@ If theme is'n loaded then it will be loaded at first"
 
 (use-package posframe)
 (use-package flycheck-posframe
-  :disabled
   :config
   (with-eval-after-load 'flycheck
     (require 'flycheck-posframe)
@@ -898,9 +914,67 @@ If theme is'n loaded then it will be loaded at first"
     )
   )
 
-(use-package unicode-fonts
-  :config (unicode-fonts-setup)
-  )
+(use-package unicode-fonts)
+
+;; http://unifoundry.com/pub/unifont/unifont-14.0.01/font-builds/unifont-14.0.01.ttf
+(defvar kb/fonts '((:url "http://unifoundry.com/pub/unifont/unifont-14.0.01/font-builds/"
+			 :fonts "unifont-14.0.01.ttf"
+			 :method 'download)
+		   (:url "https://github.com/source-foundry/Hack/releases/download/v3.003/"
+			 :fonts "Hack-v3.003-ttf.tar.xz"
+			 :archive "Hack-v3.003-ttf.tar.xz"
+			 :method 'tarxz)
+		   (:url "https://github.com/google/fonts/raw/main/ofl/cantarell/"
+			 :fonts ("Cantarell-BoldOblique.ttf"
+				 "Cantarell-Bold.ttf"
+				 "Cantarell-Oblique.ttf"
+				 "Cantarell-Regular.ttf")
+			 :metod 'download)
+		   ) "List of font urls which should be installed.")
+
+;; (defun kb/install-fonts (&optional pfx)
+;;   "Helper function to download and install recommended fonts based on OS.
+;; When PFX is non-nil, ignore the prompt and just install.
+
+;; This function is based on all-the-icons-install-fonts"
+;;   (interactive "P")
+;;   (when (or pfx (yes-or-no-p "This will download and install fonts, are you sure you want to do this?"))
+;;     (let* ((font-dest (cond
+;;                        ;; Default Linux install directories
+;;                        ((member system-type '(gnu gnu/linux gnu/kfreebsd))
+;;                         (concat (or (getenv "XDG_DATA_HOME")
+;;                                     (concat (getenv "HOME") "/.local/share"))
+;;                                 "/fonts/"))
+;;                        ;; Default MacOS install directory
+;;                        ((eq system-type 'darwin)
+;;                         (concat (getenv "HOME") "/Library/Fonts/"))))
+;;            (known-dest? (stringp font-dest))
+;;            (font-dest (or font-dest (read-directory-name "Font installation directory: " "~/"))))
+
+;;       (unless (file-directory-p font-dest) (mkdir font-dest t))
+
+;;       (mapc (lambda (font-url)
+;; 	      (let* ((fonts-arg (plist-get kb/fonts :fonts))
+;; 		     (files (if (atom fonts-arg) (list fonts-arg) (fonts-arg))))
+;; 		(mapc (lambda (file)
+;; 			(let* ((file-url (concat (plist-get font-url :url) file))
+;; 			       (file-dst (expand-file-name file font-dest))
+;; 			       )
+;; 			  (prin1 "file-url: ")
+;; 			  (prin1 file-url)
+;; 			  (prin1 " -> file-dst: ")
+;; 			  (print file-dst)
+;; 			  (url-copy-file file-url
+;; 				       file-dst t)
+;; 			)) files)))
+;; 	    kb/fonts)
+;;       (when known-dest?
+;;         (message "Fonts downloaded, updating font cache... <fc-cache -f -v> ")
+;;         (shell-command-to-string (format "fc-cache -f -v")))
+;;       (message "%s Successfully %s `all-the-icons' fonts to `%s'!"
+;;                (all-the-icons-wicon "stars" :v-adjust 0.0)
+;;                (if known-dest? "installed" "downloaded")
+;;               font-dest))))
 
 (use-package undo-tree
   :delight ""
@@ -931,7 +1005,7 @@ This function is based on work of David Wilson.
                   (org-level-6 . 1.1)
                   (org-level-7 . 1.1)
                   (org-level-8 . 1.1)))
-    (set-face-attribute (car face) nil :font "cantarell" :weight 'regular :height (cdr face)))
+    (set-face-attribute (car face) nil :font "Hack" :weight 'regular :height (cdr face)))
   
 
   ;; Ensure that anything that should be fixed-pitch in Org files appears that way
@@ -1395,9 +1469,6 @@ This function is based on work of David Wilson.
   :hook (protobuf-mode . (lambda () (c-add-style "kb/protobuf" kb/protobuf-style t)))
   )
 
-;; (use-package doom-modeline
-  ;; :init (doom-modeline-mode -1))
-
 (use-package spaceline
   ;; :config
   ;; (defvar kb/line-selected-window (frame-selected-window))
@@ -1466,7 +1537,10 @@ This function is based on work of David Wilson.
   )
 
 (when (package-installed-p 'all-the-icons)
-  (use-package all-the-icons)
+  (use-package all-the-icons
+    :config
+    ;; (all-the-icons-install-fonts)
+    )
   (use-package all-the-icons-dired
     :hook (dired-mode . all-the-icons-dired-mode))
   (use-package all-the-icons-ibuffer
