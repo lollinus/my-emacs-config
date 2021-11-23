@@ -22,19 +22,21 @@
 
    #+RESULTS:
 
-2. clone emacs
-   Clone emacs-28 repository
+2. clone Emacs
+   Clone Emacs-28 repository
    #+begin_src sh :dir ~/projects/ :results scalar verbatim :exports code
      git clone -b emacs-28 git://git.sv.gnu.org/emacs.git emacs
    #+end_src
 
 3. pull latest changes
+   #+NAME: pull recent changes
    #+begin_src sh :dir ~/projects/emacs :results scalar verbatim
      git pull origin emacs-28
    #+end_src
 
-   #+RESULTS:
+   #+RESULTS: pull recent changes
    : Already up to date.
+
 
 ** Ubuntu 18.04
 This are the installation steps for emacs-28 on ubuntu 18.04.
@@ -46,22 +48,25 @@ Install libgccjit in order to enable native lisp compilation feature.
 #+end_src
 
 *** configure
-#+begin_src sh :dir ~/projects/emacs-build :results scalar verbatim :var CC='clang' :exports code
+#+NAME: configure
+#+begin_src sh :dir ~/projects/emacs-build :results scalar verbatim :var CC='gcc-10 :exports code
   ../emacs/configure CC=$CC \
-       --with-libotf LIBOTF_LIBS="$(pkg-config --libs libotf)" LIBOTF_CFLAGS="$(pkg-config --cflags libotf)" \
-       --with-harfbuzz HARFBUZZ_LIBS="$(pkg-config --libs harfbuzz)" HARFBUZZ_CFLAGS="$(pkg-config --cflags harfbuzz)" \
-       --with-zlib --with-compress-install --with-gpm --with-threads \
-       --with-mailutils --with-json --with-modules --prefix=/usr/local \
-       --with-xpm --with-jpeg --with-tiff --with-gif \
-       --with-png --with-rsvg --with-xft \
-       --with-dbus \
-       --with-x-toolkit=lucid \
-       --without-pop --with-mailutils \
-       --without-toolkit-scroll-bars \
-       --with-cairo
+                     --with-libotf LIBOTF_LIBS="$(pkg-config --libs libotf)" LIBOTF_CFLAGS="$(pkg-config --cflags libotf)" \
+                     --with-harfbuzz HARFBUZZ_LIBS="$(pkg-config --libs harfbuzz)" HARFBUZZ_CFLAGS="$(pkg-config --cflags harfbuzz)" \
+                     --with-zlib --with-compress-install --with-gpm --with-threads \
+                     --with-mailutils --with-json --with-modules --prefix=/usr/local \
+                     --with-xpm --with-jpeg --with-tiff --with-gif \
+                     --with-png --with-rsvg --with-xft \
+                     --with-dbus \
+                     --with-x-toolkit=lucid \
+                     --without-pop --with-mailutils \
+                     --without-toolkit-scroll-bars \
+                     --with-included-regex \
+                     --with-native-compilation \
+                     --with-cairo
 #+end_src
 
-#+RESULTS:
+#+RESULTS: configure
 #+begin_example
 checking for xcrun... no
 checking for GNU Make... make
@@ -73,12 +78,12 @@ checking for suffix of executables...
 checking whether we are cross compiling... no
 checking for suffix of object files... o
 checking whether we are using the GNU C compiler... yes
-checking whether clang accepts -g... yes
-checking for clang option to enable C11 features... none needed
-checking whether the compiler is clang... yes
-checking for compiler option needed when checking for declarations... -Werror=implicit-function-declaration
-checking whether clang and cc understand -c and -o together... yes
-checking how to run the C preprocessor... clang -E
+checking whether gcc-10 accepts -g... yes
+checking for gcc-10 option to enable C11 features... none needed
+checking whether the compiler is clang... no
+checking for compiler option needed when checking for declarations... none
+checking whether gcc-10 and cc understand -c and -o together... yes
+checking how to run the C preprocessor... gcc-10 -E
 checking for grep that handles long lines and -e... /bin/grep
 checking for egrep... /bin/grep -E
 checking for ANSI C header files... yes
@@ -135,16 +140,58 @@ checking for ar... ar
 checking for ranlib... ranlib
 checking for special C compiler options needed for large files... no
 checking for _FILE_OFFSET_BITS value needed for large files... no
-checking whether clang accepts -g3 -O2... yes
-checking whether the compiler is clang... yes
-checking whether C compiler handles -Werror -Wunknown-warning-option... yes
-checking whether C compiler handles -Wno-switch... yes
-checking whether C compiler handles -Wno-pointer-sign... yes
-checking whether C compiler handles -Wno-string-plus-int... yes
-checking whether C compiler handles -Wno-unknown-attributes... yes
-checking whether C compiler handles -Wno-initializer-overrides... yes
-checking whether C compiler handles -Wno-tautological-compare... yes
-checking whether C compiler handles -Wno-tautological-constant-out-of-range-compare... yes
+checking whether gcc-10 accepts -g3 -O2... yes
+checking whether the compiler is clang... no
+checking whether C compiler handles -Werror -Wunknown-warning-option... no
+checking whether -Wno-missing-field-initializers is supported... yes
+checking whether -Wno-missing-field-initializers is needed... no
+checking whether -Wuninitialized is supported... yes
+checking whether C compiler handles -fno-common... yes
+checking whether C compiler handles -Wall... yes
+checking whether C compiler handles -Warith-conversion... yes
+checking whether C compiler handles -Wdate-time... yes
+checking whether C compiler handles -Wdisabled-optimization... yes
+checking whether C compiler handles -Wdouble-promotion... yes
+checking whether C compiler handles -Wduplicated-cond... yes
+checking whether C compiler handles -Wextra... yes
+checking whether C compiler handles -Wformat-signedness... yes
+checking whether C compiler handles -Winit-self... yes
+checking whether C compiler handles -Winvalid-pch... yes
+checking whether C compiler handles -Wlogical-op... yes
+checking whether C compiler handles -Wmissing-declarations... yes
+checking whether C compiler handles -Wmissing-include-dirs... yes
+checking whether C compiler handles -Wmissing-prototypes... yes
+checking whether C compiler handles -Wnested-externs... yes
+checking whether C compiler handles -Wnull-dereference... yes
+checking whether C compiler handles -Wold-style-definition... yes
+checking whether C compiler handles -Wopenmp-simd... yes
+checking whether C compiler handles -Wpacked... yes
+checking whether C compiler handles -Wpointer-arith... yes
+checking whether C compiler handles -Wstrict-prototypes... yes
+checking whether C compiler handles -Wsuggest-attribute=format... yes
+checking whether C compiler handles -Wsuggest-attribute=noreturn... yes
+checking whether C compiler handles -Wsuggest-final-methods... yes
+checking whether C compiler handles -Wsuggest-final-types... yes
+checking whether C compiler handles -Wtrampolines... yes
+checking whether C compiler handles -Wuninitialized... yes
+checking whether C compiler handles -Wunknown-pragmas... yes
+checking whether C compiler handles -Wunused-macros... yes
+checking whether C compiler handles -Wvariadic-macros... yes
+checking whether C compiler handles -Wvector-operation-performance... yes
+checking whether C compiler handles -Warray-bounds=2... yes
+checking whether C compiler handles -Wattribute-alias=2... yes
+checking whether C compiler handles -Wformat=2... yes
+checking whether C compiler handles -Wformat-truncation=2... yes
+checking whether C compiler handles -Wimplicit-fallthrough=5... yes
+checking whether C compiler handles -Wshift-overflow=2... yes
+checking whether C compiler handles -Wvla-larger-than=4031... yes
+checking whether C compiler handles -Wredundant-decls... yes
+checking whether C compiler handles -Wno-missing-field-initializers... yes
+checking whether C compiler handles -Wno-override-init... yes
+checking whether C compiler handles -Wno-sign-compare... yes
+checking whether C compiler handles -Wno-type-limits... yes
+checking whether C compiler handles -Wno-unused-parameter... yes
+checking whether C compiler handles -Wno-format-nonliteral... yes
 checking for a BSD-compatible install... /usr/bin/install -c
 checking command to symlink files in the same directory... ln -s
 checking for install-info... /usr/bin/install-info
@@ -268,6 +315,10 @@ checking for lcms2... no
 checking for library containing inflateEnd... -lz
 checking for dladdr... yes
 checking for dlfunc... no
+checking for gcc_jit_context_acquire in -lgccjit... yes
+checking libgccjit.h usability... yes
+checking libgccjit.h presence... yes
+checking for libgccjit.h... yes
 checking for libpng >= 1.0.0... yes
 checking whether png_longjmp is declared... yes
 checking tiffio.h usability... yes
@@ -571,7 +622,6 @@ checking whether readlink signature is correct... yes
 checking whether readlink handles trailing slash correctly... yes
 checking whether readlink truncates results correctly... yes
 checking whether readlinkat signature is correct... yes
-checking for working re_compile_pattern... no
 checking libintl.h usability... yes
 checking libintl.h presence... yes
 checking for libintl.h... yes
@@ -601,12 +651,12 @@ checking whether utimensat works... yes
 checking for variable-length arrays... yes
 checking whether getdtablesize works... yes
 checking for timer_getoverrun... yes
-checking for clang option to disable position independent executables... not needed
+checking for gcc-10 option to disable position independent executables... not needed
 
 Configured for 'x86_64-pc-linux-gnu'.
 
   Where should the build process find the source code?    ../emacs
-  What compiler should emacs be built with?               clang -g3 -O2
+  What compiler should emacs be built with?               gcc-10 -g3 -O2
   Should Emacs use the GNU version of malloc?             no
     (The GNU allocators don't work with this system configuration.)
   Should Emacs use a relocating allocator for buffers?    no
@@ -652,7 +702,7 @@ Configured for 'x86_64-pc-linux-gnu'.
   Does Emacs support the portable dumper?                 yes
   Does Emacs support legacy unexec dumping?               no
   Which dumping strategy does Emacs use?                  pdumper
-  Does Emacs have native lisp compiler?                   no
+  Does Emacs have native lisp compiler?                   yes
 
 
 configure: creating ./config.status
@@ -679,6 +729,7 @@ config.status: creating admin/charsets/Makefile
 config.status: creating admin/unidata/Makefile
 config.status: creating admin/grammars/Makefile
 config.status: creating src/config.h
+config.status: src/config.h is unchanged
 config.status: executing src/epaths.h commands
 config.status: executing src/.gdbinit commands
 config.status: executing doc/emacs/emacsver.texi commands
@@ -695,6 +746,291 @@ config.status: executing etc-refcards-emacsver.tex commands
   make -j$(nproc --ignore=2)
 #+end_src
 
+#+RESULTS: build
+#+begin_example
+make -C lib all
+make -C doc/lispref info
+make -C doc/lispintro info
+make -C doc/emacs info
+make[1]: Entering directory '/home/barskik/projects/emacs-build/doc/lispintro'
+make[1]: Nothing to be done for 'info'.
+make[1]: Leaving directory '/home/barskik/projects/emacs-build/doc/lispintro'
+make[1]: Entering directory '/home/barskik/projects/emacs-build/doc/lispref'
+make[1]: Entering directory '/home/barskik/projects/emacs-build/doc/emacs'
+make[1]: Nothing to be done for 'info'.
+make[1]: Leaving directory '/home/barskik/projects/emacs-build/doc/emacs'
+  GEN      ../../../emacs/doc/lispref/../../info/elisp.info
+make[1]: Entering directory '/home/barskik/projects/emacs-build/lib'
+  GEN      alloca.h
+  GEN      dirent.h
+  GEN      fcntl.h
+  GEN      inttypes.h
+  GEN      limits.h
+  GEN      signal.h
+  GEN      stdio.h
+  GEN      stdlib.h
+  GEN      string.h
+  GEN      sys/random.h
+  GEN      sys/select.h
+  GEN      sys/stat.h
+  GEN      sys/time.h
+  GEN      time.h
+  GEN      sys/types.h
+  GEN      unistd.h
+  CC       fingerprint.o
+  CC       fchmodat.o
+  CC       fcntl.o
+  CC       fsusage.o
+  CC       free.o
+  CC       regex.o
+  CC       sig2str.o
+  CC       sigdescr_np.o
+  CC       time_rz.o
+  CC       acl-errno-valid.o
+  CC       acl-internal.o
+  CC       get-permissions.o
+  CC       set-permissions.o
+  CC       allocator.o
+  CC       binary-io.o
+  CC       c-ctype.o
+  CC       c-strcasecmp.o
+  CC       c-strncasecmp.o
+  CC       careadlinkat.o
+  CC       close-stream.o
+  CC       count-one-bits.o
+  CC       count-leading-zeros.o
+  CC       count-trailing-zeros.o
+  CC       md5-stream.o
+  CC       md5.o
+  CC       sha1.o
+  CC       sha256.o
+  CC       sha512.o
+  CC       dtoastr.o
+  CC       dtotimespec.o
+  CC       malloc/dynarray_at_failure.o
+  CC       malloc/dynarray_emplace_enlarge.o
+  CC       malloc/dynarray_finalize.o
+  CC       malloc/dynarray_resize.o
+  CC       malloc/dynarray_resize_clear.o
+  CC       file-has-acl.o
+  CC       filemode.o
+  CC       filevercmp.o
+  CC       gettime.o
+  CC       nproc.o
+  CC       nstrftime.o
+  CC       pipe2.o
+  CC       qcopy-acl.o
+  CC       stat-time.o
+  CC       tempname.o
+  CC       timespec.o
+  CC       timespec-add.o
+  CC       timespec-sub.o
+  CC       u64.o
+  CC       unistd.o
+  CC       openat-die.o
+  CC       save-cwd.o
+  AR       libgnu.a
+make[1]: Leaving directory '/home/barskik/projects/emacs-build/lib'
+make -C lib-src all
+make[1]: Entering directory '/home/barskik/projects/emacs-build/lib-src'
+  CCLD     ctags
+  CCLD     etags
+  CCLD     emacsclient
+  CCLD     ebrowse
+  CCLD     hexl
+  CCLD     make-docfile
+  CCLD     make-fingerprint
+make[1]: Leaving directory '/home/barskik/projects/emacs-build/lib-src'
+make -C src VCSWITNESS='$(srcdir)/../.git/logs/HEAD' BIN_DESTDIR=''/usr/local/bin/'' \
+	 ELN_DESTDIR='/usr/local/lib/emacs/28.0.60/' all
+make[1]: Entering directory '/home/barskik/projects/emacs-build/src'
+  GEN      globals.h
+  GEN      buildobj.h
+make -C ../admin/charsets all
+make -C ../admin/unidata charscript.el
+make -C ../admin/unidata emoji-zwj.el
+make[2]: Entering directory '/home/barskik/projects/emacs-build/admin/unidata'
+make[2]: Entering directory '/home/barskik/projects/emacs-build/admin/unidata'
+make[2]: Nothing to be done for 'charscript.el'.
+make[2]: Nothing to be done for 'emoji-zwj.el'.
+make[2]: Leaving directory '/home/barskik/projects/emacs-build/admin/unidata'
+make[2]: Leaving directory '/home/barskik/projects/emacs-build/admin/unidata'
+make -C ../admin/charsets cp51932.el
+make -C ../admin/charsets eucjp-ms.el
+make[2]: Entering directory '/home/barskik/projects/emacs-build/admin/charsets'
+make[2]: Nothing to be done for 'eucjp-ms.el'.
+make[2]: Leaving directory '/home/barskik/projects/emacs-build/admin/charsets'
+make[2]: Entering directory '/home/barskik/projects/emacs-build/admin/charsets'
+make[2]: Nothing to be done for 'cp51932.el'.
+make[2]: Leaving directory '/home/barskik/projects/emacs-build/admin/charsets'
+make[2]: Entering directory '/home/barskik/projects/emacs-build/admin/charsets'
+make[2]: Nothing to be done for 'all'.
+make[2]: Leaving directory '/home/barskik/projects/emacs-build/admin/charsets'
+make -C ../lwlib/ liblw.a
+  CC       dispnew.o
+  CC       frame.o
+  CC       scroll.o
+make[2]: Entering directory '/home/barskik/projects/emacs-build/lwlib'
+make[2]: 'liblw.a' is up to date.
+make[2]: Leaving directory '/home/barskik/projects/emacs-build/lwlib'
+  CC       xdisp.o
+  CC       menu.o
+  CC       xmenu.o
+  CC       window.o
+  CC       charset.o
+  CC       coding.o
+  CC       category.o
+  CC       ccl.o
+  CC       character.o
+  CC       chartab.o
+  CC       bidi.o
+  CC       cm.o
+  CC       term.o
+  CC       terminal.o
+  CC       xfaces.o
+  CC       xterm.o
+  CC       xfns.o
+  CC       xselect.o
+  CC       xrdb.o
+  CC       xsmfns.o
+  CC       xsettings.o
+  CC       dbusbind.o
+  CC       emacs.o
+  CC       keyboard.o
+  CC       macros.o
+  CC       keymap.o
+  CC       sysdep.o
+  CC       bignum.o
+  CC       buffer.o
+  CC       filelock.o
+  CC       insdel.o
+  CC       marker.o
+  CC       minibuf.o
+  CC       fileio.o
+make[1]: Leaving directory '/home/barskik/projects/emacs-build/doc/lispref'
+  CC       dired.o
+  CC       cmds.o
+  CC       casetab.o
+  CC       casefiddle.o
+  CC       indent.o
+  CC       search.o
+  CC       regex-emacs.o
+  CC       undo.o
+  CC       alloc.o
+  CC       pdumper.o
+  CC       data.o
+  CC       doc.o
+  CC       editfns.o
+  CC       callint.o
+  CC       eval.o
+  CC       floatfns.o
+  CC       fns.o
+  CC       font.o
+  CC       print.o
+  CC       lread.o
+  CC       emacs-module.o
+  CC       syntax.o
+  CC       bytecode.o
+  CC       comp.o
+  CC       dynlib.o
+  CC       process.o
+  CC       gnutls.o
+  CC       callproc.o
+  CC       region-cache.o
+  CC       sound.o
+  CC       timefns.o
+  CC       atimer.o
+  CC       doprnt.o
+  CC       intervals.o
+  CC       textprop.o
+  CC       composite.o
+  CC       xml.o
+  CC       lcms.o
+  CC       inotify.o
+  CC       profiler.o
+  CC       decompress.o
+  CC       thread.o
+  CC       systhread.o
+  CC       xfont.o
+  CC       ftfont.o
+  CC       ftcrfont.o
+  CC       hbfont.o
+  CC       fontset.o
+  CC       fringe.o
+  CC       image.o
+  CC       xgselect.o
+  CC       json.o
+  CC       terminfo.o
+  CC       lastfile.o
+  CC       widget.o
+  CCLD     temacs
+/bin/mkdir -p ../etc
+make -C ../lisp update-subdirs
+make[2]: Entering directory '/home/barskik/projects/emacs-build/lisp'
+make[2]: Leaving directory '/home/barskik/projects/emacs-build/lisp'
+cp -f temacs bootstrap-emacs
+rm -f bootstrap-emacs.pdmp
+./temacs --batch  -l loadup --temacs=pbootstrap \
+	--bin-dest /usr/local/bin/ --eln-dest /usr/local/lib/emacs/28.0.60/
+make -C ../lisp compile-first EMACS="../src/bootstrap-emacs"
+make[2]: Entering directory '/home/barskik/projects/emacs-build/lisp'
+make[2]: Nothing to be done for 'compile-first'.
+make[2]: Leaving directory '/home/barskik/projects/emacs-build/lisp'
+make -C ../lisp autoloads EMACS="../src/bootstrap-emacs"
+make -C ../admin/unidata all EMACS="../../src/bootstrap-emacs"
+make[2]: Entering directory '/home/barskik/projects/emacs-build/admin/unidata'
+make[2]: Entering directory '/home/barskik/projects/emacs-build/lisp'
+make -C ../leim all EMACS="../src/bootstrap-emacs"
+make -C ../admin/grammars all EMACS="../../src/bootstrap-emacs"
+make[2]: Nothing to be done for 'all'.
+make[2]: Leaving directory '/home/barskik/projects/emacs-build/admin/unidata'
+  ELC      ../../emacs/lisp/menu-bar.elc
+  ELC      ../../emacs/lisp/mouse.elc
+  GEN      ../../emacs/lisp/net/tramp-loaddefs.el
+  ELC      ../../emacs/lisp/tab-bar.elc
+make[3]: Entering directory '/home/barskik/projects/emacs-build/leim'
+make[3]: Nothing to be done for 'all'.
+make[3]: Leaving directory '/home/barskik/projects/emacs-build/leim'
+make[3]: Entering directory '/home/barskik/projects/emacs-build/admin/grammars'
+make[3]: Nothing to be done for 'all'.
+make[3]: Leaving directory '/home/barskik/projects/emacs-build/admin/grammars'
+  GEN      ../../emacs/lisp/loaddefs.el
+make[2]: Leaving directory '/home/barskik/projects/emacs-build/lisp'
+  GEN      ../etc/DOC
+rm -f emacs && cp -f temacs emacs
+LC_ALL=C ./temacs -batch  -l loadup --temacs=pdump \
+	--bin-dest /usr/local/bin/ --eln-dest /usr/local/lib/emacs/28.0.60/
+cp -f emacs.pdmp bootstrap-emacs.pdmp
+make[1]: Leaving directory '/home/barskik/projects/emacs-build/src'
+make -C lisp all
+make[1]: Entering directory '/home/barskik/projects/emacs-build/lisp'
+make -C ../leim all EMACS="../src/emacs"
+make -C ../admin/grammars all EMACS="../../src/emacs"
+make[2]: Entering directory '/home/barskik/projects/emacs-build/admin/grammars'
+make[2]: Nothing to be done for 'all'.
+make[2]: Leaving directory '/home/barskik/projects/emacs-build/admin/grammars'
+make[2]: Entering directory '/home/barskik/projects/emacs-build/leim'
+make[2]: Nothing to be done for 'all'.
+make[2]: Leaving directory '/home/barskik/projects/emacs-build/leim'
+make[2]: Entering directory '/home/barskik/projects/emacs-build/lisp'
+  ELC      bookmark.elc
+  ELC      cus-edit.elc
+  ELC      edmacro.elc
+  ELC      mouse-drag.elc
+  ELC      repeat.elc
+  ELC      net/browse-url.elc
+  ELC      net/tramp.elc
+  ELC      org/org-goto.elc
+  ELC      org/ox-icalendar.elc
+  ELC      textmodes/flyspell.elc
+make[2]: Leaving directory '/home/barskik/projects/emacs-build/lisp'
+make[1]: Leaving directory '/home/barskik/projects/emacs-build/lisp'
+make -C doc/misc info
+make[1]: Entering directory '/home/barskik/projects/emacs-build/doc/misc'
+make[1]: Nothing to be done for 'info'.
+make[1]: Leaving directory '/home/barskik/projects/emacs-build/doc/misc'
+#+end_example
+
 *** create package
 #+NAME: make package
 #+begin_src sh :dir ~/projects/emacs-build :var INSTALL=(expand-file-name "~/emacs-install") :results scalar verbatim :exports code
@@ -702,24 +1038,4409 @@ config.status: executing etc-refcards-emacsver.tex commands
   make prefix=$INSTALL install
 #+end_src
 
+#+RESULTS: make package
+#+begin_example
+make -C lib all
+make[1]: Entering directory '/home/barskik/projects/emacs-build/lib'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '/home/barskik/projects/emacs-build/lib'
+make -C lib-src all
+make[1]: Entering directory '/home/barskik/projects/emacs-build/lib-src'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '/home/barskik/projects/emacs-build/lib-src'
+make -C src VCSWITNESS='$(srcdir)/../.git/logs/HEAD' BIN_DESTDIR=''/home/barskik/emacs-install/bin/'' \
+	 ELN_DESTDIR='/home/barskik/emacs-install/lib/emacs/28.0.60/' all
+make[1]: Entering directory '/home/barskik/projects/emacs-build/src'
+make -C ../lwlib/ liblw.a
+make[2]: Entering directory '/home/barskik/projects/emacs-build/lwlib'
+make[2]: 'liblw.a' is up to date.
+make[2]: Leaving directory '/home/barskik/projects/emacs-build/lwlib'
+make -C ../admin/charsets all
+make[2]: Entering directory '/home/barskik/projects/emacs-build/admin/charsets'
+make[2]: Nothing to be done for 'all'.
+make[2]: Leaving directory '/home/barskik/projects/emacs-build/admin/charsets'
+make -C ../admin/unidata charscript.el
+make[2]: Entering directory '/home/barskik/projects/emacs-build/admin/unidata'
+make[2]: Nothing to be done for 'charscript.el'.
+make[2]: Leaving directory '/home/barskik/projects/emacs-build/admin/unidata'
+make -C ../admin/unidata emoji-zwj.el
+make[2]: Entering directory '/home/barskik/projects/emacs-build/admin/unidata'
+make[2]: Nothing to be done for 'emoji-zwj.el'.
+make[2]: Leaving directory '/home/barskik/projects/emacs-build/admin/unidata'
+make -C ../admin/unidata all EMACS="../../src/bootstrap-emacs"
+make[2]: Entering directory '/home/barskik/projects/emacs-build/admin/unidata'
+make[2]: Nothing to be done for 'all'.
+make[2]: Leaving directory '/home/barskik/projects/emacs-build/admin/unidata'
+make -C ../admin/charsets cp51932.el
+make[2]: Entering directory '/home/barskik/projects/emacs-build/admin/charsets'
+make[2]: Nothing to be done for 'cp51932.el'.
+make[2]: Leaving directory '/home/barskik/projects/emacs-build/admin/charsets'
+make -C ../admin/charsets eucjp-ms.el
+make[2]: Entering directory '/home/barskik/projects/emacs-build/admin/charsets'
+make[2]: Nothing to be done for 'eucjp-ms.el'.
+make[2]: Leaving directory '/home/barskik/projects/emacs-build/admin/charsets'
+make[1]: Leaving directory '/home/barskik/projects/emacs-build/src'
+make -C lisp all
+make[1]: Entering directory '/home/barskik/projects/emacs-build/lisp'
+make -C ../leim all EMACS="../src/emacs"
+make[2]: Entering directory '/home/barskik/projects/emacs-build/leim'
+make[2]: Nothing to be done for 'all'.
+make[2]: Leaving directory '/home/barskik/projects/emacs-build/leim'
+make -C ../admin/grammars all EMACS="../../src/emacs"
+make[2]: Entering directory '/home/barskik/projects/emacs-build/admin/grammars'
+make[2]: Nothing to be done for 'all'.
+make[2]: Leaving directory '/home/barskik/projects/emacs-build/admin/grammars'
+make[2]: Entering directory '/home/barskik/projects/emacs-build/lisp'
+make[2]: Nothing to be done for 'compile-targets'.
+make[2]: Leaving directory '/home/barskik/projects/emacs-build/lisp'
+make[1]: Leaving directory '/home/barskik/projects/emacs-build/lisp'
+make -C doc/lispref info
+make[1]: Entering directory '/home/barskik/projects/emacs-build/doc/lispref'
+make[1]: Nothing to be done for 'info'.
+make[1]: Leaving directory '/home/barskik/projects/emacs-build/doc/lispref'
+make -C doc/lispintro info
+make[1]: Entering directory '/home/barskik/projects/emacs-build/doc/lispintro'
+make[1]: Nothing to be done for 'info'.
+make[1]: Leaving directory '/home/barskik/projects/emacs-build/doc/lispintro'
+make -C doc/emacs info
+make[1]: Entering directory '/home/barskik/projects/emacs-build/doc/emacs'
+make[1]: Nothing to be done for 'info'.
+make[1]: Leaving directory '/home/barskik/projects/emacs-build/doc/emacs'
+make -C doc/misc info
+make[1]: Entering directory '/home/barskik/projects/emacs-build/doc/misc'
+make[1]: Nothing to be done for 'info'.
+make[1]: Leaving directory '/home/barskik/projects/emacs-build/doc/misc'
+umask 022; /bin/mkdir -p "/home/barskik/emacs-install/share/info"
+unset CDPATH; \
+thisdir=`/bin/pwd`; \
+exp_infodir=`cd "/home/barskik/emacs-install/share/info" && /bin/pwd`; \
+if [ "`cd ../emacs/info && /bin/pwd`" = "$exp_infodir" ]; then \
+  true; \
+else \
+   [ -f "/home/barskik/emacs-install/share/info/dir" ] || \
+      [ ! -f ../emacs/info/dir ] || \
+      /usr/bin/install -c -m 644 ../emacs/info/dir "/home/barskik/emacs-install/share/info/dir"; \
+   info_misc=`MAKEFLAGS= make --no-print-directory -s -C doc/misc echo-info`; \
+   cd ../emacs/info ; \
+   for elt in emacs.info eintr.info elisp.info ${info_misc}; do \
+      for f in `ls $elt $elt-[1-9] $elt-[1-9][0-9] 2>/dev/null`; do \
+       (cd "${thisdir}"; \
+        /usr/bin/install -c -m 644 ../emacs/info/$f "/home/barskik/emacs-install/share/info/$f"); \
+        [ -n "/bin/gzip" ] || continue ; \
+        rm -f "/home/barskik/emacs-install/share/info/$f.gz"; \
+        /bin/gzip -9n "/home/barskik/emacs-install/share/info/$f"; \
+      done; \
+     (cd "${thisdir}"; \
+      /usr/bin/install-info --info-dir="/home/barskik/emacs-install/share/info" "/home/barskik/emacs-install/share/info/$elt"); \
+   done; \
+fi
+umask 022; /bin/mkdir -p "/home/barskik/emacs-install/share/man/man1"
+thisdir=`/bin/pwd`; \
+cd ../emacs/doc/man; \
+for page in *.1; do \
+  test "$page" = ChangeLog.1 && continue; \
+  dest=`echo "${page}" | sed -e 's/\.1$//' -e 's,x,x,'`.1; \
+  (cd "${thisdir}"; \
+   /usr/bin/install -c -m 644 ../emacs/doc/man/${page} "/home/barskik/emacs-install/share/man/man1/${dest}"); \
+  [ -n "/bin/gzip" ] || continue ; \
+  rm -f "/home/barskik/emacs-install/share/man/man1/${dest}.gz"; \
+  /bin/gzip -9n "/home/barskik/emacs-install/share/man/man1/${dest}" || true; \
+done
+umask 022; /bin/mkdir -p "/home/barskik/emacs-install/share/applications"
+tmp=etc/emacs.tmpdesktop; rm -f ${tmp}; \
+sed -e "/^Exec=emacs/ s/emacs/`echo emacs | sed 's,x,x,'`/" \
+  -e "/^Icon=emacs/ s/emacs/`echo emacs | sed 's,x,x,'`/" \
+  -e "/^StartupNotify=true$/d" \
+  ../emacs/etc/emacs.desktop > ${tmp}; \
+/usr/bin/install -c -m 644 ${tmp} "/home/barskik/emacs-install/share/applications/`echo emacs | sed 's,x,x,'`.desktop"; \
+rm -f ${tmp}
+tmp=etc/emacsclient.tmpdesktop; rm -f ${tmp}; \
+client_name=`echo emacsclient | sed 's,x,x,'`; \
+sed -e "/^Exec=emacsclient/ s|emacsclient|/home/barskik/emacs-install/bin/${client_name}|" \
+  -e "/^Icon=emacs/ s/emacs/`echo emacs | sed 's,x,x,'`/" \
+  -e "/^StartupNotify=true$/d" \
+  ../emacs/etc/emacsclient.desktop > ${tmp}; \
+/usr/bin/install -c -m 644 ${tmp} "/home/barskik/emacs-install/share/applications/${client_name}.desktop"; \
+rm -f ${tmp}
+tmp=etc/emacs-mail.tmpdesktop; rm -f ${tmp}; \
+sed -e "/^Exec=emacs/ s/emacs/`echo emacs | sed 's,x,x,'`/" \
+  -e "/^Icon=emacs/ s/emacs/`echo emacs | sed 's,x,x,'`/" \
+  ../emacs/etc/emacs-mail.desktop > ${tmp}; \
+/usr/bin/install -c -m 644 ${tmp} "/home/barskik/emacs-install/share/applications/`echo emacs | sed 's,x,x,'`-mail.desktop"; \
+rm -f ${tmp}
+tmp=etc/emacsclient-mail.tmpdesktop; rm -f ${tmp}; \
+client_name=`echo emacsclient | sed 's,x,x,'`; \
+sed -e "/^Exec=emacsclient/ s|emacsclient|/home/barskik/emacs-install/bin/${client_name}|" \
+  -e "/^Icon=emacs/ s/emacs/`echo emacs | sed 's,x,x,'`/" \
+  ../emacs/etc/emacsclient-mail.desktop > ${tmp}; \
+/usr/bin/install -c -m 644 ${tmp} "/home/barskik/emacs-install/share/applications/${client_name}-mail.desktop"; \
+rm -f ${tmp}
+umask 022; /bin/mkdir -p "/home/barskik/emacs-install/share/metainfo"
+tmp=etc/emacs.tmpmetainfo; rm -f ${tmp}; \
+sed -e "s/emacs\.desktop/`echo emacs | sed 's,x,x,'`.desktop/" \
+  ../emacs/etc/emacs.metainfo.xml > ${tmp}; \
+/usr/bin/install -c -m 644 ${tmp} "/home/barskik/emacs-install/share/metainfo/`echo emacs | sed 's,x,x,'`.metainfo.xml"; \
+rm -f ${tmp}
+umask 022; /bin/mkdir -p "/home/barskik/emacs-install/lib/systemd/user"
+tmp=etc/emacs.tmpservice; rm -f ${tmp}; \
+client_name=`echo emacsclient | sed 's,x,x,'`; \
+sed -e '/^##/d' \
+  -e "/^Documentation/ s/emacs(1)/`echo emacs | sed 's,x,x,'`(1)/" \
+  -e "/^ExecStart/ s|emacs|/home/barskik/emacs-install/bin/`echo emacs | sed 's,x,x,'`|" \
+  -e "/^ExecStop/ s|emacsclient|/home/barskik/emacs-install/bin/${client_name}|" \
+  ../emacs/etc/emacs.service > ${tmp}; \
+/usr/bin/install -c -m 644 ${tmp} "/home/barskik/emacs-install/lib/systemd/user/`echo emacs | sed 's,x,x,'`.service"; \
+rm -f ${tmp}
+thisdir=`/bin/pwd`; \
+cd ../emacs/etc/images/icons || exit 1; umask 022 ; \
+for dir in */*/apps */*/mimetypes; do \
+  [ -d ${dir} ] || continue ; \
+  ( cd "${thisdir}"; /bin/mkdir -p "/home/barskik/emacs-install/share/icons/${dir}" ) ; \
+  for icon in ${dir}/emacs[.-]*; do \
+    [ -r ${icon} ] || continue ; \
+    ext=`echo "${icon}" | sed -e 's|.*\.||'`; \
+    dest=`echo "${icon}" | sed -e 's|.*/||' -e "s|\\.${ext}\$||" -e 's/emacs/emacs/' -e 's,x,x,'`.${ext} ; \
+    ( cd "${thisdir}"; \
+      /usr/bin/install -c -m 644 ../emacs/etc/images/icons/${icon} "/home/barskik/emacs-install/share/icons/${dir}/${dest}" ) \
+    || exit 1; \
+  done ; \
+done
+umask 022 && /bin/mkdir -p "/home/barskik/emacs-install/include"
+/usr/bin/install -c -m 644 src/emacs-module.h "/home/barskik/emacs-install/include/emacs-module.h"
+set "/home/barskik/emacs-install/share/emacs/28.0.60/etc" "/home/barskik/emacs-install/share/emacs/28.0.60/lisp" ; \
+unset CDPATH; \
+for installuser in ${LOGNAME} ${USERNAME} ${USER} `(id -u) 2> /dev/null`; do [ -n "${installuser}" ] && break ; done; installgroup=`(id -g) 2>/dev/null` && [ -n "$installgroup" ] && installuser=$installuser:$installgroup; \
+for dir in ../emacs/etc ../emacs/lisp ; do \
+  [ -d ${dir} ] || exit 1 ; \
+  dest="$1" ; shift ; \
+  if [ -d "${dest}" ]; then \
+    exp_dest=`cd "${dest}" && /bin/pwd`; \
+    [ "$exp_dest" = "`cd ${dir} && /bin/pwd`" ] && continue ; \
+  else true; \
+  fi; \
+  rm -rf "${dest}" ; \
+  umask 022; /bin/mkdir -p "${dest}" ; \
+  printf 'Copying %s to %s...\n' "$dir" "$dest" ; \
+  (cd ${dir}; tar -chf - . ) \
+    | (cd "${dest}"; umask 022; \
+       tar -xvf - && cat > /dev/null) || exit 1; \
+  if [ "${dir}" = "../emacs/etc" ]; then \
+      rm -f "${dest}/DOC"* ; \
+      rm -f "${dest}/refcards"/*.aux "${dest}/refcards"/*.dvi; \
+      rm -f "${dest}/refcards"/*.log "${dest}/refcards"/*.in; \
+  else true; \
+  fi; \
+  (cd "${dest}" || exit 1; \
+    for subdir in `find . -type d -print` ; do \
+      chmod a+rx ${subdir} ; \
+      rm -f ${subdir}/.gitignore ; \
+      rm -f ${subdir}/.arch-inventory ; \
+      rm -f ${subdir}/.DS_Store ; \
+      rm -f ${subdir}/#* ; \
+      rm -f ${subdir}/.#* ; \
+      rm -f ${subdir}/*~ ; \
+      rm -f ${subdir}/*.orig ; \
+      rm -f ${subdir}/ChangeLog* ; \
+      [ "${dir}" != "../emacs/etc" ] && \
+        rm -f ${subdir}/[mM]akefile*[.-]in ${subdir}/[mM]akefile ; \
+    done ); \
+  find "${dest}" -exec chown ${installuser} {} ';' ;\
+done
+Copying ../emacs/etc to /home/barskik/emacs-install/share/emacs/28.0.60/etc...
+./
+./NEWS.18
+./NEWS
+./NEWS.21
+./enriched.txt
+./ses-example.ses
+./ETAGS.EBNF
+./compilation.txt
+./refcards/
+./refcards/sk-survival.tex
+./refcards/pl-refcard.tex
+./refcards/Makefile
+./refcards/sk-dired-ref.tex
+./refcards/gnus-logo.eps
+./refcards/gnus-logo.pdf
+./refcards/orgcard.tex
+./refcards/ru-refcard.tex
+./refcards/pdflayout.sty
+./refcards/fr-dired-ref.tex
+./refcards/README
+./refcards/de-refcard.tex
+./refcards/pt-br-refcard.tex
+./refcards/calccard.tex
+./refcards/fr-survival.tex
+./refcards/cs-survival.tex
+./refcards/emacsver.tex.in
+./refcards/survival.tex
+./refcards/vipcard.tex
+./refcards/fr-refcard.tex
+./refcards/viperCard.tex
+./refcards/gnus-refcard.tex
+./refcards/cs-refcard.tex
+./refcards/emacsver.tex
+./refcards/refcard.tex
+./refcards/cs-dired-ref.tex
+./refcards/dired-ref.tex
+./refcards/sk-refcard.tex
+./spook.lines
+./publicsuffix.txt
+./edt-user.el
+./emacs.icon
+./ps-prin0.ps
+./ChangeLog.1
+./ERC-NEWS
+./rgb.txt
+./NXML-NEWS
+./HISTORY
+./README
+./emacs-mail.desktop
+./yow.lines
+./emacsclient.desktop
+./HELLO
+./ETAGS.README
+./NEXTSTEP
+./images/
+./images/save.xpm
+./images/lock-broken.xpm
+./images/info.xpm
+./images/search-replace.xpm
+./images/ezimage/
+./images/ezimage/box-minus.xpm
+./images/ezimage/info.xpm
+./images/ezimage/checkmark.xpm
+./images/ezimage/doc.pbm
+./images/ezimage/page-plus.pbm
+./images/ezimage/label.pbm
+./images/ezimage/tag.xpm
+./images/ezimage/doc-minus.pbm
+./images/ezimage/doc.xpm
+./images/ezimage/dir-plus.xpm
+./images/ezimage/mail.pbm
+./images/ezimage/mail.xpm
+./images/ezimage/tag.pbm
+./images/ezimage/tag-type.pbm
+./images/ezimage/bits.pbm
+./images/ezimage/dir.pbm
+./images/ezimage/box.pbm
+./images/ezimage/page-plus.xpm
+./images/ezimage/checkmark.pbm
+./images/ezimage/tag-v.pbm
+./images/ezimage/tag-type.xpm
+./images/ezimage/README
+./images/ezimage/doc-plus.pbm
+./images/ezimage/info.pbm
+./images/ezimage/page.pbm
+./images/ezimage/box-plus.xpm
+./images/ezimage/box-minus.pbm
+./images/ezimage/tag-gt.pbm
+./images/ezimage/key.xpm
+./images/ezimage/dir.xpm
+./images/ezimage/doc-minus.xpm
+./images/ezimage/tag-plus.xpm
+./images/ezimage/label.xpm
+./images/ezimage/bitsbang.pbm
+./images/ezimage/page-minus.pbm
+./images/ezimage/bits.xpm
+./images/ezimage/dir-plus.pbm
+./images/ezimage/lock.pbm
+./images/ezimage/dir-minus.pbm
+./images/ezimage/doc-plus.xpm
+./images/ezimage/bitsbang.xpm
+./images/ezimage/box-plus.pbm
+./images/ezimage/box.xpm
+./images/ezimage/unlock.xpm
+./images/ezimage/key.pbm
+./images/ezimage/tag-v.xpm
+./images/ezimage/unlock.pbm
+./images/ezimage/tag-plus.pbm
+./images/ezimage/lock.xpm
+./images/ezimage/tag-gt.xpm
+./images/ezimage/tag-minus.xpm
+./images/ezimage/page-minus.xpm
+./images/ezimage/tag-minus.pbm
+./images/ezimage/page.xpm
+./images/ezimage/dir-minus.xpm
+./images/sort-column-ascending.xpm
+./images/gnus.pbm
+./images/spell.xpm
+./images/sort-criteria.pbm
+./images/index.xpm
+./images/sort-row-ascending.xpm
+./images/icons/
+./images/icons/README
+./images/icons/allout-widgets/
+./images/icons/allout-widgets/dark-bg/
+./images/icons/allout-widgets/dark-bg/end-connector.png
+./images/icons/allout-widgets/dark-bg/leaf.xpm
+./images/icons/allout-widgets/dark-bg/skip-descender.xpm
+./images/icons/allout-widgets/dark-bg/unlocked-encrypted.xpm
+./images/icons/allout-widgets/dark-bg/mid-connector.png
+./images/icons/allout-widgets/dark-bg/locked-encrypted.xpm
+./images/icons/allout-widgets/dark-bg/empty.xpm
+./images/icons/allout-widgets/dark-bg/leaf.png
+./images/icons/allout-widgets/dark-bg/end-connector.xpm
+./images/icons/allout-widgets/dark-bg/through-descender.xpm
+./images/icons/allout-widgets/dark-bg/through-descender.png
+./images/icons/allout-widgets/dark-bg/locked-encrypted.png
+./images/icons/allout-widgets/dark-bg/closed.xpm
+./images/icons/allout-widgets/dark-bg/empty.png
+./images/icons/allout-widgets/dark-bg/closed.png
+./images/icons/allout-widgets/dark-bg/unlocked-encrypted.png
+./images/icons/allout-widgets/dark-bg/mid-connector.xpm
+./images/icons/allout-widgets/dark-bg/extender-connector.png
+./images/icons/allout-widgets/dark-bg/opened.png
+./images/icons/allout-widgets/dark-bg/skip-descender.png
+./images/icons/allout-widgets/dark-bg/extender-connector.xpm
+./images/icons/allout-widgets/dark-bg/opened.xpm
+./images/icons/allout-widgets/light-bg/
+./images/icons/allout-widgets/light-bg/end-connector.png
+./images/icons/allout-widgets/light-bg/leaf.xpm
+./images/icons/allout-widgets/light-bg/skip-descender.xpm
+./images/icons/allout-widgets/light-bg/unlocked-encrypted.xpm
+./images/icons/allout-widgets/light-bg/mid-connector.png
+./images/icons/allout-widgets/light-bg/locked-encrypted.xpm
+./images/icons/allout-widgets/light-bg/empty.xpm
+./images/icons/allout-widgets/light-bg/leaf.png
+./images/icons/allout-widgets/light-bg/end-connector.xpm
+./images/icons/allout-widgets/light-bg/through-descender.xpm
+./images/icons/allout-widgets/light-bg/through-descender.png
+./images/icons/allout-widgets/light-bg/locked-encrypted.png
+./images/icons/allout-widgets/light-bg/closed.xpm
+./images/icons/allout-widgets/light-bg/empty.png
+./images/icons/allout-widgets/light-bg/closed.png
+./images/icons/allout-widgets/light-bg/unlocked-encrypted.png
+./images/icons/allout-widgets/light-bg/mid-connector.xpm
+./images/icons/allout-widgets/light-bg/extender-connector.png
+./images/icons/allout-widgets/light-bg/opened.png
+./images/icons/allout-widgets/light-bg/skip-descender.png
+./images/icons/allout-widgets/light-bg/extender-connector.xpm
+./images/icons/allout-widgets/light-bg/opened.xpm
+./images/icons/hicolor/
+./images/icons/hicolor/16x16/
+./images/icons/hicolor/16x16/apps/
+./images/icons/hicolor/16x16/apps/emacs23.png
+./images/icons/hicolor/16x16/apps/emacs22.png
+./images/icons/hicolor/16x16/apps/emacs.png
+./images/icons/hicolor/128x128/
+./images/icons/hicolor/128x128/apps/
+./images/icons/hicolor/128x128/apps/emacs23.png
+./images/icons/hicolor/128x128/apps/emacs.png
+./images/icons/hicolor/48x48/
+./images/icons/hicolor/48x48/apps/
+./images/icons/hicolor/48x48/apps/emacs23.png
+./images/icons/hicolor/48x48/apps/emacs22.png
+./images/icons/hicolor/48x48/apps/emacs.png
+./images/icons/hicolor/32x32/
+./images/icons/hicolor/32x32/apps/
+./images/icons/hicolor/32x32/apps/emacs23.png
+./images/icons/hicolor/32x32/apps/emacs22.png
+./images/icons/hicolor/32x32/apps/emacs.png
+./images/icons/hicolor/scalable/
+./images/icons/hicolor/scalable/mimetypes/
+./images/icons/hicolor/scalable/mimetypes/emacs-document.svg
+./images/icons/hicolor/scalable/mimetypes/emacs-document23.svg
+./images/icons/hicolor/scalable/apps/
+./images/icons/hicolor/scalable/apps/emacs23.svg
+./images/icons/hicolor/scalable/apps/emacs.ico
+./images/icons/hicolor/scalable/apps/emacs.svg
+./images/icons/hicolor/24x24/
+./images/icons/hicolor/24x24/apps/
+./images/icons/hicolor/24x24/apps/emacs23.png
+./images/icons/hicolor/24x24/apps/emacs22.png
+./images/icons/hicolor/24x24/apps/emacs.png
+./images/lock-broken.pbm
+./images/lock-ok.pbm
+./images/letter.pbm
+./images/left.svg
+./images/home.pbm
+./images/delete.pbm
+./images/cancel.pbm
+./images/describe.xpm
+./images/mh-logo.pbm
+./images/sort-ascending.xpm
+./images/sort-descending.pbm
+./images/back-arrow.xpm
+./images/saveas.xpm
+./images/refresh.xpm
+./images/show.xpm
+./images/spell.pbm
+./images/up-node.xpm
+./images/print.xpm
+./images/checked.xpm
+./images/prev-node.xpm
+./images/splash.png
+./images/unchecked.xpm
+./images/left-arrow.pbm
+./images/left-arrow.xpm
+./images/README
+./images/attach.xpm
+./images/up-arrow.pbm
+./images/preferences.xpm
+./images/exit.pbm
+./images/separator.pbm
+./images/redo.pbm
+./images/info.pbm
+./images/gud/
+./images/gud/cont.xpm
+./images/gud/recstop.xpm
+./images/gud/up.pbm
+./images/gud/thread.xpm
+./images/gud/stop.pbm
+./images/gud/recstart.pbm
+./images/gud/cont.pbm
+./images/gud/remove.pbm
+./images/gud/print.xpm
+./images/gud/pstar.pbm
+./images/gud/until.xpm
+./images/gud/recstop.pbm
+./images/gud/README
+./images/gud/all.xpm
+./images/gud/rstepi.pbm
+./images/gud/step.pbm
+./images/gud/go.pbm
+./images/gud/rnexti.pbm
+./images/gud/recstart.xpm
+./images/gud/go.xpm
+./images/gud/rfinish.xpm
+./images/gud/print.pbm
+./images/gud/run.xpm
+./images/gud/rcont.pbm
+./images/gud/rnext.xpm
+./images/gud/finish.xpm
+./images/gud/rnexti.xpm
+./images/gud/break.pbm
+./images/gud/stepi.xpm
+./images/gud/pp.xpm
+./images/gud/stepi.pbm
+./images/gud/until.pbm
+./images/gud/finish.pbm
+./images/gud/down.xpm
+./images/gud/next.xpm
+./images/gud/rfinish.pbm
+./images/gud/remove.xpm
+./images/gud/down.pbm
+./images/gud/up.xpm
+./images/gud/run.pbm
+./images/gud/pp.pbm
+./images/gud/nexti.pbm
+./images/gud/stop.xpm
+./images/gud/watch.pbm
+./images/gud/watch.xpm
+./images/gud/step.xpm
+./images/gud/break.xpm
+./images/gud/next.pbm
+./images/gud/rstepi.xpm
+./images/gud/pstar.xpm
+./images/gud/rcont.xpm
+./images/gud/all.pbm
+./images/gud/rstep.xpm
+./images/gud/rnext.pbm
+./images/gud/nexti.xpm
+./images/gud/rstep.pbm
+./images/gud/thread.pbm
+./images/up-node.pbm
+./images/next-node.xpm
+./images/jump-to.pbm
+./images/help.xpm
+./images/unchecked.svg
+./images/lock-ok.xpm
+./images/low-color/
+./images/low-color/save.xpm
+./images/low-color/spell.xpm
+./images/low-color/index.xpm
+./images/low-color/back-arrow.xpm
+./images/low-color/saveas.xpm
+./images/low-color/up-node.xpm
+./images/low-color/print.xpm
+./images/low-color/prev-node.xpm
+./images/low-color/left-arrow.xpm
+./images/low-color/README
+./images/low-color/preferences.xpm
+./images/low-color/next-node.xpm
+./images/low-color/help.xpm
+./images/low-color/paste.xpm
+./images/low-color/home.xpm
+./images/low-color/search.xpm
+./images/low-color/new.xpm
+./images/low-color/jump-to.xpm
+./images/low-color/copy.xpm
+./images/low-color/cut.xpm
+./images/low-color/fwd-arrow.xpm
+./images/low-color/undo.xpm
+./images/low-color/right-arrow.xpm
+./images/low-color/open.xpm
+./images/low-color/up-arrow.xpm
+./images/mail/
+./images/mail/save.xpm
+./images/mail/send.xpm
+./images/mail/reply-to.pbm
+./images/mail/reply-from.pbm
+./images/mail/forward.pbm
+./images/mail/repack.pbm
+./images/mail/flag-for-followup.xpm
+./images/mail/not-spam.pbm
+./images/mail/move.pbm
+./images/mail/README
+./images/mail/reply.pbm
+./images/mail/reply-all.xpm
+./images/mail/outbox.xpm
+./images/mail/save-draft.xpm
+./images/mail/move.xpm
+./images/mail/preview.pbm
+./images/mail/compose.pbm
+./images/mail/copy.xpm
+./images/mail/inbox.xpm
+./images/mail/not-spam.xpm
+./images/mail/repack.xpm
+./images/mail/compose.xpm
+./images/mail/copy.pbm
+./images/mail/reply-all.pbm
+./images/mail/outbox.pbm
+./images/mail/reply-from.xpm
+./images/mail/reply-to.xpm
+./images/mail/reply.xpm
+./images/mail/spam.xpm
+./images/mail/flag-for-followup.pbm
+./images/mail/send.pbm
+./images/mail/forward.xpm
+./images/mail/save-draft.pbm
+./images/mail/preview.xpm
+./images/mail/inbox.pbm
+./images/paste.xpm
+./images/paste.pbm
+./images/splash.pbm
+./images/sort-row-ascending.pbm
+./images/home.xpm
+./images/sort-ascending.pbm
+./images/splash.bmp
+./images/contact.pbm
+./images/right.svg
+./images/search.xpm
+./images/right-arrow.pbm
+./images/open.pbm
+./images/new.xpm
+./images/jump-to.xpm
+./images/splash.xpm
+./images/contact.xpm
+./images/radio-checked.svg
+./images/print.pbm
+./images/separator.xpm
+./images/sort-criteria.xpm
+./images/tabs/
+./images/tabs/left-arrow.xpm
+./images/tabs/README
+./images/tabs/new.xpm
+./images/tabs/close.xpm
+./images/tabs/right-arrow.xpm
+./images/copy.xpm
+./images/smilies/
+./images/smilies/braindamaged.xpm
+./images/smilies/blink.xpm
+./images/smilies/medium/
+./images/smilies/medium/braindamaged.xpm
+./images/smilies/medium/blink.xpm
+./images/smilies/medium/wry.xpm
+./images/smilies/medium/sad.xpm
+./images/smilies/medium/grin.xpm
+./images/smilies/medium/README
+./images/smilies/medium/cry.xpm
+./images/smilies/medium/dead.xpm
+./images/smilies/medium/evil.xpm
+./images/smilies/medium/indifferent.xpm
+./images/smilies/medium/frown.xpm
+./images/smilies/medium/reverse-smile.xpm
+./images/smilies/medium/smile.xpm
+./images/smilies/medium/forced.xpm
+./images/smilies/indifferent.pbm
+./images/smilies/wry.xpm
+./images/smilies/frown.pbm
+./images/smilies/sad.xpm
+./images/smilies/grin.xpm
+./images/smilies/forced.pbm
+./images/smilies/grayscale/
+./images/smilies/grayscale/braindamaged.xpm
+./images/smilies/grayscale/blink.xpm
+./images/smilies/grayscale/wry.xpm
+./images/smilies/grayscale/sad.xpm
+./images/smilies/grayscale/grin.xpm
+./images/smilies/grayscale/README
+./images/smilies/grayscale/cry.xpm
+./images/smilies/grayscale/dead.xpm
+./images/smilies/grayscale/evil.xpm
+./images/smilies/grayscale/indifferent.xpm
+./images/smilies/grayscale/frown.xpm
+./images/smilies/grayscale/reverse-smile.xpm
+./images/smilies/grayscale/smile.xpm
+./images/smilies/grayscale/forced.xpm
+./images/smilies/evil.pbm
+./images/smilies/README
+./images/smilies/wry.pbm
+./images/smilies/dead.pbm
+./images/smilies/cry.xpm
+./images/smilies/dead.xpm
+./images/smilies/evil.xpm
+./images/smilies/smile.pbm
+./images/smilies/sad.pbm
+./images/smilies/cry.pbm
+./images/smilies/indifferent.xpm
+./images/smilies/frown.xpm
+./images/smilies/grin.pbm
+./images/smilies/blink.pbm
+./images/smilies/braindamaged.pbm
+./images/smilies/smile.xpm
+./images/smilies/forced.xpm
+./images/save.pbm
+./images/show.pbm
+./images/sort-descending.xpm
+./images/cut.pbm
+./images/data-save.pbm
+./images/preferences.pbm
+./images/close.xpm
+./images/up.svg
+./images/bookmark_add.xpm
+./images/cut.xpm
+./images/lock.pbm
+./images/fwd-arrow.xpm
+./images/delete.xpm
+./images/disconnect.pbm
+./images/undo.pbm
+./images/data-save.xpm
+./images/copy.pbm
+./images/search.pbm
+./images/checkbox-mixed.svg
+./images/zoom-in.xpm
+./images/fwd-arrow.pbm
+./images/radio-mixed.svg
+./images/bookmark_add.pbm
+./images/mh-logo.xpm
+./images/radio.svg
+./images/undo.xpm
+./images/letter.xpm
+./images/next-page.pbm
+./images/next-page.xpm
+./images/custom/
+./images/custom/README
+./images/custom/down-pushed.xpm
+./images/custom/right-pushed.xpm
+./images/custom/down.xpm
+./images/custom/down.pbm
+./images/custom/right.xpm
+./images/custom/right.pbm
+./images/custom/right-pushed.pbm
+./images/custom/down-pushed.pbm
+./images/search-replace.pbm
+./images/zoom-out.pbm
+./images/zoom-out.xpm
+./images/lock.xpm
+./images/checked.svg
+./images/new.pbm
+./images/gnus/
+./images/gnus/rot13.pbm
+./images/gnus/mail-send.xpm
+./images/gnus/gnus.xbm
+./images/gnus/receipt.xpm
+./images/gnus/important.pbm
+./images/gnus/exit-gnus.pbm
+./images/gnus/post.xpm
+./images/gnus/kill-group.xpm
+./images/gnus/exit-gnus.xpm
+./images/gnus/save-aif.pbm
+./images/gnus/toggle-subscription.xpm
+./images/gnus/kill-group.pbm
+./images/gnus/describe-group.pbm
+./images/gnus/cu-exit.xpm
+./images/gnus/subscribe.xpm
+./images/gnus/followup.pbm
+./images/gnus/unimportant.pbm
+./images/gnus/mail-reply.xpm
+./images/gnus/exit-summ.pbm
+./images/gnus/gnus-pointer.xbm
+./images/gnus/README
+./images/gnus/post.pbm
+./images/gnus/save-art.xpm
+./images/gnus/uu-decode.xpm
+./images/gnus/reply.pbm
+./images/gnus/toggle-subscription.pbm
+./images/gnus/cu-exit.pbm
+./images/gnus/fuwo.xpm
+./images/gnus/prev-ur.pbm
+./images/gnus/prev-ur.xpm
+./images/gnus/next-ur.xpm
+./images/gnus/gnus.svg
+./images/gnus/uu-decode.pbm
+./images/gnus/catchup.xpm
+./images/gnus/next-ur.pbm
+./images/gnus/receipt.pbm
+./images/gnus/unsubscribe.xpm
+./images/gnus/fuwo.pbm
+./images/gnus/uu-post.xpm
+./images/gnus/subscribe.pbm
+./images/gnus/rot13.xpm
+./images/gnus/preview.xbm
+./images/gnus/gnus.png
+./images/gnus/unsubscribe.pbm
+./images/gnus/mail-send.pbm
+./images/gnus/gnus.xpm
+./images/gnus/save-art.pbm
+./images/gnus/exit-summ.xpm
+./images/gnus/reply-wo.pbm
+./images/gnus/reply.xpm
+./images/gnus/gnntg.pbm
+./images/gnus/important.xpm
+./images/gnus/catchup.pbm
+./images/gnus/gnus-pointer.xpm
+./images/gnus/describe-group.xpm
+./images/gnus/uu-post.pbm
+./images/gnus/get-news.xpm
+./images/gnus/unimportant.xpm
+./images/gnus/reply-wo.xpm
+./images/gnus/get-news.pbm
+./images/gnus/followup.xpm
+./images/gnus/save-aif.xpm
+./images/gnus/gnntg.xpm
+./images/gnus/mail-reply.pbm
+./images/gnus/preview.xpm
+./images/unchecked.pbm
+./images/right-arrow.xpm
+./images/diropen.pbm
+./images/redo.xpm
+./images/saveas.pbm
+./images/mpc/
+./images/mpc/rewind.xpm
+./images/mpc/prev.pbm
+./images/mpc/pause.pbm
+./images/mpc/stop.pbm
+./images/mpc/README
+./images/mpc/add.pbm
+./images/mpc/ffwd.pbm
+./images/mpc/pause.xpm
+./images/mpc/prev.xpm
+./images/mpc/add.xpm
+./images/mpc/next.xpm
+./images/mpc/play.xpm
+./images/mpc/rewind.pbm
+./images/mpc/stop.xpm
+./images/mpc/ffwd.xpm
+./images/mpc/next.pbm
+./images/mpc/play.pbm
+./images/index.pbm
+./images/disconnect.xpm
+./images/help.pbm
+./images/sort-column-ascending.pbm
+./images/newsticker/
+./images/newsticker/browse-url.xpm
+./images/newsticker/update.xpm
+./images/newsticker/mark-immortal.xpm
+./images/newsticker/prev-item.xpm
+./images/newsticker/next-item.xpm
+./images/newsticker/mark-read.xpm
+./images/newsticker/README
+./images/newsticker/next-feed.xpm
+./images/newsticker/rss-feed.png
+./images/newsticker/rss-feed.svg
+./images/newsticker/narrow.xpm
+./images/newsticker/get-all.xpm
+./images/newsticker/prev-feed.xpm
+./images/open.xpm
+./images/next-node.pbm
+./images/exit.xpm
+./images/zoom-in.pbm
+./images/close.pbm
+./images/attach.pbm
+./images/refresh.pbm
+./images/prev-node.pbm
+./images/tree-widget/
+./images/tree-widget/folder/
+./images/tree-widget/folder/guide.png
+./images/tree-widget/folder/handle.xpm
+./images/tree-widget/folder/leaf.xpm
+./images/tree-widget/folder/no-guide.png
+./images/tree-widget/folder/no-handle.png
+./images/tree-widget/folder/no-handle.xpm
+./images/tree-widget/folder/README
+./images/tree-widget/folder/empty.xpm
+./images/tree-widget/folder/leaf.png
+./images/tree-widget/folder/guide.xpm
+./images/tree-widget/folder/no-guide.xpm
+./images/tree-widget/folder/close.xpm
+./images/tree-widget/folder/empty.png
+./images/tree-widget/folder/close.png
+./images/tree-widget/folder/handle.png
+./images/tree-widget/folder/end-guide.xpm
+./images/tree-widget/folder/open.xpm
+./images/tree-widget/folder/end-guide.png
+./images/tree-widget/folder/open.png
+./images/tree-widget/default/
+./images/tree-widget/default/guide.png
+./images/tree-widget/default/handle.xpm
+./images/tree-widget/default/leaf.xpm
+./images/tree-widget/default/no-guide.png
+./images/tree-widget/default/no-handle.png
+./images/tree-widget/default/no-handle.xpm
+./images/tree-widget/default/README
+./images/tree-widget/default/empty.xpm
+./images/tree-widget/default/leaf.png
+./images/tree-widget/default/guide.xpm
+./images/tree-widget/default/no-guide.xpm
+./images/tree-widget/default/close.xpm
+./images/tree-widget/default/empty.png
+./images/tree-widget/default/close.png
+./images/tree-widget/default/handle.png
+./images/tree-widget/default/end-guide.xpm
+./images/tree-widget/default/open.xpm
+./images/tree-widget/default/end-guide.png
+./images/tree-widget/default/open.png
+./images/connect.pbm
+./images/diropen.xpm
+./images/describe.pbm
+./images/cancel.xpm
+./images/connect.xpm
+./images/up-arrow.xpm
+./images/back-arrow.pbm
+./images/splash.svg
+./images/down.svg
+./nxml/
+./nxml/test-invalid.xml
+./nxml/README
+./nxml/test-valid.xml
+./themes/
+./themes/whiteboard-theme.el
+./themes/tango-dark-theme.el
+./themes/misterioso-theme.el
+./themes/tsdh-dark-theme.el
+./themes/tsdh-light-theme.el
+./themes/dichromacy-theme.el
+./themes/modus-vivendi-theme.el
+./themes/manoj-dark-theme.el
+./themes/leuven-theme.el
+./themes/deeper-blue-theme.el
+./themes/light-blue-theme.el
+./themes/modus-themes.el
+./themes/modus-operandi-theme.el
+./themes/tango-theme.el
+./themes/adwaita-theme.el
+./themes/wombat-theme.el
+./themes/wheatgrass-theme.el
+./ORG-NEWS
+./NEWS.24
+./NEWS.19
+./ps-prin1.ps
+./DEBUG
+./NEWS.20
+./DEVEL.HUMOR
+./w32-feature.el
+./gnus-tut.txt
+./emacs.metainfo.xml
+./tutorials/
+./tutorials/TUTORIAL.sk
+./tutorials/TUTORIAL.th
+./tutorials/TUTORIAL.zh
+./tutorials/TUTORIAL.sv
+./tutorials/TUTORIAL.fr
+./tutorials/TUTORIAL.cs
+./tutorials/TUTORIAL.nl
+./tutorials/TUTORIAL.cn
+./tutorials/TUTORIAL.it
+./tutorials/TUTORIAL.ro
+./tutorials/TUTORIAL.es
+./tutorials/TUTORIAL
+./tutorials/TUTORIAL.eo
+./tutorials/TUTORIAL.translators
+./tutorials/TUTORIAL.pl
+./tutorials/TUTORIAL.de
+./tutorials/TUTORIAL.pt_BR
+./tutorials/TUTORIAL.ru
+./tutorials/TUTORIAL.ko
+./tutorials/TUTORIAL.bg
+./tutorials/TUTORIAL.ja
+./tutorials/TUTORIAL.he
+./tutorials/TUTORIAL.sl
+./future-bug
+./PROBLEMS
+./forms/
+./forms/forms-d2.dat
+./forms/README
+./forms/forms-pass.el
+./forms/forms-d2.el
+./charsets/
+./charsets/IBM038.map
+./charsets/IBM880.map
+./charsets/KA-PS.map
+./charsets/KA-ACADEMY.map
+./charsets/IBM855.map
+./charsets/BIG5-1.map
+./charsets/JISC6226.map
+./charsets/stdenc.map
+./charsets/CNS-6.map
+./charsets/VISCII.map
+./charsets/8859-15.map
+./charsets/JISX0212.map
+./charsets/TIS-620.map
+./charsets/IBM865.map
+./charsets/GBK.map
+./charsets/CP10007.map
+./charsets/IBM1026.map
+./charsets/MULE-lviscii.map
+./charsets/CNS-3.map
+./charsets/KOI8-T.map
+./charsets/IBM918.map
+./charsets/IBM863.map
+./charsets/CNS-4.map
+./charsets/JISX0201.map
+./charsets/IBM437.map
+./charsets/8859-4.map
+./charsets/JISX2132.map
+./charsets/JISX2131.map
+./charsets/CP1252.map
+./charsets/IBM874.map
+./charsets/CNS-1.map
+./charsets/GB180302.map
+./charsets/CP932-2BYTE.map
+./charsets/IBM424.map
+./charsets/JISX213A.map
+./charsets/ALTERNATIVNYJ.map
+./charsets/IBM903.map
+./charsets/README
+./charsets/IBM904.map
+./charsets/MACINTOSH.map
+./charsets/IBM278.map
+./charsets/CP720.map
+./charsets/CP1255.map
+./charsets/IBM1047.map
+./charsets/KSC5636.map
+./charsets/IBM423.map
+./charsets/IBM273.map
+./charsets/8859-14.map
+./charsets/IBM864.map
+./charsets/IBM857.map
+./charsets/IBM275.map
+./charsets/PTCP154.map
+./charsets/MULE-tibetan.map
+./charsets/MULE-ipa.map
+./charsets/IBM856.map
+./charsets/8859-3.map
+./charsets/MULE-is13194.map
+./charsets/CP1257.map
+./charsets/IBM862.map
+./charsets/IBM852.map
+./charsets/IBM037.map
+./charsets/8859-7.map
+./charsets/IBM1004.map
+./charsets/CNS-7.map
+./charsets/IBM284.map
+./charsets/CNS-F.map
+./charsets/KOI8-U.map
+./charsets/IBM866.map
+./charsets/IBM290.map
+./charsets/EBCDICUS.map
+./charsets/HP-ROMAN8.map
+./charsets/8859-8.map
+./charsets/BIG5.map
+./charsets/CP858.map
+./charsets/8859-2.map
+./charsets/CP1251.map
+./charsets/8859-6.map
+./charsets/IBM851.map
+./charsets/IBM891.map
+./charsets/GB180304.map
+./charsets/CP1253.map
+./charsets/IBM861.map
+./charsets/IBM281.map
+./charsets/CNS-5.map
+./charsets/IBM500.map
+./charsets/IBM256.map
+./charsets/IBM297.map
+./charsets/IBM868.map
+./charsets/BIG5-HKSCS.map
+./charsets/MIK.map
+./charsets/IBM850.map
+./charsets/CP1125.map
+./charsets/IBM285.map
+./charsets/symbol.map
+./charsets/8859-11.map
+./charsets/8859-16.map
+./charsets/JOHAB.map
+./charsets/8859-10.map
+./charsets/IBM905.map
+./charsets/CP1254.map
+./charsets/8859-5.map
+./charsets/IBM871.map
+./charsets/CP1256.map
+./charsets/8859-13.map
+./charsets/IBM860.map
+./charsets/CP737.map
+./charsets/KOI-8.map
+./charsets/VSCII.map
+./charsets/IBM274.map
+./charsets/MULE-ethiopic.map
+./charsets/MULE-uviscii.map
+./charsets/IBM277.map
+./charsets/IBM875.map
+./charsets/KSC5601.map
+./charsets/CP775.map
+./charsets/CNS-2.map
+./charsets/CP1258.map
+./charsets/IBM869.map
+./charsets/BIG5-2.map
+./charsets/NEXTSTEP.map
+./charsets/JISX0208.map
+./charsets/IBM420.map
+./charsets/MULE-sisheng.map
+./charsets/8859-9.map
+./charsets/IBM870.map
+./charsets/EBCDICUK.map
+./charsets/GB2312.map
+./charsets/KOI8-R.map
+./charsets/IBM280.map
+./charsets/CP1250.map
+./charsets/CP949-2BYTE.map
+./charsets/VSCII-2.map
+./NEWS.22
+./emacsclient-mail.desktop
+./MACHINES
+./AUTHORS
+./DISTRIB
+./emacs-buffer.gdb
+./COPYING
+./gnus/
+./gnus/news-server.ast
+./gnus/gnus-setup.ast
+./JOKES
+./emacs.service
+./e/
+./e/eterm-color
+./e/README
+./e/eterm-color.ti
+./NEWS.25
+./srecode/
+./srecode/ede-autoconf.srt
+./srecode/make.srt
+./srecode/template.srt
+./srecode/ede-make.srt
+./srecode/proj-test.srt
+./srecode/getset-cpp.srt
+./srecode/texi.srt
+./srecode/doc-default.srt
+./srecode/c.srt
+./srecode/doc-java.srt
+./srecode/java.srt
+./srecode/default.srt
+./srecode/test.srt
+./srecode/el.srt
+./srecode/cpp.srt
+./srecode/doc-cpp.srt
+./srecode/wisent.srt
+./TODO
+./package-keyring.gpg
+./MH-E-NEWS
+./TERMS
+./NEWS.26
+./CALC-NEWS
+./NEWS.23
+./org/
+./org/csl/
+./org/csl/README
+./org/csl/chicago-author-date.csl
+./org/csl/locales-en-US.xml
+./org/README
+./org/OrgOdtStyles.xml
+./org/OrgOdtContentTemplate.xml
+./emacs.desktop
+./grep.txt
+./NEWS.27
+./schema/
+./schema/OpenDocument-schema-v1.3.rnc
+./schema/dbcalstbl.rnc
+./schema/xhtml-form.rnc
+./schema/xhtml-text.rnc
+./schema/calstbl.rnc
+./schema/xhtml-link.rnc
+./schema/xhtml-inlstyle.rnc
+./schema/xhtml-frames.rnc
+./schema/xhtml-legacy.rnc
+./schema/xslt.rnc
+./schema/xhtml-image.rnc
+./schema/dbhier.rnc
+./schema/xhtml-attribs.rnc
+./schema/xhtml-struct.rnc
+./schema/xhtml-bdo.rnc
+./schema/README
+./schema/xhtml.rnc
+./schema/xhtml-ruby.rnc
+./schema/xhtml-ssismap.rnc
+./schema/xhtml-meta.rnc
+./schema/xhtml-bform.rnc
+./schema/rdfxml.rnc
+./schema/xhtml-base.rnc
+./schema/relaxng.rnc
+./schema/docbook.rnc
+./schema/xhtml-tgt.rnc
+./schema/xhtml-hypertext.rnc
+./schema/xhtml-object.rnc
+./schema/xhtml-lst.rnc
+./schema/xhtml-btable.rnc
+./schema/xhtml-script.rnc
+./schema/od-manifest-schema-v1.2-os.rnc
+./schema/xhtml-csismap.rnc
+./schema/xhtml-events.rnc
+./schema/xhtml-param.rnc
+./schema/xhtml-edit.rnc
+./schema/xhtml-pres.rnc
+./schema/dbpool.rnc
+./schema/xhtml-xstyle.rnc
+./schema/locate.rnc
+./schema/xhtml-applet.rnc
+./schema/xhtml-iframe.rnc
+./schema/xhtml-nameident.rnc
+./schema/dbstart.rnc
+./schema/dbnotn.rnc
+./schema/xhtml-datatypes.rnc
+./schema/xhtml-table.rnc
+./schema/OpenDocument-schema-v1.3+libreoffice.rnc
+./schema/schemas.xml
+./NEWS.1-17
+Copying ../emacs/lisp to /home/barskik/emacs-install/share/emacs/28.0.60/lisp...
+./
+./cus-dep.el
+./xdg.elc
+./t-mouse.elc
+./help-fns.elc
+./rtree.el
+./w32-vars.elc
+./obarray.el
+./dom.elc
+./scroll-all.elc
+./rect.elc
+./minibuffer.elc
+./dired-x.el
+./epg-config.el
+./paren.elc
+./info-look.el
+./icomplete.elc
+./loadup.el
+./jka-cmpr-hook.elc
+./ibuf-ext.el
+./makesum.elc
+./mouse.elc
+./hl-line.el
+./char-fold.el
+./ldefs-boot.el
+./format.elc
+./isearchb.elc
+./windmove.elc
+./wdired.el
+./transient.elc
+./shadowfile.elc
+./rtree.elc
+./hex-util.elc
+./ibuf-macs.elc
+./electric.el
+./minibuf-eldef.el
+./bs.el
+./wid-browse.elc
+./help.el
+./avoid.elc
+./mb-depth.elc
+./ansi-color.el
+./novice.elc
+./ChangeLog.12
+./recentf.el
+./view.elc
+./obsolete/
+./obsolete/iswitchb.el
+./obsolete/mailpost.elc
+./obsolete/cl-compat.elc
+./obsolete/landmark.el
+./obsolete/pgg-parse.elc
+./obsolete/vi.elc
+./obsolete/url-ns.elc
+./obsolete/url-ns.el
+./obsolete/abbrevlist.elc
+./obsolete/sregex.elc
+./obsolete/nnir.el
+./obsolete/yow.el
+./obsolete/complete.el
+./obsolete/terminal.elc
+./obsolete/old-emacs-lock.el
+./obsolete/sup-mouse.el
+./obsolete/sregex.el
+./obsolete/pgg-gpg.elc
+./obsolete/bruce.elc
+./obsolete/cl.elc
+./obsolete/fast-lock.el
+./obsolete/bruce.el
+./obsolete/html2text.elc
+./obsolete/sb-image.el
+./obsolete/ws-mode.elc
+./obsolete/mantemp.el
+./obsolete/longlines.el
+./obsolete/gulp.elc
+./obsolete/tpu-extras.elc
+./obsolete/eudcb-ph.elc
+./obsolete/longlines.elc
+./obsolete/messcompat.el
+./obsolete/ws-mode.el
+./obsolete/pgg-pgp5.elc
+./obsolete/lazy-lock.elc
+./obsolete/mouse-sel.el
+./obsolete/pgg-def.elc
+./obsolete/eudcb-ph.el
+./obsolete/starttls.elc
+./obsolete/pgg-parse.el
+./obsolete/gulp.el
+./obsolete/pc-select.elc
+./obsolete/sup-mouse.elc
+./obsolete/s-region.elc
+./obsolete/pgg-pgp5.el
+./obsolete/otodo-mode.elc
+./obsolete/yow.elc
+./obsolete/metamail.elc
+./obsolete/mantemp.elc
+./obsolete/erc-hecomplete.elc
+./obsolete/pc-select.el
+./obsolete/pgg-pgp.elc
+./obsolete/inversion.elc
+./obsolete/sb-image.elc
+./obsolete/info-edit.elc
+./obsolete/info-edit.el
+./obsolete/vip.el
+./obsolete/cust-print.el
+./obsolete/pc-mode.el
+./obsolete/landmark.elc
+./obsolete/rcompile.el
+./obsolete/vip.elc
+./obsolete/abbrevlist.el
+./obsolete/otodo-mode.el
+./obsolete/tpu-mapper.el
+./obsolete/tpu-mapper.elc
+./obsolete/pgg-pgp.el
+./obsolete/patcomp.el
+./obsolete/patcomp.elc
+./obsolete/s-region.el
+./obsolete/vc-arch.el
+./obsolete/rfc2368.el
+./obsolete/cc-compat.elc
+./obsolete/old-emacs-lock.elc
+./obsolete/assoc.elc
+./obsolete/terminal.el
+./obsolete/tpu-edt.elc
+./obsolete/mailpost.el
+./obsolete/meese.elc
+./obsolete/tpu-edt.el
+./obsolete/complete.elc
+./obsolete/pgg.el
+./obsolete/pgg.elc
+./obsolete/pc-mode.elc
+./obsolete/rfc2368.elc
+./obsolete/starttls.el
+./obsolete/gs.elc
+./obsolete/lazy-lock.el
+./obsolete/inversion.el
+./obsolete/cc-compat.el
+./obsolete/pgg-def.el
+./obsolete/pgg-gpg.el
+./obsolete/tpu-extras.el
+./obsolete/vc-arch.elc
+./obsolete/crisp.elc
+./obsolete/assoc.el
+./obsolete/rcompile.elc
+./obsolete/tls.el
+./obsolete/nnir.elc
+./obsolete/metamail.el
+./obsolete/gs.el
+./obsolete/cust-print.elc
+./obsolete/cl.el
+./obsolete/tls.elc
+./obsolete/meese.el
+./obsolete/cl-compat.el
+./obsolete/erc-hecomplete.el
+./obsolete/mouse-sel.elc
+./obsolete/iswitchb.elc
+./obsolete/crisp.el
+./obsolete/html2text.el
+./obsolete/vi.el
+./obsolete/fast-lock.elc
+./ps-mule.elc
+./scroll-all.el
+./language/
+./language/georgian.elc
+./language/romanian.el
+./language/hanja-util.el
+./language/japanese.el
+./language/sinhala.el
+./language/china-util.elc
+./language/cyril-util.el
+./language/misc-lang.el
+./language/tibetan.elc
+./language/pinyin.elc
+./language/vietnamese.el
+./language/cyrillic.el
+./language/indian.elc
+./language/korea-util.elc
+./language/thai-word.elc
+./language/korean.elc
+./language/chinese.elc
+./language/hebrew.elc
+./language/cham.el
+./language/ethio-util.el
+./language/ind-util.el
+./language/tv-util.el
+./language/tai-viet.elc
+./language/greek.el
+./language/czech.elc
+./language/lao-util.elc
+./language/khmer.elc
+./language/hebrew.el
+./language/chinese.el
+./language/thai.elc
+./language/tai-viet.el
+./language/korean.el
+./language/romanian.elc
+./language/cyril-util.elc
+./language/burmese.elc
+./language/hanja-util.elc
+./language/vietnamese.elc
+./language/english.el
+./language/thai.el
+./language/georgian.el
+./language/european.elc
+./language/thai-word.el
+./language/utf-8-lang.elc
+./language/european.el
+./language/viet-util.elc
+./language/cyrillic.elc
+./language/sinhala.elc
+./language/czech.el
+./language/burmese.el
+./language/cham.elc
+./language/slovak.elc
+./language/viet-util.el
+./language/tibet-util.el
+./language/tibet-util.elc
+./language/pinyin.el
+./language/lao.elc
+./language/slovak.el
+./language/japan-util.el
+./language/korea-util.el
+./language/tv-util.elc
+./language/ethiopic.el
+./language/khmer.el
+./language/indian.el
+./language/ethio-util.elc
+./language/misc-lang.elc
+./language/ethiopic.elc
+./language/english.elc
+./language/lao.el
+./language/utf-8-lang.el
+./language/japan-util.elc
+./language/tibetan.el
+./language/thai-util.elc
+./language/china-util.el
+./language/ind-util.elc
+./language/thai-util.el
+./language/japanese.elc
+./language/greek.elc
+./language/lao-util.el
+./informat.elc
+./align.el
+./wdired.elc
+./ChangeLog.8
+./time-stamp.el
+./shadowfile.el
+./xwidget.el
+./soundex.el
+./filesets.el
+./auth-source.el
+./uniquify.el
+./winner.el
+./password-cache.el
+./epg-config.elc
+./minibuf-eldef.elc
+./bindings.el
+./expand.elc
+./indent.el
+./epa.el
+./completion.elc
+./dos-fns.elc
+./thingatpt.elc
+./tool-bar.elc
+./emacs-lock.elc
+./xwidget.elc
+./ehelp.el
+./dos-fns.el
+./shell.el
+./emacs-lock.el
+./autoarg.elc
+./reveal.el
+./winner.elc
+./mouse-copy.el
+./skeleton.elc
+./ps-def.elc
+./server.el
+./md4.elc
+./epa-dired.el
+./abbrev.el
+./linum.el
+./kmacro.elc
+./tutorial.elc
+./pcomplete.elc
+./filenotify.elc
+./doc-view.elc
+./info.elc
+./window.elc
+./double.elc
+./auth-source.elc
+./talk.elc
+./case-table.elc
+./hippie-exp.el
+./sort.elc
+./follow.el
+./xdg.el
+./foldout.elc
+./buff-menu.elc
+./xt-mouse.elc
+./dynamic-setting.elc
+./arc-mode.el
+./help-macro.el
+./generic-x.el
+./cus-load.el
+./ChangeLog.1
+./reposition.el
+./calc/
+./calc/calc-mode.el
+./calc/calc-vec.elc
+./calc/calc-stat.elc
+./calc/calc-incom.elc
+./calc/calc-fin.el
+./calc/calc-math.el
+./calc/calc-store.elc
+./calc/calcalg2.elc
+./calc/calc-misc.elc
+./calc/calcsel2.el
+./calc/calc-arith.el
+./calc/calc-stat.el
+./calc/calc-keypd.elc
+./calc/calc-incom.el
+./calc/calc-help.el
+./calc/calc-mtx.el
+./calc/calc-map.elc
+./calc/calc-map.el
+./calc/calc-keypd.el
+./calc/calc-forms.el
+./calc/calc-sel.el
+./calc/calc-stuff.elc
+./calc/calc-comb.el
+./calc/calc.elc
+./calc/calc-rewr.elc
+./calc/calc-nlfit.el
+./calc/calc-lang.el
+./calc/calcalg3.el
+./calc/calc-units.el
+./calc/calc-alg.el
+./calc/calc-loaddefs.el
+./calc/calc-poly.el
+./calc/calc-trail.elc
+./calc/calc.el
+./calc/calc-comb.elc
+./calc/calc-undo.el
+./calc/calc-forms.elc
+./calc/calc-mtx.elc
+./calc/calc-help.elc
+./calc/calc-rewr.el
+./calc/calc-yank.elc
+./calc/calc-ext.elc
+./calc/calc-bin.elc
+./calc/calc-fin.elc
+./calc/calc-store.el
+./calc/calc-funcs.elc
+./calc/calc-embed.el
+./calc/calc-stuff.el
+./calc/calcalg2.el
+./calc/calc-mode.elc
+./calc/calc-vec.el
+./calc/calc-frac.el
+./calc/calc-rules.el
+./calc/calcsel2.elc
+./calc/calc-graph.el
+./calc/calc-trail.el
+./calc/calccomp.el
+./calc/calc-ext.el
+./calc/calc-math.elc
+./calc/calc-cplx.elc
+./calc/calc-prog.elc
+./calc/calc-macs.elc
+./calc/calc-sel.elc
+./calc/calc-macs.el
+./calc/calc-aent.el
+./calc/calc-misc.el
+./calc/calc-bin.el
+./calc/calc-units.elc
+./calc/calc-alg.elc
+./calc/calc-nlfit.elc
+./calc/calc-undo.elc
+./calc/calc-funcs.el
+./calc/calc-poly.elc
+./calc/calc-rules.elc
+./calc/calcalg3.elc
+./calc/calc-arith.elc
+./calc/calc-embed.elc
+./calc/calc-aent.elc
+./calc/calc-graph.elc
+./calc/calc-yank.el
+./calc/calc-frac.elc
+./calc/calc-menu.el
+./calc/calccomp.elc
+./calc/calc-menu.elc
+./calc/calc-cplx.el
+./calc/calc-lang.elc
+./calc/calc-prog.el
+./epa-file.elc
+./so-long.elc
+./image.el
+./scroll-lock.el
+./font-core.el
+./mwheel.el
+./notifications.el
+./help-at-pt.el
+./bs.elc
+./allout.el
+./elide-head.el
+./subr.el
+./pcmpl-linux.elc
+./generic-x.elc
+./hilit-chg.el
+./cdl.elc
+./comint.elc
+./dired-aux.elc
+./url/
+./url/url-about.elc
+./url/url-irc.el
+./url/url-history.el
+./url/url-mailto.elc
+./url/url-file.elc
+./url/url-future.el
+./url/url-parse.el
+./url/url-privacy.el
+./url/url-imap.elc
+./url/url-misc.elc
+./url/url-auth.elc
+./url/url-nfs.elc
+./url/ChangeLog.1
+./url/url-news.el
+./url/url-ldap.el
+./url/url-expand.elc
+./url/url-parse.elc
+./url/url-irc.elc
+./url/url.el
+./url/url-http.el
+./url/url-handlers.el
+./url/url-privacy.elc
+./url/url-file.el
+./url/url-dired.el
+./url/url-expand.el
+./url/url-tramp.el
+./url/url-auth.el
+./url/url-ldap.elc
+./url/url-queue.el
+./url/url-misc.el
+./url/url-domsuf.elc
+./url/url-mailto.el
+./url/url-http.elc
+./url/url-cache.elc
+./url/url-about.el
+./url/url-gw.el
+./url/url-queue.elc
+./url/url-cookie.elc
+./url/url-methods.el
+./url/url-proxy.el
+./url/url-dav.elc
+./url/url-cid.el
+./url/url.elc
+./url/url-methods.elc
+./url/url-gw.elc
+./url/url-dav.el
+./url/url-future.elc
+./url/url-vars.el
+./url/url-cid.elc
+./url/url-util.elc
+./url/url-ftp.el
+./url/url-proxy.elc
+./url/url-domsuf.el
+./url/url-cache.el
+./url/url-history.elc
+./url/url-tramp.elc
+./url/url-news.elc
+./url/url-util.el
+./url/url-dired.elc
+./url/url-ftp.elc
+./url/url-nfs.el
+./url/url-handlers.elc
+./url/url-vars.elc
+./url/url-cookie.el
+./url/url-imap.el
+./htmlfontify-loaddefs.el
+./cus-start.el
+./paren.el
+./mouse-copy.elc
+./format.el
+./ChangeLog.15
+./lpr.elc
+./custom.el
+./transient.el
+./startup.elc
+./image-file.el
+./desktop.elc
+./saveplace.elc
+./subdirs.el
+./fileloop.el
+./pcmpl-cvs.elc
+./tab-bar.el
+./saveplace.el
+./menu-bar.elc
+./uniquify.elc
+./ido.el
+./pcmpl-rpm.el
+./README
+./ChangeLog.7
+./button.elc
+./pcmpl-cvs.el
+./simple.elc
+./display-line-numbers.elc
+./ezimage.elc
+./dired-x.elc
+./loaddefs.el
+./plstore.el
+./help-mode.elc
+./leim/
+./leim/leim-list.el
+./leim/quail/
+./leim/quail/georgian.elc
+./leim/quail/QJ.elc
+./leim/quail/lrt.elc
+./leim/quail/japanese.el
+./leim/quail/CTLau.el
+./leim/quail/tibetan.elc
+./leim/quail/latin-pre.elc
+./leim/quail/programmer-dvorak.el
+./leim/quail/tsang-b5.elc
+./leim/quail/cyrillic.el
+./leim/quail/QJ.el
+./leim/quail/vnvni.elc
+./leim/quail/indian.elc
+./leim/quail/PY-b5.elc
+./leim/quail/hebrew.elc
+./leim/quail/quick-b5.el
+./leim/quail/cham.el
+./leim/quail/programmer-dvorak.elc
+./leim/quail/hangul.elc
+./leim/quail/tsang-cns.el
+./leim/quail/cyril-jis.elc
+./leim/quail/sisheng.elc
+./leim/quail/rfc1345.el
+./leim/quail/greek.el
+./leim/quail/czech.elc
+./leim/quail/CTLau-b5.elc
+./leim/quail/viqr.elc
+./leim/quail/sgml-input.elc
+./leim/quail/hebrew.el
+./leim/quail/viqr.el
+./leim/quail/pypunct-b5.elc
+./leim/quail/SW.elc
+./leim/quail/pypunct-b5.el
+./leim/quail/ipa-praat.el
+./leim/quail/thai.elc
+./leim/quail/hanja3.elc
+./leim/quail/py-punct.el
+./leim/quail/vnvni.el
+./leim/quail/welsh.el
+./leim/quail/ipa-praat.elc
+./leim/quail/hanja.el
+./leim/quail/ECDICT.elc
+./leim/quail/lrt.el
+./leim/quail/TONEPY.el
+./leim/quail/ZOZY.elc
+./leim/quail/thai.el
+./leim/quail/persian.elc
+./leim/quail/CCDOSPY.elc
+./leim/quail/latin-pre.el
+./leim/quail/georgian.el
+./leim/quail/hangul.el
+./leim/quail/welsh.elc
+./leim/quail/TONEPY.elc
+./leim/quail/ZIRANMA.elc
+./leim/quail/hanja-jis.el
+./leim/quail/hanja.elc
+./leim/quail/croatian.elc
+./leim/quail/4Corner.el
+./leim/quail/CTLau-b5.el
+./leim/quail/cyrillic.elc
+./leim/quail/czech.el
+./leim/quail/Punct-b5.el
+./leim/quail/cham.elc
+./leim/quail/slovak.elc
+./leim/quail/CTLau.elc
+./leim/quail/sgml-input.el
+./leim/quail/hanja-jis.elc
+./leim/quail/QJ-b5.el
+./leim/quail/vntelex.el
+./leim/quail/Punct.elc
+./leim/quail/uni-input.el
+./leim/quail/tsang-cns.elc
+./leim/quail/ipa.el
+./leim/quail/lao.elc
+./leim/quail/PY.el
+./leim/quail/slovak.el
+./leim/quail/croatian.el
+./leim/quail/quick-cns.el
+./leim/quail/ECDICT.el
+./leim/quail/QJ-b5.elc
+./leim/quail/latin-alt.elc
+./leim/quail/ipa.elc
+./leim/quail/latin-ltx.elc
+./leim/quail/PY-b5.el
+./leim/quail/sami.el
+./leim/quail/tsang-b5.el
+./leim/quail/ethiopic.el
+./leim/quail/Punct-b5.elc
+./leim/quail/rfc1345.elc
+./leim/quail/SW.el
+./leim/quail/indian.el
+./leim/quail/PY.elc
+./leim/quail/latin-post.el
+./leim/quail/cyril-jis.el
+./leim/quail/hanja3.el
+./leim/quail/Punct.el
+./leim/quail/vntelex.elc
+./leim/quail/quick-cns.elc
+./leim/quail/ethiopic.elc
+./leim/quail/lao.el
+./leim/quail/arabic.elc
+./leim/quail/ETZY.elc
+./leim/quail/sami.elc
+./leim/quail/ZOZY.el
+./leim/quail/ZIRANMA.el
+./leim/quail/ARRAY30.el
+./leim/quail/latin-post.elc
+./leim/quail/ETZY.el
+./leim/quail/sisheng.el
+./leim/quail/compose.el
+./leim/quail/latin-ltx.el
+./leim/quail/tibetan.el
+./leim/quail/persian.el
+./leim/quail/4Corner.elc
+./leim/quail/quick-b5.elc
+./leim/quail/uni-input.elc
+./leim/quail/tamil-dvorak.elc
+./leim/quail/symbol-ksc.elc
+./leim/quail/ARRAY30.elc
+./leim/quail/py-punct.elc
+./leim/quail/compose.elc
+./leim/quail/japanese.elc
+./leim/quail/greek.elc
+./leim/quail/tamil-dvorak.el
+./leim/quail/symbol-ksc.el
+./leim/quail/latin-alt.el
+./leim/quail/CCDOSPY.el
+./leim/quail/arabic.el
+./leim/ja-dic/
+./leim/ja-dic/ja-dic.el
+./leim/ja-dic/ja-dic.elc
+./mh-e/
+./mh-e/mh-scan.el
+./mh-e/mh-compat.el
+./mh-e/mh-tool-bar.el
+./mh-e/mh-mime.el
+./mh-e/mh-limit.el
+./mh-e/mh-funcs.elc
+./mh-e/mh-letter.elc
+./mh-e/mh-xface.el
+./mh-e/mh-scan.elc
+./mh-e/mh-utils.el
+./mh-e/ChangeLog.1
+./mh-e/mh-identity.elc
+./mh-e/mh-gnus.el
+./mh-e/mh-utils.elc
+./mh-e/mh-inc.elc
+./mh-e/mh-tool-bar.elc
+./mh-e/mh-search.elc
+./mh-e/mh-speed.el
+./mh-e/mh-seq.elc
+./mh-e/mh-alias.elc
+./mh-e/mh-buffers.el
+./mh-e/mh-mime.elc
+./mh-e/mh-comp.elc
+./mh-e/mh-compat.elc
+./mh-e/mh-e.elc
+./mh-e/mh-acros.el
+./mh-e/mh-thread.el
+./mh-e/mh-e.el
+./mh-e/mh-thread.elc
+./mh-e/mh-print.elc
+./mh-e/mh-gnus.elc
+./mh-e/mh-show.el
+./mh-e/mh-seq.el
+./mh-e/mh-limit.elc
+./mh-e/mh-print.el
+./mh-e/mh-comp.el
+./mh-e/mh-funcs.el
+./mh-e/mh-junk.elc
+./mh-e/mh-identity.el
+./mh-e/mh-speed.elc
+./mh-e/mh-xface.elc
+./mh-e/mh-search.el
+./mh-e/ChangeLog.2
+./mh-e/mh-alias.el
+./mh-e/mh-buffers.elc
+./mh-e/mh-folder.el
+./mh-e/mh-loaddefs.el
+./mh-e/mh-inc.el
+./mh-e/mh-show.elc
+./mh-e/mh-junk.el
+./mh-e/mh-folder.elc
+./mh-e/mh-letter.el
+./mh-e/mh-loaddefs.el~
+./register.elc
+./jka-compr.el
+./ibuf-macs.el
+./vt-control.elc
+./locate.el
+./register.el
+./delsel.el
+./autoinsert.el
+./cedet/
+./cedet/semantic.el
+./cedet/srecode.el
+./cedet/pulse.el
+./cedet/cedet-cscope.elc
+./cedet/mode-local.elc
+./cedet/cedet-idutils.elc
+./cedet/ChangeLog.1
+./cedet/cedet-cscope.el
+./cedet/cedet-global.el
+./cedet/semantic/
+./cedet/semantic/edit.elc
+./cedet/semantic/tag.el
+./cedet/semantic/html.el
+./cedet/semantic/bovine.elc
+./cedet/semantic/ede-grammar.elc
+./cedet/semantic/chart.elc
+./cedet/semantic/format.elc
+./cedet/semantic/db-file.el
+./cedet/semantic/db-javascript.elc
+./cedet/semantic/complete.el
+./cedet/semantic/db-el.elc
+./cedet/semantic/decorate/
+./cedet/semantic/decorate/include.el
+./cedet/semantic/decorate/mode.el
+./cedet/semantic/decorate/include.elc
+./cedet/semantic/decorate/mode.elc
+./cedet/semantic/find.elc
+./cedet/semantic/wisent.el
+./cedet/semantic/dep.elc
+./cedet/semantic/decorate.elc
+./cedet/semantic/sort.elc
+./cedet/semantic/db.el
+./cedet/semantic/db.elc
+./cedet/semantic/db-debug.el
+./cedet/semantic/symref.elc
+./cedet/semantic/grammar-wy.el
+./cedet/semantic/doc.elc
+./cedet/semantic/db-mode.elc
+./cedet/semantic/util-modes.elc
+./cedet/semantic/format.el
+./cedet/semantic/tag.elc
+./cedet/semantic/analyze/
+./cedet/semantic/analyze/refs.elc
+./cedet/semantic/analyze/complete.el
+./cedet/semantic/analyze/refs.el
+./cedet/semantic/analyze/fcn.el
+./cedet/semantic/analyze/debug.elc
+./cedet/semantic/analyze/fcn.elc
+./cedet/semantic/analyze/complete.elc
+./cedet/semantic/analyze/debug.el
+./cedet/semantic/grammar.el
+./cedet/semantic/db-find.elc
+./cedet/semantic/util.el
+./cedet/semantic/loaddefs.el
+./cedet/semantic/texi.elc
+./cedet/semantic/dep.el
+./cedet/semantic/edit.el
+./cedet/semantic/fw.elc
+./cedet/semantic/db-mode.el
+./cedet/semantic/tag-ls.el
+./cedet/semantic/find.el
+./cedet/semantic/mru-bookmark.el
+./cedet/semantic/decorate.el
+./cedet/semantic/db-typecache.elc
+./cedet/semantic/analyze.el
+./cedet/semantic/db-ebrowse.el
+./cedet/semantic/db-file.elc
+./cedet/semantic/db-ref.elc
+./cedet/semantic/imenu.el
+./cedet/semantic/bovine.el
+./cedet/semantic/ia-sb.elc
+./cedet/semantic/imenu.elc
+./cedet/semantic/ia.elc
+./cedet/semantic/ia.el
+./cedet/semantic/lex-spp.elc
+./cedet/semantic/bovine/
+./cedet/semantic/bovine/scm-by.el~
+./cedet/semantic/bovine/make-by.el~
+./cedet/semantic/bovine/el.elc
+./cedet/semantic/bovine/scm.el
+./cedet/semantic/bovine/c.elc
+./cedet/semantic/bovine/c-by.el
+./cedet/semantic/bovine/make.elc
+./cedet/semantic/bovine/scm-by.elc
+./cedet/semantic/bovine/grammar.el
+./cedet/semantic/bovine/make.el
+./cedet/semantic/bovine/make-by.elc
+./cedet/semantic/bovine/c-by.el~
+./cedet/semantic/bovine/debug.elc
+./cedet/semantic/bovine/el.el
+./cedet/semantic/bovine/c.el
+./cedet/semantic/bovine/scm.elc
+./cedet/semantic/bovine/gcc.elc
+./cedet/semantic/bovine/c-by.elc
+./cedet/semantic/bovine/gcc.el
+./cedet/semantic/bovine/debug.el
+./cedet/semantic/bovine/grammar.elc
+./cedet/semantic/bovine/scm-by.el
+./cedet/semantic/bovine/make-by.el
+./cedet/semantic/db-ref.el
+./cedet/semantic/db-javascript.el
+./cedet/semantic/mru-bookmark.elc
+./cedet/semantic/loaddefs.el~
+./cedet/semantic/util.elc
+./cedet/semantic/tag-write.el
+./cedet/semantic/ctxt.elc
+./cedet/semantic/debug.elc
+./cedet/semantic/lex.elc
+./cedet/semantic/ctxt.el
+./cedet/semantic/idle.el
+./cedet/semantic/idle.elc
+./cedet/semantic/doc.el
+./cedet/semantic/grammar-wy.elc
+./cedet/semantic/lex-spp.el
+./cedet/semantic/db-find.el
+./cedet/semantic/scope.elc
+./cedet/semantic/chart.el
+./cedet/semantic/wisent/
+./cedet/semantic/wisent/js-wy.el
+./cedet/semantic/wisent/wisent.el
+./cedet/semantic/wisent/javat-wy.el
+./cedet/semantic/wisent/java-tags.el
+./cedet/semantic/wisent/js-wy.el~
+./cedet/semantic/wisent/grammar.el
+./cedet/semantic/wisent/comp.elc
+./cedet/semantic/wisent/javascript.elc
+./cedet/semantic/wisent/javascript.el
+./cedet/semantic/wisent/javat-wy.elc
+./cedet/semantic/wisent/python-wy.el~
+./cedet/semantic/wisent/python-wy.elc
+./cedet/semantic/wisent/js-wy.elc
+./cedet/semantic/wisent/wisent.elc
+./cedet/semantic/wisent/python.elc
+./cedet/semantic/wisent/python.el
+./cedet/semantic/wisent/grammar.elc
+./cedet/semantic/wisent/java-tags.elc
+./cedet/semantic/wisent/javat-wy.el~
+./cedet/semantic/wisent/comp.el
+./cedet/semantic/wisent/python-wy.el
+./cedet/semantic/db-ebrowse.elc
+./cedet/semantic/sb.el
+./cedet/semantic/tag-write.elc
+./cedet/semantic/symref.el
+./cedet/semantic/java.el
+./cedet/semantic/java.elc
+./cedet/semantic/sort.el
+./cedet/semantic/lex.el
+./cedet/semantic/db-global.elc
+./cedet/semantic/complete.elc
+./cedet/semantic/ede-grammar.el
+./cedet/semantic/senator.el
+./cedet/semantic/ia-sb.el
+./cedet/semantic/wisent.elc
+./cedet/semantic/fw.el
+./cedet/semantic/sb.elc
+./cedet/semantic/debug.el
+./cedet/semantic/db-typecache.el
+./cedet/semantic/senator.elc
+./cedet/semantic/db-el.el
+./cedet/semantic/grm-wy-boot.el
+./cedet/semantic/tag-ls.elc
+./cedet/semantic/db-debug.elc
+./cedet/semantic/util-modes.el
+./cedet/semantic/grammar.elc
+./cedet/semantic/tag-file.el
+./cedet/semantic/symref/
+./cedet/semantic/symref/list.elc
+./cedet/semantic/symref/global.el
+./cedet/semantic/symref/cscope.el
+./cedet/semantic/symref/filter.el
+./cedet/semantic/symref/list.el
+./cedet/semantic/symref/grep.el
+./cedet/semantic/symref/global.elc
+./cedet/semantic/symref/cscope.elc
+./cedet/semantic/symref/grep.elc
+./cedet/semantic/symref/idutils.el
+./cedet/semantic/symref/idutils.elc
+./cedet/semantic/symref/filter.elc
+./cedet/semantic/tag-file.elc
+./cedet/semantic/html.elc
+./cedet/semantic/db-global.el
+./cedet/semantic/texi.el
+./cedet/semantic/scope.el
+./cedet/semantic/analyze.elc
+./cedet/semantic/grm-wy-boot.elc
+./cedet/data-debug.elc
+./cedet/data-debug.el
+./cedet/cedet-global.elc
+./cedet/cedet.el
+./cedet/cedet-files.el
+./cedet/cedet-files.elc
+./cedet/mode-local.el
+./cedet/ede.elc
+./cedet/pulse.elc
+./cedet/srecode.elc
+./cedet/srecode/
+./cedet/srecode/semantic.el
+./cedet/srecode/fields.el
+./cedet/srecode/table.elc
+./cedet/srecode/insert.elc
+./cedet/srecode/compile.elc
+./cedet/srecode/srt-wy.elc
+./cedet/srecode/srt.elc
+./cedet/srecode/srt.el
+./cedet/srecode/el.elc
+./cedet/srecode/find.elc
+./cedet/srecode/dictionary.elc
+./cedet/srecode/dictionary.el
+./cedet/srecode/cpp.elc
+./cedet/srecode/mode.el
+./cedet/srecode/expandproto.elc
+./cedet/srecode/expandproto.el
+./cedet/srecode/map.elc
+./cedet/srecode/table.el
+./cedet/srecode/loaddefs.el
+./cedet/srecode/srt-wy.el
+./cedet/srecode/texi.elc
+./cedet/srecode/document.elc
+./cedet/srecode/find.el
+./cedet/srecode/filters.elc
+./cedet/srecode/document.el
+./cedet/srecode/extract.el
+./cedet/srecode/loaddefs.el~
+./cedet/srecode/fields.elc
+./cedet/srecode/extract.elc
+./cedet/srecode/ctxt.elc
+./cedet/srecode/ctxt.el
+./cedet/srecode/getset.elc
+./cedet/srecode/srt-mode.elc
+./cedet/srecode/el.el
+./cedet/srecode/cpp.el
+./cedet/srecode/template.elc
+./cedet/srecode/compile.el
+./cedet/srecode/java.el
+./cedet/srecode/insert.el
+./cedet/srecode/template.el
+./cedet/srecode/java.elc
+./cedet/srecode/srt-mode.el
+./cedet/srecode/args.elc
+./cedet/srecode/getset.el
+./cedet/srecode/map.el
+./cedet/srecode/texi.el
+./cedet/srecode/mode.elc
+./cedet/srecode/args.el
+./cedet/srecode/srt-wy.el~
+./cedet/srecode/filters.el
+./cedet/srecode/semantic.elc
+./cedet/ede.el
+./cedet/ede/
+./cedet/ede/system.elc
+./cedet/ede/linux.elc
+./cedet/ede/pmake.elc
+./cedet/ede/generic.elc
+./cedet/ede/srecode.el
+./cedet/ede/proj-info.elc
+./cedet/ede/makefile-edit.el
+./cedet/ede/detect.el
+./cedet/ede/shell.el
+./cedet/ede/make.elc
+./cedet/ede/generic.el
+./cedet/ede/project-am.el
+./cedet/ede/auto.el
+./cedet/ede/custom.el
+./cedet/ede/proj-prog.elc
+./cedet/ede/cpp-root.el
+./cedet/ede/util.el
+./cedet/ede/simple.elc
+./cedet/ede/loaddefs.el
+./cedet/ede/proj-comp.el
+./cedet/ede/proj-info.el
+./cedet/ede/locate.el
+./cedet/ede/proj-shared.elc
+./cedet/ede/proj-scheme.el
+./cedet/ede/proj.elc
+./cedet/ede/proj-elisp.elc
+./cedet/ede/make.el
+./cedet/ede/detect.elc
+./cedet/ede/proj-misc.el
+./cedet/ede/pmake.el
+./cedet/ede/proj-aux.el
+./cedet/ede/autoconf-edit.elc
+./cedet/ede/base.el
+./cedet/ede/proj-comp.elc
+./cedet/ede/loaddefs.el~
+./cedet/ede/util.elc
+./cedet/ede/proj-archive.el
+./cedet/ede/custom.elc
+./cedet/ede/base.elc
+./cedet/ede/simple.el
+./cedet/ede/pconf.elc
+./cedet/ede/proj-aux.elc
+./cedet/ede/speedbar.el
+./cedet/ede/proj-scheme.elc
+./cedet/ede/files.elc
+./cedet/ede/proj-archive.elc
+./cedet/ede/config.elc
+./cedet/ede/dired.el
+./cedet/ede/proj-prog.el
+./cedet/ede/makefile-edit.elc
+./cedet/ede/project-am.elc
+./cedet/ede/dired.elc
+./cedet/ede/files.el
+./cedet/ede/cpp-root.elc
+./cedet/ede/proj-elisp.el
+./cedet/ede/shell.elc
+./cedet/ede/speedbar.elc
+./cedet/ede/autoconf-edit.el
+./cedet/ede/proj-obj.el
+./cedet/ede/system.el
+./cedet/ede/proj-shared.el
+./cedet/ede/proj.el
+./cedet/ede/srecode.elc
+./cedet/ede/linux.el
+./cedet/ede/source.el
+./cedet/ede/pconf.el
+./cedet/ede/proj-obj.elc
+./cedet/ede/emacs.el
+./cedet/ede/config.el
+./cedet/ede/emacs.elc
+./cedet/ede/auto.elc
+./cedet/ede/locate.elc
+./cedet/ede/proj-misc.elc
+./cedet/ede/source.elc
+./cedet/cedet-idutils.el
+./cedet/cedet.elc
+./cedet/semantic.elc
+./ChangeLog.4
+./dos-vars.el
+./xt-mouse.el
+./dirtrack.elc
+./hexl.elc
+./tool-bar.el
+./allout-widgets.el
+./ps-bdf.elc
+./pcmpl-gnu.elc
+./faces.elc
+./help-macro.elc
+./thumbs.el
+./array.elc
+./dynamic-setting.el
+./cus-start.elc
+./display-line-numbers.el
+./term/
+./term/sun.elc
+./term/vt100.elc
+./term/linux.elc
+./term/st.elc
+./term/x-win.elc
+./term/wyse50.elc
+./term/ns-win.el
+./term/rxvt.el
+./term/tvi970.elc
+./term/w32-win.el
+./term/w32-win.elc
+./term/news.elc
+./term/wyse50.el
+./term/tty-colors.el
+./term/README
+./term/common-win.elc
+./term/konsole.el
+./term/lk201.el
+./term/iris-ansi.el
+./term/common-win.el
+./term/tty-colors.elc
+./term/bobcat.el
+./term/xterm.elc
+./term/konsole.elc
+./term/vt200.el
+./term/vt200.elc
+./term/AT386.elc
+./term/cygwin.elc
+./term/sun.el
+./term/tmux.elc
+./term/xterm.el
+./term/x-win.el
+./term/w32console.elc
+./term/internal.elc
+./term/tmux.el
+./term/pc-win.el
+./term/cygwin.el
+./term/internal.el
+./term/vt100.el
+./term/w32console.el
+./term/screen.elc
+./term/rxvt.elc
+./term/st.el
+./term/linux.el
+./term/lk201.elc
+./term/AT386.el
+./term/news.el
+./term/ns-win.elc
+./term/pc-win.elc
+./term/iris-ansi.elc
+./term/bobcat.elc
+./term/screen.el
+./term/tvi970.el
+./makesum.el
+./ansi-color.elc
+./newcomment.el
+./outline.el
+./proced.elc
+./env.el
+./ehelp.elc
+./pixel-scroll.elc
+./follow.elc
+./thingatpt.el
+./so-long.el
+./tabify.el
+./eshell/
+./eshell/em-banner.el
+./eshell/esh-cmd.elc
+./eshell/em-cmpl.elc
+./eshell/em-glob.elc
+./eshell/esh-util.elc
+./eshell/esh-proc.elc
+./eshell/esh-mode.el
+./eshell/em-smart.elc
+./eshell/esh-proc.el
+./eshell/esh-opt.elc
+./eshell/em-unix.el
+./eshell/em-smart.el
+./eshell/em-hist.el
+./eshell/eshell.el
+./eshell/esh-var.el
+./eshell/em-tramp.elc
+./eshell/em-script.el
+./eshell/eshell.elc
+./eshell/em-rebind.elc
+./eshell/esh-groups.el
+./eshell/em-dirs.el
+./eshell/esh-ext.el
+./eshell/esh-arg.el
+./eshell/em-pred.elc
+./eshell/em-xtra.elc
+./eshell/em-alias.el
+./eshell/esh-module.elc
+./eshell/esh-util.el
+./eshell/em-tramp.el
+./eshell/em-prompt.elc
+./eshell/esh-arg.elc
+./eshell/em-banner.elc
+./eshell/em-basic.elc
+./eshell/em-term.elc
+./eshell/em-glob.el
+./eshell/em-ls.elc
+./eshell/esh-io.elc
+./eshell/em-unix.elc
+./eshell/em-rebind.el
+./eshell/em-term.el
+./eshell/em-cmpl.el
+./eshell/esh-ext.elc
+./eshell/em-dirs.elc
+./eshell/em-ls.el
+./eshell/esh-io.el
+./eshell/esh-mode.elc
+./eshell/esh-module.el
+./eshell/em-prompt.el
+./eshell/esh-cmd.el
+./eshell/em-xtra.el
+./eshell/em-script.elc
+./eshell/em-basic.el
+./eshell/esh-opt.el
+./eshell/em-alias.elc
+./eshell/em-hist.elc
+./eshell/esh-var.elc
+./eshell/em-pred.el
+./calendar/
+./calendar/cal-menu.elc
+./calendar/cal-menu.el
+./calendar/cal-dst.el
+./calendar/cal-persia.el
+./calendar/lunar.el
+./calendar/cal-bahai.el
+./calendar/calendar.el
+./calendar/holidays.elc
+./calendar/diary-lib.el
+./calendar/calendar.elc
+./calendar/solar.el
+./calendar/time-date.el
+./calendar/cal-persia.elc
+./calendar/cal-china.elc
+./calendar/hol-loaddefs.el
+./calendar/cal-tex.elc
+./calendar/cal-mayan.el
+./calendar/cal-tex.el
+./calendar/cal-islam.el
+./calendar/icalendar.el
+./calendar/cal-loaddefs.el
+./calendar/diary-loaddefs.el
+./calendar/cal-islam.elc
+./calendar/cal-move.el
+./calendar/hol-loaddefs.el~
+./calendar/cal-bahai.elc
+./calendar/cal-hebrew.el
+./calendar/cal-dst.elc
+./calendar/cal-julian.el
+./calendar/cal-iso.elc
+./calendar/cal-loaddefs.el~
+./calendar/iso8601.el
+./calendar/parse-time.el
+./calendar/cal-move.elc
+./calendar/cal-coptic.elc
+./calendar/cal-html.el
+./calendar/cal-mayan.elc
+./calendar/time-date.elc
+./calendar/todo-mode.el
+./calendar/cal-coptic.el
+./calendar/diary-loaddefs.el~
+./calendar/cal-julian.elc
+./calendar/todo-mode.elc
+./calendar/timeclock.elc
+./calendar/parse-time.elc
+./calendar/diary-lib.elc
+./calendar/lunar.elc
+./calendar/appt.elc
+./calendar/timeclock.el
+./calendar/cal-hebrew.elc
+./calendar/cal-french.el
+./calendar/iso8601.elc
+./calendar/cal-x.el
+./calendar/cal-french.elc
+./calendar/cal-china.el
+./calendar/cal-x.elc
+./calendar/cal-html.elc
+./calendar/appt.el
+./calendar/icalendar.elc
+./calendar/solar.elc
+./calendar/cal-iso.el
+./calendar/holidays.el
+./find-dired.elc
+./w32-fns.elc
+./misc.el
+./mail/
+./mail/undigest.elc
+./mail/binhex.elc
+./mail/supercite.el
+./mail/mailheader.el
+./mail/unrmail.elc
+./mail/smtpmail.el
+./mail/mspools.el
+./mail/flow-fill.elc
+./mail/rfc2231.el
+./mail/undigest.el
+./mail/rmail-loaddefs.el
+./mail/uudecode.el
+./mail/rfc6068.el
+./mail/mailheader.elc
+./mail/yenc.elc
+./mail/mailclient.el
+./mail/mail-extr.elc
+./mail/qp.elc
+./mail/rmailout.el
+./mail/emacsbug.el
+./mail/rfc2231.elc
+./mail/rmailsum.el
+./mail/footnote.elc
+./mail/uce.elc
+./mail/mail-parse.elc
+./mail/rmail.elc
+./mail/footnote.el
+./mail/rmailsort.el
+./mail/ietf-drums.el
+./mail/rmailmsc.el
+./mail/mail-utils.elc
+./mail/feedmail.el
+./mail/mail-extr.el
+./mail/feedmail.elc
+./mail/reporter.elc
+./mail/rmail-loaddefs.el~
+./mail/rfc2045.elc
+./mail/uce.el
+./mail/supercite.elc
+./mail/rmailout.elc
+./mail/rfc822.elc
+./mail/rmailkwd.el
+./mail/rmailsort.elc
+./mail/mailabbrev.elc
+./mail/rfc6068.elc
+./mail/mailalias.elc
+./mail/sendmail.el
+./mail/rmailmm.elc
+./mail/rfc2047.elc
+./mail/uudecode.elc
+./mail/hashcash.el
+./mail/rmail.el
+./mail/smtpmail.elc
+./mail/rfc822.el
+./mail/rmailkwd.elc
+./mail/unrmail.el
+./mail/binhex.el
+./mail/rmailmsc.elc
+./mail/emacsbug.elc
+./mail/mail-hist.el
+./mail/mspools.elc
+./mail/rfc2047.el
+./mail/rfc2045.el
+./mail/mail-prsvr.el
+./mail/reporter.el
+./mail/rmailedit.elc
+./mail/mailclient.elc
+./mail/hashcash.elc
+./mail/rmail-spam-filter.elc
+./mail/mail-utils.el
+./mail/rmailsum.elc
+./mail/flow-fill.el
+./mail/rmailmm.el
+./mail/sendmail.elc
+./mail/rmailedit.el
+./mail/qp.el
+./mail/mail-hist.elc
+./mail/yenc.el
+./mail/mail-prsvr.elc
+./mail/mail-parse.el
+./mail/blessmail.el
+./mail/rmail-spam-filter.el
+./mail/mailalias.el
+./mail/mailabbrev.el
+./mail/ietf-drums.elc
+./loadhist.elc
+./ChangeLog.17
+./forms.elc
+./find-cmd.el
+./doc-view.el
+./tab-line.elc
+./linum.elc
+./calculator.el
+./reveal.elc
+./whitespace.elc
+./wid-browse.el
+./time.el
+./ps-def.el
+./delim-col.elc
+./master.el
+./jsonrpc.el
+./pixel-scroll.el
+./autorevert.elc
+./ses.elc
+./time.elc
+./jit-lock.el
+./ebuff-menu.el
+./auth-source-pass.el
+./ChangeLog.3
+./dos-w32.elc
+./nxml/
+./nxml/nxml-maint.elc
+./nxml/nxml-util.el
+./nxml/rng-dt.elc
+./nxml/xsd-regexp.el
+./nxml/nxml-ns.el
+./nxml/rng-valid.elc
+./nxml/rng-parse.el
+./nxml/rng-parse.elc
+./nxml/rng-pttrn.elc
+./nxml/nxml-outln.elc
+./nxml/rng-pttrn.el
+./nxml/nxml-enc.elc
+./nxml/rng-xsd.el
+./nxml/xsd-regexp.elc
+./nxml/xmltok.el
+./nxml/rng-match.elc
+./nxml/rng-cmpct.el
+./nxml/nxml-maint.el
+./nxml/rng-cmpct.elc
+./nxml/nxml-parse.elc
+./nxml/rng-xsd.elc
+./nxml/nxml-util.elc
+./nxml/rng-maint.elc
+./nxml/nxml-enc.el
+./nxml/nxml-rap.elc
+./nxml/rng-uri.elc
+./nxml/rng-match.el
+./nxml/rng-loc.el
+./nxml/rng-nxml.el
+./nxml/rng-loc.elc
+./nxml/rng-util.elc
+./nxml/rng-uri.el
+./nxml/nxml-parse.el
+./nxml/rng-maint.el
+./nxml/rng-dt.el
+./nxml/nxml-rap.el
+./nxml/nxml-ns.elc
+./nxml/nxml-outln.el
+./nxml/xmltok.elc
+./nxml/rng-nxml.elc
+./nxml/nxml-mode.el
+./nxml/rng-valid.el
+./nxml/nxml-mode.elc
+./nxml/rng-util.el
+./cdl.el
+./font-core.elc
+./progmodes/
+./progmodes/dcl-mode.el
+./progmodes/opascal.elc
+./progmodes/scheme.el
+./progmodes/m4-mode.elc
+./progmodes/cc-mode.elc
+./progmodes/cc-styles.elc
+./progmodes/etags.el
+./progmodes/ebnf2ps.el
+./progmodes/m4-mode.el
+./progmodes/compile.elc
+./progmodes/subword.elc
+./progmodes/which-func.elc
+./progmodes/ld-script.elc
+./progmodes/hideshow.el
+./progmodes/flymake.elc
+./progmodes/hideif.elc
+./progmodes/cc-defs.elc
+./progmodes/gdb-mi.el
+./progmodes/ebnf2ps.elc
+./progmodes/flymake-proc.elc
+./progmodes/sql.el
+./progmodes/cc-menus.elc
+./progmodes/prog-mode.elc
+./progmodes/tcl.elc
+./progmodes/ebnf-ebx.elc
+./progmodes/ebnf-yac.el
+./progmodes/ebrowse.elc
+./progmodes/cpp.elc
+./progmodes/f90.el
+./progmodes/project.el
+./progmodes/cc-align.elc
+./progmodes/octave.el
+./progmodes/ps-mode.elc
+./progmodes/bug-reference.elc
+./progmodes/cc-langs.el
+./progmodes/prog-mode.el
+./progmodes/cmacexp.el
+./progmodes/sh-script.elc
+./progmodes/gud.elc
+./progmodes/vera-mode.el
+./progmodes/ebnf-iso.elc
+./progmodes/antlr-mode.elc
+./progmodes/idlw-complete-structtag.el
+./progmodes/antlr-mode.el
+./progmodes/perl-mode.elc
+./progmodes/cc-engine.elc
+./progmodes/cc-awk.el
+./progmodes/cc-engine.el
+./progmodes/simula.el
+./progmodes/cc-cmds.el
+./progmodes/ebnf-otz.el
+./progmodes/ebnf-dtd.elc
+./progmodes/cc-align.el
+./progmodes/vhdl-mode.el
+./progmodes/xref.elc
+./progmodes/cc-bytecomp.elc
+./progmodes/gud.el
+./progmodes/mixal-mode.elc
+./progmodes/mixal-mode.el
+./progmodes/autoconf.elc
+./progmodes/pascal.elc
+./progmodes/fortran.elc
+./progmodes/hideshow.elc
+./progmodes/sh-script.el
+./progmodes/elisp-mode.elc
+./progmodes/xref.el
+./progmodes/cc-guess.el
+./progmodes/grep.el
+./progmodes/pascal.el
+./progmodes/executable.el
+./progmodes/ps-mode.el
+./progmodes/idlw-shell.el
+./progmodes/scheme.elc
+./progmodes/cc-fonts.elc
+./progmodes/dcl-mode.elc
+./progmodes/asm-mode.elc
+./progmodes/modula2.elc
+./progmodes/modula2.el
+./progmodes/make-mode.elc
+./progmodes/autoconf.el
+./progmodes/fortran.el
+./progmodes/cc-bytecomp.el
+./progmodes/verilog-mode.elc
+./progmodes/cc-cmds.elc
+./progmodes/cl-font-lock.elc
+./progmodes/flymake-cc.el
+./progmodes/cfengine.el
+./progmodes/grep.elc
+./progmodes/meta-mode.el
+./progmodes/sql.elc
+./progmodes/idlw-toolbar.el
+./progmodes/bug-reference.el
+./progmodes/cl-font-lock.el
+./progmodes/subword.el
+./progmodes/ebnf-ebx.el
+./progmodes/octave.elc
+./progmodes/cwarn.elc
+./progmodes/idlwave.el
+./progmodes/perl-mode.el
+./progmodes/cperl-mode.el
+./progmodes/ebnf-bnf.el
+./progmodes/tcl.el
+./progmodes/ruby-mode.elc
+./progmodes/cpp.el
+./progmodes/flymake.el
+./progmodes/cc-fonts.el
+./progmodes/ebrowse.el
+./progmodes/vhdl-mode.elc
+./progmodes/etags.elc
+./progmodes/meta-mode.elc
+./progmodes/flymake-cc.elc
+./progmodes/idlw-help.elc
+./progmodes/cc-awk.elc
+./progmodes/cc-guess.elc
+./progmodes/flymake-proc.el
+./progmodes/cperl-mode.elc
+./progmodes/icon.elc
+./progmodes/compile.el
+./progmodes/cc-menus.el
+./progmodes/cmacexp.elc
+./progmodes/ebnf-abn.el
+./progmodes/idlw-complete-structtag.elc
+./progmodes/idlw-shell.elc
+./progmodes/xscheme.el
+./progmodes/ebnf-dtd.el
+./progmodes/hideif.el
+./progmodes/cc-mode.el
+./progmodes/ebnf-yac.elc
+./progmodes/ruby-mode.el
+./progmodes/prolog.elc
+./progmodes/ebnf-iso.el
+./progmodes/js.elc
+./progmodes/python.elc
+./progmodes/cc-styles.el
+./progmodes/xscheme.elc
+./progmodes/make-mode.el
+./progmodes/f90.elc
+./progmodes/js.el
+./progmodes/idlw-help.el
+./progmodes/elisp-mode.el
+./progmodes/icon.el
+./progmodes/cc-langs.elc
+./progmodes/inf-lisp.el
+./progmodes/vera-mode.elc
+./progmodes/opascal.el
+./progmodes/gdb-mi.elc
+./progmodes/idlw-toolbar.elc
+./progmodes/verilog-mode.el
+./progmodes/python.el
+./progmodes/cwarn.el
+./progmodes/cc-defs.el
+./progmodes/bat-mode.el
+./progmodes/glasses.elc
+./progmodes/ebnf-abn.elc
+./progmodes/simula.elc
+./progmodes/cfengine.elc
+./progmodes/cc-vars.el
+./progmodes/inf-lisp.elc
+./progmodes/which-func.el
+./progmodes/project.elc
+./progmodes/executable.elc
+./progmodes/ebnf-otz.elc
+./progmodes/ebnf-bnf.elc
+./progmodes/prolog.el
+./progmodes/glasses.el
+./progmodes/idlwave.elc
+./progmodes/ld-script.el
+./progmodes/cc-vars.elc
+./progmodes/bat-mode.elc
+./progmodes/asm-mode.el
+./imenu.el
+./vt-control.el
+./frame.el
+./select.el
+./soundex.elc
+./allout-widgets.elc
+./autoarg.el
+./fringe.elc
+./imenu.elc
+./descr-text.el
+./ebuff-menu.elc
+./format-spec.el
+./ibuffer-loaddefs.el
+./ls-lisp.elc
+./tempo.el
+./battery.el
+./fringe.el
+./jit-lock.elc
+./fileloop.elc
+./version.elc
+./apropos.elc
+./epa-hook.elc
+./server.elc
+./cmuscheme.elc
+./scroll-bar.elc
+./faces.el
+./hilit-chg.elc
+./scroll-bar.el
+./loaddefs.el~
+./hfy-cmap.el
+./files-x.el
+./ruler-mode.el
+./custom.elc
+./thread.el
+./widget.elc
+./ruler-mode.elc
+./font-lock.elc
+./find-dired.el
+./menu-bar.el
+./textmodes/
+./textmodes/bibtex.el
+./textmodes/refer.elc
+./textmodes/rst.elc
+./textmodes/text-mode.el
+./textmodes/texnfo-upd.el
+./textmodes/tildify.el
+./textmodes/table.elc
+./textmodes/reftex-parse.elc
+./textmodes/remember.elc
+./textmodes/underline.elc
+./textmodes/flyspell.el
+./textmodes/conf-mode.elc
+./textmodes/reftex-cite.elc
+./textmodes/po.el
+./textmodes/reftex-toc.el
+./textmodes/text-mode.elc
+./textmodes/texnfo-upd.elc
+./textmodes/underline.el
+./textmodes/reftex-parse.el
+./textmodes/page.elc
+./textmodes/enriched.el
+./textmodes/reftex-ref.el
+./textmodes/enriched.elc
+./textmodes/reftex-global.elc
+./textmodes/bibtex.elc
+./textmodes/reftex-toc.elc
+./textmodes/table.el
+./textmodes/reftex-dcr.elc
+./textmodes/reftex-vars.elc
+./textmodes/fill.el
+./textmodes/bibtex-style.el
+./textmodes/texinfo-loaddefs.el
+./textmodes/ispell.el
+./textmodes/two-column.el
+./textmodes/texinfo.el
+./textmodes/reftex-auc.el
+./textmodes/reftex-auc.elc
+./textmodes/mhtml-mode.elc
+./textmodes/refbib.el
+./textmodes/tildify.elc
+./textmodes/reftex.el
+./textmodes/makeinfo.elc
+./textmodes/bib-mode.el
+./textmodes/reftex-cite.el
+./textmodes/ispell.elc
+./textmodes/paragraphs.elc
+./textmodes/nroff-mode.elc
+./textmodes/picture.el
+./textmodes/remember.el
+./textmodes/dns-mode.el
+./textmodes/makeinfo.el
+./textmodes/bibtex-style.elc
+./textmodes/two-column.elc
+./textmodes/reftex-loaddefs.el
+./textmodes/texinfo.elc
+./textmodes/sgml-mode.el
+./textmodes/reftex-index.elc
+./textmodes/reftex.elc
+./textmodes/flyspell.elc
+./textmodes/page.el
+./textmodes/etc-authors-mode.elc
+./textmodes/mhtml-mode.el
+./textmodes/refer.el
+./textmodes/refill.elc
+./textmodes/reftex-global.el
+./textmodes/page-ext.el
+./textmodes/less-css-mode.el
+./textmodes/reftex-dcr.el
+./textmodes/reftex-sel.el
+./textmodes/reftex-index.el
+./textmodes/po.elc
+./textmodes/rst.el
+./textmodes/bib-mode.elc
+./textmodes/css-mode.el
+./textmodes/less-css-mode.elc
+./textmodes/reftex-sel.elc
+./textmodes/reftex-ref.elc
+./textmodes/refill.el
+./textmodes/tex-mode.elc
+./textmodes/texinfmt.el
+./textmodes/refbib.elc
+./textmodes/nroff-mode.el
+./textmodes/artist.elc
+./textmodes/css-mode.elc
+./textmodes/picture.elc
+./textmodes/paragraphs.el
+./textmodes/artist.el
+./textmodes/page-ext.elc
+./textmodes/fill.elc
+./textmodes/tex-mode.el
+./textmodes/reftex-vars.el
+./textmodes/texinfmt.elc
+./textmodes/conf-mode.el
+./textmodes/dns-mode.elc
+./textmodes/sgml-mode.elc
+./textmodes/etc-authors-mode.el
+./facemenu.el
+./widget.el
+./composite.elc
+./isearchb.el
+./net/
+./net/secrets.el
+./net/newst-ticker.elc
+./net/newst-treeview.el
+./net/dig.elc
+./net/shr-color.el
+./net/nsm.elc
+./net/tramp-sh.el
+./net/eudcb-bbdb.elc
+./net/soap-client.el
+./net/eudcb-mab.el
+./net/tramp-ftp.elc
+./net/hmac-def.el
+./net/shr-color.elc
+./net/nsm.el
+./net/tramp-adb.el
+./net/sasl-scram-sha256.el
+./net/sieve.el
+./net/tramp-integration.el
+./net/rfc2104.elc
+./net/sieve-mode.el
+./net/tramp-smb.el
+./net/eudcb-bbdb.el
+./net/tramp-fuse.el
+./net/sasl.el
+./net/trampver.el
+./net/eudcb-macos-contacts.el
+./net/dictionary.elc
+./net/dictionary.el
+./net/dictionary-connection.elc
+./net/tramp-cache.elc
+./net/ldap.elc
+./net/tramp-cmds.el
+./net/rlogin.el
+./net/hmac-md5.el
+./net/newsticker.elc
+./net/gnutls.elc
+./net/pop3.el
+./net/hmac-def.elc
+./net/secrets.elc
+./net/sasl-cram.elc
+./net/eudc.el
+./net/rcirc.elc
+./net/tramp-compat.elc
+./net/tramp-ftp.el
+./net/sasl-ntlm.elc
+./net/sasl-digest.el
+./net/net-utils.elc
+./net/sasl-ntlm.el
+./net/snmp-mode.elc
+./net/newst-treeview.elc
+./net/eww.elc
+./net/eww.el
+./net/sieve-mode.elc
+./net/mairix.el
+./net/tramp-archive.el
+./net/mailcap.el
+./net/gnutls.el
+./net/dns.el
+./net/tramp-smb.elc
+./net/tramp-cmds.elc
+./net/netrc.el
+./net/tramp-archive.elc
+./net/sasl-scram-sha256.elc
+./net/eudcb-ldap.elc
+./net/net-utils.el
+./net/goto-addr.elc
+./net/eudc.elc
+./net/snmp-mode.el
+./net/tramp-crypt.elc
+./net/newst-reader.el
+./net/telnet.el
+./net/rcirc.el
+./net/sieve-manage.elc
+./net/sieve.elc
+./net/tramp-sudoedit.elc
+./net/network-stream.elc
+./net/sasl-scram-rfc.elc
+./net/dig.el
+./net/tramp-sshfs.el
+./net/network-stream.el
+./net/sasl.elc
+./net/eudcb-ldap.el
+./net/eudc-export.elc
+./net/tramp-sudoedit.el
+./net/ntlm.elc
+./net/tramp-loaddefs.el~
+./net/webjump.el
+./net/tramp-compat.el
+./net/eudc-hotlist.el
+./net/dns.elc
+./net/eudc-hotlist.elc
+./net/rfc2104.el
+./net/browse-url.elc
+./net/browse-url.el
+./net/rlogin.elc
+./net/quickurl.el
+./net/zeroconf.el
+./net/ntlm.el
+./net/dbus.el
+./net/puny.el
+./net/eudcb-mab.elc
+./net/sasl-cram.el
+./net/goto-addr.el
+./net/newsticker.el
+./net/ldap.el
+./net/eudc-bob.el
+./net/netrc.elc
+./net/tramp-fuse.elc
+./net/tramp-gvfs.el
+./net/tramp-sh.elc
+./net/eudc-vars.elc
+./net/newst-plainview.el
+./net/tramp-adb.elc
+./net/soap-client.elc
+./net/tramp-uu.elc
+./net/imap.elc
+./net/eudc-export.el
+./net/newst-ticker.el
+./net/socks.el
+./net/ange-ftp.elc
+./net/tramp-rclone.el
+./net/webjump.elc
+./net/pop3.elc
+./net/mairix.elc
+./net/tramp-gvfs.elc
+./net/imap.el
+./net/tramp.elc
+./net/tramp-sshfs.elc
+./net/zeroconf.elc
+./net/puny.elc
+./net/sasl-digest.elc
+./net/dbus.elc
+./net/tramp-integration.elc
+./net/trampver.elc
+./net/mailcap.elc
+./net/tramp-rclone.elc
+./net/soap-inspect.el
+./net/sasl-scram-rfc.el
+./net/hmac-md5.elc
+./net/telnet.elc
+./net/sieve-manage.el
+./net/eudc-bob.elc
+./net/quickurl.elc
+./net/newst-reader.elc
+./net/newst-backend.el
+./net/newst-plainview.elc
+./net/ange-ftp.el
+./net/eudc-vars.el
+./net/shr.elc
+./net/dictionary-connection.el
+./net/socks.elc
+./net/eudcb-macos-contacts.elc
+./net/tramp-cache.el
+./net/tramp.el
+./net/tramp-crypt.el
+./net/soap-inspect.elc
+./net/shr.el
+./net/tramp-uu.el
+./net/tramp-loaddefs.el
+./net/newst-backend.elc
+./userlock.elc
+./desktop.el
+./info-xref.el
+./macros.elc
+./json.elc
+./ChangeLog.14
+./misc.elc
+./kmacro.el
+./tmm.el
+./kermit.el
+./ChangeLog.5
+./tree-widget.elc
+./array.el
+./htmlfontify.el
+./ffap.elc
+./env.elc
+./pcmpl-linux.el
+./window.el
+./simple.el
+./tmm.elc
+./pcmpl-rpm.elc
+./edmacro.elc
+./frame.elc
+./version.el
+./ps-samp.el
+./hexl.el
+./man.elc
+./allout.elc
+./image.elc
+./plstore.elc
+./mpc.el
+./xml.elc
+./ChangeLog.10
+./dabbrev.elc
+./lpr.el
+./ses.el
+./filecache.elc
+./pcomplete.el
+./ezimage.el
+./rot13.el
+./w32-vars.el
+./proced.el
+./autoinsert.elc
+./apropos.el
+./speedbar.el
+./midnight.el
+./foldout.el
+./indent.elc
+./filenotify.el
+./files.elc
+./woman.el
+./files-x.elc
+./double.el
+./elide-head.elc
+./dired-aux.el
+./case-table.el
+./midnight.elc
+./ChangeLog.9
+./macros.el
+./hi-lock.elc
+./hfy-cmap.elc
+./dos-vars.elc
+./arc-mode.elc
+./epa-dired.elc
+./svg.el
+./dos-w32.el
+./echistory.el
+./savehist.elc
+./thread.elc
+./savehist.el
+./dired.el
+./mpc.elc
+./dom.el
+./ChangeLog.11
+./vcursor.el
+./tab-bar.elc
+./ielm.elc
+./svg.elc
+./novice.el
+./replace.elc
+./align.elc
+./startup.el
+./find-lisp.el
+./ps-print.el
+./hex-util.el
+./rfn-eshadow.elc
+./mb-depth.el
+./cus-face.elc
+./Makefile.in
+./windmove.el
+./dired.elc
+./tabify.elc
+./icomplete.el
+./files.el
+./epa-ks.el
+./info.el
+./display-fill-column-indicator.el
+./button.el
+./tooltip.elc
+./dired-loaddefs.el
+./rfn-eshadow.el
+./dnd.el
+./info-xref.elc
+./autorevert.el
+./profiler.elc
+./select.elc
+./md4.el
+./password-cache.elc
+./disp-table.elc
+./flow-ctrl.el
+./erc/
+./erc/erc-sound.el
+./erc/erc-page.elc
+./erc/erc-xdcc.elc
+./erc/erc-lang.elc
+./erc/erc-services.el
+./erc/erc-speedbar.elc
+./erc/erc-join.elc
+./erc/erc-goodies.el
+./erc/erc-fill.elc
+./erc/erc-loaddefs.el~
+./erc/erc-compat.elc
+./erc/erc-ibuffer.el
+./erc/erc-pcomplete.el
+./erc/erc-track.el
+./erc/erc-menu.elc
+./erc/erc-button.elc
+./erc/erc-dcc.el
+./erc/erc-backend.elc
+./erc/erc-status-sidebar.el
+./erc/ChangeLog.1
+./erc/erc-ring.el
+./erc/erc-desktop-notifications.elc
+./erc/erc-log.el
+./erc/erc-truncate.el
+./erc/erc-desktop-notifications.el
+./erc/erc-fill.el
+./erc/erc-list.elc
+./erc/erc-ring.elc
+./erc/erc-networks.elc
+./erc/erc-xdcc.el
+./erc/erc-capab.el
+./erc/erc-capab.elc
+./erc/erc-page.el
+./erc/erc-pcomplete.elc
+./erc/erc-log.elc
+./erc/erc-dcc.elc
+./erc/erc-autoaway.el
+./erc/erc-button.el
+./erc/erc-speedbar.el
+./erc/erc.el
+./erc/erc-notify.el
+./erc/erc-autoaway.elc
+./erc/erc-ibuffer.elc
+./erc/erc-lang.el
+./erc/erc-goodies.elc
+./erc/erc-notify.elc
+./erc/erc-stamp.elc
+./erc/erc-join.el
+./erc/erc-truncate.elc
+./erc/erc-networks.el
+./erc/erc-track.elc
+./erc/erc-stamp.el
+./erc/erc-identd.elc
+./erc/erc-match.elc
+./erc/erc-spelling.elc
+./erc/erc-replace.el
+./erc/erc-replace.elc
+./erc/erc-compat.el
+./erc/erc-spelling.el
+./erc/erc-status-sidebar.elc
+./erc/erc-services.elc
+./erc/erc-list.el
+./erc/ChangeLog.2
+./erc/erc-loaddefs.el
+./erc/erc-backend.el
+./erc/erc-identd.el
+./erc/erc.elc
+./erc/erc-match.el
+./erc/erc-menu.el
+./erc/erc-netsplit.elc
+./erc/erc-sound.elc
+./erc/erc-imenu.elc
+./erc/erc-imenu.el
+./erc/erc-netsplit.el
+./erc/erc-ezbounce.elc
+./erc/erc-ezbounce.el
+./profiler.el
+./iimage.elc
+./misearch.el
+./isearch.elc
+./kermit.elc
+./epg.el
+./recentf.elc
+./ielm.el
+./vt100-led.el
+./facemenu.elc
+./international/
+./international/mule-cmds.el
+./international/ogonek.el
+./international/ccl.elc
+./international/uni-old-name.el
+./international/isearch-x.elc
+./international/rfc1843.el
+./international/utf7.elc
+./international/uni-decimal.el
+./international/ja-dic-utl.el
+./international/iso-transl.el
+./international/kkc.elc
+./international/latin1-disp.el
+./international/iso-ascii.elc
+./international/latexenc.elc
+./international/cp51932.el
+./international/titdic-cnv.elc
+./international/uni-numeric.el
+./international/quail.elc
+./international/mule-conf.elc
+./international/mule-conf.el
+./international/quail.el
+./international/uni-brackets.el
+./international/charscript.el
+./international/uni-special-uppercase.el
+./international/emoji-zwj.elc
+./international/eucjp-ms.el
+./international/kinsoku.elc
+./international/isearch-x.el
+./international/utf7.el
+./international/ja-dic-utl.elc
+./international/emoji-zwj.el
+./international/iso-cvt.el
+./international/mule-cmds.elc
+./international/mule-diag.el
+./international/uni-name.el
+./international/ucs-normalize.el
+./international/eucjp-ms.elc
+./international/uni-category.el
+./international/iso-ascii.el
+./international/cp51932.elc
+./international/uni-lowercase.el
+./international/iso-cvt.elc
+./international/ogonek.elc
+./international/charscript.elc
+./international/uni-special-titlecase.el
+./international/robin.el
+./international/ucs-normalize.elc
+./international/ja-dic-cnv.elc
+./international/rfc1843.elc
+./international/uni-titlecase.el
+./international/mule.el
+./international/mule-util.elc
+./international/uni-decomposition.el
+./international/mule-diag.elc
+./international/kkc.el
+./international/characters.elc
+./international/uni-digit.el
+./international/uni-bidi.el
+./international/uni-comment.el
+./international/fontset.elc
+./international/latin1-disp.elc
+./international/ja-dic-cnv.el
+./international/titdic-cnv.el
+./international/uni-combining.el
+./international/mule.elc
+./international/utf-7.el
+./international/uni-mirrored.el
+./international/kinsoku.el
+./international/charprop.el
+./international/mule-util.el
+./international/characters.el
+./international/robin.elc
+./international/utf-7.elc
+./international/uni-special-lowercase.el
+./international/iso-transl.elc
+./international/uni-uppercase.el
+./international/fontset.el
+./international/latexenc.el
+./international/ccl.el
+./cus-theme.elc
+./shell.elc
+./epa-mail.elc
+./find-cmd.elc
+./speedbar.elc
+./bindings.elc
+./avoid.el
+./time-stamp.elc
+./epa-ks.elc
+./ps-bdf.el
+./pcmpl-unix.el
+./mwheel.elc
+./finder-inf.el
+./cus-edit.elc
+./msb.elc
+./x-dnd.el
+./delim-col.el
+./abbrev.elc
+./display-fill-column-indicator.elc
+./sort.el
+./mouse.el
+./flow-ctrl.elc
+./repeat.el
+./ls-lisp.el
+./ffap.el
+./wid-edit.el
+./reposition.elc
+./pcmpl-gnu.el
+./wid-edit.elc
+./ecomplete.elc
+./repeat.elc
+./ibuffer.el
+./cus-dep.elc
+./notifications.elc
+./image-dired.elc
+./buff-menu.el
+./iimage.el
+./composite.el
+./edmacro.el
+./dframe.el
+./jka-compr.elc
+./battery.elc
+./image-mode.elc
+./cus-edit.el
+./play/
+./play/gomoku.el
+./play/gamegrid.el
+./play/bubbles.el
+./play/decipher.el
+./play/fortune.elc
+./play/5x5.elc
+./play/dunnet.elc
+./play/blackbox.elc
+./play/gametree.elc
+./play/dissociate.elc
+./play/studly.el
+./play/solitaire.el
+./play/gametree.el
+./play/dunnet.el
+./play/animate.elc
+./play/bubbles.elc
+./play/pong.el
+./play/mpuz.el
+./play/dissociate.el
+./play/spook.el
+./play/hanoi.el
+./play/handwrite.elc
+./play/doctor.el
+./play/gamegrid.elc
+./play/handwrite.el
+./play/cookie1.el
+./play/mpuz.elc
+./play/zone.el
+./play/spook.elc
+./play/snake.elc
+./play/zone.elc
+./play/animate.el
+./play/life.el
+./play/solitaire.elc
+./play/blackbox.el
+./play/gomoku.elc
+./play/morse.el
+./play/morse.elc
+./play/fortune.el
+./play/studly.elc
+./play/doctor.elc
+./play/snake.el
+./play/tetris.elc
+./play/cookie1.elc
+./play/5x5.el
+./play/tetris.el
+./play/life.elc
+./play/decipher.elc
+./play/pong.elc
+./play/hanoi.elc
+./strokes.elc
+./COPYING
+./vt100-led.elc
+./comint.el
+./forms.el
+./emacs-lisp/
+./emacs-lisp/re-builder.elc
+./emacs-lisp/benchmark.elc
+./emacs-lisp/map-ynp.elc
+./emacs-lisp/float-sup.elc
+./emacs-lisp/eieio-base.el
+./emacs-lisp/package.elc
+./emacs-lisp/cursor-sensor.elc
+./emacs-lisp/timer-list.elc
+./emacs-lisp/regexp-opt.el
+./emacs-lisp/chart.elc
+./emacs-lisp/lisp-mnt.elc
+./emacs-lisp/ert-x.el
+./emacs-lisp/easy-mmode.el
+./emacs-lisp/shorthands.el
+./emacs-lisp/cl-seq.elc
+./emacs-lisp/cl-lib.elc
+./emacs-lisp/comp-cstr.el
+./emacs-lisp/avl-tree.elc
+./emacs-lisp/backtrace.elc
+./emacs-lisp/generic.elc
+./emacs-lisp/advice.elc
+./emacs-lisp/rx.elc
+./emacs-lisp/elint.elc
+./emacs-lisp/faceup.elc
+./emacs-lisp/float-sup.el
+./emacs-lisp/radix-tree.el
+./emacs-lisp/derived.elc
+./emacs-lisp/smie.el
+./emacs-lisp/shorthands.elc
+./emacs-lisp/text-property-search.elc
+./emacs-lisp/let-alist.el
+./emacs-lisp/hierarchy.elc
+./emacs-lisp/backtrace.el
+./emacs-lisp/helper.elc
+./emacs-lisp/cl-indent.elc
+./emacs-lisp/faceup.el
+./emacs-lisp/comp-cstr.elc
+./emacs-lisp/seq.el
+./emacs-lisp/byte-opt.elc
+./emacs-lisp/ring.el
+./emacs-lisp/timer.elc
+./emacs-lisp/bindat.elc
+./emacs-lisp/lisp.elc
+./emacs-lisp/seq.elc
+./emacs-lisp/generic.el
+./emacs-lisp/checkdoc.elc
+./emacs-lisp/text-property-search.el
+./emacs-lisp/elp.elc
+./emacs-lisp/crm.el
+./emacs-lisp/lisp-mnt.el
+./emacs-lisp/map.elc
+./emacs-lisp/eieio-opt.el
+./emacs-lisp/eieio-base.elc
+./emacs-lisp/shortdoc.el
+./emacs-lisp/eieio-custom.el
+./emacs-lisp/nadvice.elc
+./emacs-lisp/checkdoc.el
+./emacs-lisp/subr-x.el
+./emacs-lisp/eieio-core.el
+./emacs-lisp/cl-seq.el
+./emacs-lisp/tabulated-list.el
+./emacs-lisp/eieio.elc
+./emacs-lisp/rmc.el
+./emacs-lisp/unsafep.el
+./emacs-lisp/check-declare.el
+./emacs-lisp/timer.el
+./emacs-lisp/shortdoc.elc
+./emacs-lisp/advice.el
+./emacs-lisp/trace.elc
+./emacs-lisp/package-x.elc
+./emacs-lisp/trace.el
+./emacs-lisp/tq.elc
+./emacs-lisp/rx.el
+./emacs-lisp/tcover-ses.el
+./emacs-lisp/cl-preloaded.el
+./emacs-lisp/helper.el
+./emacs-lisp/comp.elc
+./emacs-lisp/backquote.el
+./emacs-lisp/eieio-speedbar.el
+./emacs-lisp/inline.el
+./emacs-lisp/package-x.el
+./emacs-lisp/hierarchy.el
+./emacs-lisp/shadow.elc
+./emacs-lisp/generator.elc
+./emacs-lisp/timer-list.el
+./emacs-lisp/eieio-compat.elc
+./emacs-lisp/eieio-opt.elc
+./emacs-lisp/nadvice.el
+./emacs-lisp/thunk.el
+./emacs-lisp/byte-opt.el
+./emacs-lisp/bindat.el
+./emacs-lisp/bytecomp.elc
+./emacs-lisp/warnings.el
+./emacs-lisp/cl-macs.elc
+./emacs-lisp/syntax.el
+./emacs-lisp/ewoc.elc
+./emacs-lisp/generator.el
+./emacs-lisp/cconv.el
+./emacs-lisp/copyright.el
+./emacs-lisp/unsafep.elc
+./emacs-lisp/macroexp.el
+./emacs-lisp/debug.elc
+./emacs-lisp/regi.elc
+./emacs-lisp/cl-extra.el
+./emacs-lisp/smie.elc
+./emacs-lisp/cl-preloaded.elc
+./emacs-lisp/tq.el
+./emacs-lisp/easy-mmode.elc
+./emacs-lisp/autoload.el
+./emacs-lisp/cl-print.el
+./emacs-lisp/radix-tree.elc
+./emacs-lisp/map-ynp.el
+./emacs-lisp/let-alist.elc
+./emacs-lisp/lisp.el
+./emacs-lisp/avl-tree.el
+./emacs-lisp/easymenu.el
+./emacs-lisp/lisp-mode.elc
+./emacs-lisp/eieio-core.elc
+./emacs-lisp/eieio-speedbar.elc
+./emacs-lisp/testcover.el
+./emacs-lisp/eldoc.elc
+./emacs-lisp/shadow.el
+./emacs-lisp/testcover.elc
+./emacs-lisp/chart.el
+./emacs-lisp/tabulated-list.elc
+./emacs-lisp/eldoc.el
+./emacs-lisp/eieio.el
+./emacs-lisp/byte-run.el
+./emacs-lisp/eieio-compat.el
+./emacs-lisp/pcase.el
+./emacs-lisp/tcover-ses.elc
+./emacs-lisp/byte-run.elc
+./emacs-lisp/find-func.el
+./emacs-lisp/cl-generic.el
+./emacs-lisp/regexp-opt.elc
+./emacs-lisp/ert-x.elc
+./emacs-lisp/eieio-custom.elc
+./emacs-lisp/autoload.elc
+./emacs-lisp/backquote.elc
+./emacs-lisp/cursor-sensor.el
+./emacs-lisp/pp.el
+./emacs-lisp/rmc.elc
+./emacs-lisp/benchmark.el
+./emacs-lisp/gv.el
+./emacs-lisp/crm.elc
+./emacs-lisp/subr-x.elc
+./emacs-lisp/eieio-datadebug.el
+./emacs-lisp/memory-report.elc
+./emacs-lisp/copyright.elc
+./emacs-lisp/syntax.elc
+./emacs-lisp/regi.el
+./emacs-lisp/easymenu.elc
+./emacs-lisp/check-declare.elc
+./emacs-lisp/cl-indent.el
+./emacs-lisp/debug.el
+./emacs-lisp/map.el
+./emacs-lisp/eieio-datadebug.elc
+./emacs-lisp/disass.el
+./emacs-lisp/ert.el
+./emacs-lisp/cl-loaddefs.el
+./emacs-lisp/ert.elc
+./emacs-lisp/gv.elc
+./emacs-lisp/warnings.elc
+./emacs-lisp/elint.el
+./emacs-lisp/thunk.elc
+./emacs-lisp/cl-extra.elc
+./emacs-lisp/pp.elc
+./emacs-lisp/ewoc.el
+./emacs-lisp/find-func.elc
+./emacs-lisp/elp.el
+./emacs-lisp/cl-print.elc
+./emacs-lisp/memory-report.el
+./emacs-lisp/cl-generic.elc
+./emacs-lisp/derived.el
+./emacs-lisp/ring.elc
+./emacs-lisp/disass.elc
+./emacs-lisp/cl-lib.el
+./emacs-lisp/edebug.elc
+./emacs-lisp/re-builder.el
+./emacs-lisp/inline.elc
+./emacs-lisp/lisp-mode.el
+./emacs-lisp/macroexp.elc
+./emacs-lisp/package.el
+./emacs-lisp/edebug.el
+./emacs-lisp/comp.el
+./emacs-lisp/eieio-loaddefs.el
+./emacs-lisp/bytecomp.el
+./emacs-lisp/cl-macs.el
+./emacs-lisp/cconv.elc
+./emacs-lisp/pcase.elc
+./epg.elc
+./ChangeLog.2
+./vcursor.elc
+./ps-print-loaddefs.el
+./t-mouse.el
+./minibuffer.el
+./chistory.elc
+./filecache.el
+./ps-print.elc
+./gnus/
+./gnus/smiley.elc
+./gnus/gnus-registry.el
+./gnus/nnheader.elc
+./gnus/gnus-win.el
+./gnus/nntp.el
+./gnus/gnus-kill.el
+./gnus/gnus-group.el
+./gnus/gnus-salt.el
+./gnus/gnus-msg.el
+./gnus/nnml.elc
+./gnus/gnus-dired.el
+./gnus/nnmbox.elc
+./gnus/nndraft.elc
+./gnus/nnagent.el
+./gnus/gnus-uu.el
+./gnus/nnnil.el
+./gnus/gnus-eform.el
+./gnus/nndiary.elc
+./gnus/spam.elc
+./gnus/nnml.el
+./gnus/gnus-bookmark.elc
+./gnus/nnmaildir.el
+./gnus/nnmail.el
+./gnus/nnoo.elc
+./gnus/nnmh.elc
+./gnus/gnus-range.elc
+./gnus/mm-view.elc
+./gnus/gnus-bcklg.elc
+./gnus/gnus-vm.elc
+./gnus/gnus-search.elc
+./gnus/gnus-notifications.elc
+./gnus/nndir.el
+./gnus/nnvirtual.elc
+./gnus/gnus-eform.elc
+./gnus/gnus-registry.elc
+./gnus/gnus-gravatar.elc
+./gnus/mm-decode.el
+./gnus/gnus-util.el
+./gnus/mml.elc
+./gnus/gnus-score.elc
+./gnus/smime.elc
+./gnus/nntp.elc
+./gnus/ChangeLog.1
+./gnus/mm-url.elc
+./gnus/gnus-group.elc
+./gnus/message.el
+./gnus/nnmail.elc
+./gnus/mm-bodies.el
+./gnus/gnus-demon.el
+./gnus/nnregistry.elc
+./gnus/spam-report.el
+./gnus/nnvirtual.el
+./gnus/nnselect.elc
+./gnus/gnus-score.el
+./gnus/mm-util.elc
+./gnus/mml-sec.el
+./gnus/gnus.elc
+./gnus/nngateway.elc
+./gnus/gnus-rfc1843.el
+./gnus/gnus-dbus.el
+./gnus/mml2015.elc
+./gnus/spam.el
+./gnus/gnus-bcklg.el
+./gnus/nnfolder.el
+./gnus/gnus-html.elc
+./gnus/gnus-logic.el
+./gnus/nnimap.elc
+./gnus/gnus-icalendar.el
+./gnus/spam-stat.el
+./gnus/gnus-srvr.elc
+./gnus/gnus-fun.elc
+./gnus/gnus-agent.elc
+./gnus/nnagent.elc
+./gnus/nnregistry.el
+./gnus/gnus.el
+./gnus/mm-url.el
+./gnus/gnus-spec.el
+./gnus/mm-extern.el
+./gnus/gnus-bookmark.el
+./gnus/gnus-picon.el
+./gnus/gnus-rfc1843.elc
+./gnus/gnus-undo.elc
+./gnus/gmm-utils.elc
+./gnus/gnus-agent.el
+./gnus/mml2015.el
+./gnus/mml.el
+./gnus/ChangeLog.3
+./gnus/gnus-mh.el
+./gnus/gssapi.el
+./gnus/mml-smime.el
+./gnus/gnus-async.el
+./gnus/gnus-win.elc
+./gnus/mml-smime.elc
+./gnus/nngateway.el
+./gnus/nnmairix.el
+./gnus/canlock.elc
+./gnus/gnus-msg.elc
+./gnus/gnus-undo.el
+./gnus/gnus-cloud.elc
+./gnus/gnus-sieve.el
+./gnus/mm-encode.el
+./gnus/gnus-notifications.el
+./gnus/mm-extern.elc
+./gnus/gnus-srvr.el
+./gnus/spam-wash.el
+./gnus/gnus-uu.elc
+./gnus/mm-bodies.elc
+./gnus/gnus-art.el
+./gnus/mm-archive.el
+./gnus/gnus-topic.elc
+./gnus/gnus-dup.el
+./gnus/gnus-dired.elc
+./gnus/gnus-fun.el
+./gnus/mm-util.el
+./gnus/nndir.elc
+./gnus/nneething.el
+./gnus/gnus-int.elc
+./gnus/gnus-spec.elc
+./gnus/gnus-ml.elc
+./gnus/gnus-cite.el
+./gnus/score-mode.elc
+./gnus/nnoo.el
+./gnus/gnus-cus.el
+./gnus/gnus-cache.elc
+./gnus/gnus-art.elc
+./gnus/smiley.el
+./gnus/gnus-cloud.el
+./gnus/gnus-start.el
+./gnus/mm-uu.el
+./gnus/message.elc
+./gnus/gnus-cache.el
+./gnus/gnus-vm.el
+./gnus/gnus-async.elc
+./gnus/nnmh.el
+./gnus/nndoc.elc
+./gnus/mm-decode.elc
+./gnus/spam-report.elc
+./gnus/gnus-start.elc
+./gnus/gnus-int.el
+./gnus/gnus-cite.elc
+./gnus/smime.el
+./gnus/nndoc.el
+./gnus/nnrss.elc
+./gnus/mail-source.elc
+./gnus/legacy-gnus-agent.el
+./gnus/nnmbox.el
+./gnus/gnus-dbus.elc
+./gnus/gnus-mlspl.elc
+./gnus/mml1991.el
+./gnus/nnmairix.elc
+./gnus/gnus-sum.elc
+./gnus/nnbabyl.elc
+./gnus/nnselect.el
+./gnus/nnbabyl.el
+./gnus/gnus-range.el
+./gnus/gnus-mlspl.el
+./gnus/mml1991.elc
+./gnus/spam-wash.elc
+./gnus/gnus-demon.elc
+./gnus/gnus-cus.elc
+./gnus/gnus-dup.elc
+./gnus/nnheader.el
+./gnus/gnus-delay.el
+./gnus/mm-encode.elc
+./gnus/nnnil.elc
+./gnus/nneething.elc
+./gnus/gnus-gravatar.el
+./gnus/gnus-delay.elc
+./gnus/nnspool.el
+./gnus/gmm-utils.el
+./gnus/mm-partial.elc
+./gnus/ChangeLog.2
+./gnus/gnus-search.el
+./gnus/gnus-kill.elc
+./gnus/gnus-salt.elc
+./gnus/nndraft.el
+./gnus/gnus-draft.elc
+./gnus/gnus-html.el
+./gnus/mail-source.el
+./gnus/gnus-mh.elc
+./gnus/gnus-sum.el
+./gnus/gnus-logic.elc
+./gnus/nnmaildir.elc
+./gnus/gnus-diary.el
+./gnus/gnus-icalendar.elc
+./gnus/gnus-picon.elc
+./gnus/score-mode.el
+./gnus/nnrss.el
+./gnus/mm-view.el
+./gnus/nnweb.el
+./gnus/mm-uu.elc
+./gnus/spam-stat.elc
+./gnus/gnus-topic.el
+./gnus/nnspool.elc
+./gnus/nnweb.elc
+./gnus/gnus-diary.elc
+./gnus/canlock.el
+./gnus/mm-partial.el
+./gnus/nndiary.el
+./gnus/mm-archive.elc
+./gnus/gnus-sieve.elc
+./gnus/deuglify.elc
+./gnus/gnus-draft.el
+./gnus/gnus-ml.el
+./gnus/nnfolder.elc
+./gnus/legacy-gnus-agent.elc
+./gnus/mml-sec.elc
+./gnus/gnus-util.elc
+./gnus/deuglify.el
+./gnus/nnimap.el
+./gnus/gssapi.elc
+./info-look.elc
+./strokes.el
+./epa-file.el
+./image-mode.el
+./dframe.elc
+./hl-line.elc
+./color.elc
+./ps-mule.el
+./delsel.elc
+./obarray.elc
+./misearch.elc
+./help-mode.el
+./informat.el
+./ChangeLog.13
+./electric.elc
+./cus-theme.el
+./finder.elc
+./htmlfontify.elc
+./pcmpl-x.elc
+./pcmpl-x.el
+./ChangeLog.6
+./emulation/
+./emulation/edt-lk201.el
+./emulation/edt-mapper.elc
+./emulation/edt-pc.elc
+./emulation/viper-cmd.elc
+./emulation/viper-init.el
+./emulation/edt-vt100.el
+./emulation/viper-ex.elc
+./emulation/viper-util.elc
+./emulation/edt.elc
+./emulation/viper-mous.elc
+./emulation/viper-keym.el
+./emulation/edt-pc.el
+./emulation/viper-macs.el
+./emulation/viper.elc
+./emulation/viper-util.el
+./emulation/edt-lk201.elc
+./emulation/edt.el
+./emulation/viper-ex.el
+./emulation/cua-gmrk.elc
+./emulation/viper-init.elc
+./emulation/viper-macs.elc
+./emulation/cua-rect.elc
+./emulation/viper-cmd.el
+./emulation/cua-rect.el
+./emulation/viper-mous.el
+./emulation/keypad.elc
+./emulation/keypad.el
+./emulation/cua-base.el
+./emulation/viper-keym.elc
+./emulation/viper.el
+./emulation/cua-base.elc
+./emulation/cua-gmrk.el
+./emulation/edt-vt100.elc
+./emulation/edt-mapper.el
+./master.elc
+./subr.elc
+./char-fold.elc
+./vc/
+./vc/vc.elc
+./vc/vc-annotate.elc
+./vc/vc-cvs.el
+./vc/diff-mode.el
+./vc/vc-svn.elc
+./vc/log-view.elc
+./vc/pcvs.elc
+./vc/pcvs-util.el
+./vc/vc-rcs.elc
+./vc/ediff-help.el
+./vc/vc-src.el
+./vc/diff.elc
+./vc/ediff-diff.el
+./vc/pcvs-defs.elc
+./vc/vc-cvs.elc
+./vc/vc-filewise.el
+./vc/vc-hg.elc
+./vc/emerge.elc
+./vc/vc-annotate.el
+./vc/log-view.el
+./vc/smerge-mode.el
+./vc/vc.el
+./vc/ediff-init.elc
+./vc/vc-git.el
+./vc/ediff-vers.el
+./vc/emerge.el
+./vc/ediff-util.el
+./vc/vc-mtn.elc
+./vc/vc-bzr.elc
+./vc/vc-dispatcher.elc
+./vc/vc-filewise.elc
+./vc/compare-w.elc
+./vc/vc-svn.el
+./vc/vc-dav.el
+./vc/log-edit.elc
+./vc/vc-sccs.elc
+./vc/ediff-help.elc
+./vc/vc-dav.elc
+./vc/vc-dispatcher.el
+./vc/vc-sccs.el
+./vc/vc-bzr.el
+./vc/vc-dir.elc
+./vc/vc-mtn.el
+./vc/ediff-wind.el
+./vc/ediff-mult.elc
+./vc/ediff-wind.elc
+./vc/vc-src.elc
+./vc/vc-hg.el
+./vc/ediff-mult.el
+./vc/ediff-util.elc
+./vc/pcvs-parse.el
+./vc/diff-mode.elc
+./vc/ediff-merg.el
+./vc/log-edit.el
+./vc/vc-dir.el
+./vc/pcvs-util.elc
+./vc/ediff-ptch.el
+./vc/ediff-ptch.elc
+./vc/diff.el
+./vc/smerge-mode.elc
+./vc/ediff.el
+./vc/ediff-vers.elc
+./vc/vc-rcs.el
+./vc/ediff.elc
+./vc/add-log.elc
+./vc/ediff-diff.elc
+./vc/add-log.el
+./vc/pcvs.el
+./vc/pcvs-defs.el
+./vc/vc-hooks.el
+./vc/ediff-hook.elc
+./vc/pcvs-info.el
+./vc/pcvs-parse.elc
+./vc/ediff-hook.el
+./vc/ediff-init.el
+./vc/cvs-status.el
+./vc/vc-hooks.elc
+./vc/pcvs-info.elc
+./vc/ediff-merg.elc
+./vc/compare-w.el
+./vc/vc-git.elc
+./vc/cvs-status.elc
+./rot13.elc
+./timezone.elc
+./help-at-pt.elc
+./json.el
+./face-remap.elc
+./chistory.el
+./tree-widget.el
+./disp-table.el
+./jsonrpc.elc
+./type-break.el
+./find-lisp.elc
+./image-file.elc
+./term.elc
+./filesets.elc
+./registry.elc
+./loadhist.el
+./whitespace.el
+./mouse-drag.el
+./help.elc
+./view.el
+./descr-text.elc
+./tar-mode.el
+./calculator.elc
+./cmuscheme.el
+./tempo.elc
+./msb.el
+./userlock.el
+./dirtrack.el
+./timezone.el
+./face-remap.el
+./rect.el
+./frameset.el
+./dnd.elc
+./frameset.elc
+./elec-pair.elc
+./image/
+./image/gravatar.el
+./image/exif.el
+./image/image-converter.elc
+./image/exif.elc
+./image/image-converter.el
+./image/compface.elc
+./image/gravatar.elc
+./image/compface.el
+./newcomment.elc
+./ecomplete.el
+./printing.elc
+./elec-pair.el
+./cus-face.el
+./printing.el
+./dabbrev.el
+./man.el
+./pcmpl-unix.elc
+./bookmark.elc
+./thumbs.elc
+./ChangeLog.16
+./skeleton.el
+./tar-mode.elc
+./completion.el
+./ibuffer.elc
+./woman.elc
+./org/
+./org/ob-fortran.elc
+./org/org-attach-git.el
+./org/org-keys.el
+./org/org-crypt.el
+./org/ob-emacs-lisp.el
+./org/ox-beamer.elc
+./org/org-id.el
+./org/org-protocol.el
+./org/oc-biblatex.elc
+./org/org-macs.el
+./org/org-pcomplete.el
+./org/org-indent.elc
+./org/org-loaddefs.el
+./org/ob-perl.el
+./org/oc-basic.el
+./org/ox-odt.el
+./org/ox-ascii.elc
+./org/org-clock.elc
+./org/ob-sqlite.el
+./org/oc-natbib.el
+./org/ob-lilypond.el
+./org/org-archive.elc
+./org/ob-sql.el
+./org/org-clock.el
+./org/org-inlinetask.elc
+./org/ob-makefile.el
+./org/org-colview.el
+./org/org-list.elc
+./org/org-element.elc
+./org/ob-sql.elc
+./org/ob-tangle.el
+./org/ol-irc.el
+./org/ob-tangle.elc
+./org/org-attach-git.elc
+./org/ox.elc
+./org/ox-ascii.el
+./org/ox-html.elc
+./org/org-table.elc
+./org/ox-icalendar.elc
+./org/org-habit.el
+./org/ol-eww.elc
+./org/ob-comint.elc
+./org/ob-C.elc
+./org/ol-gnus.el
+./org/org-table.el
+./org/ob-ditaa.el
+./org/org-tempo.el
+./org/ob-clojure.el
+./org/ox-icalendar.el
+./org/org-refile.el
+./org/org-duration.elc
+./org/ob-eval.el
+./org/ob-calc.elc
+./org/org-plot.el
+./org/org-faces.elc
+./org/ob-sed.el
+./org/org-indent.el
+./org/ChangeLog.1
+./org/org-compat.el
+./org/ob-awk.elc
+./org/org-num.elc
+./org/ob-exp.elc
+./org/ob-ocaml.elc
+./org/ob-eval.elc
+./org/ob-screen.elc
+./org/ob-table.el
+./org/ol-bbdb.elc
+./org/org-colview.elc
+./org/org-entities.el
+./org/ob-table.elc
+./org/ob-lisp.elc
+./org/ob-org.el
+./org/ol-rmail.el
+./org/oc.el
+./org/org-crypt.elc
+./org/ob-js.el
+./org/ob-exp.el
+./org/ob-awk.el
+./org/org-install.el
+./org/ob-lob.elc
+./org/ob-shell.elc
+./org/ox-beamer.el
+./org/ol-eshell.elc
+./org/ob-css.elc
+./org/ob-ocaml.el
+./org/org-agenda.elc
+./org/ol-w3m.el
+./org/ob-perl.elc
+./org/ob-octave.elc
+./org/ob-haskell.elc
+./org/ol.el
+./org/ol-doi.elc
+./org/ob.elc
+./org/org-attach.elc
+./org/org-lint.elc
+./org/ox-texinfo.el
+./org/oc.elc
+./org/org-footnote.el
+./org/org-faces.el
+./org/ob-shell.el
+./org/ob-clojure.elc
+./org/ob-ditaa.elc
+./org/org-entities.elc
+./org/org-goto.elc
+./org/org-macs.elc
+./org/ox-publish.el
+./org/org-footnote.elc
+./org/ob-python.el
+./org/org-feed.elc
+./org/ol-docview.elc
+./org/ob-core.el
+./org/org-capture.el
+./org/ob-lilypond.elc
+./org/ol-mhe.el
+./org/ol-bibtex.elc
+./org/org-src.elc
+./org/ol-info.el
+./org/org-element.el
+./org/ob-makefile.elc
+./org/ob-lisp.el
+./org/ob-latex.el
+./org/ob-sass.elc
+./org/org-habit.elc
+./org/ob-dot.elc
+./org/ob-matlab.elc
+./org/ob-julia.elc
+./org/org-mobile.elc
+./org/org-pcomplete.elc
+./org/ol-doi.el
+./org/ob-forth.elc
+./org/org-loaddefs.el~
+./org/org-duration.el
+./org/org-num.el
+./org/ol-irc.elc
+./org/ob-forth.el
+./org/ob-dot.el
+./org/ob-maxima.el
+./org/ob-core.elc
+./org/ox-md.el
+./org/ob-plantuml.el
+./org/org-ctags.el
+./org/ob-fortran.el
+./org/ox-publish.elc
+./org/ob-sed.elc
+./org/ox-html.el
+./org/org-compat.elc
+./org/ox-man.elc
+./org/ob-ref.el
+./org/ob-js.elc
+./org/ob-java.elc
+./org/ob-processing.elc
+./org/ob-eshell.el
+./org/org-ctags.elc
+./org/ob-R.el
+./org/org-keys.elc
+./org/org-macro.el
+./org/ob.el
+./org/ob-ruby.el
+./org/ol-rmail.elc
+./org/ol-gnus.elc
+./org/org-goto.el
+./org/ob-lob.el
+./org/ol.elc
+./org/ox-latex.el
+./org/ob-scheme.elc
+./org/org-attach.el
+./org/ob-screen.el
+./org/ob-julia.el
+./org/ob-matlab.el
+./org/ob-scheme.el
+./org/ol-man.el
+./org/org-mobile.el
+./org/ob-emacs-lisp.elc
+./org/oc-natbib.elc
+./org/ob-sqlite.elc
+./org/ob-R.elc
+./org/org.el
+./org/ob-ruby.elc
+./org/ob-octave.el
+./org/ol-docview.el
+./org/org-archive.el
+./org/ox-latex.elc
+./org/org-datetree.el
+./org/ob-gnuplot.elc
+./org/ox-koma-letter.elc
+./org/org-list.el
+./org/ob-comint.el
+./org/ob-org.elc
+./org/org-timer.el
+./org/ol-bbdb.el
+./org/ob-plantuml.elc
+./org/ob-ref.elc
+./org/ob-processing.el
+./org/ob-lua.elc
+./org/org-plot.elc
+./org/oc-basic.elc
+./org/ox-org.elc
+./org/ob-lua.el
+./org/org-refile.elc
+./org/org-mouse.el
+./org/ob-groovy.el
+./org/ob-maxima.elc
+./org/ol-eww.el
+./org/ob-java.el
+./org/org-id.elc
+./org/ob-calc.el
+./org/ox-koma-letter.el
+./org/org-mouse.elc
+./org/ob-gnuplot.el
+./org/ob-css.el
+./org/ob-haskell.el
+./org/ox-org.el
+./org/ob-python.elc
+./org/ob-latex.elc
+./org/oc-csl.el
+./org/org-version.el
+./org/ox-md.elc
+./org/org-macro.elc
+./org/oc-csl.elc
+./org/ox.el
+./org/ob-sass.el
+./org/ol-w3m.elc
+./org/org-tempo.elc
+./org/ob-groovy.elc
+./org/org-protocol.elc
+./org/org-timer.elc
+./org/ox-man.el
+./org/ox-texinfo.elc
+./org/ox-odt.elc
+./org/org-lint.el
+./org/org-src.el
+./org/ol-bibtex.el
+./org/org-inlinetask.el
+./org/org-agenda.el
+./org/org-datetree.elc
+./org/org-capture.elc
+./org/ol-info.elc
+./org/org.elc
+./org/ol-eshell.el
+./org/ob-C.el
+./org/ol-man.elc
+./org/org-feed.el
+./org/ol-mhe.elc
+./org/oc-biblatex.el
+./org/ob-eshell.elc
+./x-dnd.elc
+./locate.elc
+./font-lock.el
+./epa-hook.el
+./xml.el
+./bookmark.el
+./image-dired.el
+./auth-source-pass.elc
+./w32-fns.el
+./replace.el
+./term.el
+./ibuf-ext.elc
+./expand.el
+./epa.elc
+./isearch.el
+./mouse-drag.elc
+./find-file.elc
+./registry.el
+./tutorial.el
+./finder.el
+./hi-lock.el
+./tab-line.el
+./find-file.el
+./epa-mail.el
+./echistory.elc
+./hippie-exp.elc
+./ido.elc
+./type-break.elc
+./jka-cmpr-hook.el
+./talk.el
+./outline.elc
+./format-spec.elc
+./help-fns.el
+./scroll-lock.elc
+./color.el
+./ps-samp.elc
+./tooltip.el
+rm -f "/home/barskik/emacs-install/share/emacs/28.0.60/lisp/subdirs.el"
+umask 022; ../emacs/build-aux/update-subdirs "/home/barskik/emacs-install/share/emacs/28.0.60/lisp"
+subdir="/home/barskik/emacs-install/share/emacs/28.0.60/site-lisp" ; \
+  if [ -f "${subdir}/subdirs.el" ]; then true; else umask 022; /bin/mkdir -p "${subdir}"; (echo "(if (fboundp 'normal-top-level-add-subdirs-to-load-path)"; echo "    (normal-top-level-add-subdirs-to-load-path))") > "${subdir}/subdirs.el"; fi
+subdir="/home/barskik/emacs-install/share/emacs/site-lisp" ; \
+  if [ -f "${subdir}/subdirs.el" ]; then true; else umask 022; /bin/mkdir -p "${subdir}"; (echo "(if (fboundp 'normal-top-level-add-subdirs-to-load-path)"; echo "    (normal-top-level-add-subdirs-to-load-path))") > "${subdir}/subdirs.el"; fi || true
+[ -z "/bin/gzip" ] || { \
+  echo "Compressing *.el etc. ..." && \
+  cd "/home/barskik/emacs-install/share/emacs/28.0.60/lisp" && \
+  for f in `find . -name "*.elc" -print | sed 's/.elc$/.el/'`; do \
+    /bin/gzip -9n "$f"; \
+  done; \
+  /bin/gzip -9n "../etc/publicsuffix.txt"; \
+}
+Compressing *.el etc. ...
+chmod -R a+r "/home/barskik/emacs-install/share/emacs/28.0.60" "/home/barskik/emacs-install/share/emacs/28.0.60/etc" "/home/barskik/emacs-install/share/emacs/28.0.60/lisp"
+unset CDPATH; \
+umask 022; /bin/mkdir -p "/home/barskik/emacs-install/share/emacs/28.0.60/etc" ; \
+exp_etcdocdir=`cd "/home/barskik/emacs-install/share/emacs/28.0.60/etc"; /bin/pwd`; \
+if [ "`cd ./etc; /bin/pwd`" != "$exp_etcdocdir" ]; \
+then \
+   docfile="DOC"; \
+   printf 'Copying %s to %s ...\n' "etc/$docfile" \
+     "/home/barskik/emacs-install/share/emacs/28.0.60/etc"; \
+   /usr/bin/install -c -m 644 etc/${docfile} "/home/barskik/emacs-install/share/emacs/28.0.60/etc/${docfile}"; \
+   for installuser in ${LOGNAME} ${USERNAME} ${USER} `(id -u) 2> /dev/null`; do [ -n "${installuser}" ] && break ; done; installgroup=`(id -g) 2>/dev/null` && [ -n "$installgroup" ] && installuser=$installuser:$installgroup; \
+     chown ${installuser} "/home/barskik/emacs-install/share/emacs/28.0.60/etc/${docfile}" || true ; \
+else true; fi
+Copying etc/DOC to /home/barskik/emacs-install/share/emacs/28.0.60/etc ...
+umask 022; /bin/mkdir -p "/home/barskik/emacs-install/bin"
+make -C lib-src install
+make[1]: Entering directory '/home/barskik/projects/emacs-build/lib-src'
+
+Installing utilities run internally by Emacs.
+umask 022 && /bin/mkdir -p "/home/barskik/emacs-install/libexec/emacs/28.0.60/x86_64-pc-linux-gnu"
+exp_archlibdir=`cd "/home/barskik/emacs-install/libexec/emacs/28.0.60/x86_64-pc-linux-gnu" && /bin/pwd` && \
+if [ "$exp_archlibdir" != "`/bin/pwd`" ]; then \
+  for file in hexl   ; do \
+    /usr/bin/install -c  $file \
+      "/home/barskik/emacs-install/libexec/emacs/28.0.60/x86_64-pc-linux-gnu/$file" || exit; \
+  done ; \
+        fi
+exp_archlibdir=`cd "/home/barskik/emacs-install/libexec/emacs/28.0.60/x86_64-pc-linux-gnu" && /bin/pwd` && \
+if [ "$exp_archlibdir" != "`cd ../../emacs/lib-src && /bin/pwd`" ]; then \
+  for file in rcs2log; do \
+    /usr/bin/install -c ../../emacs/lib-src/$file \
+      "/home/barskik/emacs-install/libexec/emacs/28.0.60/x86_64-pc-linux-gnu/$file" || exit; \
+  done ; \
+fi
+
+Installing utilities for users to run.
+umask 022 && /bin/mkdir -p "/home/barskik/emacs-install/bin"
+for file in etags ctags emacsclient  ebrowse ; do \
+  /usr/bin/install -c  ${file} \
+    "/home/barskik/emacs-install/bin"/` \
+      echo ${file} | sed -e 's/$//' -e 's,x,x,' \
+    ` || exit; \
+done
+make[1]: Leaving directory '/home/barskik/projects/emacs-build/lib-src'
+/usr/bin/install -c  src/emacs "/home/barskik/emacs-install/bin/`echo emacs-28.0.60 | sed 's,x,x,'`"
+/usr/bin/install -c -m 644 src/emacs.pdmp "/home/barskik/emacs-install/libexec/emacs/28.0.60/x86_64-pc-linux-gnu"/emacs.pdmp
+chmod 755 "/home/barskik/emacs-install/bin/`echo emacs-28.0.60 | sed 's,x,x,'`"
+rm -f "/home/barskik/emacs-install/bin/`echo emacs | sed 's,x,x,'`"
+cd "/home/barskik/emacs-install/bin" && ln -s "`echo emacs-28.0.60 | sed 's,x,x,'`" "`echo emacs | sed 's,x,x,'`"
+make -C lib-src maybe-blessmail
+make[1]: Entering directory '/home/barskik/projects/emacs-build/lib-src'
+make[1]: Nothing to be done for 'maybe-blessmail'.
+make[1]: Leaving directory '/home/barskik/projects/emacs-build/lib-src'
+umask 022 ; \
+find native-lisp -type d -exec /bin/mkdir -p "/home/barskik/emacs-install/lib/emacs/28.0.60/{}" \; ; \
+find native-lisp -type f -exec /usr/bin/install -c -m 644 "{}" "/home/barskik/emacs-install/lib/emacs/28.0.60/{}" \;
+#+end_example
+
 #+NAME: emacs-rev
 #+begin_src sh :dir ~/projects/emacs :results list :noweb yes :exports both
   git rev-parse --short HEAD
 #+end_src
 
 #+RESULTS: emacs-rev
-: - 044dd1e210
+: - 0dd3883def
 
-#+NAME: emacs-package
+#+NAME: emacs-package-nlc
 #+begin_src sh :dir ~/emacs-install :var REV=emacs-rev :results scalar file :file-ext txt :output-dir ~/ :exports code
-  tar cJvf ~/emacs-28-${REV}.tar.xz .
+  tar cJvf ~/emacs-28-${REV}-nlc.tar.xz .
 #+end_src
 
-#+RESULTS: emacs-package.txt
+#+RESULTS: emacs-package-nlc
+[[file:../../emacs-package-nlc.txt]]
+
+#+RESULTS: emacs-package
 [[file:../../emacs-package.txt]]
 
 #+NAME: remove script
-#+begin_src sh :dir ~/ :var REV=emacs-rev :results scalar file :file emacs-remove.sh :output-dir ~/ :exports code
+#+begin_src sh :dir ~/ :var REV=emacs-rev :results scalar file :file emacs-remove-nlc.sh :output-dir ~/ :exports code
   echo "#!/bin/sh"
 
   echo "INSTALL_PREFIX=\${PREFIX:=/usr/local}"
@@ -733,15 +5454,14 @@ config.status: executing etc-refcards-emacsver.tex commands
   find ~/emacs-install/ -mindepth 1 -type d -printf 'rmdir ${PREFIX}/%P\n' | sort -r
 #+end_src
 
-#+RESULTS:
-[[file:../../emacs-remove.sh]]
-
+#+RESULTS: remove script
+[[file:../../emacs-remove-nlc.sh]]
 
 *** install
 
 #+NAME: package installation
-#+begin_src sh :dir (concat "/sudo:root@localhost:" (expand-file-name "~/")) :var REV=emacs-rev :exports code :results
-  tar -xJv --no-same-owner -f emacs-28-$REV.tar.xz -C /usr/local
+#+begin_src sh :dir (concat "/sudo:root@localhost:" (expand-file-name "~/")) :var REV=emacs-rev :exports code :results scalar verbose
+  tar -xJv --no-same-owner -f emacs-28-${REV}.tar.xz -C /usr/local
 #+end_src
 
 #+RESULTS:

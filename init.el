@@ -385,7 +385,6 @@ should be imported.
 					;(set-frame-parameter nil 'font "Arial Unicode MS")
 			       "Hack"
 			       ))
-;; (set-frame-font "Hack" nil t)
 
 (defvar kb/theme-terminal-loaded nil)
 (defvar kb/theme-original-font nil)
@@ -1015,7 +1014,7 @@ This function is based on work of David Wilson.
                   (org-level-6 . 1.1)
                   (org-level-7 . 1.1)
                   (org-level-8 . 1.1)))
-    (set-face-attribute (car face) nil :font "Hack" :weight 'regular :height (cdr face)))
+    (set-face-attribute (car face) nil :font "Cantarell" :weight 'regular :height (cdr face)))
   
 
   ;; Ensure that anything that should be fixed-pitch in Org files appears that way
@@ -1337,7 +1336,8 @@ This function is based on work of David Wilson.
   )
 
 (use-package which-key-posframe
-  :config (which-key-posframe-mode))
+  :config (which-key-posframe-mode)
+  (setq which-key-posframe-font "Liberation Mono"))
 
 (use-package meson-mode
   :hook (meson-mode . company-mode))
