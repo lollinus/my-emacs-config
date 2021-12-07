@@ -17,6 +17,7 @@
 
 1. prepare directories
    #+begin_src sh :dir ~/
+
      mkdir -p ~/projects/emacs-build
    #+end_src
 
@@ -35,7 +36,57 @@
    #+end_src
 
    #+RESULTS: pull recent changes
-   : Already up to date.
+   #+begin_example
+   Updating 30553d889d..e3427faf55
+   Fast-forward
+    CONTRIBUTE                          |    26 +-
+    ChangeLog.3                         | 88681 +++++++++++++++++++++++++++++++++-
+    README                              |     2 +-
+    admin/authors.el                    |    78 +-
+    admin/diff-tar-files                |     4 +-
+    admin/make-tarball.txt              |    33 +-
+    configure.ac                        |     2 +-
+    doc/emacs/custom.texi               |     8 +-
+    doc/lispintro/emacs-lisp-intro.texi |     3 +-
+    doc/lispref/text.texi               |    41 +-
+    doc/misc/efaq.texi                  |   124 +-
+    doc/misc/erc.texi                   |    27 +-
+    doc/misc/org.org                    |     4 +-
+    doc/misc/trampver.texi              |     2 +-
+    etc/AUTHORS                         |  1677 +-
+    lib-src/Makefile.in                 |     4 +-
+    lisp/emacs-lisp/edebug.el           |     2 +-
+    lisp/help.el                        |    14 +-
+    lisp/isearch.el                     |     4 +-
+    lisp/ldefs-boot.el                  |    24 +-
+    lisp/net/trampver.el                |     9 +-
+    lisp/org/ob-julia.el                |     4 +-
+    lisp/org/org-version.el             |     2 +-
+    lisp/org/ox-latex.el                |     2 +-
+    lisp/progmodes/cc-engine.el         |     7 +-
+    lisp/progmodes/gdb-mi.el            |     4 +-
+    lisp/repeat.el                      |    69 +-
+    lisp/tab-bar.el                     |     7 +-
+    msdos/sed2v2.inp                    |     2 +-
+    nt/README.W32                       |     2 +-
+    src/alloc.c                         |    20 +-
+    src/callint.c                       |    27 +-
+    src/comp.c                          |    24 +-
+    src/comp.h                          |    10 -
+    src/data.c                          |    10 +-
+    src/dosfns.c                        |     4 +-
+    src/eval.c                          |    23 +-
+    src/fileio.c                        |     4 +-
+    src/lisp.h                          |    16 +-
+    src/lread.c                         |    12 +-
+    src/pdumper.c                       |    42 +-
+    src/xdisp.c                         |     6 +-
+    test/Makefile.in                    |     2 +-
+    test/lisp/repeat-tests.el           |    36 +-
+    test/lisp/tab-bar-tests.el          |    51 +
+    45 files changed, 90308 insertions(+), 847 deletions(-)
+    create mode 100644 test/lisp/tab-bar-tests.el
+   #+end_example
 
 
 ** Ubuntu 18.04
@@ -729,7 +780,6 @@ config.status: creating admin/charsets/Makefile
 config.status: creating admin/unidata/Makefile
 config.status: creating admin/grammars/Makefile
 config.status: creating src/config.h
-config.status: src/config.h is unchanged
 config.status: executing src/epaths.h commands
 config.status: executing src/.gdbinit commands
 config.status: executing doc/emacs/emacsver.texi commands
@@ -748,21 +798,703 @@ config.status: executing etc-refcards-emacsver.tex commands
 
 #+RESULTS: build
 #+begin_example
+cd ../emacs && ./autogen.sh autoconf
+Checking whether you have the necessary tools...
+(Read INSTALL.REPO for more details on building Emacs)
+Checking for autoconf (need at least version 2.65) ... ok
+Your system has the required tools.
+Running 'autoreconf -fi -I m4' ...
+You can now run './autogen.sh git'.
+if [ -x ./config.status ]; then	\
+     ./config.status --recheck;	\
+else				\
+     ../emacs/configure --cache-file=/dev/null; \
+fi
+running CONFIG_SHELL=/bin/bash /bin/bash ../emacs/configure CC=gcc-10 --with-libotf LIBOTF_LIBS=-lfreetype -lotf -lfreetype LIBOTF_CFLAGS=-I/usr/local/include -I/usr/include/freetype2 -I/usr/include/libpng16 --with-harfbuzz HARFBUZZ_LIBS=-lharfbuzz HARFBUZZ_CFLAGS=-I/usr/include/harfbuzz -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include --with-zlib --with-compress-install --with-gpm --with-threads --with-json --with-modules --prefix=/usr/local --with-xpm --with-jpeg --with-tiff --with-gif --with-png --with-rsvg --with-xft --with-dbus --with-x-toolkit=lucid --without-pop --with-mailutils --without-toolkit-scroll-bars --with-included-regex --with-native-compilation --with-cairo --no-create --no-recursion
+checking for xcrun... no
+checking for GNU Make... make
+checking build system type... x86_64-pc-linux-gnu
+checking host system type... x86_64-pc-linux-gnu
+checking whether the C compiler works... yes
+checking for C compiler default output file name... a.out
+checking for suffix of executables...
+checking whether we are cross compiling... no
+checking for suffix of object files... o
+checking whether we are using the GNU C compiler... yes
+checking whether gcc-10 accepts -g... yes
+checking for gcc-10 option to enable C11 features... none needed
+checking whether the compiler is clang... no
+checking for compiler option needed when checking for declarations... none
+checking whether gcc-10 and cc understand -c and -o together... yes
+checking how to run the C preprocessor... gcc-10 -E
+checking for grep that handles long lines and -e... /bin/grep
+checking for egrep... /bin/grep -E
+checking for ANSI C header files... yes
+checking for sys/types.h... yes
+checking for sys/stat.h... yes
+checking for stdlib.h... yes
+checking for string.h... yes
+checking for memory.h... yes
+checking for strings.h... yes
+checking for inttypes.h... yes
+checking for stdint.h... yes
+checking for unistd.h... yes
+checking for wchar.h... yes
+checking for minix/config.h... no
+checking for linux/fs.h... yes
+checking for malloc.h... yes
+checking for sys/systeminfo.h... no
+checking for sys/sysinfo.h... yes
+checking for coff.h... no
+checking for pty.h... yes
+checking for sys/resource.h... yes
+checking for sys/utsname.h... yes
+checking for pwd.h... yes
+checking for utmp.h... yes
+checking for util.h... no
+checking for sanitizer/lsan_interface.h... yes
+checking for sys/socket.h... yes
+checking for stdlib.h... (cached) yes
+checking for unistd.h... (cached) yes
+checking for sys/param.h... yes
+checking for pthread.h... yes
+checking for malloc/malloc.h... no
+checking for sys/un.h... yes
+checking for dirent.h... yes
+checking for execinfo.h... yes
+checking for stdio_ext.h... yes
+checking for sys/vfs.h... yes
+checking for sys/fs_types.h... no
+checking for getopt.h... yes
+checking for sys/cdefs.h... yes
+checking for sys/time.h... yes
+checking for ieee754.h... yes
+checking for limits.h... yes
+checking for inttypes.h... (cached) yes
+checking for sys/types.h... (cached) yes
+checking for stdint.h... (cached) yes
+checking for sys/select.h... yes
+checking for sys/random.h... yes
+checking for sys/stat.h... (cached) yes
+checking whether it is safe to define __EXTENSIONS__... yes
+checking whether _XOPEN_SOURCE should be defined... no
+checking for Minix Amsterdam compiler... no
+checking for ar... ar
+checking for ranlib... ranlib
+checking for special C compiler options needed for large files... no
+checking for _FILE_OFFSET_BITS value needed for large files... no
+checking whether gcc-10 accepts -g3 -O2... yes
+checking whether the compiler is clang... no
+checking whether C compiler handles -Werror -Wunknown-warning-option... no
+checking whether -Wno-missing-field-initializers is supported... yes
+checking whether -Wno-missing-field-initializers is needed... no
+checking whether -Wuninitialized is supported... yes
+checking whether C compiler handles -fno-common... yes
+checking whether C compiler handles -Wall... yes
+checking whether C compiler handles -Warith-conversion... yes
+checking whether C compiler handles -Wdate-time... yes
+checking whether C compiler handles -Wdisabled-optimization... yes
+checking whether C compiler handles -Wdouble-promotion... yes
+checking whether C compiler handles -Wduplicated-cond... yes
+checking whether C compiler handles -Wextra... yes
+checking whether C compiler handles -Wformat-signedness... yes
+checking whether C compiler handles -Winit-self... yes
+checking whether C compiler handles -Winvalid-pch... yes
+checking whether C compiler handles -Wlogical-op... yes
+checking whether C compiler handles -Wmissing-declarations... yes
+checking whether C compiler handles -Wmissing-include-dirs... yes
+checking whether C compiler handles -Wmissing-prototypes... yes
+checking whether C compiler handles -Wnested-externs... yes
+checking whether C compiler handles -Wnull-dereference... yes
+checking whether C compiler handles -Wold-style-definition... yes
+checking whether C compiler handles -Wopenmp-simd... yes
+checking whether C compiler handles -Wpacked... yes
+checking whether C compiler handles -Wpointer-arith... yes
+checking whether C compiler handles -Wstrict-prototypes... yes
+checking whether C compiler handles -Wsuggest-attribute=format... yes
+checking whether C compiler handles -Wsuggest-attribute=noreturn... yes
+checking whether C compiler handles -Wsuggest-final-methods... yes
+checking whether C compiler handles -Wsuggest-final-types... yes
+checking whether C compiler handles -Wtrampolines... yes
+checking whether C compiler handles -Wuninitialized... yes
+checking whether C compiler handles -Wunknown-pragmas... yes
+checking whether C compiler handles -Wunused-macros... yes
+checking whether C compiler handles -Wvariadic-macros... yes
+checking whether C compiler handles -Wvector-operation-performance... yes
+checking whether C compiler handles -Warray-bounds=2... yes
+checking whether C compiler handles -Wattribute-alias=2... yes
+checking whether C compiler handles -Wformat=2... yes
+checking whether C compiler handles -Wformat-truncation=2... yes
+checking whether C compiler handles -Wimplicit-fallthrough=5... yes
+checking whether C compiler handles -Wshift-overflow=2... yes
+checking whether C compiler handles -Wvla-larger-than=4031... yes
+checking whether C compiler handles -Wredundant-decls... yes
+checking whether C compiler handles -Wno-missing-field-initializers... yes
+checking whether C compiler handles -Wno-override-init... yes
+checking whether C compiler handles -Wno-sign-compare... yes
+checking whether C compiler handles -Wno-type-limits... yes
+checking whether C compiler handles -Wno-unused-parameter... yes
+checking whether C compiler handles -Wno-format-nonliteral... yes
+checking for a BSD-compatible install... /usr/bin/install -c
+checking command to symlink files in the same directory... ln -s
+checking for install-info... /usr/bin/install-info
+checking for gzip... /bin/gzip
+checking for 'find' args to delete a file... -delete
+checking for brew... no
+checking for -znocombreloc... not needed
+checking whether addresses are sanitized... no
+checking for library containing sqrt... -lm
+checking for pkg-config... /usr/bin/pkg-config
+checking pkg-config is at least version 0.9.0... yes
+checking for machine/soundcard.h... no
+checking for sys/soundcard.h... yes
+checking for soundcard.h... no
+checking for mmsystem.h... no
+checking for _oss_ioctl in -lossaudio... no
+checking for alsa >= 1.0.0... yes
+checking for ADDR_NO_RANDOMIZE... yes
+checking if Linux sysinfo may be used... yes
+checking for sys/wait.h that is POSIX.1 compatible... yes
+checking for net/if.h... yes
+checking for ifaddrs.h... yes
+checking for net/if_dl.h... no
+checking for struct ifreq.ifr_flags... yes
+checking for struct ifreq.ifr_hwaddr... yes
+checking for struct ifreq.ifr_netmask... yes
+checking for struct ifreq.ifr_broadaddr... yes
+checking for struct ifreq.ifr_addr... yes
+checking for struct ifreq.ifr_addr.sa_len... no
+checking whether gcc understands -MMD -MF... yes
+checking for X... libraries , headers
+checking whether malloc is Doug Lea style... no
+checking for sbrk... yes
+checking for __lsan_ignore_object... no
+checking for fchmod... yes
+checking for canonicalize_file_name... yes
+checking for faccessat... yes
+checking for realpath... yes
+checking for lstat... yes
+checking for readlinkat... yes
+checking for explicit_bzero... yes
+checking for memset_s... no
+checking for fchmodat... yes
+checking for lchmod... no
+checking for fcntl... yes
+checking for fdopendir... yes
+checking for fstatat... yes
+checking for fsync... yes
+checking for futimens... yes
+checking for getrandom... yes
+checking for gettimeofday... yes
+checking for mkostemp... yes
+checking for pipe2... yes
+checking for pselect... yes
+checking for readlink... yes
+checking for isblank... yes
+checking for iswctype... yes
+checking for strtoimax... yes
+checking for symlink... yes
+checking for localtime_r... yes
+checking for timegm... yes
+checking for utimensat... yes
+checking for getdtablesize... yes
+checking for futimes... yes
+checking for futimesat... yes
+checking for lutimes... yes
+checking for getpagesize... yes
+checking for working mmap... yes
+checking for main in -lXbsd... no
+checking for pthread library... -lpthread
+checking for thread support... yes
+checking whether X on GNU/Linux needs -b to link... no
+checking for Xkb... yes
+checking for XrmSetDatabase... yes
+checking for XScreenResourceString... yes
+checking for XScreenNumberOfScreen... yes
+checking X11 version 6... 6 or newer
+checking for librsvg-2.0 >= 2.14.0... yes
+checking for getaddrinfo_a in -lanl... yes
+checking for dbus-1 >= 1.0... yes
+checking for dbus_watch_get_unix_fd... yes
+checking for dbus_type_is_valid... yes
+checking for dbus_validate_bus_name... yes
+checking for dbus_validate_path... yes
+checking for dbus_validate_interface... yes
+checking for dbus_validate_member... yes
+checking for gio-2.0 >= 2.26... yes
+checking whether GSettings is in gio... yes
+checking for gobject-2.0 >= 2.0... yes
+checking for lgetfilecon in -lselinux... no
+checking for gnutls >= 2.12.2... yes
+checking for libsystemd >= 222... yes
+checking for jansson >= 2.7... yes
+checking sys/inotify.h usability... yes
+checking sys/inotify.h presence... yes
+checking for sys/inotify.h... yes
+checking for inotify_init1... yes
+checking for xaw3d... no
+checking for libXaw... yes; using Lucid toolkit
+checking X11 toolkit version... 6 or newer
+checking for library containing XmuConvertStandardSelection... -lXmu
+checking for XRenderQueryExtension in -lXrender... yes
+checking for cairo >= 1.8.0... yes
+checking for freetype2... yes
+checking for fontconfig >= 2.2.0... yes
+checking for FT_Face_GetCharVariantIndex... yes
+checking for libotf... yes
+checking for OTF_get_variation_glyphs in -lotf... yes
+checking for m17n-flt... yes
+checking for harfbuzz >= 0.9.42... yes
+checking X11/Xlib-xcb.h usability... no
+checking X11/Xlib-xcb.h presence... no
+checking for X11/Xlib-xcb.h... no
+checking X11/xpm.h usability... yes
+checking X11/xpm.h presence... yes
+checking for X11/xpm.h... yes
+checking for XpmReadFileToPixmap in -lXpm... yes
+checking for XpmReturnAllocPixels preprocessor define... yes
+checking for jpeglib 6b or later... -ljpeg
+checking for lcms2... no
+checking for library containing inflateEnd... -lz
+checking for dladdr... yes
+checking for dlfunc... no
+checking for gcc_jit_context_acquire in -lgccjit... yes
+checking libgccjit.h usability... yes
+checking libgccjit.h presence... yes
+checking for libgccjit.h... yes
+checking for libpng >= 1.0.0... yes
+checking whether png_longjmp is declared... yes
+checking tiffio.h usability... yes
+checking tiffio.h presence... yes
+checking for tiffio.h... yes
+checking for TIFFGetVersion in -ltiff... yes
+checking gif_lib.h usability... yes
+checking gif_lib.h presence... yes
+checking for gif_lib.h... yes
+checking for GifMakeMapObject in -lgif... yes
+checking gpm.h usability... yes
+checking gpm.h presence... yes
+checking for gpm.h... yes
+checking for Gpm_Open in -lgpm... yes
+checking X11/SM/SMlib.h usability... yes
+checking X11/SM/SMlib.h presence... yes
+checking for X11/SM/SMlib.h... yes
+checking for SmcOpenConnection in -lSM... yes
+checking for xrandr >= 1.2.2... no
+checking for X11/extensions/Xrandr.h... no
+checking for xinerama >= 1.0.2... no
+checking X11/extensions/Xinerama.h usability... no
+checking X11/extensions/Xinerama.h presence... no
+checking for X11/extensions/Xinerama.h... no
+checking for xfixes >= 4.0.0... no
+checking X11/extensions/Xfixes.h usability... no
+checking X11/extensions/Xfixes.h presence... no
+checking for X11/extensions/Xfixes.h... no
+checking for X11/extensions/Xdbe.h... yes
+checking for XdbeAllocateBackBufferName in -lXext... yes
+checking for libxml-2.0 > 2.6.17... yes
+checking for htmlReadMemory in -lxml2... yes
+checking linux/seccomp.h usability... yes
+checking linux/seccomp.h presence... yes
+checking for linux/seccomp.h... yes
+checking whether SECCOMP_SET_MODE_FILTER is declared... yes
+checking whether SECCOMP_FILTER_FLAG_TSYNC is declared... yes
+checking linux/filter.h usability... yes
+checking linux/filter.h presence... yes
+checking for linux/filter.h... yes
+checking whether SECCOMP_SET_MODE_FILTER is declared... (cached) yes
+checking whether SECCOMP_FILTER_FLAG_TSYNC is declared... (cached) yes
+checking for libseccomp >= 2.4.0... no
+checking for accept4... yes
+checking for fchdir... yes
+checking for gethostname... yes
+checking for getrusage... yes
+checking for get_current_dir_name... yes
+checking for lrand48... yes
+checking for random... yes
+checking for rint... yes
+checking for trunc... yes
+checking for select... yes
+checking for getpagesize... (cached) yes
+checking for setlocale... yes
+checking for newlocale... yes
+checking for getrlimit... yes
+checking for setrlimit... yes
+checking for shutdown... yes
+checking for pthread_sigmask... (cached) yes
+checking for strsignal... yes
+checking for setitimer... yes
+checking for sendto... yes
+checking for recvfrom... yes
+checking for getsockname... yes
+checking for getifaddrs... yes
+checking for freeifaddrs... yes
+checking for gai_strerror... yes
+checking for sync... yes
+checking for getpwent... yes
+checking for endpwent... yes
+checking for getgrent... yes
+checking for endgrent... yes
+checking for cfmakeraw... yes
+checking for cfsetspeed... yes
+checking for __executable_start... yes
+checking for log2... yes
+checking for pthread_setname_np... yes
+checking for pthread_set_name_np... no
+checking whether pthread_setname_np takes a single argument... no
+checking whether pthread_setname_np takes three arguments... no
+checking for aligned_alloc... yes
+checking whether aligned_alloc is declared... yes
+checking for posix_madvise... yes
+checking for __builtin_frame_address... yes
+checking for __builtin_unwind_init... yes
+checking for _LARGEFILE_SOURCE value needed for large files... no
+checking for grantpt... yes
+checking for getpt... yes
+checking for posix_openpt... yes
+checking for library containing tputs... -ltinfo
+checking whether -ltinfo library defines BC... yes
+checking for timerfd interface... yes
+checking whether signals can be handled on alternate stack... yes
+checking valgrind/valgrind.h usability... yes
+checking valgrind/valgrind.h presence... yes
+checking for valgrind/valgrind.h... yes
+checking for struct unipair.unicode... yes
+checking for pid_t... yes
+checking vfork.h usability... no
+checking vfork.h presence... no
+checking for vfork.h... no
+checking for fork... yes
+checking for vfork... yes
+checking for working fork... yes
+checking for working vfork... (cached) yes
+checking for snprintf... yes
+checking spawn.h usability... yes
+checking spawn.h presence... yes
+checking for spawn.h... yes
+checking for posix_spawn... yes
+checking for posix_spawn_file_actions_addchdir... no
+checking for posix_spawn_file_actions_addchdir_np... no
+checking for posix_spawnattr_setflags... yes
+checking whether POSIX_SPAWN_SETSID is declared... yes
+checking whether GLib is linked in... yes
+checking for nl_langinfo and CODESET... yes
+checking for nl_langinfo and _NL_PAPER_WIDTH... yes
+checking for mbstate_t... yes
+checking for signals via characters... yes
+checking for _setjmp... yes
+checking for sigsetjmp... yes
+checking for usable FIONREAD... yes
+checking for usable SIGIO... yes
+checking for struct alignment... yes
+checking for typeof syntax and keyword spelling... typeof
+checking for statement expressions... yes
+checking for working alloca.h... yes
+checking for alloca... yes
+checking whether lstat correctly handles trailing slash... yes
+checking whether // is distinct from /... no
+checking whether realpath works... yes
+checking for getcwd... yes
+checking for C/C++ restrict keyword... __restrict__
+checking whether byte ordering is bigendian... no
+checking whether the preprocessor supports include_next... yes
+checking whether source code line length is unlimited... yes
+checking if environ is properly declared... yes
+checking for complete errno.h... yes
+checking for mode_t... yes
+checking whether strmode is declared... no
+checking for gawk... gawk
+checking for getopt.h... (cached) yes
+checking for getopt_long_only... yes
+checking whether getopt is POSIX compatible... yes
+checking for working GNU getopt function... yes
+checking for working GNU getopt_long function... yes
+checking for struct timeval... yes
+checking for wide-enough struct timeval.tv_sec member... yes
+checking whether limits.h has WORD_BIT, BOOL_WIDTH etc.... no
+checking whether the compiler produces multi-arch binaries... no
+checking whether stdint.h conforms to C99... yes
+checking whether stdint.h works without ISO C predefines... yes
+checking whether stdint.h has UINTMAX_WIDTH etc.... yes
+checking whether memmem is declared... yes
+checking whether memrchr is declared... yes
+checking whether <limits.h> defines MIN and MAX... no
+checking whether <sys/param.h> defines MIN and MAX... yes
+checking whether time_t is signed... yes
+checking whether alarm is declared... yes
+checking for working mktime... yes
+checking whether struct tm is in sys/time.h or time.h... time.h
+checking for struct tm.tm_zone... yes
+checking for struct tm.tm_gmtoff... yes
+checking whether <sys/select.h> is self-contained... yes
+checking for inline... inline
+checking whether malloc (0) returns nonnull... yes
+checking for sigset_t... yes
+checking for volatile sig_atomic_t... yes
+checking for sighandler_t... yes
+checking for wchar_t... yes
+checking for good max_align_t... yes
+checking whether NULL can be used in arbitrary expressions... yes
+checking whether fcloseall is declared... yes
+checking which flavor of printf attribute matches inttypes macros... system
+checking whether ecvt is declared... yes
+checking whether fcvt is declared... yes
+checking whether gcvt is declared... yes
+checking whether strnlen is declared... yes
+checking whether strtoimax is declared... yes
+checking for a thread-safe mkdir -p... /bin/mkdir -p
+checking whether stat file-mode macros are broken... no
+checking for nlink_t... yes
+checking for struct timespec in <time.h>... yes
+checking for TIME_UTC in <time.h>... yes
+checking whether execvpe is declared... yes
+checking whether clearerr_unlocked is declared... yes
+checking whether feof_unlocked is declared... yes
+checking whether ferror_unlocked is declared... yes
+checking whether fflush_unlocked is declared... yes
+checking whether fgets_unlocked is declared... yes
+checking whether fputc_unlocked is declared... yes
+checking whether fputs_unlocked is declared... yes
+checking whether fread_unlocked is declared... yes
+checking whether fwrite_unlocked is declared... yes
+checking whether getc_unlocked is declared... yes
+checking whether getchar_unlocked is declared... yes
+checking whether putc_unlocked is declared... yes
+checking whether putchar_unlocked is declared... yes
+checking type of array argument to getgroups... gid_t
+checking whether getdtablesize is declared... yes
+checking whether malloc is ptrdiff_t safe... yes
+checking whether malloc, realloc, calloc set errno on failure... yes
+checking for O_CLOEXEC... yes
+checking for promoted mode_t type... mode_t
+checking whether the utimes function works... yes
+checking sys/acl.h usability... yes
+checking sys/acl.h presence... yes
+checking for sys/acl.h... yes
+checking for library containing acl_get_file... -lacl
+checking for acl_get_file... yes
+checking for acl_get_fd... yes
+checking for acl_set_file... yes
+checking for acl_set_fd... yes
+checking for acl_free... yes
+checking for acl_from_mode... yes
+checking for acl_from_text... yes
+checking for acl_delete_def_file... yes
+checking for acl_extended_file... yes
+checking for acl_delete_fd_np... no
+checking for acl_delete_file_np... no
+checking for acl_copy_ext_native... no
+checking for acl_create_entry_np... no
+checking for acl_to_short_text... no
+checking for acl_free_text... no
+checking for working acl_get_file... yes
+checking acl/libacl.h usability... yes
+checking acl/libacl.h presence... yes
+checking for acl/libacl.h... yes
+checking for acl_entries... yes
+checking for ACL_FIRST_ENTRY... yes
+checking for ACL_TYPE_EXTENDED... no
+checking for alloca as a compiler built-in... yes
+checking for __builtin_expect... yes
+checking byteswap.h usability... yes
+checking byteswap.h presence... yes
+checking for byteswap.h... yes
+checking for library containing clock_gettime... none required
+checking for clock_gettime... yes
+checking for clock_settime... yes
+checking for copy_file_range... yes
+checking for d_type member in directory struct... yes
+checking whether // is distinct from /... (cached) no
+checking whether dup2 works... yes
+checking for library containing backtrace_symbols_fd... none required
+checking whether fchmodat works... no
+checking whether fcntl handles F_DUPFD correctly... yes
+checking whether fcntl understands F_DUPFD_CLOEXEC... needs runtime check
+checking whether fdopendir is declared... yes
+checking whether fdopendir works... yes
+checking for getxattr with XATTR_NAME_POSIX_ACL macros... yes
+checking for flexible array member... yes
+checking for __fpending... yes
+checking whether __fpending is declared... yes
+checking whether free is known to preserve errno... no
+checking whether fstatat (..., 0) works... yes
+checking for sys/mount.h... yes
+checking for statvfs function (SVR4)... yes
+checking whether to use statvfs64... no
+checking for two-argument statfs with statfs.f_frsize member... yes
+checking sys/fs/s5param.h usability... no
+checking sys/fs/s5param.h presence... no
+checking for sys/fs/s5param.h... no
+checking sys/statfs.h usability... yes
+checking sys/statfs.h presence... yes
+checking for sys/statfs.h... yes
+checking for statfs that truncates block counts... no
+checking whether futimens works... yes
+checking for getloadavg... yes
+checking sys/loadavg.h usability... no
+checking sys/loadavg.h presence... no
+checking for sys/loadavg.h... no
+checking whether getloadavg is declared... yes
+checking whether getrandom is compatible with its GNU+BSD signature... yes
+checking for gettimeofday with POSIX signature... almost
+checking whether the compiler supports the __inline keyword... yes
+checking gmp.h usability... yes
+checking gmp.h presence... yes
+checking for gmp.h... yes
+checking for library containing __gmpz_roinit_n... -lgmp
+checking for memmem... yes
+checking whether memmem works... yes
+checking for mempcpy... yes
+checking for memrchr... yes
+checking for sys/pstat.h... no
+checking for sys/sysmp.h... no
+checking for sys/param.h... (cached) yes
+checking for sys/sysctl.h... yes
+checking for sched_getaffinity... yes
+checking for sched_getaffinity_np... no
+checking for pstat_getdynamic... no
+checking for sysmp... no
+checking for sysctl... yes
+checking for glibc compatible sched_getaffinity... yes
+checking whether signature of pselect conforms to POSIX... yes
+checking whether pselect detects invalid fds... yes
+checking whether pthread_sigmask is a macro... no
+checking whether pthread_sigmask returns error numbers... yes
+checking whether pthread_sigmask unblocks signals correctly... guessing yes
+checking whether readlink signature is correct... yes
+checking whether readlink handles trailing slash correctly... yes
+checking whether readlink truncates results correctly... yes
+checking whether readlinkat signature is correct... yes
+checking libintl.h usability... yes
+checking libintl.h presence... yes
+checking for libintl.h... yes
+checking whether isblank is declared... yes
+checking for sig2str... no
+checking for sigdescr_np... no
+checking for socklen_t... yes
+checking for ssize_t... yes
+checking for struct stat.st_atim.tv_nsec... yes
+checking whether struct stat.st_atim is of type struct timespec... yes
+checking for struct stat.st_birthtimespec.tv_nsec... no
+checking for struct stat.st_birthtimensec... no
+checking for struct stat.st_birthtim.tv_nsec... no
+checking for working stdalign.h... yes
+checking for stpcpy... yes
+checking for working strnlen... yes
+checking whether strtoimax works... yes
+checking whether symlink handles trailing slash correctly... yes
+checking whether localtime_r is declared... yes
+checking whether localtime_r is compatible with its POSIX signature... yes
+checking whether localtime works even near extrema... yes
+checking for timezone_t... no
+checking whether timer_settime is declared... yes
+checking for library containing timer_settime... -lrt
+checking for timer_settime... yes
+checking whether utimensat works... yes
+checking for variable-length arrays... yes
+checking whether getdtablesize works... yes
+checking for timer_getoverrun... yes
+checking for gcc-10 option to disable position independent executables... not needed
+
+Configured for 'x86_64-pc-linux-gnu'.
+
+  Where should the build process find the source code?    ../emacs
+  What compiler should emacs be built with?               gcc-10 -g3 -O2
+  Should Emacs use the GNU version of malloc?             no
+    (The GNU allocators don't work with this system configuration.)
+  Should Emacs use a relocating allocator for buffers?    no
+  Should Emacs use mmap(2) for buffer allocation?         no
+  What window system should Emacs use?                    x11
+  What toolkit should Emacs use?                          LUCID
+  Where do we find X Windows header files?                Standard dirs
+  Where do we find X Windows libraries?                   Standard dirs
+  Does Emacs use -lXaw3d?                                 no
+  Does Emacs use -lXpm?                                   yes
+  Does Emacs use -ljpeg?                                  yes
+  Does Emacs use -ltiff?                                  yes
+  Does Emacs use a gif library?                           yes -lgif
+  Does Emacs use a png library?                           yes -L/usr/local/lib -lpng16 -lz
+  Does Emacs use -lrsvg-2?                                yes
+  Does Emacs use cairo?                                   yes
+  Does Emacs use -llcms2?                                 no
+  Does Emacs use imagemagick?                             no
+  Does Emacs use native APIs for images?                  no
+  Does Emacs support sound?                               yes
+  Does Emacs use -lgpm?                                   yes
+  Does Emacs use -ldbus?                                  yes
+  Does Emacs use -lgconf?                                 no
+  Does Emacs use GSettings?                               yes
+  Does Emacs use a file notification library?             yes -lglibc (inotify)
+  Does Emacs use access control lists?                    yes -lacl
+  Does Emacs use -lselinux?                               no
+  Does Emacs use -lgnutls?                                yes
+  Does Emacs use -lxml2?                                  yes
+  Does Emacs use -lfreetype?                              yes
+  Does Emacs use HarfBuzz?                                yes
+  Does Emacs use -lm17n-flt?                              yes
+  Does Emacs use -lotf?                                   yes
+  Does Emacs use -lxft?                                   no
+  Does Emacs use -lsystemd?                               yes
+  Does Emacs use -ljansson?                               yes
+  Does Emacs use the GMP library?                         yes
+  Does Emacs directly use zlib?                           yes
+  Does Emacs have dynamic modules support?                yes
+  Does Emacs use toolkit scroll bars?                     no
+  Does Emacs support Xwidgets?                            no
+  Does Emacs have threading support in lisp?              yes
+  Does Emacs support the portable dumper?                 yes
+  Does Emacs support legacy unexec dumping?               no
+  Which dumping strategy does Emacs use?                  pdumper
+  Does Emacs have native lisp compiler?                   yes
+
+
+configure: creating ./config.status
+MAKE='make' ./config.status
+config.status: creating src/verbose.mk
+config.status: creating src/emacs-module.h
+config.status: creating Makefile
+config.status: creating lib/gnulib.mk
+config.status: creating ../emacs/doc/man/emacs.1
+config.status: creating lib/Makefile
+config.status: creating lib-src/Makefile
+config.status: creating oldXMenu/Makefile
+config.status: creating doc/emacs/Makefile
+config.status: creating doc/misc/Makefile
+config.status: creating doc/lispintro/Makefile
+config.status: creating doc/lispref/Makefile
+config.status: creating src/Makefile
+config.status: creating lwlib/Makefile
+config.status: creating lisp/Makefile
+config.status: creating leim/Makefile
+config.status: creating nextstep/Makefile
+config.status: creating nt/Makefile
+config.status: creating test/Makefile
+config.status: creating admin/charsets/Makefile
+config.status: creating admin/unidata/Makefile
+config.status: creating admin/grammars/Makefile
+config.status: creating src/config.h
+config.status: executing src/epaths.h commands
+make[1]: Entering directory '/home/barskik/projects/emacs-build'
+make[1]: Leaving directory '/home/barskik/projects/emacs-build'
+config.status: executing src/.gdbinit commands
+config.status: executing doc/emacs/emacsver.texi commands
+config.status: executing etc-refcards-emacsver.tex commands
 make -C lib all
 make -C doc/lispref info
 make -C doc/lispintro info
 make -C doc/emacs info
 make[1]: Entering directory '/home/barskik/projects/emacs-build/doc/lispintro'
-make[1]: Nothing to be done for 'info'.
-make[1]: Leaving directory '/home/barskik/projects/emacs-build/doc/lispintro'
 make[1]: Entering directory '/home/barskik/projects/emacs-build/doc/lispref'
 make[1]: Entering directory '/home/barskik/projects/emacs-build/doc/emacs'
-make[1]: Nothing to be done for 'info'.
-make[1]: Leaving directory '/home/barskik/projects/emacs-build/doc/emacs'
+  GEN      ../../../emacs/doc/lispintro/../../info/eintr.info
+  GEN      ../../../emacs/doc/emacs/../../info/emacs.info
   GEN      ../../../emacs/doc/lispref/../../info/elisp.info
+  GEN      ../emacs/info/dir
 make[1]: Entering directory '/home/barskik/projects/emacs-build/lib'
   GEN      alloca.h
   GEN      dirent.h
+  GEN      malloc/dynarray.gl.h
+  GEN      malloc/dynarray-skeleton.gl.h
   GEN      fcntl.h
   GEN      inttypes.h
   GEN      limits.h
@@ -774,14 +1506,14 @@ make[1]: Entering directory '/home/barskik/projects/emacs-build/lib'
   GEN      sys/select.h
   GEN      sys/stat.h
   GEN      sys/time.h
-  GEN      time.h
   GEN      sys/types.h
+  GEN      time.h
   GEN      unistd.h
-  CC       fingerprint.o
   CC       fchmodat.o
+  CC       fingerprint.o
   CC       fcntl.o
-  CC       fsusage.o
   CC       free.o
+  CC       fsusage.o
   CC       regex.o
   CC       sig2str.o
   CC       sigdescr_np.o
@@ -797,8 +1529,8 @@ make[1]: Entering directory '/home/barskik/projects/emacs-build/lib'
   CC       c-strncasecmp.o
   CC       careadlinkat.o
   CC       close-stream.o
-  CC       count-one-bits.o
   CC       count-leading-zeros.o
+  CC       count-one-bits.o
   CC       count-trailing-zeros.o
   CC       md5-stream.o
   CC       md5.o
@@ -816,6 +1548,7 @@ make[1]: Entering directory '/home/barskik/projects/emacs-build/lib'
   CC       filemode.o
   CC       filevercmp.o
   CC       gettime.o
+make[1]: Leaving directory '/home/barskik/projects/emacs-build/doc/lispintro'
   CC       nproc.o
   CC       nstrftime.o
   CC       pipe2.o
@@ -833,8 +1566,8 @@ make[1]: Entering directory '/home/barskik/projects/emacs-build/lib'
 make[1]: Leaving directory '/home/barskik/projects/emacs-build/lib'
 make -C lib-src all
 make[1]: Entering directory '/home/barskik/projects/emacs-build/lib-src'
-  CCLD     ctags
   CCLD     etags
+  CCLD     ctags
   CCLD     emacsclient
   CCLD     ebrowse
   CCLD     hexl
@@ -842,26 +1575,27 @@ make[1]: Entering directory '/home/barskik/projects/emacs-build/lib-src'
   CCLD     make-fingerprint
 make[1]: Leaving directory '/home/barskik/projects/emacs-build/lib-src'
 make -C src VCSWITNESS='$(srcdir)/../.git/logs/HEAD' BIN_DESTDIR=''/usr/local/bin/'' \
-	 ELN_DESTDIR='/usr/local/lib/emacs/28.0.60/' all
+	 ELN_DESTDIR='/usr/local/lib/emacs/28.0.90/' all
 make[1]: Entering directory '/home/barskik/projects/emacs-build/src'
+  GEN      lisp.mk
   GEN      globals.h
-  GEN      buildobj.h
 make -C ../admin/charsets all
 make -C ../admin/unidata charscript.el
-make -C ../admin/unidata emoji-zwj.el
-make[2]: Entering directory '/home/barskik/projects/emacs-build/admin/unidata'
+  GEN      buildobj.h
 make[2]: Entering directory '/home/barskik/projects/emacs-build/admin/unidata'
 make[2]: Nothing to be done for 'charscript.el'.
+make[2]: Leaving directory '/home/barskik/projects/emacs-build/admin/unidata'
+make -C ../admin/unidata emoji-zwj.el
+make[2]: Entering directory '/home/barskik/projects/emacs-build/admin/unidata'
 make[2]: Nothing to be done for 'emoji-zwj.el'.
 make[2]: Leaving directory '/home/barskik/projects/emacs-build/admin/unidata'
-make[2]: Leaving directory '/home/barskik/projects/emacs-build/admin/unidata'
 make -C ../admin/charsets cp51932.el
+make[2]: Entering directory '/home/barskik/projects/emacs-build/admin/charsets'
+make[2]: Nothing to be done for 'cp51932.el'.
+make[2]: Leaving directory '/home/barskik/projects/emacs-build/admin/charsets'
 make -C ../admin/charsets eucjp-ms.el
 make[2]: Entering directory '/home/barskik/projects/emacs-build/admin/charsets'
 make[2]: Nothing to be done for 'eucjp-ms.el'.
-make[2]: Leaving directory '/home/barskik/projects/emacs-build/admin/charsets'
-make[2]: Entering directory '/home/barskik/projects/emacs-build/admin/charsets'
-make[2]: Nothing to be done for 'cp51932.el'.
 make[2]: Leaving directory '/home/barskik/projects/emacs-build/admin/charsets'
 make[2]: Entering directory '/home/barskik/projects/emacs-build/admin/charsets'
 make[2]: Nothing to be done for 'all'.
@@ -869,12 +1603,18 @@ make[2]: Leaving directory '/home/barskik/projects/emacs-build/admin/charsets'
 make -C ../lwlib/ liblw.a
   CC       dispnew.o
   CC       frame.o
-  CC       scroll.o
 make[2]: Entering directory '/home/barskik/projects/emacs-build/lwlib'
-make[2]: 'liblw.a' is up to date.
-make[2]: Leaving directory '/home/barskik/projects/emacs-build/lwlib'
+  CC       lwlib.o
+  CC       scroll.o
+  CC       lwlib-Xlw.o
   CC       xdisp.o
+  CC       xlwmenu.o
+make[1]: Leaving directory '/home/barskik/projects/emacs-build/doc/emacs'
+  CC       lwlib-Xaw.o
+  CC       lwlib-utils.o
   CC       menu.o
+  GEN      liblw.a
+make[2]: Leaving directory '/home/barskik/projects/emacs-build/lwlib'
   CC       xmenu.o
   CC       window.o
   CC       charset.o
@@ -892,6 +1632,7 @@ make[2]: Leaving directory '/home/barskik/projects/emacs-build/lwlib'
   CC       xfns.o
   CC       xselect.o
   CC       xrdb.o
+make[1]: Leaving directory '/home/barskik/projects/emacs-build/doc/lispref'
   CC       xsmfns.o
   CC       xsettings.o
   CC       dbusbind.o
@@ -907,7 +1648,6 @@ make[2]: Leaving directory '/home/barskik/projects/emacs-build/lwlib'
   CC       marker.o
   CC       minibuf.o
   CC       fileio.o
-make[1]: Leaving directory '/home/barskik/projects/emacs-build/doc/lispref'
   CC       dired.o
   CC       cmds.o
   CC       casetab.o
@@ -971,35 +1711,35 @@ make[2]: Leaving directory '/home/barskik/projects/emacs-build/lisp'
 cp -f temacs bootstrap-emacs
 rm -f bootstrap-emacs.pdmp
 ./temacs --batch  -l loadup --temacs=pbootstrap \
-	--bin-dest /usr/local/bin/ --eln-dest /usr/local/lib/emacs/28.0.60/
+	--bin-dest /usr/local/bin/ --eln-dest /usr/local/lib/emacs/28.0.90/
 make -C ../lisp compile-first EMACS="../src/bootstrap-emacs"
 make[2]: Entering directory '/home/barskik/projects/emacs-build/lisp'
 make[2]: Nothing to be done for 'compile-first'.
 make[2]: Leaving directory '/home/barskik/projects/emacs-build/lisp'
 make -C ../lisp autoloads EMACS="../src/bootstrap-emacs"
 make -C ../admin/unidata all EMACS="../../src/bootstrap-emacs"
-make[2]: Entering directory '/home/barskik/projects/emacs-build/admin/unidata'
 make[2]: Entering directory '/home/barskik/projects/emacs-build/lisp'
+make[2]: Entering directory '/home/barskik/projects/emacs-build/admin/unidata'
 make -C ../leim all EMACS="../src/bootstrap-emacs"
 make -C ../admin/grammars all EMACS="../../src/bootstrap-emacs"
-make[2]: Nothing to be done for 'all'.
-make[2]: Leaving directory '/home/barskik/projects/emacs-build/admin/unidata'
-  ELC      ../../emacs/lisp/menu-bar.elc
-  ELC      ../../emacs/lisp/mouse.elc
-  GEN      ../../emacs/lisp/net/tramp-loaddefs.el
-  ELC      ../../emacs/lisp/tab-bar.elc
-make[3]: Entering directory '/home/barskik/projects/emacs-build/leim'
-make[3]: Nothing to be done for 'all'.
-make[3]: Leaving directory '/home/barskik/projects/emacs-build/leim'
+  GEN      unidata.txt
+  ELC+ELN  ../../emacs/lisp/isearch.elc
+  ELC+ELN  ../../emacs/lisp/tab-bar.elc
+  ELC+ELN  ../../emacs/lisp/help.elc
 make[3]: Entering directory '/home/barskik/projects/emacs-build/admin/grammars'
 make[3]: Nothing to be done for 'all'.
 make[3]: Leaving directory '/home/barskik/projects/emacs-build/admin/grammars'
+make[3]: Entering directory '/home/barskik/projects/emacs-build/leim'
+make[3]: Nothing to be done for 'all'.
+make[3]: Leaving directory '/home/barskik/projects/emacs-build/leim'
+  GEN      ../../emacs/lisp/net/tramp-loaddefs.el
   GEN      ../../emacs/lisp/loaddefs.el
+make[2]: Leaving directory '/home/barskik/projects/emacs-build/admin/unidata'
 make[2]: Leaving directory '/home/barskik/projects/emacs-build/lisp'
   GEN      ../etc/DOC
 rm -f emacs && cp -f temacs emacs
 LC_ALL=C ./temacs -batch  -l loadup --temacs=pdump \
-	--bin-dest /usr/local/bin/ --eln-dest /usr/local/lib/emacs/28.0.60/
+	--bin-dest /usr/local/bin/ --eln-dest /usr/local/lib/emacs/28.0.90/
 cp -f emacs.pdmp bootstrap-emacs.pdmp
 make[1]: Leaving directory '/home/barskik/projects/emacs-build/src'
 make -C lisp all
@@ -1013,21 +1753,35 @@ make[2]: Entering directory '/home/barskik/projects/emacs-build/leim'
 make[2]: Nothing to be done for 'all'.
 make[2]: Leaving directory '/home/barskik/projects/emacs-build/leim'
 make[2]: Entering directory '/home/barskik/projects/emacs-build/lisp'
-  ELC      bookmark.elc
-  ELC      cus-edit.elc
-  ELC      edmacro.elc
-  ELC      mouse-drag.elc
   ELC      repeat.elc
-  ELC      net/browse-url.elc
-  ELC      net/tramp.elc
-  ELC      org/org-goto.elc
-  ELC      org/ox-icalendar.elc
-  ELC      textmodes/flyspell.elc
+  ELC      emacs-lisp/edebug.elc
+  ELC      net/trampver.elc
+  ELC      org/ob-julia.elc
+  ELC      org/ox-latex.elc
+  ELC      ../../emacs/lisp/progmodes/cc-engine.elc
+  ELC      progmodes/gdb-mi.elc
+  ELC      ../../emacs/lisp/progmodes/cc-align.elc
+  ELC      ../../emacs/lisp/progmodes/cc-cmds.elc
+  ELC      ../../emacs/lisp/progmodes/cc-fonts.elc
+  ELC      ../../emacs/lisp/progmodes/cc-styles.elc
+  ELC      ../../emacs/lisp/progmodes/cc-mode.elc
+  ELC      ../../emacs/lisp/progmodes/js.elc
 make[2]: Leaving directory '/home/barskik/projects/emacs-build/lisp'
 make[1]: Leaving directory '/home/barskik/projects/emacs-build/lisp'
 make -C doc/misc info
 make[1]: Entering directory '/home/barskik/projects/emacs-build/doc/misc'
-make[1]: Nothing to be done for 'info'.
+  GEN      ../../../emacs/doc/misc/../../info/dired-x.info
+  GEN      ../../../emacs/doc/misc/../../info/calc.info
+  GEN      ../../../emacs/doc/misc/../../info/cl.info
+  GEN      ../../../emacs/doc/misc/../../info/erc.info
+  GEN      ../../../emacs/doc/misc/../../info/efaq.info
+  GEN      ../../../emacs/doc/misc/../../info/ido.info
+  GEN      ../../../emacs/doc/misc/org.texi
+  GEN      ../../../emacs/doc/misc/../../info/reftex.info
+  GEN      ../../../emacs/doc/misc/../../info/tramp.info
+  GEN      ../../../emacs/doc/misc/../../info/woman.info
+  GEN      ../../../emacs/doc/misc/../../info/efaq-w32.info
+  GEN      ../../../emacs/doc/misc/../../info/org.info
 make[1]: Leaving directory '/home/barskik/projects/emacs-build/doc/misc'
 #+end_example
 
@@ -1049,7 +1803,7 @@ make[1]: Entering directory '/home/barskik/projects/emacs-build/lib-src'
 make[1]: Nothing to be done for 'all'.
 make[1]: Leaving directory '/home/barskik/projects/emacs-build/lib-src'
 make -C src VCSWITNESS='$(srcdir)/../.git/logs/HEAD' BIN_DESTDIR=''/home/barskik/emacs-install/bin/'' \
-	 ELN_DESTDIR='/home/barskik/emacs-install/lib/emacs/28.0.60/' all
+	 ELN_DESTDIR='/home/barskik/emacs-install/lib/emacs/28.0.90/' all
 make[1]: Entering directory '/home/barskik/projects/emacs-build/src'
 make -C ../lwlib/ liblw.a
 make[2]: Entering directory '/home/barskik/projects/emacs-build/lwlib'
@@ -1207,7 +1961,7 @@ for dir in */*/apps */*/mimetypes; do \
 done
 umask 022 && /bin/mkdir -p "/home/barskik/emacs-install/include"
 /usr/bin/install -c -m 644 src/emacs-module.h "/home/barskik/emacs-install/include/emacs-module.h"
-set "/home/barskik/emacs-install/share/emacs/28.0.60/etc" "/home/barskik/emacs-install/share/emacs/28.0.60/lisp" ; \
+set "/home/barskik/emacs-install/share/emacs/28.0.90/etc" "/home/barskik/emacs-install/share/emacs/28.0.90/lisp" ; \
 unset CDPATH; \
 for installuser in ${LOGNAME} ${USERNAME} ${USER} `(id -u) 2> /dev/null`; do [ -n "${installuser}" ] && break ; done; installgroup=`(id -g) 2>/dev/null` && [ -n "$installgroup" ] && installuser=$installuser:$installgroup; \
 for dir in ../emacs/etc ../emacs/lisp ; do \
@@ -1246,7 +2000,7 @@ for dir in ../emacs/etc ../emacs/lisp ; do \
     done ); \
   find "${dest}" -exec chown ${installuser} {} ';' ;\
 done
-Copying ../emacs/etc to /home/barskik/emacs-install/share/emacs/28.0.60/etc...
+Copying ../emacs/etc to /home/barskik/emacs-install/share/emacs/28.0.90/etc...
 ./
 ./NEWS.18
 ./NEWS
@@ -2201,7 +2955,7 @@ Copying ../emacs/etc to /home/barskik/emacs-install/share/emacs/28.0.60/etc...
 ./schema/OpenDocument-schema-v1.3+libreoffice.rnc
 ./schema/schemas.xml
 ./NEWS.1-17
-Copying ../emacs/lisp to /home/barskik/emacs-install/share/emacs/28.0.60/lisp...
+Copying ../emacs/lisp to /home/barskik/emacs-install/share/emacs/28.0.90/lisp...
 ./
 ./cus-dep.el
 ./xdg.elc
@@ -5347,53 +6101,53 @@ Copying ../emacs/lisp to /home/barskik/emacs-install/share/emacs/28.0.60/lisp...
 ./color.el
 ./ps-samp.elc
 ./tooltip.el
-rm -f "/home/barskik/emacs-install/share/emacs/28.0.60/lisp/subdirs.el"
-umask 022; ../emacs/build-aux/update-subdirs "/home/barskik/emacs-install/share/emacs/28.0.60/lisp"
-subdir="/home/barskik/emacs-install/share/emacs/28.0.60/site-lisp" ; \
+rm -f "/home/barskik/emacs-install/share/emacs/28.0.90/lisp/subdirs.el"
+umask 022; ../emacs/build-aux/update-subdirs "/home/barskik/emacs-install/share/emacs/28.0.90/lisp"
+subdir="/home/barskik/emacs-install/share/emacs/28.0.90/site-lisp" ; \
   if [ -f "${subdir}/subdirs.el" ]; then true; else umask 022; /bin/mkdir -p "${subdir}"; (echo "(if (fboundp 'normal-top-level-add-subdirs-to-load-path)"; echo "    (normal-top-level-add-subdirs-to-load-path))") > "${subdir}/subdirs.el"; fi
 subdir="/home/barskik/emacs-install/share/emacs/site-lisp" ; \
   if [ -f "${subdir}/subdirs.el" ]; then true; else umask 022; /bin/mkdir -p "${subdir}"; (echo "(if (fboundp 'normal-top-level-add-subdirs-to-load-path)"; echo "    (normal-top-level-add-subdirs-to-load-path))") > "${subdir}/subdirs.el"; fi || true
 [ -z "/bin/gzip" ] || { \
   echo "Compressing *.el etc. ..." && \
-  cd "/home/barskik/emacs-install/share/emacs/28.0.60/lisp" && \
+  cd "/home/barskik/emacs-install/share/emacs/28.0.90/lisp" && \
   for f in `find . -name "*.elc" -print | sed 's/.elc$/.el/'`; do \
     /bin/gzip -9n "$f"; \
   done; \
   /bin/gzip -9n "../etc/publicsuffix.txt"; \
 }
 Compressing *.el etc. ...
-chmod -R a+r "/home/barskik/emacs-install/share/emacs/28.0.60" "/home/barskik/emacs-install/share/emacs/28.0.60/etc" "/home/barskik/emacs-install/share/emacs/28.0.60/lisp"
+chmod -R a+r "/home/barskik/emacs-install/share/emacs/28.0.90" "/home/barskik/emacs-install/share/emacs/28.0.90/etc" "/home/barskik/emacs-install/share/emacs/28.0.90/lisp"
 unset CDPATH; \
-umask 022; /bin/mkdir -p "/home/barskik/emacs-install/share/emacs/28.0.60/etc" ; \
-exp_etcdocdir=`cd "/home/barskik/emacs-install/share/emacs/28.0.60/etc"; /bin/pwd`; \
+umask 022; /bin/mkdir -p "/home/barskik/emacs-install/share/emacs/28.0.90/etc" ; \
+exp_etcdocdir=`cd "/home/barskik/emacs-install/share/emacs/28.0.90/etc"; /bin/pwd`; \
 if [ "`cd ./etc; /bin/pwd`" != "$exp_etcdocdir" ]; \
 then \
    docfile="DOC"; \
    printf 'Copying %s to %s ...\n' "etc/$docfile" \
-     "/home/barskik/emacs-install/share/emacs/28.0.60/etc"; \
-   /usr/bin/install -c -m 644 etc/${docfile} "/home/barskik/emacs-install/share/emacs/28.0.60/etc/${docfile}"; \
+     "/home/barskik/emacs-install/share/emacs/28.0.90/etc"; \
+   /usr/bin/install -c -m 644 etc/${docfile} "/home/barskik/emacs-install/share/emacs/28.0.90/etc/${docfile}"; \
    for installuser in ${LOGNAME} ${USERNAME} ${USER} `(id -u) 2> /dev/null`; do [ -n "${installuser}" ] && break ; done; installgroup=`(id -g) 2>/dev/null` && [ -n "$installgroup" ] && installuser=$installuser:$installgroup; \
-     chown ${installuser} "/home/barskik/emacs-install/share/emacs/28.0.60/etc/${docfile}" || true ; \
+     chown ${installuser} "/home/barskik/emacs-install/share/emacs/28.0.90/etc/${docfile}" || true ; \
 else true; fi
-Copying etc/DOC to /home/barskik/emacs-install/share/emacs/28.0.60/etc ...
+Copying etc/DOC to /home/barskik/emacs-install/share/emacs/28.0.90/etc ...
 umask 022; /bin/mkdir -p "/home/barskik/emacs-install/bin"
 make -C lib-src install
 make[1]: Entering directory '/home/barskik/projects/emacs-build/lib-src'
 
 Installing utilities run internally by Emacs.
-umask 022 && /bin/mkdir -p "/home/barskik/emacs-install/libexec/emacs/28.0.60/x86_64-pc-linux-gnu"
-exp_archlibdir=`cd "/home/barskik/emacs-install/libexec/emacs/28.0.60/x86_64-pc-linux-gnu" && /bin/pwd` && \
+umask 022 && /bin/mkdir -p "/home/barskik/emacs-install/libexec/emacs/28.0.90/x86_64-pc-linux-gnu"
+exp_archlibdir=`cd "/home/barskik/emacs-install/libexec/emacs/28.0.90/x86_64-pc-linux-gnu" && /bin/pwd` && \
 if [ "$exp_archlibdir" != "`/bin/pwd`" ]; then \
   for file in hexl   ; do \
     /usr/bin/install -c  $file \
-      "/home/barskik/emacs-install/libexec/emacs/28.0.60/x86_64-pc-linux-gnu/$file" || exit; \
+      "/home/barskik/emacs-install/libexec/emacs/28.0.90/x86_64-pc-linux-gnu/$file" || exit; \
   done ; \
         fi
-exp_archlibdir=`cd "/home/barskik/emacs-install/libexec/emacs/28.0.60/x86_64-pc-linux-gnu" && /bin/pwd` && \
+exp_archlibdir=`cd "/home/barskik/emacs-install/libexec/emacs/28.0.90/x86_64-pc-linux-gnu" && /bin/pwd` && \
 if [ "$exp_archlibdir" != "`cd ../../emacs/lib-src && /bin/pwd`" ]; then \
   for file in rcs2log; do \
     /usr/bin/install -c ../../emacs/lib-src/$file \
-      "/home/barskik/emacs-install/libexec/emacs/28.0.60/x86_64-pc-linux-gnu/$file" || exit; \
+      "/home/barskik/emacs-install/libexec/emacs/28.0.90/x86_64-pc-linux-gnu/$file" || exit; \
   done ; \
 fi
 
@@ -5406,18 +6160,18 @@ for file in etags ctags emacsclient  ebrowse ; do \
     ` || exit; \
 done
 make[1]: Leaving directory '/home/barskik/projects/emacs-build/lib-src'
-/usr/bin/install -c  src/emacs "/home/barskik/emacs-install/bin/`echo emacs-28.0.60 | sed 's,x,x,'`"
-/usr/bin/install -c -m 644 src/emacs.pdmp "/home/barskik/emacs-install/libexec/emacs/28.0.60/x86_64-pc-linux-gnu"/emacs.pdmp
-chmod 755 "/home/barskik/emacs-install/bin/`echo emacs-28.0.60 | sed 's,x,x,'`"
+/usr/bin/install -c  src/emacs "/home/barskik/emacs-install/bin/`echo emacs-28.0.90 | sed 's,x,x,'`"
+/usr/bin/install -c -m 644 src/emacs.pdmp "/home/barskik/emacs-install/libexec/emacs/28.0.90/x86_64-pc-linux-gnu"/emacs.pdmp
+chmod 755 "/home/barskik/emacs-install/bin/`echo emacs-28.0.90 | sed 's,x,x,'`"
 rm -f "/home/barskik/emacs-install/bin/`echo emacs | sed 's,x,x,'`"
-cd "/home/barskik/emacs-install/bin" && ln -s "`echo emacs-28.0.60 | sed 's,x,x,'`" "`echo emacs | sed 's,x,x,'`"
+cd "/home/barskik/emacs-install/bin" && ln -s "`echo emacs-28.0.90 | sed 's,x,x,'`" "`echo emacs | sed 's,x,x,'`"
 make -C lib-src maybe-blessmail
 make[1]: Entering directory '/home/barskik/projects/emacs-build/lib-src'
 make[1]: Nothing to be done for 'maybe-blessmail'.
 make[1]: Leaving directory '/home/barskik/projects/emacs-build/lib-src'
 umask 022 ; \
-find native-lisp -type d -exec /bin/mkdir -p "/home/barskik/emacs-install/lib/emacs/28.0.60/{}" \; ; \
-find native-lisp -type f -exec /usr/bin/install -c -m 644 "{}" "/home/barskik/emacs-install/lib/emacs/28.0.60/{}" \;
+find native-lisp -type d -exec /bin/mkdir -p "/home/barskik/emacs-install/lib/emacs/28.0.90/{}" \; ; \
+find native-lisp -type f -exec /usr/bin/install -c -m 644 "{}" "/home/barskik/emacs-install/lib/emacs/28.0.90/{}" \;
 #+end_example
 
 #+NAME: emacs-rev
@@ -5426,7 +6180,7 @@ find native-lisp -type f -exec /usr/bin/install -c -m 644 "{}" "/home/barskik/em
 #+end_src
 
 #+RESULTS: emacs-rev
-: - 0dd3883def
+: - e3427faf55
 
 #+NAME: emacs-package-nlc
 #+begin_src sh :dir ~/emacs-install :var REV=emacs-rev :results scalar file :file-ext txt :output-dir ~/ :exports code
@@ -5455,7 +6209,7 @@ find native-lisp -type f -exec /usr/bin/install -c -m 644 "{}" "/home/barskik/em
 #+end_src
 
 #+RESULTS: remove script
-[[file:../../emacs-remove-nlc.sh]]
+[[file:../../emacs-28-e3427faf55-nlc.remove.sh]]
 
 *** install
 

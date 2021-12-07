@@ -70,13 +70,15 @@
 			    (menu-bar-lines . 0)       ; turn menus off
 			    (tool-bar-lines . 0)       ; disable toolbar
 			    (scroll-bar-width . 10)
-			    (vertical-scroll-bars . right)
-			    (background-mode . dark))
+			    (vertical-scroll-bars . 'right)
+			    ;; (background-mode . dark)
+			    )
   )
+
+;; (mapc 'frame-set-background-mode (frame-list))
 
 (when (fboundp 'horizontal-scroll-bar-mode)
   (horizontal-scroll-bar-mode -1))
-
 
 (setq initial-frame-alist kb/frame-config)
 (setq default-frame-alist kb/frame-config)
@@ -441,10 +443,14 @@ If theme is'n loaded then it will be loaded at first"
   (let ((frame (or frame (selected-frame))))
     (if (frame-focus-state frame)
 	(kb/activate-frame-theme frame))))
-(kb/activate-theme)
 
-(add-function :after after-focus-change-function #'kb/activate-theme)
-(add-hook 'after-make-frame-functions-hook 'kb/load-frame-theme)
+;; (kb/activate-theme)
+;; (add-function :after after-focus-change-function #'kb/activate-theme)
+;; (add-hook 'after-make-frame-functions-hook 'kb/load-frame-theme)
+(load-theme kb/window-theme t)
+(add-to-list 'initial-frame-alist '(font . "Hack"))
+(add-to-list 'default-frame-alist '(font . "Hack"))
+(kb/set-window-font)
 
 ;;--------------------------------------------------------------------------------
 ;; Programming modes
@@ -707,15 +713,16 @@ If theme is'n loaded then it will be loaded at first"
 		     (ibuffer-projectile-set-filter-groups)
 		     (unless (eq ibuffer-sorting-mode 'alphabetic)
 		       (ibuffer-do-sort-by-alphabetic))))
-  :custom
-  (ibuffer-formats '((mark modified ready-only " "
-			   (name 18 18 :left :elide)
-			   " "
-			   (size 9 -1 :right)
-			   " "
-			   (mode 16 16 :left :elide)
-			   " "
-			   project-relative-file)))
+  :config
+  (setq ibuffer-formats
+	'((mark modified read-only " "
+		(name 18 18 :left :elide)
+		" "
+		(size 9 -1 :right)
+		" "
+		(mode 16 16 :left :elide)
+		" "
+		project-relative-file)))
   )
 (use-package ibuffer-vc)
 
@@ -1028,7 +1035,19 @@ This function is based on work of David Wilson.
   (set-face-attribute 'org-meta-line nil :inherit '(font-lock-comment-face fixed-pitch))
   (set-face-attribute 'org-checkbox nil  :inherit 'fixed-pitch)
   (set-face-attribute 'line-number nil :inherit 'fixed-pitch)
-  (set-face-attribute 'line-number-current-line nil :inherit 'fixed-pitch))
+  (set-face-attribute 'line-number-current-line nil :inherit 'fixed-pitch)
+
+  ;; (require 'color)
+  ;; (set-face-attribute 'org-block nil :background
+  ;;                     (color-darken-name
+  ;;                      (face-attribute 'default :background) 3))
+
+  ;; (setq org-src-block-faces '(("emacs-lisp" (:background "#EEE2FF"))
+  ;;                             ("python" (:background "#E5FFB8"))
+  ;; 			      ("cpp" (:background "grey5" :foreground "chartreuse"))
+  ;; 			      ("protobuf" (:background "grey5" :foreground "chartreuse"))
+  ;; 			      ))
+  )
 
 (use-package gnuplot)
 
@@ -1043,6 +1062,9 @@ This function is based on work of David Wilson.
   (org-log-into-drawer t)
   (org-src-fontify-natively t)
   (org-export-with-smart-quotes t)
+  ;; (setq org-src-fontify-natively t)
+  ;; (setq org-export-with-smart-quotes nil)
+  (setq org-html-htmlize-output-type nil)
   (org-html-postamble nil)
   (org-todo-keywords
    '((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d!)")
