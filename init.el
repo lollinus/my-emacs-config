@@ -1498,7 +1498,7 @@ This function is based on work of David Wilson.
 
 (use-package counsel
   :custom
-  (counsel-file-file-at-point t)
+  (counsel-find-file-at-point t)
   (counsel-find-file-ignore-regexp (regexp-opt completion-ignored-extensions))
   :config
   (counsel-mode)
@@ -1799,6 +1799,17 @@ This function is based on work of David Wilson.
 
 (use-package ox-jira)
 
+(use-package jira-markup-mode
+  :config
+  (setq auto-mode-alist
+	(cons '("\\.jira" . jira-markup-mode) auto-mode-alist)))
+(use-package org-jira
+  :config
+  (when (not (file-exists-p "~/.org-jira"))
+    (make-directory "~/.org-jira"))
+  (setq jiralib-url "https://at.mavenir.com/jira")
+  )
+
 (if (executable-find "dot")
     (use-package graphviz-dot-mode
       :custom
@@ -1875,6 +1886,7 @@ This function is based on work of David Wilson.
   (plantuml-jar-path (expand-file-name "~/.java/libs/plantuml-nodot.1.2021.12.jar"))
   (plantuml-default-exec-mode 'jar)
   (plantuml-indent-level 4)
+  (org-plantuml-jar-path plantuml-jar-path)
   :hook (plantuml-mode . (lambda ()
 			   (set-fill-column 100)
 			   (display-fill-column-indicator-mode)
@@ -1883,6 +1895,8 @@ This function is based on work of David Wilson.
 	      ("C-c C-p" . plantuml-preview-buffer))
   :config
   (plantuml-set-output-type "svg")
+  (add-to-list 'org-babel-load-languages '((plantuml . t)))
+  (org-babel-do-load-languages 'org-babel-load-languages '((plantuml . t)))
   )
 (use-package flycheck-plantuml
   :config

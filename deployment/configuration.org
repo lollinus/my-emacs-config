@@ -11,13 +11,12 @@
 #+select_tags: export
 #+exclude_tags: noexport
 #+creator: Emacs 28.0.60 (Org mode 9.5)
-#+cite_export:*
+#+cite_export:
 * Configuration
 ** Clone
 
 1. prepare directories
-   #+begin_src sh :dir ~/
-
+   #+begin_src sh :eval no :dir ~/
      mkdir -p ~/projects/emacs-build
    #+end_src
 
@@ -25,67 +24,41 @@
 
 2. clone Emacs
    Clone Emacs-28 repository
-   #+begin_src sh :dir ~/projects/ :results scalar verbatim :exports code
+   #+begin_src sh :eval no-export :dir ~/projects/ :results scalar verbatim :exports code
      git clone -b emacs-28 git://git.sv.gnu.org/emacs.git emacs
    #+end_src
 
 3. pull latest changes
    #+NAME: pull recent changes
-   #+begin_src sh :dir ~/projects/emacs :results scalar verbatim
+   #+begin_src sh :eval no-export :dir ~/projects/emacs :results scalar verbatim
      git pull origin emacs-28
    #+end_src
 
    #+RESULTS: pull recent changes
    #+begin_example
-   Updating 30553d889d..e3427faf55
+   Updating 7078f32b5b..d4e2850b32
    Fast-forward
-    CONTRIBUTE                          |    26 +-
-    ChangeLog.3                         | 88681 +++++++++++++++++++++++++++++++++-
-    README                              |     2 +-
-    admin/authors.el                    |    78 +-
-    admin/diff-tar-files                |     4 +-
-    admin/make-tarball.txt              |    33 +-
-    configure.ac                        |     2 +-
-    doc/emacs/custom.texi               |     8 +-
-    doc/lispintro/emacs-lisp-intro.texi |     3 +-
-    doc/lispref/text.texi               |    41 +-
-    doc/misc/efaq.texi                  |   124 +-
-    doc/misc/erc.texi                   |    27 +-
-    doc/misc/org.org                    |     4 +-
-    doc/misc/trampver.texi              |     2 +-
-    etc/AUTHORS                         |  1677 +-
-    lib-src/Makefile.in                 |     4 +-
-    lisp/emacs-lisp/edebug.el           |     2 +-
-    lisp/help.el                        |    14 +-
-    lisp/isearch.el                     |     4 +-
-    lisp/ldefs-boot.el                  |    24 +-
-    lisp/net/trampver.el                |     9 +-
-    lisp/org/ob-julia.el                |     4 +-
-    lisp/org/org-version.el             |     2 +-
-    lisp/org/ox-latex.el                |     2 +-
-    lisp/progmodes/cc-engine.el         |     7 +-
-    lisp/progmodes/gdb-mi.el            |     4 +-
-    lisp/repeat.el                      |    69 +-
-    lisp/tab-bar.el                     |     7 +-
-    msdos/sed2v2.inp                    |     2 +-
-    nt/README.W32                       |     2 +-
-    src/alloc.c                         |    20 +-
-    src/callint.c                       |    27 +-
-    src/comp.c                          |    24 +-
-    src/comp.h                          |    10 -
-    src/data.c                          |    10 +-
-    src/dosfns.c                        |     4 +-
-    src/eval.c                          |    23 +-
-    src/fileio.c                        |     4 +-
-    src/lisp.h                          |    16 +-
-    src/lread.c                         |    12 +-
-    src/pdumper.c                       |    42 +-
-    src/xdisp.c                         |     6 +-
-    test/Makefile.in                    |     2 +-
-    test/lisp/repeat-tests.el           |    36 +-
-    test/lisp/tab-bar-tests.el          |    51 +
-    45 files changed, 90308 insertions(+), 847 deletions(-)
-    create mode 100644 test/lisp/tab-bar-tests.el
+    configure.ac                 |  9 +++++----
+    doc/lispref/commands.texi    |  7 ++++++-
+    doc/lispref/frames.texi      | 30 ++++++++++++++++--------------
+    etc/NEWS                     |  4 ----
+    etc/refcards/orgcard.tex     |  2 +-
+    lisp/net/shr.el              |  4 +++-
+    lisp/org/ob-gnuplot.el       | 21 ++++++++++++++++-----
+    lisp/org/ob-tangle.el        | 15 +++++++--------
+    lisp/org/org-agenda.el       |  2 +-
+    lisp/org/org-clock.el        |  2 +-
+    lisp/org/org-habit.el        | 10 ++++++++--
+    lisp/org/org-version.el      |  4 ++--
+    lisp/org/org.el              |  5 ++---
+    lisp/progmodes/etags.el      | 17 +++++++++--------
+    lisp/progmodes/xref.el       | 16 ++++++++++++++--
+    lisp/thingatpt.el            | 38 ++++++++++++++++----------------------
+    lisp/vc/ediff-util.el        | 20 +++++++++++++++++++-
+    lisp/window.el               |  5 ++++-
+    src/editfns.c                |  9 +++++++--
+    test/lisp/thingatpt-tests.el |  8 --------
+    20 files changed, 137 insertions(+), 91 deletions(-)
    #+end_example
 
 
@@ -94,13 +67,13 @@ This are the installation steps for emacs-28 on ubuntu 18.04.
 *** libs
 Install libgccjit in order to enable native lisp compilation feature.
 
-#+begin_src sh :dir /sudo:root@localhost:~/
+#+begin_src sh :eval no-export :dir /sudo:root@localhost:~/
   apt install gcc-10 libgccjit0 libgccjit-10-dev
 #+end_src
 
 *** configure
 #+NAME: configure
-#+begin_src sh :dir ~/projects/emacs-build :results scalar verbatim :var CC='gcc-10 :exports code
+#+begin_src sh :eval no-export :dir ~/projects/emacs-build :results scalar verbatim :var CC='gcc-10 :exports code
   ../emacs/configure CC=$CC \
                      --with-libotf LIBOTF_LIBS="$(pkg-config --libs libotf)" LIBOTF_CFLAGS="$(pkg-config --cflags libotf)" \
                      --with-harfbuzz HARFBUZZ_LIBS="$(pkg-config --libs harfbuzz)" HARFBUZZ_CFLAGS="$(pkg-config --cflags harfbuzz)" \
@@ -780,6 +753,7 @@ config.status: creating admin/charsets/Makefile
 config.status: creating admin/unidata/Makefile
 config.status: creating admin/grammars/Makefile
 config.status: creating src/config.h
+config.status: src/config.h is unchanged
 config.status: executing src/epaths.h commands
 config.status: executing src/.gdbinit commands
 config.status: executing doc/emacs/emacsver.texi commands
@@ -792,7 +766,7 @@ config.status: executing etc-refcards-emacsver.tex commands
 *** build
 
 #+NAME: build
-#+begin_src sh :dir ~/projects/emacs-build :results scalar verbatim :exports code
+#+begin_src sh :eval no-export :dir ~/projects/emacs-build :results scalar verbatim :exports code
   make -j$(nproc --ignore=2)
 #+end_src
 
@@ -1484,20 +1458,19 @@ make -C doc/lispref info
 make -C doc/lispintro info
 make -C doc/emacs info
 make[1]: Entering directory '/home/barskik/projects/emacs-build/doc/lispintro'
+make[1]: Nothing to be done for 'info'.
+make[1]: Leaving directory '/home/barskik/projects/emacs-build/doc/lispintro'
 make[1]: Entering directory '/home/barskik/projects/emacs-build/doc/lispref'
 make[1]: Entering directory '/home/barskik/projects/emacs-build/doc/emacs'
-  GEN      ../../../emacs/doc/lispintro/../../info/eintr.info
-  GEN      ../../../emacs/doc/emacs/../../info/emacs.info
+make[1]: Nothing to be done for 'info'.
+make[1]: Leaving directory '/home/barskik/projects/emacs-build/doc/emacs'
   GEN      ../../../emacs/doc/lispref/../../info/elisp.info
-  GEN      ../emacs/info/dir
 make[1]: Entering directory '/home/barskik/projects/emacs-build/lib'
   GEN      alloca.h
   GEN      dirent.h
-  GEN      malloc/dynarray.gl.h
-  GEN      malloc/dynarray-skeleton.gl.h
-  GEN      fcntl.h
-  GEN      inttypes.h
   GEN      limits.h
+  GEN      inttypes.h
+  GEN      fcntl.h
   GEN      signal.h
   GEN      stdio.h
   GEN      stdlib.h
@@ -1506,11 +1479,11 @@ make[1]: Entering directory '/home/barskik/projects/emacs-build/lib'
   GEN      sys/select.h
   GEN      sys/stat.h
   GEN      sys/time.h
-  GEN      sys/types.h
   GEN      time.h
+  GEN      sys/types.h
   GEN      unistd.h
-  CC       fchmodat.o
   CC       fingerprint.o
+  CC       fchmodat.o
   CC       fcntl.o
   CC       free.o
   CC       fsusage.o
@@ -1548,7 +1521,6 @@ make[1]: Entering directory '/home/barskik/projects/emacs-build/lib'
   CC       filemode.o
   CC       filevercmp.o
   CC       gettime.o
-make[1]: Leaving directory '/home/barskik/projects/emacs-build/doc/lispintro'
   CC       nproc.o
   CC       nstrftime.o
   CC       pipe2.o
@@ -1568,8 +1540,8 @@ make -C lib-src all
 make[1]: Entering directory '/home/barskik/projects/emacs-build/lib-src'
   CCLD     etags
   CCLD     ctags
-  CCLD     emacsclient
   CCLD     ebrowse
+  CCLD     emacsclient
   CCLD     hexl
   CCLD     make-docfile
   CCLD     make-fingerprint
@@ -1577,23 +1549,22 @@ make[1]: Leaving directory '/home/barskik/projects/emacs-build/lib-src'
 make -C src VCSWITNESS='$(srcdir)/../.git/logs/HEAD' BIN_DESTDIR=''/usr/local/bin/'' \
 	 ELN_DESTDIR='/usr/local/lib/emacs/28.0.90/' all
 make[1]: Entering directory '/home/barskik/projects/emacs-build/src'
-  GEN      lisp.mk
   GEN      globals.h
+  GEN      buildobj.h
 make -C ../admin/charsets all
 make -C ../admin/unidata charscript.el
-  GEN      buildobj.h
-make[2]: Entering directory '/home/barskik/projects/emacs-build/admin/unidata'
-make[2]: Nothing to be done for 'charscript.el'.
-make[2]: Leaving directory '/home/barskik/projects/emacs-build/admin/unidata'
 make -C ../admin/unidata emoji-zwj.el
+make[2]: Entering directory '/home/barskik/projects/emacs-build/admin/unidata'
 make[2]: Entering directory '/home/barskik/projects/emacs-build/admin/unidata'
 make[2]: Nothing to be done for 'emoji-zwj.el'.
 make[2]: Leaving directory '/home/barskik/projects/emacs-build/admin/unidata'
 make -C ../admin/charsets cp51932.el
+make[2]: Nothing to be done for 'charscript.el'.
+make[2]: Leaving directory '/home/barskik/projects/emacs-build/admin/unidata'
+make -C ../admin/charsets eucjp-ms.el
 make[2]: Entering directory '/home/barskik/projects/emacs-build/admin/charsets'
 make[2]: Nothing to be done for 'cp51932.el'.
 make[2]: Leaving directory '/home/barskik/projects/emacs-build/admin/charsets'
-make -C ../admin/charsets eucjp-ms.el
 make[2]: Entering directory '/home/barskik/projects/emacs-build/admin/charsets'
 make[2]: Nothing to be done for 'eucjp-ms.el'.
 make[2]: Leaving directory '/home/barskik/projects/emacs-build/admin/charsets'
@@ -1601,20 +1572,14 @@ make[2]: Entering directory '/home/barskik/projects/emacs-build/admin/charsets'
 make[2]: Nothing to be done for 'all'.
 make[2]: Leaving directory '/home/barskik/projects/emacs-build/admin/charsets'
 make -C ../lwlib/ liblw.a
+  CC       scroll.o
   CC       dispnew.o
+  CC       xdisp.o
   CC       frame.o
 make[2]: Entering directory '/home/barskik/projects/emacs-build/lwlib'
-  CC       lwlib.o
-  CC       scroll.o
-  CC       lwlib-Xlw.o
-  CC       xdisp.o
-  CC       xlwmenu.o
-make[1]: Leaving directory '/home/barskik/projects/emacs-build/doc/emacs'
-  CC       lwlib-Xaw.o
-  CC       lwlib-utils.o
-  CC       menu.o
-  GEN      liblw.a
+make[2]: 'liblw.a' is up to date.
 make[2]: Leaving directory '/home/barskik/projects/emacs-build/lwlib'
+  CC       menu.o
   CC       xmenu.o
   CC       window.o
   CC       charset.o
@@ -1632,13 +1597,13 @@ make[2]: Leaving directory '/home/barskik/projects/emacs-build/lwlib'
   CC       xfns.o
   CC       xselect.o
   CC       xrdb.o
-make[1]: Leaving directory '/home/barskik/projects/emacs-build/doc/lispref'
   CC       xsmfns.o
   CC       xsettings.o
   CC       dbusbind.o
   CC       emacs.o
   CC       keyboard.o
   CC       macros.o
+make[1]: Leaving directory '/home/barskik/projects/emacs-build/doc/lispref'
   CC       keymap.o
   CC       sysdep.o
   CC       bignum.o
@@ -1718,23 +1683,20 @@ make[2]: Nothing to be done for 'compile-first'.
 make[2]: Leaving directory '/home/barskik/projects/emacs-build/lisp'
 make -C ../lisp autoloads EMACS="../src/bootstrap-emacs"
 make -C ../admin/unidata all EMACS="../../src/bootstrap-emacs"
-make[2]: Entering directory '/home/barskik/projects/emacs-build/lisp'
 make[2]: Entering directory '/home/barskik/projects/emacs-build/admin/unidata'
+make[2]: Entering directory '/home/barskik/projects/emacs-build/lisp'
+make[2]: Nothing to be done for 'all'.
+make[2]: Leaving directory '/home/barskik/projects/emacs-build/admin/unidata'
 make -C ../leim all EMACS="../src/bootstrap-emacs"
 make -C ../admin/grammars all EMACS="../../src/bootstrap-emacs"
-  GEN      unidata.txt
-  ELC+ELN  ../../emacs/lisp/isearch.elc
-  ELC+ELN  ../../emacs/lisp/tab-bar.elc
-  ELC+ELN  ../../emacs/lisp/help.elc
+  ELC+ELN  ../../emacs/lisp/window.elc
 make[3]: Entering directory '/home/barskik/projects/emacs-build/admin/grammars'
 make[3]: Nothing to be done for 'all'.
 make[3]: Leaving directory '/home/barskik/projects/emacs-build/admin/grammars'
 make[3]: Entering directory '/home/barskik/projects/emacs-build/leim'
 make[3]: Nothing to be done for 'all'.
 make[3]: Leaving directory '/home/barskik/projects/emacs-build/leim'
-  GEN      ../../emacs/lisp/net/tramp-loaddefs.el
   GEN      ../../emacs/lisp/loaddefs.el
-make[2]: Leaving directory '/home/barskik/projects/emacs-build/admin/unidata'
 make[2]: Leaving directory '/home/barskik/projects/emacs-build/lisp'
   GEN      ../etc/DOC
 rm -f emacs && cp -f temacs emacs
@@ -1753,41 +1715,28 @@ make[2]: Entering directory '/home/barskik/projects/emacs-build/leim'
 make[2]: Nothing to be done for 'all'.
 make[2]: Leaving directory '/home/barskik/projects/emacs-build/leim'
 make[2]: Entering directory '/home/barskik/projects/emacs-build/lisp'
-  ELC      repeat.elc
-  ELC      emacs-lisp/edebug.elc
-  ELC      net/trampver.elc
-  ELC      org/ob-julia.elc
-  ELC      org/ox-latex.elc
-  ELC      ../../emacs/lisp/progmodes/cc-engine.elc
-  ELC      progmodes/gdb-mi.elc
-  ELC      ../../emacs/lisp/progmodes/cc-align.elc
-  ELC      ../../emacs/lisp/progmodes/cc-cmds.elc
-  ELC      ../../emacs/lisp/progmodes/cc-fonts.elc
-  ELC      ../../emacs/lisp/progmodes/cc-styles.elc
-  ELC      ../../emacs/lisp/progmodes/cc-mode.elc
-  ELC      ../../emacs/lisp/progmodes/js.elc
+  ELC      thingatpt.elc
+  ELC      net/shr.elc
+  ELC      org/ob-gnuplot.elc
+  ELC      org/ob-tangle.elc
+  ELC      org/org-agenda.elc
+  ELC      org/org-clock.elc
+  ELC      org/org-habit.elc
+  ELC      org/org.elc
+  ELC      progmodes/etags.elc
+  ELC      progmodes/xref.elc
+  ELC      vc/ediff-util.elc
 make[2]: Leaving directory '/home/barskik/projects/emacs-build/lisp'
 make[1]: Leaving directory '/home/barskik/projects/emacs-build/lisp'
 make -C doc/misc info
 make[1]: Entering directory '/home/barskik/projects/emacs-build/doc/misc'
-  GEN      ../../../emacs/doc/misc/../../info/dired-x.info
-  GEN      ../../../emacs/doc/misc/../../info/calc.info
-  GEN      ../../../emacs/doc/misc/../../info/cl.info
-  GEN      ../../../emacs/doc/misc/../../info/erc.info
-  GEN      ../../../emacs/doc/misc/../../info/efaq.info
-  GEN      ../../../emacs/doc/misc/../../info/ido.info
-  GEN      ../../../emacs/doc/misc/org.texi
-  GEN      ../../../emacs/doc/misc/../../info/reftex.info
-  GEN      ../../../emacs/doc/misc/../../info/tramp.info
-  GEN      ../../../emacs/doc/misc/../../info/woman.info
-  GEN      ../../../emacs/doc/misc/../../info/efaq-w32.info
-  GEN      ../../../emacs/doc/misc/../../info/org.info
+make[1]: Nothing to be done for 'info'.
 make[1]: Leaving directory '/home/barskik/projects/emacs-build/doc/misc'
 #+end_example
 
 *** create package
 #+NAME: make package
-#+begin_src sh :dir ~/projects/emacs-build :var INSTALL=(expand-file-name "~/emacs-install") :results scalar verbatim :exports code
+#+begin_src sh :eval no-export :dir ~/projects/emacs-build :var INSTALL=(expand-file-name "~/emacs-install") :results scalar verbatim :exports code
   rm -rf $INSTALL
   make prefix=$INSTALL install
 #+end_src
@@ -3244,6 +3193,7 @@ Copying ../emacs/lisp to /home/barskik/emacs-install/share/emacs/28.0.90/lisp...
 ./doc-view.elc
 ./info.elc
 ./window.elc
+./dired-loaddefs.el~
 ./double.elc
 ./auth-source.elc
 ./talk.elc
@@ -6174,27 +6124,24 @@ find native-lisp -type d -exec /bin/mkdir -p "/home/barskik/emacs-install/lib/em
 find native-lisp -type f -exec /usr/bin/install -c -m 644 "{}" "/home/barskik/emacs-install/lib/emacs/28.0.90/{}" \;
 #+end_example
 
-#+NAME: emacs-rev
-#+begin_src sh :dir ~/projects/emacs :results list :noweb yes :exports both
+#+NAME: emacs-revision
+#+begin_src sh :eval no-export :dir ~/projects/emacs :results scalar :noweb yes :exports both :cache yes
   git rev-parse --short HEAD
 #+end_src
 
-#+RESULTS: emacs-rev
-: - e3427faf55
+#+RESULTS[0a1509d3b7349f1a21ecef0fe01d82b86c63d1d1]: emacs-revision
+: d4e2850b32
 
 #+NAME: emacs-package-nlc
-#+begin_src sh :dir ~/emacs-install :var REV=emacs-rev :results scalar file :file-ext txt :output-dir ~/ :exports code
-  tar cJvf ~/emacs-28-${REV}-nlc.tar.xz .
+#+begin_src sh :eval no-export :dir ~/emacs-install :var rev=emacs-revision :results scalar file :file-ext txt :output-dir ~/ :exports code
+  tar cJvf ~/emacs-28-${rev}-nlc.tar.xz .
 #+end_src
 
 #+RESULTS: emacs-package-nlc
 [[file:../../emacs-package-nlc.txt]]
 
-#+RESULTS: emacs-package
-[[file:../../emacs-package.txt]]
-
-#+NAME: remove script
-#+begin_src sh :dir ~/ :var REV=emacs-rev :results scalar file :file emacs-remove-nlc.sh :output-dir ~/ :exports code
+#+NAME: remove-script
+#+begin_src sh :eval no-export :dir ~/ :var rev=emacs-revision :results scalar file :file emacs-remove.sh :output-dir ~/ :exports code :cache yes
   echo "#!/bin/sh"
 
   echo "INSTALL_PREFIX=\${PREFIX:=/usr/local}"
@@ -6208,14 +6155,23 @@ find native-lisp -type f -exec /usr/bin/install -c -m 644 "{}" "/home/barskik/em
   find ~/emacs-install/ -mindepth 1 -type d -printf 'rmdir ${PREFIX}/%P\n' | sort -r
 #+end_src
 
-#+RESULTS: remove script
-[[file:../../emacs-28-e3427faf55-nlc.remove.sh]]
+#+RESULTS[f2e3728da645e011f90621be7da5e14296d403d0]: remove-script
+[[file:../../emacs-remove.sh]]
+
+#+NAME: rename-remove-script
+#+BEGIN_SRC sh :eval no-export :exports none :var rev=emacs-revision :cache yes
+  mv ~/emacs-remove.sh ~/emacs-remove-${rev}-nlc.sh
+  ls -lha ~/emacs-remove-${rev}-nlc.sh
+#+END_SRC
+
+#+RESULTS[7f78cfec95cd07f9a89f227bf5f72613ccbf5b91]: rename-remove-script
+: -rw-rw-r-- 1 barskik barskik 240K Dec 27 11:45 /home/barskik/emacs-remove-d4e2850b32-nlc.sh
 
 *** install
 
 #+NAME: package installation
-#+begin_src sh :dir (concat "/sudo:root@localhost:" (expand-file-name "~/")) :var REV=emacs-rev :exports code :results scalar verbose
-  tar -xJv --no-same-owner -f emacs-28-${REV}.tar.xz -C /usr/local
+#+begin_src sh :eval no :dir (concat "/sudo:root@localhost:" (expand-file-name "~/")) :var rev=emacs-rev :exports code :results scalar verbose
+  tar -xJv --no-same-owner -f emacs-28-${rev}.tar.xz -C /usr/local
 #+end_src
 
 #+RESULTS:
@@ -6223,7 +6179,7 @@ find native-lisp -type f -exec /usr/bin/install -c -m 644 "{}" "/home/barskik/em
 * Fonts
 ** Hack
 #+NAME: hack-font-install
-#+begin_src sh :results scalar verbatim :dir ~/.emacs.d/deployment :exports code
+#+begin_src sh :eval no :results scalar verbatim :dir ~/.emacs.d/deployment :exports code
   mkdir -p work
   curl -Lo work/Hack-v3.003-ttf.zip https://github.com/source-foundry/Hack/releases/download/v3.003/Hack-v3.003-ttf.zip
   unzip -j work/Hack-v3.003-ttf.zip -d ~/.local/share/fonts
@@ -6254,7 +6210,7 @@ Link to latest version from date when this document was written
 [[http://unifoundry.com/pub/unifont/unifont-14.0.01/font-builds/unifont-14.0.01.ttf][unifont-14.0.01.ttf]]
 *** Home directory
 
-#+begin_src sh :results silent :dir ~/ :exports code
+#+begin_src sh :eval no :results silent :dir ~/ :exports code
   curl -L -o ~/.local/share/fonts/unifont-14.0.01.ttf http://unifoundry.com/pub/unifont/unifont-14.0.01/font-builds/unifont-14.0.01.ttf
   fc-cache -frv
 #+end_src
@@ -6271,7 +6227,7 @@ Yet another set of fonts used by my setup.
 *** Local home
 
 #+NAME: cantarell-font-install
-#+begin_src sh :results scalar verbatim :dir ~/.emacs.d/deployment :exports code
+#+begin_src sh :eval no :results scalar verbatim :dir ~/.emacs.d/deployment :exports code
   mkdir -p work
   curl -L -o work/cantarell.zip https://fonts.google.com/download?family=Cantarell
   unzip -j work/cantarell.zip -d ~/.local/share/fonts
@@ -6296,7 +6252,7 @@ fc-cache: succeeded
 #+end_example
 
 *** Ubuntu
-#+BEGIN_SRC sh :exports code
+#+BEGIN_SRC sh :eval no :exports code
   apt install fonts-cantarell
 #+END_SRC
 
@@ -6305,14 +6261,14 @@ fc-cache: succeeded
 [[https://dejavu-fonts.github.io][DejaVu]] is another set of useful fonts to be used by my setup.
 
 *** Ubuntu install:
-#+BEGIN_SRC sh :exports code
+#+BEGIN_SRC sh :eval no :exports code
   apt install fonts-dejavu
   apt install ttf-dejavu
 #+END_SRC
 
 *** Local home
 #+name: dejavu-font-install
-#+begin_src sh :results scalar verbatim :dir ~/.emacs.d/deployment :exports code
+#+begin_src sh :eval no :results scalar verbatim :dir ~/.emacs.d/deployment :exports code
   mkdir -p work
   curl -L -o work/dejavu-fonts-ttf-2.37.tar.bz2 http://sourceforge.net/projects/dejavu/files/dejavu/2.37/dejavu-fonts-ttf-2.37.tar.bz2
   mkdir -p ~/.local/share/fonts
@@ -6348,7 +6304,7 @@ dejavu-fonts-ttf-2.37/ttf/DejaVuSansMono-Bold.ttf
 ** Refresh cache and list installed fonts
 
 #+NAME: font cache list
-#+begin_src sh :results scalar verbatim :dir ~/ :exports code
+#+begin_src sh :eval no :results scalar verbatim :dir ~/ :exports code
     fc-cache -frv
     fc-list
 #+end_src
