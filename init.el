@@ -33,6 +33,7 @@
       tab-width 4                       ; default to 4 visible spaces to display a tab
       )
 (setq tab-always-indent 'complete)
+(setq indicate-empty-lines t)
 
 (prefer-coding-system 'utf-8)
 (set-default-coding-systems 'utf-8)
@@ -765,13 +766,6 @@ If theme is'n loaded then it will be loaded at first"
 	([remap query-replace-regexp] . #'anzu-query-replace-regexp))
   )
 
-(use-package winum
-  :custom
-  (winum-auto-setup-mode-line nil)
-  :config
-  (winum-set-keymap-prefix (kbd "M-p"))
-  (winum-mode)
-  )
 (use-package golden-ratio
   :config
   (golden-ratio-mode)
