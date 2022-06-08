@@ -13,7 +13,7 @@
 
 ;;
 (setq user-full-name "Karol Barski")
-(setq user-mail-address "karol.barski@tietoevry.com")
+(setq user-mail-address "karol.barski@mobica.com")
 
 
 (defconst kb/environment-script (expand-file-name "environment.el" (kb/emacs-subdirectory "rc")))
@@ -306,6 +306,38 @@ should be imported.
         (setenv var value))
       (setq lst (cdr lst)))))
 
+(defun kb/filename ()
+    "Copy the full path of the current buffer."
+    (interactive)
+    (kill-new (buffer-file-name (window-buffer (minibuffer-selected-window)))))
+
+(define-key global-map (kbd "C-c f") 'kb/filename)
+
+;; I know that string is in my Emacs somewhere!
+(require 'cl)
+(defcustom kb/search-all-buffers-ignored-files (list (rx-to-string '(and bos (or ".bash_history" "TAGS") eos)))
+  "Files to ignore when searching buffers via \\[search-all-buffers]."
+  :type 'editable-list)
+
+(require 'grep)
+(defun kb/search-all-buffers (regexp prefix)
+  "Searches file-visiting buffers for occurence of REGEXP.  With
+prefix > 1 (i.e., if you type C-u \\[search-all-buffers]),
+searches all buffers."
+  (interactive (list (grep-read-regexp)
+                     current-prefix-arg))
+  (message "Regexp is %s; prefix is %s" regexp prefix)
+  (multi-occur
+   (if (member prefix '(4 (4)))
+       (buffer-list)
+     (remove-if
+      (lambda (b) (some (lambda (rx) (string-match rx  (file-name-nondirectory (buffer-file-name b)))) kb/search-all-buffers-ignored-files))
+      (remove-if-not 'buffer-file-name (buffer-list))))
+
+   regexp))
+
+;; (global-set-key [f7] 'search-all-buffers)
+
 ;; (define-key global-map (kbd "") 'kb/update-env)
 
 ;; string-insert-rectangle is useful but not binded to any key by default
@@ -474,7 +506,7 @@ If theme is'n loaded then it will be loaded at first"
 
 (defconst kb/c++-style
   '(
-    (fill-column . 100)
+    (fill-column . 120)
     (c-basic-offset . 4)
     (tab-width . 4)
     (indent-tabs-mode . nil)
@@ -516,8 +548,7 @@ If theme is'n loaded then it will be loaded at first"
 
 (defun kb/c++-mode-hook ()
   "My style used while editing C++ sources."
-  (c-add-style "kb/c++-style" kb/c++-style)
-  (c-add-style "kb/c++-mavenir" kb/c++-mavenir t)
+  (c-add-style "kb/c++-style" kb/c++-style t)
   (auto-fill-mode)
   (display-fill-column-indicator-mode))
 (add-hook 'c++-mode-hook 'kb/c++-mode-hook)
@@ -927,8 +958,8 @@ If theme is'n loaded then it will be loaded at first"
 (use-package unicode-fonts)
 
 ;; http://unifoundry.com/pub/unifont/unifont-14.0.01/font-builds/unifont-14.0.01.ttf
-(defvar kb/fonts '((:url "http://unifoundry.com/pub/unifont/unifont-14.0.01/font-builds/"
-			 :fonts "unifont-14.0.01.ttf"
+(defvar kb/fonts '((:url "http://unifoundry.com/pub/unifont/unifont-14.0.03/font-builds/"
+			 :fonts "unifont-14.0.03.otf"
 			 :method 'download)
 		   (:url "https://github.com/source-foundry/Hack/releases/download/v3.003/"
 			 :fonts "Hack-v3.003-ttf.tar.xz"
@@ -988,7 +1019,12 @@ If theme is'n loaded then it will be loaded at first"
 
 (use-package undo-tree
   :delight ""
-  :config (global-undo-tree-mode))
+  :config (global-undo-tree-mode)
+  (setq undo-tree-auto-save-history nil)
+  (defadvice undo-tree-make-history-save-file-name
+      (after undo-tree activate)
+    (setq ad-return-value (concat ad-return-value ".xz")))
+  )
 
 (use-package beacon
   :ensure t
@@ -1058,7 +1094,7 @@ This function is based on work of David Wilson.
   (org-export-with-smart-quotes t)
   ;; (setq org-src-fontify-natively t)
   ;; (setq org-export-with-smart-quotes nil)
-  (setq org-html-htmlize-output-type nil)
+  (org-html-htmlize-output-type nil)
   (org-html-postamble nil)
   (org-todo-keywords
    '((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d!)")
@@ -1098,6 +1134,14 @@ This function is based on work of David Wilson.
   (org-reveal-mathjax t)
   )
 
+(use-package ox-jira)
+(use-package ox-mediawiki)
+(use-package ox-pukiwiki)
+(use-package ox-tiddly)
+(use-package ox-trac)
+(use-package ox-twiki)
+(use-package ox-wk)
+
 (use-package org-journal
   :custom (org-journal-dir "~/projects/journal/")
   )
@@ -1118,21 +1162,6 @@ This function is based on work of David Wilson.
   :hook
   (c-mode-common . highlight-doxygen-mode)
   )
-
-(use-package cmake-mode
-  :if (package-installed-p 'cmake-mode)
-  :defines (cmake-tab-width)
-  :custom
-  (auto-mode-alist
-   (append '(("CMakeLists\\.txt\\'" . cmake-mode)) auto-mode-alist))
-  :hook
-  (cmake-mode . (lambda ()
-		  (message "CmakeMode custom")
-		  (setq fill-column 80)
-		  (auto-fill-mode)
-		  (setq cmake-tab-width 4)
-		  (setq indent-tabs-mode nil))))
-
 
 (use-package pabbrev :delight)
 
@@ -1272,9 +1301,10 @@ This function is based on work of David Wilson.
   ;; :bind (:map lsp-mode-map ("M-." . lsp-find-declaration))
   :config
   (with-eval-after-load 'lsp-mode
-    '(define-key lsp-mode-map (kbd "<tab>") 'company-indent-or-complete-common))
-  (if (package-installed-p 'which-key)
-      (lsp-enable-which-key-integration t))
+    '(define-key lsp-mode-map (kbd "<tab>") 'company-indent-or-complete-common)
+    (if (package-installed-p 'which-key)
+	(lsp-enable-which-key-integration t))
+    (require 'dap-cpptools))
   
   (setq lsp-enable-snippet nil)
   (with-eval-after-load 'yasnippet
@@ -1317,6 +1347,25 @@ This function is based on work of David Wilson.
   :commands
   (lsp-ivy-workspace-symbol)
   )
+
+(use-package cmake-mode
+  :if (package-installed-p 'cmake-mode)
+  :defines (cmake-tab-width)
+  :mode ("CMakeLists\\.txt\\'" "\\.cmake\\'")
+  :hook
+  (cmake-mode . (lambda ()
+		  (message "CmakeMode custom")
+		  (setq fill-column 80)
+		  (auto-fill-mode)
+		  (setq cmake-tab-width 4)
+		  (setq indent-tabs-mode nil)))
+  :hook (cmake-mode . lsp-deferred))
+
+(use-package cmake-font-lock
+  :if (package-installed-p 'cmake-mode)
+  :after cmake-mode
+  :config (cmake-font-lock-activate))
+
 (use-package treemacs
   :bind
   ([f8] . treemacs)
@@ -1589,6 +1638,7 @@ This function is based on work of David Wilson.
   (ivy-use-virutal-buffers t)
   (ivy-count-format "(%d/%d) ")
   (enable-recursive-minibuffers t)
+  (ivy-use-selectable-prompt t)
   )
 (use-package ivy-posframe
   :defines
@@ -1643,13 +1693,18 @@ This function is based on work of David Wilson.
   ;; Run fc-cache -fv
   )
 
-(use-package fuz
-  :config
-  (require 'fuz)
-  (unless (require 'fuz-core nil t)
-    (fuz-build-and-load-dymod))
+(if (executable-find "cargo")
+    (progn
+      (use-package fuz
+	:config
+	(require 'fuz)
+	(unless (require 'fuz-core nil t)
+	  (fuz-build-and-load-dymod))
+	)
+      (use-package ivy-fuz)
+      )
+  (warn "cargo Rust package manager not found")
   )
-(use-package ivy-fuz)
 
 (use-package smart-compile)
 
@@ -1675,6 +1730,7 @@ This function is based on work of David Wilson.
   (projectile-indexing-method 'alien)
   (projectile-completion-system 'ivy)
   (projectile-enable-caching t)
+  (projectile-sort-order 'recently-active)
   :config
   (message "Running projectile mode")
   (projectile-mode)
@@ -1713,9 +1769,9 @@ This function is based on work of David Wilson.
   ;; 	      ("C-c n". magit-list-repos))
   :custom
   (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1)
-  (magit-repository-directories '(("~/projects" . 2)
-				  ("~/projects/mavenir-dev/files/subprojects" . 2)))
+  (magit-repository-directories '(("~/projects" . 2)))
   :config 
+  (put 'magit-clean 'disabled nil)
   (setq git-commit-summary-max-length 50)
   )
 
@@ -1791,8 +1847,6 @@ This function is based on work of David Wilson.
     )
   )
 
-(use-package ox-jira)
-
 (use-package jira-markup-mode
   :config
   (setq auto-mode-alist
@@ -1801,8 +1855,10 @@ This function is based on work of David Wilson.
   :config
   (when (not (file-exists-p "~/.org-jira"))
     (make-directory "~/.org-jira"))
-  (setq jiralib-url "https://at.mavenir.com/jira")
+  ;; (setq jiralib-url "https://asc.bmwgroup.net/mgujira/") ;; https://asc.bmwgroup.net/mgujira/secure/Dashboard.jspa")
   )
+
+(use-package copy-as-format)
 
 (if (executable-find "dot")
     (use-package graphviz-dot-mode
@@ -1811,7 +1867,7 @@ This function is based on work of David Wilson.
 	(graphviz-dot-view-command "xdot %s"))
       :config
       (add-to-list 'org-src-lang-modes '("dot" . graphviz-dot)))
-  "dot command not found in system"
+  (warn "dot command not found in system")
   )
 
 (when (package-installed-p 'yasnippet)
@@ -1875,9 +1931,14 @@ This function is based on work of David Wilson.
   (use-package ivy-yasnippet)
   )
 
+
+(defconst kb/plantuml-jar-path (expand-file-name "~/.java/libs/plantuml.jar")
+  "Location where to search for plantuml.jar file.
+
+Download and put appropriate file there.")
 (use-package plantuml-mode
   :custom
-  (plantuml-jar-path (expand-file-name "~/.java/libs/plantuml-nodot.1.2021.12.jar"))
+  (plantuml-jar-path kb/plantuml-jar-path)
   (plantuml-default-exec-mode 'jar)
   (plantuml-indent-level 4)
   (org-plantuml-jar-path plantuml-jar-path)
@@ -1891,6 +1952,12 @@ This function is based on work of David Wilson.
   (plantuml-set-output-type "svg")
   (add-to-list 'org-babel-load-languages '((plantuml . t)))
   (org-babel-do-load-languages 'org-babel-load-languages '((plantuml . t)))
+
+  (with-eval-after-load 'plantuml-mode
+    (if (not (file-exists-p kb/plantuml-jar-path))
+	(warn (format "PlantUML JAR (%s) not found. Download by running '(plantuml-download-jar) function." kb/plantuml-jar-path))
+    )
+    )
   )
 (use-package flycheck-plantuml
   :config
@@ -1898,6 +1965,17 @@ This function is based on work of David Wilson.
     (require 'flycheck-plantuml)
     (flycheck-plantuml-setup)))
 
+(use-package json-mode)
+
+(use-package go-translate
+  :config
+  (setq gts-translate-list '(("en" "de") ("pl" "en") ("en" "pl") ("en" "zh") ("zh" "en"))) 
+  (setq gts-default-translator
+	(gts-translator
+         :picker (gts-prompt-picker)
+         :engines (list (gts-google-engine) (gts-google-rpc-engine))
+         :render (gts-buffer-render)))
+  )
+
 (message "Init finished")
 ;;; init.el ends here
-(put 'magit-clean 'disabled nil)

@@ -1,6 +1,6 @@
 #+TITLE:     Readme for deployment
 #+AUTHOR:    Karol Barski
-#+EMAIL:     karol.barski@tieto.com
+#+EMAIL:     karol.barski@mobica.com
 #+DATE:      2012-10-13 So
 
 

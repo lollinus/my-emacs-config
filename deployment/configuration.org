@@ -6,7 +6,7 @@
 #+title: Emacs configuration
 #+date: <2021-11-02 Tue>
 #+author: Karol Barski
-#+email: karol.barski@tietoevry.com
+#+email: karol.barski@mobica.com
 #+language: en
 #+select_tags: export
 #+exclude_tags: noexport
@@ -16,7 +16,7 @@
 ** Clone
 
 1. prepare directories
-   #+begin_src sh :eval no :dir ~/
+   #+begin_src sh :eval no-export :dir ~/
      mkdir -p ~/projects/emacs-build
    #+end_src
 
