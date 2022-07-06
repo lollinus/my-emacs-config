@@ -21,6 +21,7 @@
   (load-file "~/.emacs.d/rc/environment.el"))
 
 (add-to-list 'load-path (kb/emacs-subdirectory "rc"))
+(add-to-list 'load-path (kb/emacs-subdirectory "site-lisp/org-addons"))
 
 (when (file-exists-p (expand-file-name "rc-functions.el" (kb/emacs-subdirectory "rc")))
   (load "~/.emacs.d/rc/rc-functions.el"))
@@ -267,12 +268,15 @@ PACKAGES: list of packages to install."
 
 (defun kb/set-buffer-eol-unix ()
   "Set current buffer EOL type to unix."
+  (interactive)
   (set-buffer-file-eol-type 'unix))
 (defun kb/set-buffer-eol-dos ()
   "Set current buffer EOL type to dos."
+  (interactive)
   (set-buffer-file-eol-type 'dos))
 (defun kb/set-buffer-eol-mac ()
   "Set current buffer EOL type to mac."
+  (interactive)
   (set-buffer-file-eol-type 'mac))
 
 (define-key global-map (kbd "C-j") 'kb/join-line)
@@ -283,8 +287,8 @@ PACKAGES: list of packages to install."
 (define-key global-map (kbd "C-c T") 'kb/delete-trailing-whitespaces-and-untabify)
 (define-key global-map (kbd "C-c u") 'kb/set-buffer-eol-unix)
 (define-key global-map (kbd "C-c d") 'kb/set-buffer-eol-dos)
-;; (define-key global-map (kbd "C-c m") 'set-buffer-eol-mac)
-(define-key global-map (kbd "C-c C-d") 'insert/date-time)
+(define-key global-map (kbd "C-c m") 'kb/set-buffer-eol-mac)
+(define-key global-map (kbd "C-c C-d") 'kb/insert-date-time)
 
 (defun kb/update-env (fn)
   "Update environment variables reading FN file.
@@ -319,22 +323,35 @@ should be imported.
   "Files to ignore when searching buffers via \\[search-all-buffers]."
   :type 'editable-list)
 
-(require 'grep)
-(defun kb/search-all-buffers (regexp prefix)
-  "Searches file-visiting buffers for occurence of REGEXP.  With
-prefix > 1 (i.e., if you type C-u \\[search-all-buffers]),
-searches all buffers."
-  (interactive (list (grep-read-regexp)
-                     current-prefix-arg))
-  (message "Regexp is %s; prefix is %s" regexp prefix)
-  (multi-occur
-   (if (member prefix '(4 (4)))
-       (buffer-list)
-     (remove-if
-      (lambda (b) (some (lambda (rx) (string-match rx  (file-name-nondirectory (buffer-file-name b)))) kb/search-all-buffers-ignored-files))
-      (remove-if-not 'buffer-file-name (buffer-list))))
+;; (require 'grep)
+;; (defun kb/search-all-buffers (regexp prefix)
+;;   "Searches file-visiting buffers for occurence of REGEXP.  With
+;; prefix > 1 (i.e., if you type C-u \\[search-all-buffers]),
+;; searches all buffers."
+;;   (interactive (list (grep-read-regexp)
+;;                      current-prefix-arg))
+;;   (message "Regexp is %s; prefix is %s" regexp prefix)
+;;   (multi-occur
+;;    (if (member prefix '(4 (4)))
+;;        (buffer-list)
+;;      (remove-if
+;;       (lambda (b) (some (lambda (rx) (string-match rx  (file-name-nondirectory (buffer-file-name b)))) kb/search-all-buffers-ignored-files))
+;;       (remove-if-not 'buffer-file-name (buffer-list))))
 
-   regexp))
+;;    regexp))
+
+(use-package color-moccur
+  :commands (isearch-moccur isearch-all)
+  :bind (("M-s O" . moccur)
+	 :map isearch-mode-map
+	 ("M-o" . isearch-moccur)
+	 ("M-O" . isearch-moccur-all))
+  :init
+  (kb/ensure-package-installed 'color-moccur)
+  (setq isearch-lazy-highlight t)
+  :config
+  (use-package moccur-edit)
+  )
 
 ;; (global-set-key [f7] 'search-all-buffers)
 
@@ -911,9 +928,10 @@ If theme is'n loaded then it will be loaded at first"
   ;; Please note that `ispell-local-dictionary` itself will be passed to hunspell cli with "-d"
   ;; it's also used as the key to lookup ispell-local-dictionary-alist
   ;; if we use different dictionary
-  (setq ispell-local-dictionary "en_US")
+  (setq ispell-local-dictionary nil)
   (setq ispell-local-dictionary-alist
-	'(("en_US" "[[:alpha:]]" "[^[:alpha:]]" "[']" nil ("-d" "en_US") nil utf-8))))
+	'(("en_US" "[[:alpha:]]" "[^[:alpha:]]" "[']" nil ("-d" "en_US") nil utf-8)
+	  ("pl_PL" "[[:alpha:]]" "[^[:alpha:]]" "[']" nil ("-d" "pl_PL") nil utf-8))))
  (t (setq ispell-program-name nil)))
 
 (when ispell-program-name
@@ -1141,6 +1159,8 @@ This function is based on work of David Wilson.
 (use-package ox-trac)
 (use-package ox-twiki)
 (use-package ox-wk)
+
+(require 'ox-confluence)
 
 (use-package org-journal
   :custom (org-journal-dir "~/projects/journal/")
@@ -1967,15 +1987,34 @@ Download and put appropriate file there.")
 
 (use-package json-mode)
 
+(defun kb/nxml-where ()
+  "Display the hierarchy of XML elements the point is on as a path."
+  (interactive)
+  (let ((path nil))
+    (save-excursion
+      (save-restriction
+        (widen)
+        (while (and (< (point-min) (point)) ;; Doesn't error if point is at beginning of buffer
+                    (condition-case nil
+                        (progn
+                          (nxml-backward-up-element) ; always returns nil
+                          t)
+                      (error nil)))
+          (setq path (cons (xmltok-start-tag-local-name) path)))
+        (if (called-interactively-p t)
+            (message "/%s" (mapconcat 'identity path "/"))
+          (format "/%s" (mapconcat 'identity path "/")))))))
+
 (use-package go-translate
   :config
   (setq gts-translate-list '(("en" "de") ("pl" "en") ("en" "pl") ("en" "zh") ("zh" "en"))) 
   (setq gts-default-translator
 	(gts-translator
          :picker (gts-prompt-picker)
-         :engines (list (gts-google-engine) (gts-google-rpc-engine))
+         :engines (list (gts-bing-engine) (gts-google-engine) (gts-google-rpc-engine))
          :render (gts-buffer-render)))
   )
+(use-package baidu-translate)
 
 (message "Init finished")
 ;;; init.el ends here
