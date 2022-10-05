@@ -677,6 +677,15 @@ If theme is'n loaded then it will be loaded at first"
 ;; vc-hooks
 (setq vc-handled-backends '(git svn))
 
+(use-package dsvn
+  :config
+  (autoload 'svn-status "dsvn" "Run `svn status'." t)
+  (autoload 'svn-update "dsvn" "Run `svn update'." t)
+
+  (require 'vc-svn)
+  )
+
+
 ;; subword-mode
 (add-hook 'c-mode-common-hook 'subword-mode)
 
@@ -886,9 +895,6 @@ If theme is'n loaded then it will be loaded at first"
     (require 'flycheck-posframe)
     (add-hook 'flycheck-mode-hook #'flycheck-posframe-mode))
   )
-
-(use-package cov)
-
 
 ;;================================================================================
 ;; Spell checking
