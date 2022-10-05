@@ -530,7 +530,7 @@ If theme is'n loaded then it will be loaded at first"
     (c-offsets-alist . ((innamespace . 0)
 			(inline-open . 0)
 			(substatement-open . 0)
-			(statement-cont . ++)))
+			(statement-cont . +)))
     (c-hanging-braces-alist . ((brace-list-open . before)
 			       (brace-entry-open . before)
 			       (substatement-open . before)
@@ -563,11 +563,19 @@ If theme is'n loaded then it will be loaded at first"
     )
   "Style used for C++ source editing at mavenir.")
 
+(defun kb/c++-setup-symbol-compose ()
+  "Define additional symbol composition rules for C++ mode."
+  (push '("<=" . ?⩽) prettify-symbols-alist)
+  (push '(">=" . ?⩾) prettify-symbols-alist)
+  )
+
 (defun kb/c++-mode-hook ()
   "My style used while editing C++ sources."
   (c-add-style "kb/c++-style" kb/c++-style t)
   (auto-fill-mode)
-  (display-fill-column-indicator-mode))
+  (display-fill-column-indicator-mode)
+  (kb/c++-setup-symbol-compose)
+)
 (add-hook 'c++-mode-hook 'kb/c++-mode-hook)
 
 (defun kb/cc-compile-command-hook ()
@@ -616,6 +624,7 @@ If theme is'n loaded then it will be loaded at first"
 		))
   (add-hook mode (lambda () (display-line-numbers-mode))))
 
+;; Show symbols as composed characters (e.g. lambda -> λ)
 (global-prettify-symbols-mode t)
 
 (defun kb/whitespace-diff-setup ()
