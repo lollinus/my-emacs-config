@@ -1810,6 +1810,18 @@ This function is based on work of David Wilson.
   :config
   (transient-posframe-mode))
 (use-package treemacs-magit)
+
+;; ASC screws any option for using gerrit package
+;; (use-package gerrit
+;;   :ensure t
+;;   :custom
+;;   ;;https://asc.bmwgroup.net/gerrit/#/c/1850299/6
+;;   (gerrit-host "asc.bmwgroup.net")  ;; is needed for REST API calls
+;;   :config
+;;   (progn
+;;     (add-hook 'magit-status-sections-hook #'gerrit-magit-insert-status t)
+;;     (global-set-key (kbd "C-x i") 'gerrit-upload-transient)
+;;     (global-set-key (kbd "C-x o") 'gerrit-download)))
 ;;--------------------------------------------------------------------------------
 ;; Optional packages
 ;;--------------------------------------------------------------------------------
