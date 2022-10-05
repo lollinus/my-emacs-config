@@ -1752,6 +1752,16 @@ This function is based on work of David Wilson.
   (warn "silversearcher-ag not found")
   )
 
+;; Use ripgrep if available
+(if (executable-find "rg")
+    (progn
+      (use-package rg)
+      (use-package ripgrep)
+      (use-package projectile-ripgrep)
+      )
+  (warn "ripgrep not found")
+  )
+
 ;; :delight '(:eval (concat " " (projectile-project-name)))
 (use-package projectile
   :diminish projectile-mode
