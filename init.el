@@ -2016,7 +2016,7 @@ Download and put appropriate file there.")
 
 (use-package go-translate
   :config
-  (setq gts-translate-list '(("en" "de") ("pl" "en") ("en" "pl") ("en" "zh") ("zh" "en"))) 
+  (setq gts-translate-list '(("en" "de") ("pl" "en") ("en" "pl") ("en" "zh") ("zh" "en") ("ko" "en")))
   (setq gts-default-translator
 	(gts-translator
          :picker (gts-prompt-picker)
