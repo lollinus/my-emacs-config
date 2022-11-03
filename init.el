@@ -686,6 +686,8 @@ If theme is'n loaded then it will be loaded at first"
   "Define additional symbol composition rules for C++ mode."
   (push '("<=" . ?⩽) prettify-symbols-alist)
   (push '(">=" . ?⩾) prettify-symbols-alist)
+  (push '("->" . ?→) prettify-symbols-alist)
+  (push '("!=" . ?≠) prettify-symbols-alist)
   )
 
 (defun kb/c++-mode-hook ()
@@ -728,7 +730,6 @@ If theme is'n loaded then it will be loaded at first"
          ("C-c t i" . #'hl-todo-insert)))
   :hook prog-mode-hook
   :config
-  (message "Config HL Todo")
   (add-to-list 'hl-todo-keyword-faces '("NOCOMMIT" . "#ff00ff"))
   (global-hl-todo-mode))
 
@@ -1218,8 +1219,8 @@ If theme is'n loaded then it will be loaded at first"
 
 (leaf undo-tree :ensure t
   :delight ""
+  :custom ((undo-tree-auto-save-history . nil))
   :config (global-undo-tree-mode)
-  (setq undo-tree-auto-save-history nil)
   (defadvice undo-tree-make-history-save-file-name
       (after undo-tree activate)
     (setq ad-return-value (concat ad-return-value ".xz")))
@@ -1486,20 +1487,20 @@ This function is based on work of David Wilson.
   :ensure t
   :bind ("C-c ;" . iedit-mode))
 
-(leaf volatile-highlights
-  :doc "Minor mode for visual feedback on some operations."
-  :tag "wp" "convenience" "emulations"
-  :url "http://www.emacswiki.org/emacs/download/volatile-highlights.el"
-  :added "2022-11-01"
-  :ensure t
-  :delight
-  ;; :after undo-tree
-  :custom (Vhl/highlight-zero-width-ranges . t)
-  :config
-  (volatile-highlights-mode t)
-  (vhl/define-extension 'undo-tree 'undo-tree-yank 'undo-tree-move)
-  (vhl/install-extension 'undo-tree)
-  )
+;; (leaf volatile-highlights
+;;   :doc "Minor mode for visual feedback on some operations."
+;;   :tag "wp" "convenience" "emulations"
+;;   :url "http://www.emacswiki.org/emacs/download/volatile-highlights.el"
+;;   :added "2022-11-01"
+;;   :ensure t
+;;   :delight
+;;   ;; :after undo-tree
+;;   :custom (Vhl/highlight-zero-width-ranges . t)
+;;   :config
+;;   (volatile-highlights-mode t)
+;;   (vhl/define-extension 'undo-tree 'undo-tree-yank 'undo-tree-move)
+;;   (vhl/install-extension 'undo-tree)
+;;   )
 
 (leaf ws-butler
   :ensure t
