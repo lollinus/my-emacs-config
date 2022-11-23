@@ -48,7 +48,9 @@
 (setq resize-mini-windows t)
 
 ;; do not consider case significant in completion (GNU Emacs default)
-(setq completion-ignore-case t)
+;; (setq completion-ignore-case t)
+(setq read-file-name-completion-ignore-case t)
+(setq read-buffer-completion-ignore-case t)
 (setq load-prefer-newer t)
 
 (setq mouse-highlight 10)
@@ -306,7 +308,17 @@ There are two things you can do about this warning:
            (transient-mark-mode . nil)
            (indent-tabs-mode . nil)
            )
-  :bind (("C-;" . kill-whole-line))
+  :bind (("C-;" . kill-whole-line)
+         ("C-j" . kb/join-line))
+  :config
+  ;; Join lines as in Vim
+  (defun kb/join-line()
+    "Join current and next line.
+
+     Remove tralinig spaces leaving only one.  Similar to Vim Ctrl-j."
+    (interactive)
+    (join-line 'forward-line))
+
   :config
   (column-number-mode +1)
   (line-number-mode +1)
@@ -384,7 +396,9 @@ There are two things you can do about this warning:
   :doc "Minor mode to resolve diff3 conflicts"
   :tag "builtin"
   :added "2022-11-01"
-  :custom (smerge-command-prefix . "C-c v"))
+  :init (setq-default smerge-command-prefix (kbd "C-c v"))
+  ;; :custom (smerge-command-prefix . "C-c v")
+  )
 
 (defun kb/set-buffer-eol-unix ()
   "Set current buffer EOL type to unix."
@@ -399,7 +413,6 @@ There are two things you can do about this warning:
   (interactive)
   (set-buffer-file-eol-type 'mac))
 
-(define-key global-map (kbd "C-j") 'kb/join-line)
 (define-key global-map (kbd "C-a") 'prelude-move-beginning-of-line)
 ;;  (define-key global-map (kbd "C-c i") 'indent-region-or-buffer)
 ;; (define-key global-map (kbd "M-o") 'prelude-smart-open-line)
@@ -409,6 +422,10 @@ There are two things you can do about this warning:
 (define-key global-map (kbd "C-c d") 'kb/set-buffer-eol-dos)
 (define-key global-map (kbd "C-c m") 'kb/set-buffer-eol-mac)
 (define-key global-map (kbd "C-c C-d") 'kb/insert-date-time)
+
+(leaf insert-time-string
+  :bind (("C-c C-!" . insert-time-string))
+  )
 
 (defun kb/update-env (fn)
   "Update environment variables reading FN file.
@@ -457,13 +474,13 @@ should be imported.
 ;;      (remove-if
 ;;       (lambda (b) (some (lambda (rx) (string-match rx  (file-name-nondirectory (buffer-file-name b)))) kb/search-all-buffers-ignored-files))
 ;;       (remove-if-not 'buffer-file-name (buffer-list))))
-
 ;;    regexp))
 (leaf color-moccur
   :doc "multi-buffer occur (grep) mode"
   :tag "convenience"
   :url "http://www.bookshelf.jp/elc/color-moccur.el"
   :added "2022-11-01"
+  :disabled t
   :ensure t
   :commands (isearch-moccur isearch-all)
   :bind (("M-s O" . moccur)
@@ -476,13 +493,14 @@ should be imported.
   )
 
 ;; (global-set-key [f7] 'search-all-buffers)
-
 ;; (define-key global-map (kbd "") 'kb/update-env)
 
-;; string-insert-rectangle is useful but not binded to any key by default
-;; (define-key global-map (kbd "C-x r a") 'string-insert-rectangle) ;; use string-rectange instead "C-x r t"
 (leaf rect
-  :bind (("C-x r l" . 'rectangle-number-lines)))
+  ;; string-insert-rectangle is useful but not binded to any key by default
+  :bind (("C-x r l" . 'rectangle-number-lines))
+;; (define-key global-map (kbd "C-x r a") 'string-insert-rectangle) ;; use string-rectange instead "C-x r t"
+)
+
 
 (leaf whitespace
   :doc "minor mode to visualize TAB, (HARD) SPACE, NEWLINE"
@@ -490,23 +508,30 @@ should be imported.
   :added "2022-11-01"
   :custom (
            ;; (setq whitespace-style '(face trailing lines-tail newline empty indentation big-indent space-before-tab))
-           ( whitespace-style . '(newline-mark newline))
-           ( whitespace-line-column . nil)
-           ( whitespace-display-mappings . '((space-mark 32 [183] [46])
-				             (newline-mark 10 [9166 10])
-				             (tab-mark 9 [9654 9] [92 9]))))
+           (whitespace-style . '(newline-mark newline))
+           (whitespace-line-column . nil)
+           (whitespace-display-mappings . '((space-mark 32 [183] [46])
+				            (newline-mark 10 [9166 10])
+				            (tab-mark 9 [9654 9] [92 9]))))
   :bind (("C-c w" . whitespace-mode))
+  :custom-face
+  (whitespace-space . '((t (:inherit whitespace-space :foreground "DimGrey" :background nil))))
+  (whitespace-newline . '((t (:inherit whitespace-newline :foreground "DimGrey" :background nil))))
+  (whitespace-indentation . '((t (:inherit whitespace-indentation :foreground "DimGrey" :background nil))))
+ 
   :config
-  (set-face-attribute 'whitespace-space nil :foreground "#666666" :background nil)
-  (set-face-attribute 'whitespace-newline nil :foreground "#666666" :background nil)
-  (set-face-attribute 'whitespace-indentation nil :foreground "#666666" :background nil)
-
-  (global-whitespace-mode)
+  (global-whitespace-mode 1)
   )
 
 ;; Set Theme depending if emacs frame is inside TTY o GUI
 ;;--------------------------------------------------------------------------------
 (leaf doom-themes
+  :doc "an opinionated pack of modern color-themes"
+  :req "emacs-25.1" "cl-lib-0.5"
+  :tag "faces" "themes" "emacs>=25.1"
+  :url "https://github.com/doomemacs/themes"
+  :added "2022-11-04"
+  ;; :emacs>= 25.1
   :ensure t
   ;; :defines (doom-themes-treemacs-theme)
   :after all-the-icons ;; doom-atom requires all-the-icons
@@ -525,7 +550,13 @@ should be imported.
   ;; (doom-themes-neotree-config)
   (doom-themes-treemacs-config)
   (doom-themes-org-config))
-(leaf solaire-mode
+(leaf solarized-theme
+  :doc "The Solarized color theme"
+  :req "emacs-24.1"
+  :tag "solarized" "themes" "convenience" "emacs>=24.1"
+  :url "http://github.com/bbatsov/solarized-emacs"
+  :added "2022-11-04"
+  ;; :emacs>= 24.1
   :ensure t
   :config
   (solaire-global-mode))
@@ -533,14 +564,14 @@ should be imported.
 (leaf doom-modeline
   :ensure t
   :hook after-init-hook
-  :custom
-  (doom-modeline-hud . t)
-  (doom-modeline-buffer-file-name-style . 'truncate-with-project)
-  ;; (setq doom-modeline-enable-word-count nil)
-  (doom-modeline-buffer-encoding . 'nondefault)
-  (doom-modeline-default-coding-system . 'utf-8)
-  (doom-modeline-default-eol-type . 0)
-  (doom-modeline-vcs-max-length . 24))
+  :custom (
+           (doom-modeline-hud . t)
+           (doom-modeline-buffer-file-name-style . 'truncate-with-project)
+           ;; (setq doom-modeline-enable-word-count nil)
+           (doom-modeline-buffer-encoding . 'nondefault)
+           (doom-modeline-default-coding-system . 'utf-8)
+           (doom-modeline-default-eol-type . 0)
+           (doom-modeline-vcs-max-length . 24)))
 
 (defvar kb/terminal-theme 'wombat)
 ;; (defvar kb/window-theme 'doom-one)
@@ -616,10 +647,17 @@ If theme is'n loaded then it will be loaded at first"
 ;; (kb/activate-theme)
 ;; (add-function :after after-focus-change-function #'kb/activate-theme)
 ;; (add-hook 'after-make-frame-functions-hook 'kb/load-frame-theme)
-(load-theme kb/window-theme t)
-(add-to-list 'initial-frame-alist '(font . "Hack"))
-(add-to-list 'default-frame-alist '(font . "Hack"))
-(kb/set-window-font)
+(leaf custom
+  :doc "tools for declaring and initializing options"
+  :tag "builtin" "faces" "help"
+  :added "2022-11-04"
+  :init
+  (add-to-list 'initial-frame-alist '(font . "Hack"))
+  (add-to-list 'default-frame-alist '(font . "Hack"))
+  :config
+  (load-theme kb/window-theme t)
+  (kb/set-window-font)
+  )
 
 ;;--------------------------------------------------------------------------------
 ;; Programming modes
@@ -635,7 +673,6 @@ If theme is'n loaded then it will be loaded at first"
 
 (defun kb/c-mode-hook ()
   "My style used while editing C sources."
-  (message "Running kb/c-mode-hook")
   (c-add-style "kb/c-style" kb/c-style t)
   (turn-on-auto-fill))
 (add-hook 'c-mode-hook 'kb/c-mode-hook)
@@ -692,7 +729,6 @@ If theme is'n loaded then it will be loaded at first"
 
 (defun kb/c++-mode-hook ()
   "My style used while editing C++ sources."
-  (message "Running kb/c++-mode-hook")
   (c-add-style "kb/c++-style" kb/c++-style t)
   (auto-fill-mode)
   (display-fill-column-indicator-mode)
@@ -864,19 +900,19 @@ If theme is'n loaded then it will be loaded at first"
   :config (speedbar-add-supported-extension '(".tex" ".bib" ".w"))
   )
 ;; speedup tramp
-;; (leaf tramp
-;;   :disabled
-;;   ;; :ensure tramp
-;;   ;; :pin "gnu"
-;;   :custom
-;;   (tramp-verbose . 1)
-;;   (vc-ignore-dir-regexp .
-;; 	                '(format "\\(%s\\)\\|\\(%s\\)"
-;; 		                 vc-ignore-dir-regexp
-;; 		                 tramp-file-name-regexp))
-;;   ;; :config
-;;   ;; (tramp-recompile-elpa)
-;;   )
+(leaf tramp
+  :disabled t
+  ;; :ensure tramp
+  ;; :pin "gnu"
+  :custom
+  (tramp-verbose . 1)
+  (vc-ignore-dir-regexp .
+ 	                '(format "\\(%s\\)\\|\\(%s\\)"
+ 		                 vc-ignore-dir-regexp
+ 		                 tramp-file-name-regexp))
+  ;; :config
+  ;; (tramp-recompile-elpa)
+  )
 
 ;;--------------------------------------------------------------------------------
 ;; iBuffer
@@ -961,8 +997,6 @@ If theme is'n loaded then it will be loaded at first"
 ;;--------------------------------------------------------------------------------
 ;; Additional packages
 ;;--------------------------------------------------------------------------------
-(leaf delight :ensure t)
-
 (leaf comment-dwim-2
   :ensure t
   :bind ("M-;" . comment-dwim-2)
@@ -995,26 +1029,32 @@ If theme is'n loaded then it will be loaded at first"
          (:isearch-mode-map
           ([remap isearch-query-replace] . #'anzu-query-replace)
           ([remap isearch-query-replace-regexp] . #'anzu-query-replace-regexp)))
+  ;; :custom-face
+  ;; (anzu-mode-line . '((t (:inherit anzu-mode-line :foreground "yellow" :weight "bold"))))
   :config
-  (global-anzu-mode +1)
-  (set-face-attribute 'anzu-mode-line nil
-		      :foreground "yellow" :weight 'bold))
+  (global-anzu-mode +1))
 
 (leaf golden-ratio
+  :disabled t
   :ensure t
-  :config
-  (golden-ratio-mode)
-  )
+  :config (golden-ratio-mode))
 
 (leaf editorconfig
   :ensure t
-  :delight ""
+  :blackout " EC"
   :config (editorconfig-mode 1))
 
+(leaf posframe
+  :ensure t)
+
 (leaf flycheck
+  :doc "On-the-fly syntax checking"
+  :req "dash-2.12.1" "pkg-info-0.4" "let-alist-1.0.4" "seq-1.11" "emacs-24.3"
+  :tag "tools" "languages" "convenience" "emacs>=24.3"
+  :url "http://www.flycheck.org"
+  :added "2022-11-16"
+  :emacs>= 24.3
   :ensure t
-  ;; :defer 5
-  ;; :after hydra
   :init (global-flycheck-mode)
   :custom ((flycheck-indication-mode . 'right-fringe)
            (flycheck-check-syntax-automatically . '(save mode-enabled))
@@ -1024,7 +1064,10 @@ If theme is'n loaded then it will be loaded at first"
     (define-fringe-bitmap 'flycheck-fringe-bitmap-double-arrow
       [0 0 0 0 0 4 12 28 60 124 252 124 60 28 12 4 0 0 0 0]
       ))
-  (when (package-installed-p 'hydra)
+  :config
+  (leaf flycheck-hydra
+    :after flycheck hydra
+    :config
     (defhydra hydra-flycheck
       (global-map "C-c ! j"
 		  :pre (flycheck-list-errors)
@@ -1040,89 +1083,106 @@ If theme is'n loaded then it will be loaded at first"
     )
   (leaf flycheck-clang-analyzer
     :ensure t
-    :config
-    (with-eval-after-load 'flycheck
-      'flycheck-clang-analyzer-setup))
+    :after flycheck
+    :config (flycheck-clang-analyzer-setup))
   (leaf flycheck-clang-tidy
     :ensure t
-    :config
-    (with-eval-after-load 'flycheck
-      'flycheck-clang-tidy-setup))
-  (leaf flycheck-google-cpplint :ensure t
-    :config
-    (with-eval-after-load 'flycheck
-      '(flycheck-add-next-checker 'c/c++-cppcheck
-				  'c/c++-googlelint 'append)))
-  (leaf flycheck-projectile :ensure t)
-  (leaf avy-flycheck :ensure t
-    :hook (flycheck-mode-hook . avy-flycheck-setup))
-  ;; (leaf posframe :ensure t)
-  (leaf flycheck-posframe
+    :after flycheck projectile
+    :config (flycheck-clang-tidy-setup))
+  (leaf flycheck-google-cpplint
     :ensure t
     :after flycheck
+    :defun flycheck-add-next-checker
+    :require flycheck-google-cpplint
+    :config
+    (flycheck-add-next-checker 'c/c++-cppcheck
+			       'c/c++-googlelint 'append))
+  (leaf flycheck-projectile
+    :after flycheck projectile
+    :ensure t
+    :require flycheck-projectile)
+  (leaf avy-flycheck
+    :ensure t
+    :hook (flycheck-mode-hook . avy-flycheck-setup))
+  (leaf flycheck-posframe
+    :doc "Show flycheck error messages using posframe.el"
+    :req "flycheck-0.24" "emacs-26" "posframe-0.7.0"
+    :tag "emacs>=26"
+    :url "https://github.com/alexmurray/flycheck-posframe"
+    :added "2022-11-16"
+    :emacs>= 26
+    :ensure t
+    :after flycheck posframe
     :hook flycheck-mode-hook)
   )
 
 ;;================================================================================
 ;; Spell checking
 ;;================================================================================
-
-;; if (aspell installed) { use aspell}
-;; else if (hunspell installed) { use hunspell }
-;; whatever spell checker I use, I always use English dictionary
-;; I prefer use aspell because:
-;; 1. aspell is older
-;; 2. looks Kevin Atkinson still get some road map for aspell:
-;; @see http://lists.gnu.org/archive/html/aspell-announce/2011-09/msg00000.html
-(defun flyspell-detect-ispell-args (&optional run-together)
-  "If RUN-TOGETHER is true, spell check the CamelCase words."
-  (let (args)
-    (cond
-     ((string-match  "aspell$" ispell-program-name)
-      ;; Force the English dictionary for aspell
-      ;; Support Camel Case spelling check (tested with aspell 0.6)
-      (setq args (list "--sug-mode=ultra" "--lang=en_US"))
-      (when run-together
-	(cond
-	 ;; Kevin Atkinson said now aspell supports camel case directly
-	 ;; https://github.com/redguardtoo/emacs.d/issues/796
-	 ((string-match-p "--camel-case"
-			  (shell-command-to-string (concat ispell-program-name " --help")))
-	  (setq args (append args '("--camel-case"))))
-
-	 ;; old aspell uses "--run-together". Please note we are not dependent on this option
-	 ;; to check camel case word. wucuo is the final solution. This aspell options is just
-	 ;; some extra check to speed up the whole process.
-	 (t
-	  (setq args (append args '("--run-together" "--run-together-limit=16")))))))
-     ((string-match "hunspell$" ispell-program-name)
-      ;; Force the English dictionary for hunspell
-      (setq args "-d en_US")))
-    args))
-
-(cond
- ((executable-find "aspell")
-  ;; you may also need `ispell-extra-args'
-  (setq ispell-program-name "aspell"))
- ((executable-find "hunspell")
-  (setq ispell-program-name "hunspell")
-
-  ;; Please note that `ispell-local-dictionary` itself will be passed to hunspell cli with "-d"
-  ;; it's also used as the key to lookup ispell-local-dictionary-alist
-  ;; if we use different dictionary
-  (setq ispell-local-dictionary nil)
-  (setq ispell-local-dictionary-alist
-	'(("en_US" "[[:alpha:]]" "[^[:alpha:]]" "[']" nil ("-d" "en_US") nil utf-8)
-	  ("pl_PL" "[[:alpha:]]" "[^[:alpha:]]" "[']" nil ("-d" "pl_PL") nil utf-8))))
- (t (setq ispell-program-name nil)))
-
-(when ispell-program-name
+(leaf ispell
+  :doc "interface to spell checkers"
+  :tag "builtin"
+  :added "2022-11-03"
+  :disabled t
+  ;; :when ispell-program-name
   ;; ispell-cmd-args is useless, it's the list of *extra* arguments we will append to the ispell process when "ispell-word" is called.
   ;; ispell-extra-args is the command arguments which will *always* be used when start ispell process
   ;; Please note when you use hunspell, ispell-extra-args will NOT be used.
   ;; Hack ispell-local-dictionary-alist instead.
-  (setq-default ispell-extra-args (flyspell-detect-ispell-args t))
-  ;; (setq ispell-cmd-args (flyspell-detect-ispell-args))
+  :custom ((ispell-extra-args . '(flyspell-detect-ispell-args t))
+           ;; (setq ispell-cmd-args (flyspell-detect-ispell-args))
+           )
+  :config
+  ;; if (aspell installed) { use aspell}
+  ;; else if (hunspell installed) { use hunspell }
+  ;; whatever spell checker I use, I always use English dictionary
+  ;; I prefer use aspell because:
+  ;; 1. aspell is older
+  ;; 2. looks Kevin Atkinson still get some road map for aspell:
+  ;; @see http://lists.gnu.org/archive/html/aspell-announce/2011-09/msg00000.html
+  (defun flyspell-detect-ispell-args (&optional run-together)
+    "If RUN-TOGETHER is true, spell check the CamelCase words."
+    (let (args)
+      (cond
+       ((string-match  "aspell$" ispell-program-name)
+        ;; Force the English dictionary for aspell
+        ;; Support Camel Case spelling check (tested with aspell 0.6)
+        (setq args (list "--sug-mode=ultra" "--lang=en_US"))
+        (when run-together
+	  (cond
+	   ;; Kevin Atkinson said now aspell supports camel case directly
+	   ;; https://github.com/redguardtoo/emacs.d/issues/796
+	   ((string-match-p "--camel-case"
+			    (shell-command-to-string (concat ispell-program-name " --help")))
+	    (setq args (append args '("--camel-case"))))
+
+	   ;; old aspell uses "--run-together". Please note we are not dependent on this option
+	   ;; to check camel case word. wucuo is the final solution. This aspell options is just
+	   ;; some extra check to speed up the whole process.
+	   (t
+	    (setq args (append args '("--run-together" "--run-together-limit=16")))))))
+       ((string-match "hunspell$" ispell-program-name)
+        ;; Force the English dictionary for hunspell
+        (setq args "-d en_US")))
+      args))
+
+  ;; ispell-program-name
+  (cond
+   ((executable-find "aspell")
+    ;; you may also need `ispell-extra-args'
+    (setq ispell-program-name "aspell"))
+   ((executable-find "hunspell")
+    (setq ispell-program-name "hunspell")
+
+    ;; Please note that `ispell-local-dictionary` itself will be passed to hunspell cli with "-d"
+    ;; it's also used as the key to lookup ispell-local-dictionary-alist
+    ;; if we use different dictionary
+    (setq ispell-local-dictionary nil)
+    (setq ispell-local-dictionary-alist
+	  '(("en_US" "[[:alpha:]]" "[^[:alpha:]]" "[']" nil ("-d" "en_US") nil utf-8)
+	    ("pl_PL" "[[:alpha:]]" "[^[:alpha:]]" "[']" nil ("-d" "pl_PL") nil utf-8))))
+   (t (setq ispell-program-name nil)))
+
   (defadvice ispell-word (around my-ispell-word activate)
     (let ((old-ispell-extra-args ispell-extra-args))
       (ispell-kill-ispell t)
@@ -1144,15 +1204,24 @@ If theme is'n loaded then it will be loaded at first"
   (defun text-mode-hook-setup ()
     ;; Turn off RUN-TOGETHER option when spell check text-mode
     (setq-local ispell-extra-args (flyspell-detect-ispell-args)))
-  (add-hook 'text-mode-hook 'text-mode-hook-setup)
+  :hook (text-mode-hook . text-mode-hook-setup)
+  )
 
-  (leaf flycheck-aspell :ensure t
-    :config
-    (advice-add #'ispell-pdict-save :after #'flycheck-maybe-recheck)
-    (defun flycheck-maybe-recheck (_)
-      (when (bound-and-true-p flycheck-mode)
-	(flycheck-buffer)))
-    )
+(leaf flycheck-aspell
+  :doc "Aspell checker for flycheck"
+  :req "flycheck-28.0" "emacs-25.1"
+  :tag "aspell" "spell" "flycheck" "wp" "emacs>=25.1"
+  :url "https://github.com/leotaku/flycheck-aspell"
+  :added "2022-11-03"
+  ;; :emacs>= 25.1
+  :disabled t
+  :ensure t
+  :after flycheck
+  :advice (:after ispell-pdict-save flycheck-maybe-recheck)
+  :config
+  (defun flycheck-maybe-recheck (_)
+    (when (bound-and-true-p flycheck-mode)
+      (flycheck-buffer)))
   )
 
 (leaf unicode-fonts :ensure t)
@@ -1218,12 +1287,13 @@ If theme is'n loaded then it will be loaded at first"
 ;;               font-dest))))
 
 (leaf undo-tree :ensure t
-  :delight ""
+  :blackout t
+  :disabled t
   :custom ((undo-tree-auto-save-history . nil))
   :config (global-undo-tree-mode)
-  (defadvice undo-tree-make-history-save-file-name
-      (after undo-tree activate)
-    (setq ad-return-value (concat ad-return-value ".xz")))
+  ;; (defadvice undo-tree-make-history-save-file-name
+  ;;     (after undo-tree activate)
+  ;;   (setq ad-return-value (concat ad-return-value ".xz")))
   )
 
 (leaf beacon
@@ -1232,7 +1302,55 @@ If theme is'n loaded then it will be loaded at first"
   :config (beacon-mode 1)
   )
 
-(defun kb/org-font-setup ()
+(leaf gnuplot
+  :doc "Major-mode and interactive frontend for gnuplot"
+  :req "emacs-24.3"
+  :tag "plotting" "gnuplot" "data" "emacs>=24.3"
+  :url "https://github.com/emacs-gnuplot/gnuplot"
+  :added "2022-10-31"
+  :emacs>= 24.3
+  :ensure t)
+
+(leaf org
+  :doc "Outline-based notes management and organizer"
+  :added "2022-10-31"
+  :ensure t
+  :commands (org-capture org-agenda)
+  :hook (org-mode-hook . kb/org-mode-setup)
+  (org-mode-hook . kb/org-font-setup)
+  :custom ((org-ellipsis . " ▾")
+           (org-hide-leading-stars . t)
+           (org-agenda-start-with-log-mode . t)
+           (org-log-done . 'time)
+           (org-log-into-drawer . t)
+           (org-src-fontify-natively . t)
+           (org-export-with-smart-quotes . t)
+           ;; (setq org-src-fontify-natively t)
+           ;; (setq org-export-with-smart-quotes nil)
+           (org-html-htmlize-output-type . nil)
+           (org-html-postamble . nil)
+           (org-todo-keywords .
+                              '((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d!)")
+                                (sequence "BACKLOG(b)" "PLAN(p)" "READY(r)" "ACTIVE(a)" "REVIEW(v)" "WAIT(w@/!)" "HOLD(h)" "|" "COMPLETED(c)" "CANC(k@)")))
+           )
+  :config
+  (defun kb/org-mode-setup ()
+    (org-indent-mode 1)
+    ;;(variable-pitch-mode 1)
+    (visual-line-mode 1)
+    (org-babel-do-load-languages
+     'org-babel-load-languages
+     '((emacs-lisp . t)
+       (python . t)
+       (eshell . t)
+       (screen . t)
+       (shell . t)
+       (dot . t)
+       (gnuplot . t)
+       ))
+    )
+
+  (defun kb/org-font-setup ()
   "Function to setup font configuration for Org mode files.
 
 This function is based on work of David Wilson.
@@ -1278,54 +1396,6 @@ This function is based on work of David Wilson.
   ;; 			      ("protobuf" (:background "grey5" :foreground "chartreuse"))
   ;; 			      ))
   )
-
-(leaf gnuplot
-  :doc "Major-mode and interactive frontend for gnuplot"
-  :req "emacs-24.3"
-  :tag "plotting" "gnuplot" "data" "emacs>=24.3"
-  :url "https://github.com/emacs-gnuplot/gnuplot"
-  :added "2022-10-31"
-  :emacs>= 24.3
-  :ensure t)
-
-(leaf org
-  :doc "Outline-based notes management and organizer"
-  :added "2022-10-31"
-  :ensure org
-  :commands (org-capture org-agenda)
-  :hook (org-mode-hook . kb/org-mode-setup)
-  :custom ((org-ellipsis . " ▾")
-           (org-hide-leading-stars . t)
-           (org-agenda-start-with-log-mode . t)
-           (org-log-done . 'time)
-           (org-log-into-drawer . t)
-           (org-src-fontify-natively . t)
-           (org-export-with-smart-quotes . t)
-           ;; (setq org-src-fontify-natively t)
-           ;; (setq org-export-with-smart-quotes nil)
-           (org-html-htmlize-output-type . nil)
-           (org-html-postamble . nil)
-           (org-todo-keywords .
-                              '((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d!)")
-                                (sequence "BACKLOG(b)" "PLAN(p)" "READY(r)" "ACTIVE(a)" "REVIEW(v)" "WAIT(w@/!)" "HOLD(h)" "|" "COMPLETED(c)" "CANC(k@)")))
-           )
-  :config
-  (defun kb/org-mode-setup ()
-    (org-indent-mode)
-    ;;(variable-pitch-mode 1)
-    (visual-line-mode 1)
-    (org-babel-do-load-languages
-     'org-babel-load-languages
-     '((emacs-lisp . t)
-       (python . t)
-       (eshell . t)
-       (screen . t)
-       (shell . t)
-       (dot . t)
-       (gnuplot . t)
-       ))
-    )
-  (kb/org-font-setup)
   )
 
 (leaf org-bullets
@@ -1363,14 +1433,16 @@ This function is based on work of David Wilson.
   :url "https://github.com/stig/ox-jira.el"
   :added "2022-10-31"
   :ensure t
-  :after org)
+  :after org
+  :require ox-jira)
 (leaf ox-mediawiki
   :doc "Mediawiki Back-End for Org Export Engine"
   :req "cl-lib-0.5" "s-1.9.0"
   :tag "mediawiki" "wp" "org"
   :url "https://github.com/tomalexander/orgmode-mediawiki"
   :added "2022-10-31"
-  :ensure t)
+  :ensure t
+  :require ox-mediawiki)
 (leaf ox-pukiwiki
   :doc "Pukiwiki Back-End for Org Export Engine"
   :req "org-8.1"
@@ -1378,7 +1450,8 @@ This function is based on work of David Wilson.
   :url "https://github.com/yashi/org-pukiwiki"
   :added "2022-10-31"
   :ensure t
-  :after org)
+  :after org
+  :require ox-pukiwiki)
 (leaf ox-tiddly
   :doc "Org TiddlyWiki exporter"
   :req "org-8" "emacs-24.4"
@@ -1426,32 +1499,27 @@ This function is based on work of David Wilson.
   ;; :emacs>= 25.1
   :ensure t
   ;; :after org
-  :custom (
-           (org-journal-dir . "~/projects/journal/")
+  :commands (org-journal-new-entry)
+;;  :init ()
+  ;; :require org
+  :custom ((org-journal-dir . "~/projects/journal/")
            (org-journal-file-format . "%Y%m%d.org"))
-  ;; :commands (org-journal-new-entry)
-  :bind ("C-c C-j" . org-journal-new-entry)
+  :commands (org-journal-new-entry)
+  ;; :bind-keymap* ("C-c C-j" . #'org-journal-new-entry)
+  ;; :require org org-journal
+  :bind ("C-c C-j" . 'org-journal-new-entry)
   )
+;; (define-key global-map (kbd "C-c C-j") 'org-journal-new-entry)
 
-;; (leaf deft
-;;   :doc "quickly browse, filter, and edit plain text notes"
-;;   :tag "notational velocity" "simplenote" "notes" "plain text"
-;;   :url "https://jblevins.org/projects/deft/"
-;;   :added "2022-10-31"
-;;   :disabled
-;;   :ensure t
-;;   :custom ((deft-directory . org-journal-dir)
-;;            (deft-recursive . t)))
-;; (leaf org-journal-list
-;;   :doc "Org mode Journal List"
-;;   :req "emacs-25"
-;;   :tag "emacs>=25"
-;;   :url "https://github.com/huytd/org-journal-list"
-;;   :added "2022-10-31"
-;;   :emacs>= 25
-;;   :ensure t
-;;   :custom (org-journal-list-default-directory . org-journal-dir)
-;;   :bind ("C-c C-k" . 'org-journal-list--start))
+(leaf deft
+  :doc "quickly browse, filter, and edit plain text notes"
+  :tag "notational velocity" "simplenote" "notes" "plain text"
+  :url "https://jblevins.org/projects/deft/"
+  :added "2022-10-31"
+  :disabled t
+  :ensure t
+  :custom ((deft-directory . org-journal-dir)
+           (deft-recursive . t)))
 
 (leaf markdown-mode
   :doc "Major mode for Markdown-formatted text"
@@ -1461,10 +1529,7 @@ This function is based on work of David Wilson.
   :added "2022-10-31"
   :emacs>= 26.1
   :ensure t
-  :config
-  (add-to-list 'auto-mode-alist '("\\.text\\'" . markdown-mode))
-  (add-to-list 'auto-mode-alist '("\\.markdown\\'" . markdown-mode))
-  (add-to-list 'auto-mode-alist '("\\.md\\'" . markdown-mode)))
+  :mode ("\\.text\\'" "\\.markdown\\'" "\\.md\\'"))
 (leaf highlight-doxygen
   :doc "Highlight Doxygen comments"
   :tag "faces"
@@ -1493,7 +1558,7 @@ This function is based on work of David Wilson.
 ;;   :url "http://www.emacswiki.org/emacs/download/volatile-highlights.el"
 ;;   :added "2022-11-01"
 ;;   :ensure t
-;;   :delight
+;;   :blackout t
 ;;   ;; :after undo-tree
 ;;   :custom (Vhl/highlight-zero-width-ranges . t)
 ;;   :config
@@ -1507,15 +1572,17 @@ This function is based on work of David Wilson.
   :hook ((c-mode-common-hook text-mode-hook fundamental-mode-hook) . ws-butler-mode))
 
 (leaf cycle-quotes
+  :ensure t
   :bind ("C-c q" . cycle-quotes))
 
 (leaf bool-flip
+  :ensure t
   :bind ("C-c C-b" . bool-flip-do-flip))
 
 (leaf amx :ensure t)
 (leaf company
   :ensure t
-  :hook (after-init-hook . kb/company-hook)
+  :hook (after-init-hook . global-company-mode)
   :custom (
            (company-minimum-prefix-length . 1)
            (company-idle-delay . 0.0)
@@ -1530,39 +1597,35 @@ This function is based on work of David Wilson.
   :config
   (defun kb/company-hook ()
     "Hook to setup company mode"
-    (global-company-mode)
-    (message "KB/company-hook"))
+    (global-company-mode))
 
   (delete 'company-semantic company-backends)
   (delete 'company-oddmuse company-backends)
   (delete 'company-gtags company-backends)
   (if (fboundp 'yas-expand)
       (add-hook 'c-mode-common-hook (lambda ()
-                                 (message "Yo this is yasnippet backend")
-                                 (add-to-list (make-local-variable 'company-backends) 'company-yasnippet))))
+                                      (message "Yo this is yasnippet backend")
+                                      (add-to-list (make-local-variable 'company-backends) 'company-yasnippet))))
   :config
   (leaf company-statistics
     :ensure t
     :config
     (company-statistics-mode))
-  ;; (leaf company-posframe
-  ;;   :disabled
-  ;;   :ensure t
-  ;;   ;; :hook (company-mode . company-posframe-mode-hook)
-  ;;   :after posframe company
-  ;;   :config
-  ;;   ;; (require 'company-posframe)
-  ;;   ;; (with-eval-after-load 'company (company-posframe-mode 1))
-  ;;   (company-posframe-mode 1)
-  ;;   )
-  ;; (leaf company-quickhelp
-  ;;   :ensure t
-  ;;   :disabled
-  ;;   :after company
-  ;;   :bind (:company-active-map ("C-c h" . #'company-quickhelp-manual-begin))
-  ;;   :config
-  ;;   (company-quickhelp-mode)
-  ;;   )
+  (leaf company-posframe
+    :ensure t
+    :after posframe company
+    :custom ((company-posframe-lighter . ""))
+    :config
+    (company-posframe-mode 1)
+    )
+  (leaf company-quickhelp
+    :ensure t
+    :disabled t
+    :after company
+    :bind (:company-active-map ("C-c h" . #'company-quickhelp-manual-begin))
+    :config
+    (company-quickhelp-mode 1)
+    )
 
   (leaf company-c-headers
     :doc "Company mode backend for C/C++ header files"
@@ -1571,27 +1634,11 @@ This function is based on work of David Wilson.
     :added "2022-10-31"
     :emacs>= 24.1
     :ensure t
+    :disabled t
     :after company
     :config
     (add-to-list 'company-backends 'company-c-headers)
-    (if (boundp 'company-box-backends-colors)
-        (add-to-list 'company-box-backends-colors
-		     '(company-c-headers . (:candidate (:background "wheat" :foreground "black")
-						       :annotation (:background "grey" :foreground "green")
-						       :selected (:background "PaleVioletRed1" :foreground "SaddleBrown")
-						       ))))
     )
-  ;; (leaf company-ctags
-  ;;   :doc "Fastest company-mode completion backend for ctags"
-  ;;   :req "emacs-25.1" "company-0.9.0"
-  ;;   :tag "convenience" "emacs>=25.1"
-  ;;   :url "https://github.com/redguardtoo/company-ctags"
-  ;;   :added "2022-10-31"
-  ;;   :emacs>= 25.1
-  ;;   :ensure t
-  ;;   :after company
-  ;;   :config
-  ;;   (company-ctags-auto-setup))
 )
 
 (leaf highlight-numbers
@@ -1625,7 +1672,6 @@ This function is based on work of David Wilson.
   :url "https://github.com/dgutov/highlight-escape-sequences"
   :added "2022-10-31"
   :ensure t
-  ;; :pin "melpa"
   :config (hes-mode))
 
 (leaf clang-format
@@ -1659,8 +1705,8 @@ This function is based on work of David Wilson.
   :ensure t
   ;; :after spinner markdown-mode lv
   ;; :commands (lsp lsp-deferred which-key)
-  :init
-  (customize-set-variable 'lsp-keymap-prefix "C-c l" "Configured by Init for lsp-mode") ;; Or 'C-l', 's-l'
+  ;; :init
+  ;; (customize-set-variable 'lsp-keymap-prefix "C-c l" "Configured by Init for lsp-mode") ;; Or 'C-l', 's-l'
   :custom
   ;; (lsp-print-performance t)
   ;; (lsp-enable-xref t)
@@ -1670,19 +1716,14 @@ This function is based on work of David Wilson.
   (lsp-completion-provider . :capf)
   (lsp-headerline-breadcrumb-enable . t)
   (lsp-headerline-breadcrumb-segments . '(symbols project))
+  (lsp-enable-snippet . nil)
 
-  :hook (c-mode-common-hook . lsp-deferred)
-  ;; :bind (:map lsp-mode-map ("M-." . lsp-find-declaration))
+  :hook ((c-mode-common-hook . lsp-deferred))
+  :bind
+         ;; :bind (:map lsp-mode-map ("M-." . lsp-find-declaration))
+         (:lsp-mode-map ("<tab>" . company-indent-or-complete-common))
+  
   :config
-  (with-eval-after-load 'lsp-mode
-    '(define-key lsp-mode-map (kbd "<tab>") 'company-indent-or-complete-common)
-    (if (package-installed-p 'which-key)
-	    (lsp-enable-which-key-integration t)))
-  
-  (setq lsp-enable-snippet nil)
-  (with-eval-after-load 'yasnippet
-    (setq lsp-enable-snippet t))
-  
   (defun kb/lsp-breadcrumb-face-setup ()
     "Fix headerlime colors for breadcrumbs"
     (set-face-attribute 'lsp-headerline-breadcrumb-symbols-face nil :foreground "yellow" :background nil   :width 'ultra-condensed)
@@ -1691,9 +1732,18 @@ This function is based on work of David Wilson.
     (set-face-attribute 'lsp-headerline-breadcrumb-path-face nil :foreground "green" :background nil :weight 'light :width 'ultra-condensed)
     (set-face-background 'header-line "black")
     )
-  (add-hook 'lsp-headerline-breadcrumb-mode-hook 'kb/lsp-breadcrumb-face-setup)
+  :hook
+  (lsp-headerline-breadcrumb-mode-hook . kb/lsp-breadcrumb-face-setup)
   
   :config
+  (leaf lsp-mode-which-key
+    :after which-key lsp-mode 
+    :config (lsp-enable-which-key-integration t))
+
+  (leaf lsp-yasnippet
+    :after yasnippet lsp-mode
+    :custom (lsp-enable-snippet . t))
+  
   ;; (define-key lsp-ui-mode-map (kbd "M-.") #'lsp-ui-peek-find-definitions)
   )
 (leaf lsp-ui
@@ -1715,7 +1765,6 @@ This function is based on work of David Wilson.
            (lsp-ui-doc-header . t)
            (lsp-ui-doc-include-signature . t)
            (lsp-ui-doc-position . 'bottom)
-           (lsp-ui-flycheck-enable . t)
            (lsp-ui-imenu-enable . t)
            (lsp-ui-peek-enable . t)
            (lsp-ui-sideline-enable . t)
@@ -1824,7 +1873,7 @@ This function is based on work of David Wilson.
   :emacs>= 24.4
   :ensure t
   ;; :defer 0
-  :delight which-key-mode
+  :blackout t
   :custom (which-key-idle-delay . 1)
   :config (which-key-mode)
   (add-to-list 'which-key-replacement-alist
@@ -1853,8 +1902,8 @@ This function is based on work of David Wilson.
     :emacs>= 26.0
     :ensure t
     :after posframe which-key
+    :custom (which-key-posframe-font . "Liberation Mono"))
     :config (which-key-posframe-mode)
-    (setq which-key-posframe-font "Liberation Mono"))
   )
 (leaf ninja-mode
   :doc "Major mode for editing .ninja files"
@@ -1982,7 +2031,6 @@ This function is based on work of David Wilson.
   :added "2022-10-31"
   :emacs>= 26.1
   :ensure t
-  :disabled
   :after treemacs)
 
 (leaf marginalia
@@ -2095,7 +2143,7 @@ This function is based on work of David Wilson.
   :added "2022-10-31"
   :emacs>= 24.5
   :ensure t
-  :delight
+  :blackout t
   :custom ((ivy-use-virutal-buffers . t)
            (ivy-count-format . "(%d/%d) ")
            (enable-recursive-minibuffers . t)
@@ -2103,7 +2151,7 @@ This function is based on work of David Wilson.
            )
   :bind (("C-c C-r" . ivy-resume)
 	 ("<f6>" . ivy-resume)
-	 ("C-c v" . ivy-push-view)
+	 ;; ("C-c v" . ivy-push-view)
 	 ("C-c V" . ivy-pop-view)
 	 ("C-c m" . kb/ivy-switch-project)
 	 ("C-c n" . kb/ivy-switch-git)
@@ -2267,8 +2315,8 @@ This function is based on work of David Wilson.
   :emacs>= 25.1
   :when (executable-find "cargo")
   :ensure t
+  :require fuz
   :config
-  (require 'fuz)
   (unless (require 'fuz-core nil t)
     (fuz-build-and-load-dymod))
   (leaf ivy-fuz
@@ -2286,7 +2334,8 @@ This function is based on work of David Wilson.
   :doc "an interface to `compile'"
   :tag "unix" "tools"
   :added "2022-10-31"
-  :ensure t)
+  :ensure t
+  :require smart-compile)
 
 (leaf zygospore
   :doc "reversible C-x 1 (delete-other-windows)"
@@ -2353,6 +2402,7 @@ This function is based on work of David Wilson.
   :added "2022-10-31"
   :emacs>= 25.1
   :ensure t
+  :blackout t ; (projectile-project-name);  '(:eval (concat " " (projectile-project-name)))
   :custom ((projectile-indexing-method . 'alien)
            (projectile-completion-system . 'ivy)
            (projectile-enable-caching . t)
@@ -2419,10 +2469,10 @@ This function is based on work of David Wilson.
   ;; :commands magit-status
   ;; :bind (:map global-map
   ;; 	      ("C-c n". magit-list-repos))
-  :custom
-  (magit-display-buffer-function . #'magit-display-buffer-same-window-except-diff-v1)
-  (magit-repository-directories . '(("~/projects" . 2)))
-  (git-commit-summary-max-length . 50)
+  :custom ((magit-display-buffer-function . #'magit-display-buffer-same-window-except-diff-v1)
+           (magit-repository-directories . '(("~/projects" . 2)))
+           (git-commit-summary-max-length . 50)
+           )
   :config
   (put 'magit-clean 'disabled nil)
   (leaf treemacs-magit
@@ -2454,8 +2504,7 @@ This function is based on work of David Wilson.
   :emacs>= 26.0
   :ensure t
   :after posframe
-  :config
-  (transient-posframe-mode))
+  :config (transient-posframe-mode))
 
 ;; ASC screws any option for using gerrit package
 ;; (leaf gerrit
@@ -2491,7 +2540,7 @@ This function is based on work of David Wilson.
     :url "https://github.com/Fuco1/smartparens"
     :added "2022-10-31"
     :ensure t
-    :delight ""
+    :blackout t
     ;; :bind
     ;; (:map smartparens-mode-map
     ;;  (("C-M-f" . sp-forward-sexp)
@@ -2531,13 +2580,12 @@ This function is based on work of David Wilson.
     ;; ((minibuffer-setup . turn-on-smartparens-strict-mode)
     ;;  (c-mode-common-hook . (lambda () (require 'smartparens-c)))
     ;;  (org-mode . (lambda () (require 'smartparens-org))))
-    :custom
-    (sp-base-key-bindings . 'paredit)
-    (sp-autoskip-closing-pair . 'always)
-    (sp-hybrid-kill-entire-symbol . 'nil)
+    :custom ((sp-base-key-bindings . 'paredit)
+             (sp-autoskip-closing-pair . 'always)
+             (sp-hybrid-kill-entire-symbol . 'nil))
+    :require smartparens-config
     :config
     (electric-pair-mode -1)
-    (require 'smartparens-config)
     ;; (smartparens-global-strict-mode 1)
     (show-smartparens-global-mode 1)
     (smartparens-global-mode 1)
@@ -2549,9 +2597,7 @@ This function is based on work of David Wilson.
   :url "https://github.com/mnuessler/jira-markup-mode"
   :added "2022-10-31"
   :ensure t
-  :config
-  (setq auto-mode-alist
-	    (cons '("\\.jira" . jira-markup-mode) auto-mode-alist)))
+  :mode "\\.jira")
 (leaf org-jira
   :doc "Syncing between Jira and Org-mode."
   :req "emacs-24.5" "cl-lib-0.5" "request-0.2.0" "dash-2.14.1"
@@ -2768,6 +2814,5 @@ Download and put appropriate file there.")
   ;;        :engines (list (gts-bing-engine) (gts-google-engine) (gts-google-rpc-engine))
   ;;        :render (gts-buffer-render)))
   )
-
 (message "Init finished")
 ;;; init.el ends here

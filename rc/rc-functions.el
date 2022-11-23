@@ -187,8 +187,10 @@ Position the cursor at it's beginning, according to the current mode."
 Based on the freely available match-paren.el by Kayvan Sylvan.
 I merged code from goto-matching-paren-or-insert and match-it.
 
+When ARG does not belong to matching pair then insert it at point.
+
 You can define new \"parentheses\" (matching pairs).
-Example: angle brackets. Add the following to your .emacs file:
+Example: angle brackets.  Add the following to your .emacs file:
 
 	(modify-syntax-entry ?< \"(>\" )
 	(modify-syntax-entry ?> \")<\" )
@@ -212,9 +214,11 @@ Simon Hawkin <cema@cs.umd.edu> 03/14/1998"
      )
     ))
 
-;; delete all the trailing whitespaces and tabs across the current buffer
 (defun kb/delete-trailing-whitespaces-and-untabify ()
-  "Delete all the trailing white spaces, and convert all tabs to multiple spaces across the current buffer."
+  "Delete trailing whitespace.
+
+Delete all the trailing white spaces, and convert all tabs to
+multiple spaces across the current buffer."
   (interactive "*")
   (delete-trailing-whitespace)
   (untabify (point-min) (point-max))
@@ -236,27 +240,27 @@ Simon Hawkin <cema@cs.umd.edu> 03/14/1998"
 ;;--------------------------------------------------------------------------------
 ;; Add missing support functions
 ;;--------------------------------------------------------------------------------
-(if (not (fboundp 'utf-16-le-pre-write-conversion))
-    (defun utf-16-le-pre-write-conversion (beg end)
-      "Semi-dummy pre-write function effectively to autoload ucs-tables.
-BEG begining of conversion region.
-END end of conversion region."
-      ;; Ensure translation table is loaded, if available.
-      (require 'ucs-tables nil t)
-      ;; Don't do this again.
-      (coding-system-put 'utf-16-le 'pre-write-conversion nil)
-      nil))
+;; (if (not (fboundp 'utf-16-le-pre-write-conversion))
+;;     (defun utf-16-le-pre-write-conversion (beg end)
+;;       "Semi-dummy pre-write function effectively to autoload ucs-tables.
+;; BEG begining of conversion region.
+;; END end of conversion region."
+;;       ;; Ensure translation table is loaded, if available.
+;;       (require 'ucs-tables nil t)
+;;       ;; Don't do this again.
+;;       (coding-system-put 'utf-16-le 'pre-write-conversion nil)
+;;       nil))
 
-(if (not (fboundp 'utf-16-be-pre-write-conversion))
-    (defun utf-16-be-pre-write-conversion (start end)
-      "Semi-dummy pre-write function effectively to autoload ucs-tables.
-BEG begining of conversion region.
-END end of conversion region."
-      ;; Ensure translation table is loaded, if available.
-      (require 'ucs-tables nil t)
-      ;; Don't do this again.
-      (coding-system-put 'utf-16-be 'pre-write-conversion nil)
-      nil))
+;; (if (not (fboundp 'utf-16-be-pre-write-conversion))
+;;     (defun utf-16-be-pre-write-conversion (start end)
+;;       "Semi-dummy pre-write function effectively to autoload ucs-tables.
+;; BEG begining of conversion region.
+;; END end of conversion region."
+;;       ;; Ensure translation table is loaded, if available.
+;;       (require 'ucs-tables nil t)
+;;       ;; Don't do this again.
+;;       (coding-system-put 'utf-16-be 'pre-write-conversion nil)
+;;       nil))
 
 ;;--------------------------------------------------------------------------------
 ;; rozpoznawanie odpowiednich końcówek linii plików tekstowych
@@ -347,19 +351,11 @@ line endings will be converted according to EOL-TYPE.
     )
   )
 
-;; Join lines as in Vim
-(defun kb/join-line()
-  "Join current and next line.
-Remove tralinig spaces leaving only one.  Similar to Vim Ctrl-j."
-  (interactive)
-  (join-line 'forward-line)
-  )
-
 (defun kb/insert-date ()
   "Insert current date yyyy-mm-dd."
   (interactive)
   (when (region-active-p)
-    (delete-region (region-beggining) (region-end) )
+    (delete-region (region-beginning) (region-end) )
     )
   (insert (format-time-string "%Y-%m-%d"))
   )
@@ -370,7 +366,7 @@ Example: 2012-06-10T21:11:33+02:00
 See: URL `http://en.wikipedia.org/wiki/ISO_8601'"
   (interactive)
   (when (region-active-p)
-    (delete-region (region-beggining) (region-end) )
+    (delete-region (region-beginning) (region-end) )
     )
   (insert
    (concat

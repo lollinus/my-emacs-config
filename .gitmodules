@@ -1,9 +1,0 @@
-[submodule "rc/snippets/java-mode"]
-	path = rc/snippets/java-mode
-	url = https://github.com/nekop/yasnippet-java-mode.git
-[submodule "rc/snippets/latex-mode"]
-	path = rc/snippets/latex-mode
-	url = https://github.com/madsdk/yasnippets-latex.git
-[submodule "site-lisp/ac-irony"]
-	path = site-lisp/ac-irony
-	url = https://github.com/Sarcasm/ac-irony.git
