@@ -1579,7 +1579,6 @@ This function is based on work of David Wilson.
   :ensure t
   :bind ("C-c C-b" . bool-flip-do-flip))
 
-(leaf amx :ensure t)
 (leaf company
   :ensure t
   :hook (after-init-hook . global-company-mode)
@@ -2081,6 +2080,189 @@ This function is based on work of David Wilson.
     ("q" nil "done" :exit t :group "HSB" :which-key "Quit"))
   )
 
+(leaf vertico
+  :ensure t
+  :disabled t
+  :bind (:vertico-map
+         ("?" . #'minibuffer-completion-help)
+         ("M-RET" . #'minibuffer-force-complete-and-exit)
+         ("M-TAB" . #'minibuffer-complete)
+         )
+  :config
+  (vertico-mode 1)
+
+  (setq completion-in-region-function
+        (lambda (&rest args)
+          (apply (if vertico-mode
+                     #'consult-completion-in-region
+                   #'completion--in-region)
+                 args)))
+
+  :config
+  (leaf vertico-posframe
+    :ensure t
+    :after vertico
+    :config
+    (vertico-posframe-mode -1)))
+(leaf orderless
+  :disabled t
+  :doc "Completion style for matching regexps in any order"
+  :req "emacs-26.1"
+  :tag "extensions" "emacs>=26.1"
+  :url "https://github.com/oantolin/orderless"
+  :added "2022-11-24"
+  :emacs>= 26.1
+  :ensure t
+  :custom ((completion-styles . '(substring orderless basic))
+           (completion-category-defaults . nil)
+           (completion-category-overrides . '((file (styles partial-completion))))))
+
+(leaf savehist
+  :disabled t
+  :config
+  (savehist-mode 1))
+(leaf emacs
+  :disabled t
+  :config
+  ;; Add prompt indicator to `completing-read-multiple'.
+  ;; We display [CRM<separator>], e.g., [CRM,] if the separator is a comma.
+  (defun crm-indicator (args)
+    "Add prompt indicator to `completing-read-multiple'.
+
+We display [CRM<separator>], e.g., [CRM,] if the separator is a comma."
+    (cons (format "[CRM%s] %s"
+                  (replace-regexp-in-string
+                   "\\`\\[.*?]\\*\\|\\[.*?]\\*\\'" ""
+                   crm-separator)
+                  (car args))
+          (cdr args)))
+  (advice-add #'completing-read-multiple :filter-args #'crm-indicator)
+
+  ;; Do not allow the cursor in the minibuffer prompt
+  (setq minibuffer-prompt-properties
+        '(read-only t cursor-intangible t face minibuffer-prompt))
+  (add-hook 'minibuffer-setup-hook #'cursor-intangible-mode)
+
+  ;; Emacs 28: Hide commands in M-x which do not work in the current mode.
+  ;; Vertico commands are hidden in normal buffers.
+  ;; (setq read-extended-command-predicate
+  ;;       #'command-completion-default-include-p)
+
+  ;; Enable recursive minibuffers
+  (setq enable-recursive-minibuffers t))
+
+(leaf consult
+  :disabled t
+  :doc "Consulting completing-read"
+  :req "emacs-27.1" "compat-28.1"
+  :tag "emacs>=27.1"
+  :url "https://github.com/minad/consult"
+  :added "2022-11-23"
+  :emacs>= 27.1
+  :ensure t
+  :after compat
+  :custom (setq completion-styles . '(substring basic))
+  :bind (
+         ;; ("<f2> j". consult-counsel-set-variable)
+         ;; ("<f2> i" . counsel-info-lookup-symbol)
+         ;; ("<f2> u" . counsel-unicode-char)
+         ("<f7>" . consult-recent-file)
+         ;; ("C-c g" . counsel-git)
+         ;; ("C-c j" . counsel-git-grep)
+         ("C-c j" . consult-git-grep)
+         ;; ("C-c J" . counsel-file-jump)
+         ("C-x l" . consult-locate)
+         ;; ("C-c t" . counsel-load-theme)
+         ("C-c C-o" . consult-imenu)
+         ([remap insert-register] . consult-register)
+         ([remap yank-pop] . consult-yank-pop)
+         ;; (:minibuffer-local-map ("C-r" . counsel-minibuffer-history))
+         )
+  :config
+  (leaf recentf :config (recentf-mode 1))
+  (leaf embark :ensure t)
+  (leaf embark-consult
+    :ensure t)
+  (leaf consult-ls-git
+    :doc "Consult integration for git"
+    :req "emacs-27.1" "consult-0.16"
+    :tag "convenience" "emacs>=27.1"
+    :url "https://github.com/rcj/consult-ls-git"
+    :added "2022-11-23"
+    :emacs>= 27.1
+    :ensure t
+    :bind (("C-c g" . consult-ls-git-ls-status)
+           ("C-c J" . consult-ls-git-ls-files))
+    :after consult)
+  (leaf consult-git-log-grep
+    :doc "Consult integration for git log grep"
+    :req "emacs-27.1" "consult-0.16"
+    :tag "convenience" "git" "emacs>=27.1"
+    :url "https://github.com/Ghosty141/consult-git-log-grep"
+    :added "2022-11-23"
+    :emacs>= 27.1
+    :ensure t
+    :after consult
+    :bind (
+           ("C-c L" . consult-git-log-grep)))
+  (leaf consult-projectile
+    :doc "Consult integration for projectile"
+    :req "emacs-25.1" "consult-0.12" "projectile-2.5.0"
+    :tag "convenience" "emacs>=25.1"
+    :url "https://gitlab.com/OlMon/consult-projectile"
+    :added "2022-11-23"
+    :emacs>= 25.1
+    :ensure t
+    :bind (([remap projectile-switch-project] . consult-projectile-switch-project))
+    :after consult projectile)
+  (leaf consult-ag
+    :doc "The silver searcher integration using Consult"
+    :req "emacs-27.1" "consult-0.16"
+    :tag "emacs>=27.1"
+    :url "https://github.com/yadex205/consult-ag"
+    :added "2022-11-23"
+    :emacs>= 27.1
+    :ensure t
+    :after consult)
+  (leaf consult-company
+    :doc "Consult frontend for company"
+    :req "emacs-27.1" "company-0.9" "consult-0.9"
+    :tag "emacs>=27.1"
+    :url "https://github.com/mohkale/consult-company"
+    :added "2022-11-23"
+    :emacs>= 27.1
+    :ensure t
+    :after company consult)
+  (leaf consult-dir
+    :doc "Insert paths into the minibuffer prompt"
+    :req "emacs-26.1" "consult-0.9" "project-0.6.0"
+    :tag "convenience" "emacs>=26.1"
+    :url "https://github.com/karthink/consult-dir"
+    :added "2022-11-23"
+    :emacs>= 26.1
+    :ensure t
+    :after consult project)
+  (leaf consult-lsp
+    :ensure t)
+  (leaf consult-notes
+    :ensure t
+    ;; :straight (:type git :host github :repo "mclear-tools/consult-notes")
+    :commands (consult-notes
+               consult-notes-search-in-all-notes
+               consult-notes-denote-mode
+               ;; if using org-roam 
+               consult-notes-org-roam-find-node
+               consult-notes-org-roam-find-node-relation)
+    :config
+    (setq consult-notes-sources '(("Notes" ?n "~/projects/notes")
+                                  ("Journal" ?j  "~/projects/journal/"))) ;; Set notes dir(s), see below
+    :config
+    ;; Set org-roam integration OR denote integration
+    (when (locate-library "denote")
+      (consult-notes-denote-mode)))
+  (leaf denote :ensure t)
+  )
+
 (leaf counsel
   :ensure t
   :custom ((counsel-find-file-at-point . t)
@@ -2099,8 +2281,9 @@ This function is based on work of David Wilson.
          ([remap insert-register] . counsel-register)
          (:minibuffer-local-map
           ("C-r" . counsel-minibuffer-history)))
-  :config
-  (counsel-mode)
+  :init
+  (counsel-mode 1)
+  
   :config
   (leaf counsel-tramp
     :ensure t
@@ -2137,6 +2320,7 @@ This function is based on work of David Wilson.
     )
   )
 
+(leaf amx :ensure t :after ivy)
 (leaf ivy
   :doc "Incremental Vertical completYon"
   :req "emacs-24.5"
@@ -2169,16 +2353,18 @@ This function is based on work of David Wilson.
        projectile-known-projects)
      :action #'projectile-switch-project-by-name))
 
-  (ivy-set-actions
-   'kb/ivy-switch-project
-   '(("d" dired "Open Dired in project's directory")
-     ("v" counsel-projectile-switch-project-action-vc "Open project root in vc-dir or magit")
-     ("e" counsel-projectile-switch-project-action-run-eshell "Switch to Eshell")
-     ("f" counsel-projectile-switch-project-action-find-file "Find file in project")
-     ("g" counsel-projectile-switch-project-action-grep "Grep in projects")
-     ("a" counsel-projectile-switch-project-action-ag "AG in projects")
-     ("c" counsel-projectile-switch-project-action-compile "Compile project")
-     ("r" counsel-projectile-switch-project-action-remove-known-project "Remove project(s)")))
+  (with-eval-after-load 'counsel-projectile
+    (ivy-set-actions
+     'kb/ivy-switch-project
+     '(("d" dired "Open Dired in project's directory")
+       ("v" counsel-projectile-switch-project-action-vc "Open project root in vc-dir or magit")
+       ("e" counsel-projectile-switch-project-action-run-eshell "Switch to Eshell")
+       ("f" counsel-projectile-switch-project-action-find-file "Find file in project")
+       ("g" counsel-projectile-switch-project-action-grep "Grep in projects")
+       ("a" counsel-projectile-switch-project-action-ag "AG in projects")
+       ("c" counsel-projectile-switch-project-action-compile "Compile project")
+       ("r" counsel-projectile-switch-project-action-remove-known-project "Remove project(s)")))
+    )
 
   (defun kb/ivy-switch-git ()
     (interactive)
