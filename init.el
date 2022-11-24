@@ -420,7 +420,7 @@ There are two things you can do about this warning:
 (define-key global-map (kbd "C-c T") 'kb/delete-trailing-whitespaces-and-untabify)
 (define-key global-map (kbd "C-c u") 'kb/set-buffer-eol-unix)
 (define-key global-map (kbd "C-c d") 'kb/set-buffer-eol-dos)
-(define-key global-map (kbd "C-c m") 'kb/set-buffer-eol-mac)
+;; (define-key global-map (kbd "C-c m") 'kb/set-buffer-eol-mac)
 (define-key global-map (kbd "C-c C-d") 'kb/insert-date-time)
 
 (leaf insert-time-string
@@ -2101,38 +2101,40 @@ This function is based on work of David Wilson.
           ("C-r" . counsel-minibuffer-history)))
   :config
   (counsel-mode)
-  )
-(leaf counsel-tramp
-  :ensure t
-  :after counsel)
-(leaf counsel-projectile
-  :ensure t
-  :config(counsel-projectile-mode))
-(leaf :ensure t counsel-ag-popup)
-(leaf counsel-edit-mode :ensure t
-  :config (counsel-edit-mode-setup-ivy))
-(leaf counsel-jq
-  :doc "Live preview of \"jq\" queries using counsel"
-  :req "swiper-0.12.0" "ivy-0.12.0" "emacs-24.1"
-  :tag "matching" "data" "convenience" "emacs>=24.1"
-  :url "https://github.com/200ok-ch/counsel-jq"
-  :added "2022-10-31"
-  :emacs>= 24.1
-  :when (executable-find "jq")
-  :ensure t
-  :after swiper ivy)
+  :config
+  (leaf counsel-tramp
+    :ensure t
+    :after counsel)
+  (leaf counsel-projectile
+    :ensure t
+    :config(counsel-projectile-mode))
+  (leaf counsel-ag-popup :ensure t)
+  (leaf counsel-edit-mode :ensure t
+    :config (counsel-edit-mode-setup-ivy))
+  (leaf counsel-jq
+    :doc "Live preview of \"jq\" queries using counsel"
+    :req "swiper-0.12.0" "ivy-0.12.0" "emacs-24.1"
+    :tag "matching" "data" "convenience" "emacs>=24.1"
+    :url "https://github.com/200ok-ch/counsel-jq"
+    :added "2022-10-31"
+    :emacs>= 24.1
+    :when (executable-find "jq")
+    :ensure t
+    :after swiper ivy)
 
-(leaf helpful
-  :ensure t
-  :custom
-  (counsel-describe-function-function . #'helpful-callable)
-  (counsel-describe-variable-function . #'helpful-variable)
-  (counsel-describe-symbol-function . #'helpful-symbol)
-  :bind
-  ([remap describe-function] . counsel-describe-function)
-  ([remap describe-command] . helpful-command)
-  ([remap describe-variable] . counsel-describe-variable)
-  ([remap describe-key] . helpful-key)
+  (leaf helpful
+    :ensure t
+    :after counsel
+    :custom
+    (counsel-describe-function-function . #'helpful-callable)
+    (counsel-describe-variable-function . #'helpful-variable)
+    (counsel-describe-symbol-function . #'helpful-symbol)
+    :bind
+    ([remap describe-function] . counsel-describe-function)
+    ([remap describe-command] . helpful-command)
+    ([remap describe-variable] . counsel-describe-variable)
+    ([remap describe-key] . helpful-key)
+    )
   )
 
 (leaf ivy
@@ -2153,7 +2155,7 @@ This function is based on work of David Wilson.
 	 ("<f6>" . ivy-resume)
 	 ;; ("C-c v" . ivy-push-view)
 	 ("C-c V" . ivy-pop-view)
-	 ("C-c m" . kb/ivy-switch-project)
+	 ;; ("C-c m" . kb/ivy-switch-project)
 	 ("C-c n" . kb/ivy-switch-git)
 	 )
   :config
@@ -2192,6 +2194,7 @@ This function is based on work of David Wilson.
      ("F" magit-find-file "Find file in git")))
   
   (ivy-mode 1)
+
   :config
   (leaf swiper
     :doc "Isearch with an overview. Oh, man!"
@@ -2403,6 +2406,7 @@ This function is based on work of David Wilson.
   :emacs>= 25.1
   :ensure t
   :blackout t ; (projectile-project-name);  '(:eval (concat " " (projectile-project-name)))
+  :commands projectile-project-p
   :custom ((projectile-indexing-method . 'alien)
            (projectile-completion-system . 'ivy)
            (projectile-enable-caching . t)
@@ -2465,6 +2469,7 @@ This function is based on work of David Wilson.
   :added "2022-10-31"
   :emacs>= 25.1
   :ensure t
+  :commands magit-list-repos
   :after compat git-commit magit-section with-editor
   ;; :commands magit-status
   ;; :bind (:map global-map
