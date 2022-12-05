@@ -1296,6 +1296,34 @@ If theme is'n loaded then it will be loaded at first"
   ;;   (setq ad-return-value (concat ad-return-value ".xz")))
   )
 
+(leaf vundo
+  :doc "Visual undo tree"
+  :req "emacs-28.1"
+  :tag "editing" "text" "undo" "emacs>=28.1"
+  :url "https://github.com/casouri/vundo"
+  :added "2022-12-05"
+  :emacs>= 28.1
+  :ensure t
+  :custom ((vundo-roll-back-on-quit . t) ; t is default
+           (vundo-glyph-alist . vundo-unicode-symbols)
+           )
+  :config
+  (set-face-attribute 'vundo-default nil :family "Symbola")
+  )
+(leaf undo-fu
+  :doc "Undo helper with redo"
+  :req "emacs-25.1"
+  :tag "emacs>=25.1"
+  :url "https://codeberg.org/ideasman42/emacs-undo-fu"
+  :added "2022-12-05"
+  :emacs>= 25.1
+  :ensure t
+  :config
+  (global-unset-key (kbd "C-z"))
+  (global-set-key (kbd "C-z") 'undo-fu-only-undo)
+  (global-set-key (kbd "C-S-z") 'undo-fu-only-redo)
+  )
+
 (leaf beacon
   :ensure t
   ;; :pin "melpa"
@@ -1406,6 +1434,16 @@ This function is based on work of David Wilson.
   :hook org-mode-hook
   :custom
   (org-bullets-bullet-list . '("◉" "○" "●" "○" "●" "○" "●")))
+
+(leaf org-make-toc
+  :doc "Automatic tables of contents for Org files"
+  :req "emacs-26.1" "dash-2.12" "s-1.10.0" "org-9.0"
+  :tag "convenience" "org" "emacs>=26.1"
+  :url "http://github.com/alphapapa/org-make-toc"
+  :added "2022-12-05"
+  :emacs>= 26.1
+  :ensure t
+  :after org)
 
 (leaf htmlize
   :doc "Convert buffer text and decorations to HTML."
@@ -2094,7 +2132,7 @@ This function is based on work of David Wilson.
   (setq completion-in-region-function
         (lambda (&rest args)
           (apply (if vertico-mode
-                     #'consult-completion-in-region
+#'consult-completion-in-region
                    #'completion--in-region)
                  args)))
 
@@ -2105,7 +2143,6 @@ This function is based on work of David Wilson.
     :config
     (vertico-posframe-mode -1)))
 (leaf orderless
-  :disabled t
   :doc "Completion style for matching regexps in any order"
   :req "emacs-26.1"
   :tag "extensions" "emacs>=26.1"
@@ -2115,7 +2152,10 @@ This function is based on work of David Wilson.
   :ensure t
   :custom ((completion-styles . '(substring orderless basic))
            (completion-category-defaults . nil)
-           (completion-category-overrides . '((file (styles partial-completion))))))
+           (completion-category-overrides . '((file (styles partial-completion))))
+           (orderless-component-separator . " +\\|[-/]")
+           )
+  )
 
 (leaf savehist
   :disabled t
