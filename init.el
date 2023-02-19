@@ -26,15 +26,9 @@
 (when (file-exists-p (expand-file-name "rc-functions.el" (kb/emacs-subdirectory "rc")))
   (load "~/.emacs.d/rc/rc-functions.el"))
 
-(setq read-process-output-max (* 4 1024 1024))
+(setq read-process-output-max (* 3 1024 1024))
 (setq tab-width 4)                       ; default to 4 visible spaces to display a tab
 (setq indicate-empty-lines t)
-
-;; MuLe commands
-(prefer-coding-system 'utf-8)
-(set-default-coding-systems 'utf-8)
-(set-terminal-coding-system 'utf-8)
-(set-keyboard-coding-system 'utf-8)
 
 ;; blink screen on bell
 (setq visible-bell t)
@@ -72,8 +66,8 @@
 ;; otherwise. Two of them to emulate the mode line. %f for the file
 ;; name. Incredibly useful!
 (setq frame-title-format '((:eval (if (buffer-file-name)
-				      (concat (abbreviate-file-name (buffer-file-name)) " %+%+ ")
-				    "%b %+%+ %f"))))
+                                      (concat (abbreviate-file-name (buffer-file-name)) " %+%+ ")
+                                    "%b %+%+ %f"))))
 (setq scroll-margin 0
       scroll-conservatively 100000
       scroll-preserve-screen-position 1)
@@ -86,7 +80,7 @@
     ;; install elpa on emacs 23
     (progn
       (when (load (expand-file-name "~/.emacs.d/package.el"))
-	(package-initialize)))
+        (package-initialize)))
   "Emacs >= 24 has elpa integrated")
 
 (require 'cl-lib)
@@ -98,7 +92,7 @@
   "Set of achives which will be finally set to package-achives.")
 
 (let* ((no-ssl (and (memq system-type '(windows-nt ms-dos))
-		    (not (gnutls-available-p))))
+                    (not (gnutls-available-p))))
        (proto (if no-ssl "http" "https")))
   (when no-ssl
     (warn "\
@@ -133,7 +127,7 @@ There are two things you can do about this warning:
 ;;   (mapcar
 ;;    (lambda (package)
 ;;      (if (package-installed-p package)
-;; 	 package
+;;       package
 ;;        (package-install package)))
 ;;    packages))
 
@@ -159,6 +153,17 @@ There are two things you can do about this warning:
     ;; initialize leaf-keywords.el
     (leaf-keywords-init)))
 ;; </leaf-install-code>
+
+(leaf leaf-defaults
+  :doc "Awesome leaf config collections"
+  :req "emacs-26.1" "leaf-4.1" "leaf-keywords-1.1"
+  :tag "convenience" "emacs>=26.1"
+  :url "https://github.com/conao3/leaf-defaults.el"
+  :added "2022-12-28"
+  :emacs>= 26.1
+  :disabled t
+  :require t
+  :config (leaf-defaults-init))
 
 ;; (leaf async-await :el-get chuntaro/emacs-async-await)
 ;; (leaf promise :el-get chuntaro/emacs-promise)
@@ -187,13 +192,22 @@ There are two things you can do about this warning:
 ;;   ;;   :added "2022-11-01"
 ;;   ;;   :emacs>= 24.4
 ;;   ;;   :el-get t)
-  
 ;;   )
 (leaf leaf-tree :ensure t)
 (leaf leaf-convert :ensure t)
-(leaf transient-dwim
+(leaf transient
+  :doc "Transient commands"
+  :req "emacs-25.1" "compat-29.1.3.4"
+  :tag "extensions" "emacs>=25.1"
+  :url "https://github.com/magit/transient"
+  :added "2023-02-19"
+  :emacs>= 25.1
   :ensure t
-  :bind (("M-=" . transient-dwim-dispatch)))
+  :after compat
+  :config
+  (leaf transient-dwim
+    :ensure t
+    :bind (("M-=" . transient-dwim-dispatch))))
 
 (leaf cus-start
   :doc "define customization properties of builtins"
@@ -203,7 +217,7 @@ There are two things you can do about this warning:
            (truncate-lines . t)
            (menu-bar-mode . nil)
            (tool-bar-mode . nil)
-	   )
+           )
   ;; :config
   ;; (tool-bar-mode -1)
   )
@@ -228,22 +242,22 @@ There are two things you can do about this warning:
   :tag "builtin" "internal"
   :added "2022-11-01"
   :init (defconst kb/frame-config '(;; (top . 1)
-			            ;; (left . 1)
-			            ;; (fullscreen . maximized)
-			            (menu-bar-lines . 0)       ; turn menus off
-			            (tool-bar-lines . 0)       ; disable toolbar
-			            (scroll-bar-width . 10)
-			            (vertical-scroll-bars . 'right)
-			            ;; (background-mode . dark)
-			            )
+                                    ;; (left . 1)
+                                    ;; (fullscreen . maximized)
+                                    (menu-bar-lines . 0)       ; turn menus off
+                                    (tool-bar-lines . 0)       ; disable toolbar
+                                    (scroll-bar-width . 10)
+                                    (vertical-scroll-bars . 'right)
+                                    ;; (background-mode . dark)
+                                    )
           )
   :setq ((initial-frame-alist . kb/frame-config)
          (default-frame-alist . kb/frame-config)
          )
   :custom ((blink-cursor-mode . nil)
-	   ;; turn off blinking cursor
-	   (blink-cursor-blinks . 3)
-	   (blink-cursor-delay . 1)
+           ;; turn off blinking cursor
+           (blink-cursor-blinks . 3)
+           (blink-cursor-delay . 1)
            )
   :config
   ;; (blink-cursor-mode -1)
@@ -254,15 +268,33 @@ There are two things you can do about this warning:
 
 (leaf alloc
   :tag "builtin"
-  :setq `((gc-cons-threshold . ,(* 512 1024 1024))
-          (read-process-output-max . ,(* 4 1024 1024))
+  :setq `((gc-cons-threshold . ,(* 100 1024 1024))
+          (read-process-output-max . ,(* 1024 1024))
           (garbage-collection-messages . t)))
+
+(leaf battery
+  :doc "display battery status information"
+  :tag "builtin"
+  :added "2023-02-02"
+  :config
+  (display-battery-mode))
 
 (leaf auto-compile
   :ensure t
   :config (auto-compile-on-load-mode))
 
 (setq load-prefer-newer t)
+
+;; MuLe commands
+(leaf mule-cmds
+  :doc "commands for multilingual environment"
+  :tag "builtin" "i18n" "mule"
+  :added "2022-12-08"
+  :config
+  (prefer-coding-system 'utf-8)
+  (set-default-coding-systems 'utf-8)
+  (set-terminal-coding-system 'utf-8)
+  (set-keyboard-coding-system 'utf-8))
 
 
 ;;--------------------------------------------------------------------------------
@@ -351,7 +383,6 @@ There are two things you can do about this warning:
   :added "2022-11-01"
   :custom ((tab-always-indent . 'complete)))
 
-
 ;; Use M-/ for `company` completion
 (define-key input-decode-map "\e[1;2A" [S-up])
 
@@ -380,9 +411,18 @@ There are two things you can do about this warning:
 ;; image
 (setq auto-image-file-mode 1)
 ;; time
-;; (setq display-time-format "%H:%M %d/%m/%Y")
-;; (setq display-time-24hr-format t)
-;; (display-time)
+
+(leaf time
+  :doc "display time, load and mail indicator in mode line of Emacs"
+  :tag "builtin"
+  :added "2023-01-31"
+  :custom ((display-time-format . "%H:%M %d/%m/%Y")
+           (display-time-24hr-format . t)
+           (display-time-day-and-date . t)
+           (display-time-default-load-average . 15))
+  :config
+  (display-time)
+  )
 
 (leaf font-lock
   ;; kolorowanie składni
@@ -456,10 +496,14 @@ should be imported.
 
 ;; I know that string is in my Emacs somewhere!
 ;; (require 'cl)
+(defgroup kb-config nil
+  "Custom options for KB config."
+  :group 'convenience
+  :link '(url-link :tag "Github" "https://github.com/lollinus/my-emacs-config"))
 (defcustom kb/search-all-buffers-ignored-files (list (rx-to-string '(and bos (or ".bash_history" "TAGS") eos)))
   "Files to ignore when searching buffers via \\[search-all-buffers]."
-  :type 'editable-list)
-
+  :type 'editable-list
+  :group 'kb-config)
 ;; (require 'grep)
 ;; (defun kb/search-all-buffers (regexp prefix)
 ;;   "Searches file-visiting buffers for occurence of REGEXP.  With
@@ -484,9 +528,9 @@ should be imported.
   :ensure t
   :commands (isearch-moccur isearch-all)
   :bind (("M-s O" . moccur)
-	 (:isearch-mode-map
-	  ("M-o" . isearch-moccur)
-	  ("M-O" . isearch-moccur-all)))
+         (:isearch-mode-map
+          ("M-o" . isearch-moccur)
+          ("M-O" . isearch-moccur-all)))
   :custom ((isearch-lazy-highlight . t))
   ;; :config
   ;; (leaf moccur-edit :ensure t)
@@ -511,14 +555,14 @@ should be imported.
            (whitespace-style . '(newline-mark newline))
            (whitespace-line-column . nil)
            (whitespace-display-mappings . '((space-mark 32 [183] [46])
-				            (newline-mark 10 [9166 10])
-				            (tab-mark 9 [9654 9] [92 9]))))
+                                            (newline-mark 10 [9166 10])
+                                            (tab-mark 9 [9654 9] [92 9]))))
   :bind (("C-c w" . whitespace-mode))
   :custom-face
   (whitespace-space . '((t (:inherit whitespace-space :foreground "DimGrey" :background nil))))
   (whitespace-newline . '((t (:inherit whitespace-newline :foreground "DimGrey" :background nil))))
   (whitespace-indentation . '((t (:inherit whitespace-indentation :foreground "DimGrey" :background nil))))
- 
+
   :config
   (global-whitespace-mode 1)
   )
@@ -541,7 +585,7 @@ should be imported.
   (doom-themes-treemacs-theme . "doom-atom")
   :config
   ;; (load-theme 'doom-one t)
-  ;; (doom-themes-visual-bell-config)
+  ;; (load-theme 'doom-xcode t)
   ;; (when (fboundp doom-dark+-blue-modeline)
   ;; (setq doom-dark+-blue-modeline t)
   ;; (setq doom-dark+-padded-modeline nil)
@@ -557,13 +601,30 @@ should be imported.
   :url "http://github.com/bbatsov/solarized-emacs"
   :added "2022-11-04"
   ;; :emacs>= 24.1
+  :ensure t)
+(leaf solaire-mode
+  :doc "make certain buffers grossly incandescent"
+  :req "emacs-25.1" "cl-lib-0.5"
+  :tag "faces" "buffer" "window" "bright" "dim" "emacs>=25.1"
+  :url "https://github.com/hlissner/emacs-solaire-mode"
+  :added "2023-02-14"
+  :emacs>= 25.1
   :ensure t
   :config
   (solaire-global-mode))
+(leaf modus-themes
+  :doc "Elegant, highly legible and customizable themes"
+  :req "emacs-27.1"
+  :tag "accessibility" "theme" "faces" "emacs>=27.1"
+  :url "https://git.sr.ht/~protesilaos/modus-themes"
+  :added "2023-02-10"
+  :emacs>= 27.1
+  :ensure t)
 
 (leaf doom-modeline
   :ensure t
   :hook after-init-hook
+  :config
   :custom (
            (doom-modeline-hud . t)
            (doom-modeline-buffer-file-name-style . 'truncate-with-project)
@@ -571,20 +632,28 @@ should be imported.
            (doom-modeline-buffer-encoding . 'nondefault)
            (doom-modeline-default-coding-system . 'utf-8)
            (doom-modeline-default-eol-type . 0)
-           (doom-modeline-vcs-max-length . 24)))
+           (doom-modeline-vcs-max-length . 24)
+           (doom-modeline-battery . t)
+           (doom-modeline-indent-info . t)
+           (doom-modeline-checker-simple-format . nil)))
 
-(defvar kb/terminal-theme 'wombat)
-;; (defvar kb/window-theme 'doom-one)
-;; (defvar kb/window-theme 'doom-snazzy)
-(defvar kb/window-theme 'doom-monokai-machine)
-;; (defvar kb/window-theme 'doom-one)
-;; (defvar kb/window-theme 'misterioso)
+
+(defcustom kb/terminal-theme 'wombat
+  "Theme which should be activated when frame is open inside terminal."
+  :type 'string
+  :group 'kb-config)
+;; (doom-one doom-snazzy)
+;; (doom-moonlight doom-monokai-machine modus-vivendi-tinted misterioso)
+(defcustom kb/window-theme 'doom-monokai-machine
+  "Theme which should be activated when frame is open inside GUI."
+  :type 'string
+  :group 'kb-config)
 (defvar kb/theme-window-loaded nil)
 (defvar kb/theme-window-font (if (eq system-type 'windows-nt)
-				 "Unifont"
-					;(set-frame-parameter nil 'font "Arial Unicode MS")
-			       "Hack"
-			       ))
+                                 "Unifont"
+                                        ;(set-frame-parameter nil 'font "Arial Unicode MS")
+                               "Hack"
+                               ))
 
 (defvar kb/theme-terminal-loaded nil)
 (defvar kb/theme-original-font nil)
@@ -631,18 +700,18 @@ If theme is'n loaded then it will be loaded at first"
   (select-frame frame)
   (if (window-system frame)
       (progn
-	(if (kb/load-grapics-theme)
-	    (enable-theme kb/window-theme))
-	(kb/set-window-font))
+        (if (kb/load-grapics-theme)
+            (enable-theme kb/window-theme))
+        (kb/set-window-font))
     (if (kb/load-terminal-theme)
-	(enable-theme kb/terminal-theme))))
+        (enable-theme kb/terminal-theme))))
 
 (defun kb/activate-theme (&optional frame)
   "Set theme on active FRAME."
   (interactive)
   (let ((frame (or frame (selected-frame))))
     (if (frame-focus-state frame)
-	(kb/activate-frame-theme frame))))
+        (kb/activate-frame-theme frame))))
 
 ;; (kb/activate-theme)
 ;; (add-function :after after-focus-change-function #'kb/activate-theme)
@@ -684,14 +753,14 @@ If theme is'n loaded then it will be loaded at first"
     (tab-width . 4)
     (indent-tabs-mode . nil)
     (c-offsets-alist . ((innamespace . 0)
-			(inline-open . 0)
-			(substatement-open . 0)
-			(statement-cont . +)))
+                        (inline-open . 0)
+                        (substatement-open . 0)
+                        (statement-cont . +)))
     (c-hanging-braces-alist . ((brace-list-open . before)
-			       (brace-entry-open . before)
-			       (substatement-open . before)
-			       ;; (namespace-open . before)
-			       ))
+                               (brace-entry-open . before)
+                               (substatement-open . before)
+                               ;; (namespace-open . before)
+                               ))
     )
   "Style used for C++ source editing.")
 
@@ -702,20 +771,20 @@ If theme is'n loaded then it will be loaded at first"
     (tab-width . 4)
     (indent-tabs-mode . nil)
     (c-offsets-alist . ((innamespace . 0)
-			(inline-open . 0)
-			(substatement-open . 0)
-			(arglist-intro . ++)
-			;; (func-decl-cont . ++)
-			(statement-cont . ++)
-			(statement-case-open . 0)
-			;; (statement-case-intro  . 0)
-			(case-label . +)
-			))
+                        (inline-open . 0)
+                        (substatement-open . 0)
+                        (arglist-intro . ++)
+                        ;; (func-decl-cont . ++)
+                        (statement-cont . ++)
+                        (statement-case-open . 0)
+                        ;; (statement-case-intro  . 0)
+                        (case-label . +)
+                        ))
     (c-hanging-braces-alist . ((brace-list-open . before)
-			       (brace-entry-open . before)
-			       (substatement-open . before)
-			       ;; (namespace-open . before)
-			       ))
+                               (brace-entry-open . before)
+                               (substatement-open . before)
+                               ;; (namespace-open . before)
+                               ))
     )
   "Style used for C++ source editing at mavenir.")
 
@@ -739,15 +808,15 @@ If theme is'n loaded then it will be loaded at first"
 (defun kb/cc-compile-command-hook ()
   "Compile C/C++ files with gcc if makefile doesn't exist."
   (unless (or (file-exists-p "makefile")
-	      (file-exists-p "Makefile"))
+              (file-exists-p "Makefile"))
     (set (make-local-variable 'compile-command)
-	 (let ((file (file-name-nondirectory buffer-file-name)))
-	   (format "%s -c -o %s.o %s %s %s"
-		   (or (getenv "CC") "g++")
-		   (file-name-sans-extension file)
-		   (or (getenv "CPPFLAGS") "-DDEBUG=9")
-		   (or (getenv "CFLAGS") "-ansi -pedantic -Wall -g")
-		   file)))))
+         (let ((file (file-name-nondirectory buffer-file-name)))
+           (format "%s -c -o %s.o %s %s %s"
+                   (or (getenv "CC") "g++")
+                   (file-name-sans-extension file)
+                   (or (getenv "CPPFLAGS") "-DDEBUG=9")
+                   (or (getenv "CFLAGS") "-ansi -pedantic -Wall -g")
+                   file)))))
 
 ;; (add-hook 'c++-mode 'kb/cc-compile-command-hook)
 ;; (font-lock-add-keywords 'c-mode '("\\<\\(and\\|or\\|not\\)\\>"))
@@ -760,9 +829,9 @@ If theme is'n loaded then it will be loaded at first"
   :emacs>= 25.1
   :ensure t
   :bind ((:hl-todo-mode-map
-	 ("C-c t p" . #'hl-todo-previous)
-	 ("C-c t n" . #'hl-todo-next)
-	 ("C-c t o" . #'hl-todo-occur)
+         ("C-c t p" . #'hl-todo-previous)
+         ("C-c t n" . #'hl-todo-next)
+         ("C-c t o" . #'hl-todo-occur)
          ("C-c t i" . #'hl-todo-insert)))
   :hook prog-mode-hook
   :config
@@ -787,9 +856,9 @@ If theme is'n loaded then it will be loaded at first"
   :added "2022-11-01"
   :custom (display-line-numbers-width-start . t)
   :hook ((emacs-lisp-mode-hook
-	  lisp-mode-hook
-	  c-mode-common-hook
-	  prog-mode-hook) . display-line-numbers-mode)
+          lisp-mode-hook
+          c-mode-common-hook
+          prog-mode-hook) . display-line-numbers-mode)
   ;; display-line-numbers
   ;; (setq-default display-line-numbers-type 'relative)
   )
@@ -802,21 +871,21 @@ If theme is'n loaded then it will be loaded at first"
   :config (global-prettify-symbols-mode t))
 
 (leaf diff-mode
-  :hook (diff-mode-hook . 'kb/whitespace-diff-setup)
+  :hook (diff-mode-hook . kb/whitespace-diff-setup)
   :config
   (defun kb/whitespace-diff-setup ()
     "Enable whitespace mode for diff files."
     (setq-local whitespace-style
-	        '(face
-		  tabs
-		  tab-mark
-		  spaces
-		  space-mark
-		  trailing
-		  indentation::space
-		  indentation::tab
-		  newline
-		  newline-mark))
+                '(face
+                  tabs
+                  tab-mark
+                  spaces
+                  space-mark
+                  trailing
+                  indentation::space
+                  indentation::tab
+                  newline
+                  newline-mark))
     (whitespace-mode 1))
   )
 
@@ -825,15 +894,20 @@ If theme is'n loaded then it will be loaded at first"
   (defun kb/whitespace-progmode-setup ()
     "Enable whitespace mode for programming modes."
     (setq-local whitespace-style
-	        '(face
-		  trailing
-		  lines-tail
-		  newline
-		  empty
-		  indentation
-		  big-indent
-		  space-before-tab
-		  ))
+                '(face
+                  trailing
+                  lines-tail
+                  newline
+                  empty
+                  indentation
+                  space-after-tab::tab
+                  ;; space-after-tab
+                  ;; big-indent
+                  space-before-tab::tab
+                  ;; space-before-tab
+                  tab-mark
+                  newline-mark
+                  ))
     )
   :hook (c-mode-common-hook . kb/whitespace-progmode-setup)
 )
@@ -842,9 +916,9 @@ If theme is'n loaded then it will be loaded at first"
   "Add checkpatch for diff files if project provides checkpatch.pl script."
   (if (file-exists-p "./scripts/checkpatch.pl")
       (progn (print "setting compile-command")
-	     (set (make-local-variable 'compile-command)
-		  (concat "./scripts/checkpatch.pl --emacs "
-			  (buffer-file-name))))
+             (set (make-local-variable 'compile-command)
+                  (concat "./scripts/checkpatch.pl --emacs "
+                          (buffer-file-name))))
     (print "checkpatch not found")))
 (add-hook 'diff-mode-hook 'kb/checkpatch-enable)
 
@@ -860,6 +934,9 @@ If theme is'n loaded then it will be loaded at first"
   :custom (vc-handled-backends . '(git svn)))
 
 (leaf dsvn
+  :doc "Subversion interface"
+  :tag "docs"
+  :added "2023-01-31"
   :ensure t
   :require vc-svn
   :config
@@ -890,9 +967,11 @@ If theme is'n loaded then it will be loaded at first"
   :doc "quick access to files and tags in a frame"
   :tag "builtin"
   :added "2022-11-01"
+  :disabled t
   :custom ((speedbar-indentation-width . 1)    ;; number of spaces used for indentation
            )
-  :bind (("<f4>" . speedbar-get-focus)
+  :bind (
+         ;; ("<f4>" . speedbar-get-focus)
          ;; bind the arrow keys in the speedbar tree
          (:speedbar-mode-map ("<right>" . speedbar-expand-line)
                              ("<left>" . 'speedbar-contract-line))
@@ -907,9 +986,9 @@ If theme is'n loaded then it will be loaded at first"
   :custom
   (tramp-verbose . 1)
   (vc-ignore-dir-regexp .
- 	                '(format "\\(%s\\)\\|\\(%s\\)"
- 		                 vc-ignore-dir-regexp
- 		                 tramp-file-name-regexp))
+                        '(format "\\(%s\\)\\|\\(%s\\)"
+                                 vc-ignore-dir-regexp
+                                 tramp-file-name-regexp))
   ;; :config
   ;; (tramp-recompile-elpa)
   )
@@ -924,48 +1003,48 @@ If theme is'n loaded then it will be loaded at first"
   :bind (("C-x C-b" . ibuffer))
   :custom (ibuffer-saved-filter-groups .
       '(("default"
-	 ("Emacs Configuration" (or (filename . ".emacs.d")
-				    (filename . "init.el")
-				    (filename . "package.el")
-				    (filename . "private.el")
-				    (filename . "emacs.d")))
-	 ("Org" (or (mode . org-mode)
-		    (filename . "OrgMode")))
-	 ("Magit" (name . "magit"))
-	 ("Help" (or (name . "\*Help\*")
-		     (name . "\*Apropos\*")
-		     (name . "\*info\*")))
-	 ("Dired" (mode . dired-mode))
-	 ;; Dev has groups for all languages you program in
-	 ("Dev" (or (mode . cc-mode)
-		    (filename . ".c")
-		    (filename . ".h")
-		    (filename . ".cpp")
-		    (filename . ".hpp")
-		    (filename . ".java")
-		    (filename . ".properties")
-		    (filename . ".gradle")
-		    (filename . ".am")
-		    (mode . yaml-mode)
-		    (mode . yang-mode)
-		    (mode . protobuf-mode))
-	  )
-	 ("Text" (or (filename . ".csv")
-		     (filename . ".tsv")
-		     (filename . ".txt")
-		     (filename . ".log")
-		     (filename . ".json")
-		     (filename . ".md"))
-	  ("Emacs" (or (name . "^\\*scratch\\*$")
-		       (name . "^\\*Messages\\*$")))
-	  ("Gnus" (or (mode . message-mode)
-		      (mode . bbdb-mode)
-		      (mode . mail-mode)
-		      (mode . gnus-group-mode)
-		      (mode . gnus-summary-mode)
-		      (mode . gnus-article-mode)
-		      (name . "^\\.bbdb$")
-		      (name . "^\\.newsrc-dribble"))))))))
+         ("Emacs Configuration" (or (filename . ".emacs.d")
+                                    (filename . "init.el")
+                                    (filename . "package.el")
+                                    (filename . "private.el")
+                                    (filename . "emacs.d")))
+         ("Org" (or (mode . org-mode)
+                    (filename . "OrgMode")))
+         ("Magit" (name . "magit"))
+         ("Help" (or (name . "\*Help\*")
+                     (name . "\*Apropos\*")
+                     (name . "\*info\*")))
+         ("Dired" (mode . dired-mode))
+         ;; Dev has groups for all languages you program in
+         ("Dev" (or (mode . cc-mode)
+                    (filename . ".c")
+                    (filename . ".h")
+                    (filename . ".cpp")
+                    (filename . ".hpp")
+                    (filename . ".java")
+                    (filename . ".properties")
+                    (filename . ".gradle")
+                    (filename . ".am")
+                    (mode . yaml-mode)
+                    (mode . yang-mode)
+                    (mode . protobuf-mode))
+          )
+         ("Text" (or (filename . ".csv")
+                     (filename . ".tsv")
+                     (filename . ".txt")
+                     (filename . ".log")
+                     (filename . ".json")
+                     (filename . ".md")))
+         ("Emacs" (or (name . "^\\*scratch\\*$")
+                      (name . "^\\*Messages\\*$")))
+         ("Gnus" (or (mode . message-mode)
+                     (mode . bbdb-mode)
+                     (mode . mail-mode)
+                     (mode . gnus-group-mode)
+                     (mode . gnus-summary-mode)
+                     (mode . gnus-article-mode)
+                     (name . "^\\.bbdb$")
+                     (name . "^\\.newsrc-dribble")))))))
 
 (leaf ibuffer-projectile
   :doc "Group ibuffer's list by projectile root"
@@ -977,18 +1056,18 @@ If theme is'n loaded then it will be loaded at first"
   :ensure t
   :after projectile
   :hook (ibuffer-mode-hook . (lambda ()
-		               (ibuffer-projectile-set-filter-groups)
-		               (unless (eq ibuffer-sorting-mode 'alphabetic)
-		                 (ibuffer-do-sort-by-alphabetic))))
+                               (ibuffer-projectile-set-filter-groups)
+                               (unless (eq ibuffer-sorting-mode 'alphabetic)
+                                 (ibuffer-do-sort-by-alphabetic))))
   :custom ((ibuffer-formats .
-	                    '((mark modified read-only " "
-		                    (name 18 18 :left :elide)
-		                    " "
-		                    (size 9 -1 :right)
-		                    " "
-		                    (mode 16 16 :left :elide)
-		                    " "
-		                    project-relative-file)))
+                            '((mark modified read-only " "
+                                    (name 18 18 :left :elide)
+                                    " "
+                                    (size 9 -1 :right)
+                                    " "
+                                    (mode 16 16 :left :elide)
+                                    " "
+                                    project-relative-file)))
            )
   )
 (leaf ibuffer-vc :ensure t)
@@ -1070,9 +1149,9 @@ If theme is'n loaded then it will be loaded at first"
     :config
     (defhydra hydra-flycheck
       (global-map "C-c ! j"
-		  :pre (flycheck-list-errors)
-		  :post (quit-windows-on "*Flycheck errors*")
-		  :hint nil)
+                  :pre (flycheck-list-errors)
+                  :post (quit-windows-on "*Flycheck errors*")
+                  :hint nil)
       "Errors"
       ("f" flycheck-error-list-set-filter "Filter")
       ("j" flycheck-next-error "Next")
@@ -1096,7 +1175,7 @@ If theme is'n loaded then it will be loaded at first"
     :require flycheck-google-cpplint
     :config
     (flycheck-add-next-checker 'c/c++-cppcheck
-			       'c/c++-googlelint 'append))
+                               'c/c++-googlelint 'append))
   (leaf flycheck-projectile
     :after flycheck projectile
     :ensure t
@@ -1115,6 +1194,15 @@ If theme is'n loaded then it will be loaded at first"
     :after flycheck posframe
     :hook flycheck-mode-hook)
   )
+
+(leaf emamux
+  :doc "Interact with tmux"
+  :req "emacs-24.3"
+  :tag "emacs>=24.3"
+  :url "https://github.com/syohex/emacs-emamux"
+  :added "2023-02-07"
+  :emacs>= 24.3
+  :ensure t)
 
 ;;================================================================================
 ;; Spell checking
@@ -1149,18 +1237,18 @@ If theme is'n loaded then it will be loaded at first"
         ;; Support Camel Case spelling check (tested with aspell 0.6)
         (setq args (list "--sug-mode=ultra" "--lang=en_US"))
         (when run-together
-	  (cond
-	   ;; Kevin Atkinson said now aspell supports camel case directly
-	   ;; https://github.com/redguardtoo/emacs.d/issues/796
-	   ((string-match-p "--camel-case"
-			    (shell-command-to-string (concat ispell-program-name " --help")))
-	    (setq args (append args '("--camel-case"))))
+          (cond
+           ;; Kevin Atkinson said now aspell supports camel case directly
+           ;; https://github.com/redguardtoo/emacs.d/issues/796
+           ((string-match-p "--camel-case"
+                            (shell-command-to-string (concat ispell-program-name " --help")))
+            (setq args (append args '("--camel-case"))))
 
-	   ;; old aspell uses "--run-together". Please note we are not dependent on this option
-	   ;; to check camel case word. wucuo is the final solution. This aspell options is just
-	   ;; some extra check to speed up the whole process.
-	   (t
-	    (setq args (append args '("--run-together" "--run-together-limit=16")))))))
+           ;; old aspell uses "--run-together". Please note we are not dependent on this option
+           ;; to check camel case word. wucuo is the final solution. This aspell options is just
+           ;; some extra check to speed up the whole process.
+           (t
+            (setq args (append args '("--run-together" "--run-together-limit=16")))))))
        ((string-match "hunspell$" ispell-program-name)
         ;; Force the English dictionary for hunspell
         (setq args "-d en_US")))
@@ -1179,8 +1267,8 @@ If theme is'n loaded then it will be loaded at first"
     ;; if we use different dictionary
     (setq ispell-local-dictionary nil)
     (setq ispell-local-dictionary-alist
-	  '(("en_US" "[[:alpha:]]" "[^[:alpha:]]" "[']" nil ("-d" "en_US") nil utf-8)
-	    ("pl_PL" "[[:alpha:]]" "[^[:alpha:]]" "[']" nil ("-d" "pl_PL") nil utf-8))))
+          '(("en_US" "[[:alpha:]]" "[^[:alpha:]]" "[']" nil ("-d" "en_US") nil utf-8)
+            ("pl_PL" "[[:alpha:]]" "[^[:alpha:]]" "[']" nil ("-d" "pl_PL") nil utf-8))))
    (t (setq ispell-program-name nil)))
 
   (defadvice ispell-word (around my-ispell-word activate)
@@ -1228,19 +1316,19 @@ If theme is'n loaded then it will be loaded at first"
 
 ;; http://unifoundry.com/pub/unifont/unifont-14.0.01/font-builds/unifont-14.0.01.ttf
 (defvar kb/fonts '((:url "http://unifoundry.com/pub/unifont/unifont-14.0.03/font-builds/"
-			 :fonts "unifont-14.0.03.otf"
-			 :method 'download)
-		   (:url "https://github.com/source-foundry/Hack/releases/download/v3.003/"
-			 :fonts "Hack-v3.003-ttf.tar.xz"
-			 :archive "Hack-v3.003-ttf.tar.xz"
-			 :method 'tarxz)
-		   (:url "https://github.com/google/fonts/raw/main/ofl/cantarell/"
-			 :fonts ("Cantarell-BoldOblique.ttf"
-				 "Cantarell-Bold.ttf"
-				 "Cantarell-Oblique.ttf"
-				 "Cantarell-Regular.ttf")
-			 :metod 'download)
-		   ) "List of font urls which should be installed.")
+                         :fonts "unifont-14.0.03.otf"
+                         :method 'download)
+                   (:url "https://github.com/source-foundry/Hack/releases/download/v3.003/"
+                         :fonts "Hack-v3.003-ttf.tar.xz"
+                         :archive "Hack-v3.003-ttf.tar.xz"
+                         :method 'tarxz)
+                   (:url "https://github.com/google/fonts/raw/main/ofl/cantarell/"
+                         :fonts ("Cantarell-BoldOblique.ttf"
+                                 "Cantarell-Bold.ttf"
+                                 "Cantarell-Oblique.ttf"
+                                 "Cantarell-Regular.ttf")
+                         :metod 'download)
+                   ) "List of font urls which should be installed.")
 
 ;; (defun kb/install-fonts (&optional pfx)
 ;;   "Helper function to download and install recommended fonts based on OS.
@@ -1264,20 +1352,20 @@ If theme is'n loaded then it will be loaded at first"
 ;;       (unless (file-directory-p font-dest) (mkdir font-dest t))
 
 ;;       (mapc (lambda (font-url)
-;; 	      (let* ((fonts-arg (plist-get kb/fonts :fonts))
-;; 		     (files (if (atom fonts-arg) (list fonts-arg) (fonts-arg))))
-;; 		(mapc (lambda (file)
-;; 			(let* ((file-url (concat (plist-get font-url :url) file))
-;; 			       (file-dst (expand-file-name file font-dest))
-;; 			       )
-;; 			  (prin1 "file-url: ")
-;; 			  (prin1 file-url)
-;; 			  (prin1 " -> file-dst: ")
-;; 			  (print file-dst)
-;; 			  (url-copy-file file-url
-;; 				       file-dst t)
-;; 			)) files)))
-;; 	    kb/fonts)
+;;            (let* ((fonts-arg (plist-get kb/fonts :fonts))
+;;                   (files (if (atom fonts-arg) (list fonts-arg) (fonts-arg))))
+;;              (mapc (lambda (file)
+;;                      (let* ((file-url (concat (plist-get font-url :url) file))
+;;                             (file-dst (expand-file-name file font-dest))
+;;                             )
+;;                        (prin1 "file-url: ")
+;;                        (prin1 file-url)
+;;                        (prin1 " -> file-dst: ")
+;;                        (print file-dst)
+;;                        (url-copy-file file-url
+;;                                     file-dst t)
+;;                      )) files)))
+;;          kb/fonts)
 ;;       (when known-dest?
 ;;         (message "Fonts downloaded, updating font cache... <fc-cache -f -v> ")
 ;;         (shell-command-to-string (format "fc-cache -f -v")))
@@ -1297,18 +1385,13 @@ If theme is'n loaded then it will be loaded at first"
   )
 
 (leaf vundo
-  :doc "Visual undo tree"
-  :req "emacs-28.1"
-  :tag "editing" "text" "undo" "emacs>=28.1"
-  :url "https://github.com/casouri/vundo"
-  :added "2022-12-05"
   :emacs>= 28.1
   :ensure t
   :custom ((vundo-roll-back-on-quit . t) ; t is default
-           (vundo-glyph-alist . vundo-unicode-symbols)
            )
-  :config
+  :defer-config
   (set-face-attribute 'vundo-default nil :family "Symbola")
+  (setq vundo-glyph-alist vundo-unicode-symbols)
   )
 (leaf undo-fu
   :doc "Undo helper with redo"
@@ -1344,8 +1427,8 @@ If theme is'n loaded then it will be loaded at first"
   :added "2022-10-31"
   :ensure t
   :commands (org-capture org-agenda)
-  :hook (org-mode-hook . kb/org-mode-setup)
-  (org-mode-hook . kb/org-font-setup)
+  :hook ((org-mode-hook . kb/org-mode-setup)
+         (org-mode-hook . kb/org-font-setup))
   :custom ((org-ellipsis . " ▾")
            (org-hide-leading-stars . t)
            (org-agenda-start-with-log-mode . t)
@@ -1398,10 +1481,10 @@ This function is based on work of David Wilson.
                   (org-level-7 . 1.1)
                   (org-level-8 . 1.1)))
     (set-face-attribute (car face) nil :font "Cantarell" :weight 'regular :height (cdr face)))
-  
+
 
   ;; Ensure that anything that should be fixed-pitch in Org files appears that way
-  (set-face-attribute 'org-block nil    :foreground nil :inherit 'fixed-pitch)
+  (set-face-attribute 'org-block nil    :foreground 'unspecified :inherit 'fixed-pitch)
   (set-face-attribute 'org-table nil    :inherit 'fixed-pitch)
   (set-face-attribute 'org-formula nil  :inherit 'fixed-pitch)
   (set-face-attribute 'org-code nil     :inherit '(shadow fixed-pitch))
@@ -1420,16 +1503,30 @@ This function is based on work of David Wilson.
 
   ;; (setq org-src-block-faces '(("emacs-lisp" (:background "#EEE2FF"))
   ;;                             ("python" (:background "#E5FFB8"))
-  ;; 			      ("cpp" (:background "grey5" :foreground "chartreuse"))
-  ;; 			      ("protobuf" (:background "grey5" :foreground "chartreuse"))
-  ;; 			      ))
+  ;;                          ("cpp" (:background "grey5" :foreground "chartreuse"))
+  ;;                          ("protobuf" (:background "grey5" :foreground "chartreuse"))
+  ;;                          ))
   )
   )
+
+(leaf org-superstar
+  :doc "Prettify headings and plain lists in Org mode"
+  :req "org-9.1.9" "emacs-26.1"
+  :tag "outlines" "faces" "emacs>=26.1"
+  :url "https://github.com/integral-dw/org-superstar-mode"
+  :added "2022-12-07"
+  :emacs>= 26.1
+  :ensure t
+  :hook org-mode-hook
+  :after org
+  :custom
+  (org-superstart-headline-bullets-list . '("◉" "○" "●" "○" "●" "○" "●")))
 
 (leaf org-bullets
   :doc "Show bullets in org-mode as UTF-8 characters"
   :url "https://github.com/integral-dw/org-bullets"
   :added "2022-10-31"
+  :disabled t
   :ensure t
   :hook org-mode-hook
   :custom
@@ -1746,9 +1843,9 @@ This function is based on work of David Wilson.
   ;; (customize-set-variable 'lsp-keymap-prefix "C-c l" "Configured by Init for lsp-mode") ;; Or 'C-l', 's-l'
   :custom
   ;; (lsp-print-performance t)
-  ;; (lsp-enable-xref t)
+  (lsp-enable-xref . t)
   (lsp-log-io . nil)
-  (lsp-idle-delay . 1.0)
+  (lsp-idle-delay . 0.5)
   (lsp-keymap-prefix . "C-c l")
   (lsp-completion-provider . :capf)
   (lsp-headerline-breadcrumb-enable . t)
@@ -1759,28 +1856,28 @@ This function is based on work of David Wilson.
   :bind
          ;; :bind (:map lsp-mode-map ("M-." . lsp-find-declaration))
          (:lsp-mode-map ("<tab>" . company-indent-or-complete-common))
-  
+
   :config
   (defun kb/lsp-breadcrumb-face-setup ()
     "Fix headerlime colors for breadcrumbs"
-    (set-face-attribute 'lsp-headerline-breadcrumb-symbols-face nil :foreground "yellow" :background nil   :width 'ultra-condensed)
-    (set-face-attribute 'lsp-headerline-breadcrumb-project-prefix-face nil  :foreground "PaleGreen" :background nil :width 'extra-condensed)
-    (set-face-attribute 'lsp-headerline-breadcrumb-separator-face nil :foreground "green" :background nil :weight 'ultra-bold :width 'ultra-condensed)
-    (set-face-attribute 'lsp-headerline-breadcrumb-path-face nil :foreground "green" :background nil :weight 'light :width 'ultra-condensed)
+    (set-face-attribute 'lsp-headerline-breadcrumb-symbols-face nil :foreground "yellow" :background 'unspecified :width 'ultra-condensed)
+    (set-face-attribute 'lsp-headerline-breadcrumb-project-prefix-face nil  :foreground "PaleGreen" :background 'unspecified :width 'extra-condensed)
+    (set-face-attribute 'lsp-headerline-breadcrumb-separator-face nil :foreground "green" :background 'unspecified :weight 'ultra-bold :width 'ultra-condensed)
+    (set-face-attribute 'lsp-headerline-breadcrumb-path-face nil :foreground "green" :background 'unspecified :weight 'light :width 'ultra-condensed)
     (set-face-background 'header-line "black")
     )
   :hook
   (lsp-headerline-breadcrumb-mode-hook . kb/lsp-breadcrumb-face-setup)
-  
+
   :config
   (leaf lsp-mode-which-key
-    :after which-key lsp-mode 
+    :after which-key lsp-mode
     :config (lsp-enable-which-key-integration t))
 
   (leaf lsp-yasnippet
     :after yasnippet lsp-mode
     :custom (lsp-enable-snippet . t))
-  
+
   ;; (define-key lsp-ui-mode-map (kbd "M-.") #'lsp-ui-peek-find-definitions)
   )
 (leaf lsp-ui
@@ -1794,17 +1891,17 @@ This function is based on work of David Wilson.
   ;; :after lsp-mode markdown-mode
   :hook (lsp-mode-hook . lsp-ui-mode)
   :bind (:lsp-ui-mode-map
-	 ([remap xref-find-definitions] . #'lsp-ui-peek-find-definitions)
-	 ([remap xref-find-references] . #'lsp-ui-peek-find-references))
+         ([remap xref-find-definitions] . #'lsp-ui-peek-find-definitions)
+         ([remap xref-find-references] . #'lsp-ui-peek-find-references))
   :commands lsp-ui-mode
-  :custom ((lsp-ui-doc-delay . 1)
+  :custom (
+           ;; (lsp-ui-doc-delay . 1)
            (lsp-ui-doc-enable . nil)
            (lsp-ui-doc-header . t)
            (lsp-ui-doc-include-signature . t)
            (lsp-ui-doc-position . 'bottom)
            (lsp-ui-imenu-enable . t)
            (lsp-ui-peek-enable . t)
-           (lsp-ui-sideline-enable . t)
            (lsp-ui-sideline-enable . t)
            )
   )
@@ -1830,11 +1927,11 @@ This function is based on work of David Wilson.
   ;; :defines (cmake-tab-width)
   :mode ("CMakeLists\\.txt\\'" "\\.cmake\\'")
   :hook (cmake-mode-hook . ((lambda ()
-		                      (message "CmakeMode custom")
-		                      (setq fill-column 80)
-		                      (auto-fill-mode)
-		                      (setq cmake-tab-width 4)
-		                      (setq indent-tabs-mode nil))
+                                      (message "CmakeMode custom")
+                                      (setq fill-column 80)
+                                      (auto-fill-mode)
+                                      (setq cmake-tab-width 4)
+                                      (setq indent-tabs-mode nil))
                             (lsp-deferred)))
   :config
   (leaf cmake-font-lock
@@ -1869,6 +1966,8 @@ This function is based on work of David Wilson.
   (treemacs-git-modified-face . '((t (:inherit font-lock-variable-name-face :height 0.9))))
   (treemacs-git-ignored-face . '((t (:inherit font-lock-comment-face :height 0.9))))
   (treemacs-git-untracked-face . '((t (:inherit font-lock-string-face :height 0.9))))
+  :custom
+  (treemacs-space-between-root-nodes . nil)
   :config
   (leaf lsp-treemacs
     :doc "LSP treemacs"
@@ -1914,10 +2013,10 @@ This function is based on work of David Wilson.
   :custom (which-key-idle-delay . 1)
   :config (which-key-mode)
   (add-to-list 'which-key-replacement-alist
-	           '((nil . "\\`hydra-\\(.+\\)/body\\'") . (nil . "h/\\1")))
+                   '((nil . "\\`hydra-\\(.+\\)/body\\'") . (nil . "h/\\1")))
 
   (add-to-list 'which-key-replacement-alist
-	           '((nil . "\\`hydra-\\(.+\\)/body\\'") . (nil . "h/\\1")))
+                   '((nil . "\\`hydra-\\(.+\\)/body\\'") . (nil . "h/\\1")))
   (which-key-setup-side-window-right)
   :config
   (leaf hercules
@@ -1977,7 +2076,7 @@ This function is based on work of David Wilson.
   :doc "major mode for editing protocol buffers."
   :tag "languages" "protobuf" "google"
   :added "2022-10-31"
-  :ensure t
+  :disabled t
   :config
   (defconst kb/protobuf-style
     '("linux"
@@ -2080,8 +2179,8 @@ This function is based on work of David Wilson.
   :ensure t
   ;; Either bind `marginalia-cycle` globally or only in the minibuffer
   :bind (("M-A" . marginalia-cycle)
-	     (:minibuffer-local-map
-	      ("M-A" . marginalia-cycle)))
+             (:minibuffer-local-map
+              ("M-A" . marginalia-cycle)))
   ;; THe :init configuration is always executed (Not lazy!)
   :init
   ;; Must be in the :init section of use-package/leaf such that the
@@ -2108,8 +2207,8 @@ This function is based on work of David Wilson.
 
   (defhydra hydra-switch-buffers
     (global-map "C-c s"
-		:timeout 4
-		:hint "Switch Buffers and windows")
+                :timeout 4
+                :hint "Switch Buffers and windows")
     "Buffers"
     ("n" next-multiframe-window "Next window" :group "HSB" :which-key "Next Window")
     ("p" previous-multiframe-window "Previous window" :group "HSB" :which-key "Prev Window")
@@ -2153,8 +2252,25 @@ This function is based on work of David Wilson.
   :custom ((completion-styles . '(substring orderless basic))
            (completion-category-defaults . nil)
            (completion-category-overrides . '((file (styles partial-completion))))
-           (orderless-component-separator . " +\\|[-/]")
+           ;; (orderless-component-separator . " +\\|[-/]")
+           (orderless-component-separator . "[ &]")
            )
+
+  :config
+  (defun just-one-face (fn &rest args)
+    (let ((orderless-match-faces [completions-common-part]))
+      (apply fn args)))
+
+  (advice-add 'company-capf--candidates :around #'just-one-face)
+
+  ;; We follow a suggestion by company maintainer u/hvis:
+  ;; https://www.reddit.com/r/emacs/comments/nichkl/comment/gz1jr3s/
+  (defun company-completion-styles (capf-fn &rest args)
+    (let ((completion-styles '(basic partial-completion)))
+      (apply capf-fn args))
+
+    (advice-add 'company-capf :around #'company-completion-styles)
+    )
   )
 
 (leaf savehist
@@ -2290,7 +2406,7 @@ We display [CRM<separator>], e.g., [CRM,] if the separator is a comma."
     :commands (consult-notes
                consult-notes-search-in-all-notes
                consult-notes-denote-mode
-               ;; if using org-roam 
+               ;; if using org-roam
                consult-notes-org-roam-find-node
                consult-notes-org-roam-find-node-relation)
     :config
@@ -2311,7 +2427,7 @@ We display [CRM<separator>], e.g., [CRM,] if the separator is a comma."
          ("<f2> i" . counsel-info-lookup-symbol)
          ("<f2> u" . counsel-unicode-char)
          ("<f7>" . counsel-recentf)
-         ("C-c g" . counsel-git)
+         ;; ("C-c g" . counsel-git)
          ("C-c j" . counsel-git-grep)
          ("C-c L" . counsel-git-log)
          ("C-c J" . counsel-file-jump)
@@ -2323,7 +2439,7 @@ We display [CRM<separator>], e.g., [CRM,] if the separator is a comma."
           ("C-r" . counsel-minibuffer-history)))
   :init
   (counsel-mode 1)
-  
+
   :config
   (leaf counsel-tramp
     :ensure t
@@ -2360,6 +2476,12 @@ We display [CRM<separator>], e.g., [CRM,] if the separator is a comma."
     )
   )
 
+(leaf counsel-fd
+  :when (executable-find "fdfind")
+  :ensure t
+  :setq (counsel-fd-command . "fdfind --hidden --color never ")
+  )
+
 (leaf amx :ensure t :after ivy)
 (leaf ivy
   :doc "Incremental Vertical completYon"
@@ -2376,20 +2498,20 @@ We display [CRM<separator>], e.g., [CRM,] if the separator is a comma."
            (ivy-use-selectable-prompt . t)
            )
   :bind (("C-c C-r" . ivy-resume)
-	 ("<f6>" . ivy-resume)
-	 ;; ("C-c v" . ivy-push-view)
-	 ("C-c V" . ivy-pop-view)
-	 ;; ("C-c m" . kb/ivy-switch-project)
-	 ("C-c n" . kb/ivy-switch-git)
-	 )
+         ("<f6>" . ivy-resume)
+         ;; ("C-c v" . ivy-push-view)
+         ("C-c V" . ivy-pop-view)
+         ;; ("C-c m" . kb/ivy-switch-project)
+         ("C-c n" . kb/ivy-switch-git)
+         )
   :config
   (defun kb/ivy-switch-project ()
     (interactive)
     (ivy-read
      "Switch to project: "
      (if (projectile-project-p)
-	 (cons (abbreviate-file-name (projectile-project-root))
-	       (projectile-relevant-known-projects))
+         (cons (abbreviate-file-name (projectile-project-root))
+               (projectile-relevant-known-projects))
        projectile-known-projects)
      :action #'projectile-switch-project-by-name))
 
@@ -2418,8 +2540,12 @@ We display [CRM<separator>], e.g., [CRM,] if the separator is a comma."
    '(("d" dired "Open Dired in GIT directory")
      ("f" magit-fetch "Fetch")
      ("F" magit-find-file "Find file in git")))
-  
+
   (ivy-mode 1)
+
+  ;; orderless
+  (setq ivy-re-builders-alist '((t . orderless-ivy-re-builder)))
+  (add-to-list 'ivy-highlight-functions-alist '(orderless-ivy-re-builder . orderless-ivy-highlight))
 
   :config
   (leaf swiper
@@ -2446,20 +2572,20 @@ We display [CRM<separator>], e.g., [CRM,] if the separator is a comma."
     ;; :defines (ivy-posframe-display-functions-alist)
     :custom (
              ;; (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-frame-top-right)
-             ;; 					       (t . ivy-posframe-display-at-frame-top-center)))
+             ;;                                                (t . ivy-posframe-display-at-frame-top-center)))
              (ivy-posframe-height-alist . '((swiper-isearch . 10)
-				            (swiper	    . 10)
-                                            (t		    . 40)))
+                                            (swiper         . 10)
+                                            (t              . 40)))
              (ivy-posframe-display-functions-alist .
-	                                           '((swiper			. ivy-display-function-fallback)
-                                                     (complete-symbol		. ivy-posframe-display-at-point)
-                                                     (counsel-M-x		. ivy-posframe-display-at-window-bottom-left)
-	                                             (ivy-switch-buffer		. ivy-posframe-display-at-window-center)
-	                                             (counsel-find-file		. ivy-posframe-display-at-window-bottom-left)
-	                                             (counsel-describe-variable	. ivy-posframe-display-at-frame-top-right)
-	                                             (t				. ivy-posframe-display-at-frame-top-right)
+                                                   '((swiper                    . ivy-display-function-fallback)
+                                                     (complete-symbol           . ivy-posframe-display-at-point)
+                                                     (counsel-M-x               . ivy-posframe-display-at-window-bottom-left)
+                                                     (ivy-switch-buffer         . ivy-posframe-display-at-window-center)
+                                                     (counsel-find-file         . ivy-posframe-display-at-window-bottom-left)
+                                                     (counsel-describe-variable . ivy-posframe-display-at-frame-top-right)
+                                                     (t                         . ivy-posframe-display-at-frame-top-right)
                                                      ;; (t               . ivy-posframe-display)
-	                                             ))
+                                                     ))
              (ivy-posframe-parameters . '((left-fringe . 8)
                                           (right-fringe . 8)))
              ;; (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-frame-center)))
@@ -2532,7 +2658,17 @@ We display [CRM<separator>], e.g., [CRM,] if the separator is a comma."
     ;; Unzip -> copy NotoColorEmoji.ttf to ~/.local/share/fonts/
     ;; Run fc-cache -fv
     )
-  )
+)
+(leaf windower
+  :ensure t
+  :bind (("<s-M-left>" . windower-move-border-left)
+         ("<s-M-right>" . windower-move-border-right)
+         ("<s-M-down>" . windower-move-border-below)
+         ("<s-M-up>" . windower-move-border-above)
+         ("<s-M-tab>" . windower-switch-to-last-buffer)
+         ("<s-S-o>" . windower-toggle-single)
+         ("s-\\" . windower-toggle-split)
+         ))
 
 (unless (executable-find "cargo") (warn "cargo Rust package manager not found"))
 (leaf fuz
@@ -2597,7 +2733,6 @@ We display [CRM<separator>], e.g., [CRM,] if the separator is a comma."
 (unless (executable-find "rg") (warn "ripgrep not found"))
 (leaf rg
   :doc "A search tool based on ripgrep"
-  :req "emacs-25.1" "transient-0.3.0" "wgrep-2.1.10"
   :tag "tools" "matching" "emacs>=25.1"
   :url "https://github.com/dajva/rg.el"
   :added "2022-10-31"
@@ -2639,8 +2774,8 @@ We display [CRM<separator>], e.g., [CRM,] if the separator is a comma."
            (projectile-sort-order . 'recently-active)
            )
   :bind (:projectile-mode-map
-	 ("s-p" . projectile-command-map)
-	 ("C-c p" . projectile-command-map))
+         ("s-p" . projectile-command-map)
+         ("C-c p" . projectile-command-map))
   :config
   (message "Running projectile mode")
   (projectile-mode)
@@ -2683,27 +2818,32 @@ We display [CRM<separator>], e.g., [CRM,] if the separator is a comma."
   :emacs>= 25.1
   :ensure t
   :hook (python-mode-hook . (lambda ()
-			      (require 'lsp-python-ms)
-			      (lsp)))
+                              (require 'lsp-python-ms)
+                              (lsp)))
   :init (setq lsp-python-ms-auto-install-server t))
 
 (leaf magit
   :doc "A Git porcelain inside Emacs."
-  :req "emacs-25.1" "compat-28.1.1.2" "dash-20210826" "git-commit-20220222" "magit-section-20220325" "transient-20220325" "with-editor-20220318"
+  :req "emacs-25.1" "compat-29.1.3.4" "dash-20221013" "git-commit-20230101" "magit-section-20230101" "transient-20230201" "with-editor-20230118"
   :tag "vc" "tools" "git" "emacs>=25.1"
   :url "https://github.com/magit/magit"
   :added "2022-10-31"
   :emacs>= 25.1
   :ensure t
-  :commands magit-list-repos
+  :commands magit-list-repos magit-status-quick
   :after compat git-commit magit-section with-editor
   ;; :commands magit-status
   ;; :bind (:map global-map
-  ;; 	      ("C-c n". magit-list-repos))
+  ;;          ("C-c n". magit-list-repos))
   :custom ((magit-display-buffer-function . #'magit-display-buffer-same-window-except-diff-v1)
            (magit-repository-directories . '(("~/projects" . 2)))
            (git-commit-summary-max-length . 50)
            )
+  :setq ((magit-inhibit-libgit . nil))
+  :bind (("C-c g" . magit-file-dispatch)
+         ("C-x g" . magit-status-quick)
+         ("C-x M-g" . magit-dispatch)
+         )
   :config
   (put 'magit-clean 'disabled nil)
   (leaf treemacs-magit
@@ -2860,12 +3000,30 @@ We display [CRM<separator>], e.g., [CRM,] if the separator is a comma."
   :when (executable-find "dot")
   :emacs>= 25.0
   :ensure t
+  :custom ((graphviz-dot-indent-width . 4))
+  :hook (company-mode)
   :config
   (when (executable-find "xdot")
     (customize-set-variable 'graphviz-dot-view-command "xdot %s"))
-  :config
-  ;; (add-to-list 'org-src-lang-modes '("dot" . graphviz-dot)))
   )
+
+(leaf d2-mode
+  :doc "Major mode for working with d2 graphs"
+  :req "emacs-26.1"
+  :tag "processes" "tools" "graphs" "d2" "emacs>=26.1"
+  :url "https://github.com/andorsk/d2-mode"
+  :added "2022-12-13"
+  :when (executable-find "d2")
+  :emacs>= 26.1
+  :ensure t
+
+  ;================ TALA rendering engine installation ===============
+  ;; With --dry-run the install script will print the commands it will use
+  ;; to install without actually installing so you know what it's going to do.
+  ;; curl -fsSL https://d2lang.com/install.sh | sh -s -- --tala --dry-run
+  ;; If things look good, install for real.
+)
+
 
 (leaf yasnippet
   :doc "Yet another snippet extension for Emacs"
@@ -2884,10 +3042,10 @@ We display [CRM<separator>], e.g., [CRM,] if the separator is a comma."
   (yas-wrap-around-region . t)
   :hook (term-mode-hook . (lambda() (setq yas-dont-activate-functions t)))
   :bind ((:yas-keymap
-		       ("<return>" . yas-exit-all-snippets)
-		       ("C-e" . yas/goto-end-of-active-field)
-		       ("C-a" . yas/goto-start-of-active-field))
-	 (:yas-minor-mode-map ("<f2>" . hydra-yas/body)))
+                       ("<return>" . yas-exit-all-snippets)
+                       ("C-e" . yas/goto-end-of-active-field)
+                       ("C-a" . yas/goto-start-of-active-field))
+         (:yas-minor-mode-map ("<f2>" . hydra-yas/body)))
   :config
   (add-to-list 'yas-snippet-dirs "~/.emacs.d/rc/snippets")
   (yas-global-mode 1)
@@ -2895,21 +3053,21 @@ We display [CRM<separator>], e.g., [CRM,] if the separator is a comma."
   (defun yas/goto-end-of-active-field ()
     (interactive)
     (let* ((snippet (car (yas-active-snippets)))
-	       (position (yas--field-end (yas--snippet-active-field snippet))))
-	  (if (= (point) position)
-	      (move-end-of-line 1)
-	    (goto-char position))))
+               (position (yas--field-end (yas--snippet-active-field snippet))))
+          (if (= (point) position)
+              (move-end-of-line 1)
+            (goto-char position))))
 
   (defun yas/goto-start-of-active-field ()
     (interactive)
     (let* ((snippet (car (yas-active-snippets)))
-	       (position (yas--field-start (yas--snippet-active-field snippet))))
-	  (if (= (point) position)
-	      (move-beginning-of-line 1)
-	    (goto-char position))))
+               (position (yas--field-start (yas--snippet-active-field snippet))))
+          (if (= (point) position)
+              (move-beginning-of-line 1)
+            (goto-char position))))
 
   :hydra (hydra-yas (:color blue :hint nil)
-		            "
+                            "
               ^YASnippets^
 --------------------------------------------
   Modes:    Load/Visit:    Actions:
@@ -2919,16 +3077,16 @@ We display [CRM<separator>], e.g., [CRM,] if the separator is a comma."
  _e_xtra   _l_ist         _n_ew
          _a_ll
 "
-		            ("d" yas-load-directory)
-		            ("e" yas-activate-extra-mode)
-		            ("i" yas-insert-snippet)
-		            ("f" yas-visit-snippet-file :color blue)
-		            ("n" yas-new-snippet)
-		            ("t" yas-tryout-snippet)
-		            ("l" yas-describe-tables)
-		            ("g" yas/global-mode)
-		            ("m" yas/minor-mode)
-		            ("a" yas-reload-all))
+                            ("d" yas-load-directory)
+                            ("e" yas-activate-extra-mode)
+                            ("i" yas-insert-snippet)
+                            ("f" yas-visit-snippet-file :color blue)
+                            ("n" yas-new-snippet)
+                            ("t" yas-tryout-snippet)
+                            ("l" yas-describe-tables)
+                            ("g" yas/global-mode)
+                            ("m" yas/minor-mode)
+                            ("a" yas-reload-all))
   :config
   (leaf yasnippet-snippets
     :doc "Collection of yasnippet snippets"
@@ -2957,10 +3115,13 @@ We display [CRM<separator>], e.g., [CRM,] if the separator is a comma."
     :after ivy yasnippet)
   )
 
-(defconst kb/plantuml-jar-path (expand-file-name "~/.java/libs/plantuml.jar")
+(defcustom kb/plantuml-jar-path (expand-file-name "~/.java/libs/plantuml.jar")
   "Location where to search for plantuml.jar file.
 
-Download and put appropriate file there.")
+Download and put appropriate file there."
+  :type 'file
+  :group 'kb-config)
+
 (leaf plantuml-mode
   :doc "Major mode for PlantUML"
   :req "dash-2.0.0" "emacs-25.0"
@@ -2969,17 +3130,17 @@ Download and put appropriate file there.")
   :emacs>= 25.0
   :ensure t
   :config
-  :custom ((plantuml-jar-path . #'kb/plantuml-jar-path)
+  :custom ((plantuml-jar-path . kb/plantuml-jar-path)
            (plantuml-default-exec-mode . 'jar)
            (plantuml-indent-level . 4)
            (org-plantuml-jar-path . plantuml-jar-path)
            )
   :hook (plantuml-mode-hook . (lambda ()
-			        (set-fill-column 100)
-			        (display-fill-column-indicator-mode)
-			        ))
+                                (set-fill-column 100)
+                                (display-fill-column-indicator-mode)
+                                ))
   :bind (:plantuml-mode-map
-	 ("C-c C-p" . plantuml-preview-buffer))
+         ("C-c C-p" . plantuml-preview-buffer))
   :config
   (plantuml-set-output-type "svg")
   (add-to-list 'org-babel-load-languages '((plantuml . t)))
@@ -3038,12 +3199,41 @@ Download and put appropriate file there.")
   :emacs>= 27.1
   :ensure t
   :custom
-  (gts-translate-list . '(("en" "de") ("pl" "en") ("en" "pl") ("en" "zh") ("zh" "en") ("ko" "en")))
-  ;; (setq gts-default-translator
-  ;;   (gts-translator
-  ;;        :picker (gts-prompt-picker)
-  ;;        :engines (list (gts-bing-engine) (gts-google-engine) (gts-google-rpc-engine))
-  ;;        :render (gts-buffer-render)))
+  (gts-translate-list . '(("en" "de") ("pl" "en") ("en" "pl") ("en" "zh") ("zh" "en") ("ko" "en") ("ja" "en") ("pt" "en")))
+  :bind
+  (("<f5>" . #'gts-do-translate))
+  :config
+  (setq gts-default-translator (gts-translator
+                                :picker (gts-prompt-picker)
+                                :engines (list (gts-bing-engine)
+                                               (gts-google-engine :parser (gts-google-summary-parser))
+                                               (gts-deepl-engine :auth-key "caa9ecb9-7c56-38d5-e9af-bea071490857:fx" :pro nil))
+                                :render
+                                (gts-buffer-render)
+                                ;; (gts-posframe-pin-render)
+                                ;; (gts-posframe-pin-render :width 80 :height 25 :position (cons 1000 20) :forecolor "#ffffff" :backcolor "#111111")
+                                ;; (gts-kill-ring-render)
+                                :splitter
+                                ;; nil
+                                (gts-paragraph-splitter)
+                                ))
   )
+
+(leaf shroud
+  :doc "Shroud secrets"
+  :req "emacs-25" "epg-1.0.0" "s-1.6.0" "bui-1.2.0" "dash-2.18.0"
+  :tag "password" "tools" "emacs>=25"
+  :url "https://github.com/o-nly/emacs-shroud"
+  :added "2023-01-11"
+  :emacs>= 25
+  :ensure t
+  :require (shroud-cli shroud)
+  :config
+  (setq shroud-el--user-id "karol.barski@mobica.com")
+  )
+
+(setq auth-sources
+      '((:source "~/.emacs.d/secrets/.authinfo.gpg")))
+
 (message "Init finished")
 ;;; init.el ends here
