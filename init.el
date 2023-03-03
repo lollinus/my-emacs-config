@@ -1816,7 +1816,7 @@ This function is based on work of David Wilson.
   :ensure t
   :when (executable-find "clang-format")
   :bind (("C-M-'" . clang-format-region)))
-  (leaf clang-format+
+(leaf clang-format+
     :doc "Minor mode for automatic clang-format application"
     :req "emacs-25.1" "clang-format-20180406.1514"
     :tag "clang-format" "c++" "c" "emacs>=25.1"
@@ -1843,19 +1843,20 @@ This function is based on work of David Wilson.
   ;; (customize-set-variable 'lsp-keymap-prefix "C-c l" "Configured by Init for lsp-mode") ;; Or 'C-l', 's-l'
   :custom
   ;; (lsp-print-performance t)
-  (lsp-enable-xref . t)
-  (lsp-log-io . nil)
-  (lsp-idle-delay . 0.5)
-  (lsp-keymap-prefix . "C-c l")
-  (lsp-completion-provider . :capf)
-  (lsp-headerline-breadcrumb-enable . t)
-  (lsp-headerline-breadcrumb-segments . '(symbols project))
-  (lsp-enable-snippet . nil)
+  ((lsp-enable-xref . t)
+   (lsp-log-io . nil)
+   (lsp-idle-delay . 0.5)
+   (lsp-keymap-prefix . "C-c l")
+   (lsp-completion-provider . :capf)
+   (lsp-headerline-breadcrumb-enable . t)
+   (lsp-headerline-breadcrumb-segments . '(symbols project))
+   (lsp-enable-snippet . nil)
+   )
 
   :hook ((c-mode-common-hook . lsp-deferred))
   :bind
-         ;; :bind (:map lsp-mode-map ("M-." . lsp-find-declaration))
-         (:lsp-mode-map ("<tab>" . company-indent-or-complete-common))
+  ;; :bind (:map lsp-mode-map ("M-." . lsp-find-declaration))
+  (:lsp-mode-map ("<tab>" . company-indent-or-complete-common))
 
   :config
   (defun kb/lsp-breadcrumb-face-setup ()
@@ -2274,9 +2275,27 @@ This function is based on work of David Wilson.
   )
 
 (leaf savehist
-  :disabled t
   :config
-  (savehist-mode 1))
+  (savehist-mode 1)
+
+  (leaf ivy-dired-history
+    :doc "use ivy to open recent directories"
+    :req "ivy-0.9.0" "counsel-0.9.0" "cl-lib-0.5"
+    :url "https://github.com/jixiuf/ivy-dired-history"
+    :added "2023-02-28"
+    :ensure t
+    :after ivy counsel dired
+    :bind ((:dired-mode-map
+            ("," . #'dired)))
+    :require ivy-dired-history
+    :config
+    (add-to-list 'savehist-additional-variables 'ivy-dired-history-variable)
+
+    ;; if you are using ido,you'd better disable ido for dired
+    ;; (define-key (cdr ido-minor-mode-map-entry) [remap dired] nil) ;in ido-setup-hook
+    )
+  )
+
 (leaf emacs
   :disabled t
   :config
@@ -2447,7 +2466,7 @@ We display [CRM<separator>], e.g., [CRM,] if the separator is a comma."
   (leaf counsel-projectile
     :ensure t
     :config(counsel-projectile-mode))
-  (leaf counsel-ag-popup :ensure t)
+  (leaf counsel-ag-popup :ensure t :require t)
   (leaf counsel-edit-mode :ensure t
     :config (counsel-edit-mode-setup-ivy))
   (leaf counsel-jq
@@ -2480,6 +2499,16 @@ We display [CRM<separator>], e.g., [CRM,] if the separator is a comma."
   :when (executable-find "fdfind")
   :ensure t
   :setq (counsel-fd-command . "fdfind --hidden --color never ")
+  )
+
+(leaf fzf
+  :doc "A front-end for fzf."
+  :req "emacs-24.4"
+  :tag "search" "fuzzy" "fzf" "emacs>=24.4"
+  :url "https://github.com/bling/fzf.el"
+  :added "2023-02-28"
+  :emacs>= 24.4
+  :ensure t
   )
 
 (leaf amx :ensure t :after ivy)
@@ -3016,6 +3045,7 @@ We display [CRM<separator>], e.g., [CRM,] if the separator is a comma."
   :when (executable-find "d2")
   :emacs>= 26.1
   :ensure t
+  :mode ("\\.d2\\'")
 
   ;================ TALA rendering engine installation ===============
   ;; With --dry-run the install script will print the commands it will use
@@ -3207,7 +3237,7 @@ Download and put appropriate file there."
                                 :picker (gts-prompt-picker)
                                 :engines (list (gts-bing-engine)
                                                (gts-google-engine :parser (gts-google-summary-parser))
-                                               (gts-deepl-engine :auth-key "caa9ecb9-7c56-38d5-e9af-bea071490857:fx" :pro nil))
+                                               (gts-deepl-engine :auth-key "" :pro nil))
                                 :render
                                 (gts-buffer-render)
                                 ;; (gts-posframe-pin-render)
@@ -3228,6 +3258,7 @@ Download and put appropriate file there."
   :emacs>= 25
   :ensure t
   :require (shroud-cli shroud)
+  :bind (("C-c s" . shroud-ui))
   :config
   (setq shroud-el--user-id "karol.barski@mobica.com")
   )
