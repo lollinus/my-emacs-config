@@ -542,8 +542,8 @@ should be imported.
 (leaf rect
   ;; string-insert-rectangle is useful but not binded to any key by default
   :bind (("C-x r l" . 'rectangle-number-lines))
-;; (define-key global-map (kbd "C-x r a") 'string-insert-rectangle) ;; use string-rectange instead "C-x r t"
-)
+  ;; (define-key global-map (kbd "C-x r a") 'string-insert-rectangle) ;; use string-rectange instead "C-x r t"
+  )
 
 
 (leaf whitespace
@@ -829,10 +829,10 @@ If theme is'n loaded then it will be loaded at first"
   :emacs>= 25.1
   :ensure t
   :bind ((:hl-todo-mode-map
-         ("C-c t p" . #'hl-todo-previous)
-         ("C-c t n" . #'hl-todo-next)
-         ("C-c t o" . #'hl-todo-occur)
-         ("C-c t i" . #'hl-todo-insert)))
+          ("C-c t p" . #'hl-todo-previous)
+          ("C-c t n" . #'hl-todo-next)
+          ("C-c t o" . #'hl-todo-occur)
+          ("C-c t i" . #'hl-todo-insert)))
   :hook prog-mode-hook
   :config
   (add-to-list 'hl-todo-keyword-faces '("NOCOMMIT" . "#ff00ff"))
@@ -910,7 +910,7 @@ If theme is'n loaded then it will be loaded at first"
                   ))
     )
   :hook (c-mode-common-hook . kb/whitespace-progmode-setup)
-)
+  )
 
 (defun kb/checkpatch-enable ()
   "Add checkpatch for diff files if project provides checkpatch.pl script."
@@ -1002,49 +1002,49 @@ If theme is'n loaded then it will be loaded at first"
   :added "2022-11-01"
   :bind (("C-x C-b" . ibuffer))
   :custom (ibuffer-saved-filter-groups .
-      '(("default"
-         ("Emacs Configuration" (or (filename . ".emacs.d")
-                                    (filename . "init.el")
-                                    (filename . "package.el")
-                                    (filename . "private.el")
-                                    (filename . "emacs.d")))
-         ("Org" (or (mode . org-mode)
-                    (filename . "OrgMode")))
-         ("Magit" (name . "magit"))
-         ("Help" (or (name . "\*Help\*")
-                     (name . "\*Apropos\*")
-                     (name . "\*info\*")))
-         ("Dired" (mode . dired-mode))
-         ;; Dev has groups for all languages you program in
-         ("Dev" (or (mode . cc-mode)
-                    (filename . ".c")
-                    (filename . ".h")
-                    (filename . ".cpp")
-                    (filename . ".hpp")
-                    (filename . ".java")
-                    (filename . ".properties")
-                    (filename . ".gradle")
-                    (filename . ".am")
-                    (mode . yaml-mode)
-                    (mode . yang-mode)
-                    (mode . protobuf-mode))
-          )
-         ("Text" (or (filename . ".csv")
-                     (filename . ".tsv")
-                     (filename . ".txt")
-                     (filename . ".log")
-                     (filename . ".json")
-                     (filename . ".md")))
-         ("Emacs" (or (name . "^\\*scratch\\*$")
-                      (name . "^\\*Messages\\*$")))
-         ("Gnus" (or (mode . message-mode)
-                     (mode . bbdb-mode)
-                     (mode . mail-mode)
-                     (mode . gnus-group-mode)
-                     (mode . gnus-summary-mode)
-                     (mode . gnus-article-mode)
-                     (name . "^\\.bbdb$")
-                     (name . "^\\.newsrc-dribble")))))))
+                                       '(("default"
+                                          ("Emacs Configuration" (or (filename . ".emacs.d")
+                                                                     (filename . "init.el")
+                                                                     (filename . "package.el")
+                                                                     (filename . "private.el")
+                                                                     (filename . "emacs.d")))
+                                          ("Org" (or (mode . org-mode)
+                                                     (filename . "OrgMode")))
+                                          ("Magit" (name . "magit"))
+                                          ("Help" (or (name . "\*Help\*")
+                                                      (name . "\*Apropos\*")
+                                                      (name . "\*info\*")))
+                                          ("Dired" (mode . dired-mode))
+                                          ;; Dev has groups for all languages you program in
+                                          ("Dev" (or (mode . cc-mode)
+                                                     (filename . ".c")
+                                                     (filename . ".h")
+                                                     (filename . ".cpp")
+                                                     (filename . ".hpp")
+                                                     (filename . ".java")
+                                                     (filename . ".properties")
+                                                     (filename . ".gradle")
+                                                     (filename . ".am")
+                                                     (mode . yaml-mode)
+                                                     (mode . yang-mode)
+                                                     (mode . protobuf-mode))
+                                           )
+                                          ("Text" (or (filename . ".csv")
+                                                      (filename . ".tsv")
+                                                      (filename . ".txt")
+                                                      (filename . ".log")
+                                                      (filename . ".json")
+                                                      (filename . ".md")))
+                                          ("Emacs" (or (name . "^\\*scratch\\*$")
+                                                       (name . "^\\*Messages\\*$")))
+                                          ("Gnus" (or (mode . message-mode)
+                                                      (mode . bbdb-mode)
+                                                      (mode . mail-mode)
+                                                      (mode . gnus-group-mode)
+                                                      (mode . gnus-summary-mode)
+                                                      (mode . gnus-article-mode)
+                                                      (name . "^\\.bbdb$")
+                                                      (name . "^\\.newsrc-dribble")))))))
 
 (leaf ibuffer-projectile
   :doc "Group ibuffer's list by projectile root"
@@ -1462,51 +1462,51 @@ If theme is'n loaded then it will be loaded at first"
     )
 
   (defun kb/org-font-setup ()
-  "Function to setup font configuration for Org mode files.
+    "Function to setup font configuration for Org mode files.
 
 This function is based on work of David Wilson.
 "
-  ;; Replace list hyphen with dot
-  (font-lock-add-keywords 'org-mode
-                          '(("^ *\\([-]\\) "
-                             (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
+    ;; Replace list hyphen with dot
+    (font-lock-add-keywords 'org-mode
+                            '(("^ *\\([-]\\) "
+                               (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
 
-  ;; Set faces for heading levels
-  (dolist (face '((org-level-1 . 1.2)
-                  (org-level-2 . 1.1)
-                  (org-level-3 . 1.05)
-                  (org-level-4 . 1.0)
-                  (org-level-5 . 1.1)
-                  (org-level-6 . 1.1)
-                  (org-level-7 . 1.1)
-                  (org-level-8 . 1.1)))
-    (set-face-attribute (car face) nil :font "Cantarell" :weight 'regular :height (cdr face)))
+    ;; Set faces for heading levels
+    (dolist (face '((org-level-1 . 1.2)
+                    (org-level-2 . 1.1)
+                    (org-level-3 . 1.05)
+                    (org-level-4 . 1.0)
+                    (org-level-5 . 1.1)
+                    (org-level-6 . 1.1)
+                    (org-level-7 . 1.1)
+                    (org-level-8 . 1.1)))
+      (set-face-attribute (car face) nil :font "Cantarell" :weight 'regular :height (cdr face)))
 
 
-  ;; Ensure that anything that should be fixed-pitch in Org files appears that way
-  (set-face-attribute 'org-block nil    :foreground 'unspecified :inherit 'fixed-pitch)
-  (set-face-attribute 'org-table nil    :inherit 'fixed-pitch)
-  (set-face-attribute 'org-formula nil  :inherit 'fixed-pitch)
-  (set-face-attribute 'org-code nil     :inherit '(shadow fixed-pitch))
-  (set-face-attribute 'org-table nil    :inherit '(shadow fixed-pitch))
-  (set-face-attribute 'org-verbatim nil :inherit '(shadow fixed-pitch))
-  (set-face-attribute 'org-special-keyword nil :inherit '(font-lock-comment-face fixed-pitch))
-  (set-face-attribute 'org-meta-line nil :inherit '(font-lock-comment-face fixed-pitch))
-  (set-face-attribute 'org-checkbox nil  :inherit 'fixed-pitch)
-  (set-face-attribute 'line-number nil :inherit 'fixed-pitch)
-  (set-face-attribute 'line-number-current-line nil :inherit 'fixed-pitch)
+    ;; Ensure that anything that should be fixed-pitch in Org files appears that way
+    (set-face-attribute 'org-block nil    :foreground 'unspecified :inherit 'fixed-pitch)
+    (set-face-attribute 'org-table nil    :inherit 'fixed-pitch)
+    (set-face-attribute 'org-formula nil  :inherit 'fixed-pitch)
+    (set-face-attribute 'org-code nil     :inherit '(shadow fixed-pitch))
+    (set-face-attribute 'org-table nil    :inherit '(shadow fixed-pitch))
+    (set-face-attribute 'org-verbatim nil :inherit '(shadow fixed-pitch))
+    (set-face-attribute 'org-special-keyword nil :inherit '(font-lock-comment-face fixed-pitch))
+    (set-face-attribute 'org-meta-line nil :inherit '(font-lock-comment-face fixed-pitch))
+    (set-face-attribute 'org-checkbox nil  :inherit 'fixed-pitch)
+    (set-face-attribute 'line-number nil :inherit 'fixed-pitch)
+    (set-face-attribute 'line-number-current-line nil :inherit 'fixed-pitch)
 
-  ;; (require 'color)
-  ;; (set-face-attribute 'org-block nil :background
-  ;;                     (color-darken-name
-  ;;                      (face-attribute 'default :background) 3))
+    ;; (require 'color)
+    ;; (set-face-attribute 'org-block nil :background
+    ;;                     (color-darken-name
+    ;;                      (face-attribute 'default :background) 3))
 
-  ;; (setq org-src-block-faces '(("emacs-lisp" (:background "#EEE2FF"))
-  ;;                             ("python" (:background "#E5FFB8"))
-  ;;                          ("cpp" (:background "grey5" :foreground "chartreuse"))
-  ;;                          ("protobuf" (:background "grey5" :foreground "chartreuse"))
-  ;;                          ))
-  )
+    ;; (setq org-src-block-faces '(("emacs-lisp" (:background "#EEE2FF"))
+    ;;                             ("python" (:background "#E5FFB8"))
+    ;;                          ("cpp" (:background "grey5" :foreground "chartreuse"))
+    ;;                          ("protobuf" (:background "grey5" :foreground "chartreuse"))
+    ;;                          ))
+    )
   )
 
 (leaf org-superstar
@@ -1635,7 +1635,7 @@ This function is based on work of David Wilson.
   :ensure t
   ;; :after org
   :commands (org-journal-new-entry)
-;;  :init ()
+  ;;  :init ()
   ;; :require org
   :custom ((org-journal-dir . "~/projects/journal/")
            (org-journal-file-format . "%Y%m%d.org"))
@@ -1773,7 +1773,7 @@ This function is based on work of David Wilson.
     :config
     (add-to-list 'company-backends 'company-c-headers)
     )
-)
+  )
 
 (leaf highlight-numbers
   :doc "Highlight numbers in source code"
@@ -1817,17 +1817,17 @@ This function is based on work of David Wilson.
   :when (executable-find "clang-format")
   :bind (("C-M-'" . clang-format-region)))
 (leaf clang-format+
-    :doc "Minor mode for automatic clang-format application"
-    :req "emacs-25.1" "clang-format-20180406.1514"
-    :tag "clang-format" "c++" "c" "emacs>=25.1"
-    :url "https://github.com/SavchenkoValeriy/emacs-clang-format-plus"
-    :added "2022-10-31"
-    :emacs>= 25.1
-    :ensure t
-    :after clang-format
-    :ensure t
-    :custom (clang-format+-context 'modification)
-    ;;:hook (c-mode-common-hook . clang-format+-mode)
+  :doc "Minor mode for automatic clang-format application"
+  :req "emacs-25.1" "clang-format-20180406.1514"
+  :tag "clang-format" "c++" "c" "emacs>=25.1"
+  :url "https://github.com/SavchenkoValeriy/emacs-clang-format-plus"
+  :added "2022-10-31"
+  :emacs>= 25.1
+  :ensure t
+  :after clang-format
+  :ensure t
+  :custom (clang-format+-context 'modification)
+  ;;:hook (c-mode-common-hook . clang-format+-mode)
   )
 (leaf lsp-mode
   :doc "LSP mode"
@@ -1928,11 +1928,11 @@ This function is based on work of David Wilson.
   ;; :defines (cmake-tab-width)
   :mode ("CMakeLists\\.txt\\'" "\\.cmake\\'")
   :hook (cmake-mode-hook . ((lambda ()
-                                      (message "CmakeMode custom")
-                                      (setq fill-column 80)
-                                      (auto-fill-mode)
-                                      (setq cmake-tab-width 4)
-                                      (setq indent-tabs-mode nil))
+                              (message "CmakeMode custom")
+                              (setq fill-column 80)
+                              (auto-fill-mode)
+                              (setq cmake-tab-width 4)
+                              (setq indent-tabs-mode nil))
                             (lsp-deferred)))
   :config
   (leaf cmake-font-lock
@@ -2014,10 +2014,10 @@ This function is based on work of David Wilson.
   :custom (which-key-idle-delay . 1)
   :config (which-key-mode)
   (add-to-list 'which-key-replacement-alist
-                   '((nil . "\\`hydra-\\(.+\\)/body\\'") . (nil . "h/\\1")))
+               '((nil . "\\`hydra-\\(.+\\)/body\\'") . (nil . "h/\\1")))
 
   (add-to-list 'which-key-replacement-alist
-                   '((nil . "\\`hydra-\\(.+\\)/body\\'") . (nil . "h/\\1")))
+               '((nil . "\\`hydra-\\(.+\\)/body\\'") . (nil . "h/\\1")))
   (which-key-setup-side-window-right)
   :config
   (leaf hercules
@@ -2040,7 +2040,7 @@ This function is based on work of David Wilson.
     :ensure t
     :after posframe which-key
     :custom (which-key-posframe-font . "Liberation Mono"))
-    :config (which-key-posframe-mode)
+  :config (which-key-posframe-mode)
   )
 (leaf ninja-mode
   :doc "Major mode for editing .ninja files"
@@ -2180,8 +2180,8 @@ This function is based on work of David Wilson.
   :ensure t
   ;; Either bind `marginalia-cycle` globally or only in the minibuffer
   :bind (("M-A" . marginalia-cycle)
-             (:minibuffer-local-map
-              ("M-A" . marginalia-cycle)))
+         (:minibuffer-local-map
+          ("M-A" . marginalia-cycle)))
   ;; THe :init configuration is always executed (Not lazy!)
   :init
   ;; Must be in the :init section of use-package/leaf such that the
@@ -2687,7 +2687,7 @@ We display [CRM<separator>], e.g., [CRM,] if the separator is a comma."
     ;; Unzip -> copy NotoColorEmoji.ttf to ~/.local/share/fonts/
     ;; Run fc-cache -fv
     )
-)
+  )
 (leaf windower
   :ensure t
   :bind (("<s-M-left>" . windower-move-border-left)
@@ -2868,7 +2868,6 @@ We display [CRM<separator>], e.g., [CRM,] if the separator is a comma."
            (magit-repository-directories . '(("~/projects" . 2)))
            (git-commit-summary-max-length . 50)
            )
-  :setq ((magit-inhibit-libgit . nil))
   :bind (("C-c g" . magit-file-dispatch)
          ("C-x g" . magit-status-quick)
          ("C-x M-g" . magit-dispatch)
@@ -3047,12 +3046,12 @@ We display [CRM<separator>], e.g., [CRM,] if the separator is a comma."
   :ensure t
   :mode ("\\.d2\\'")
 
-  ;================ TALA rendering engine installation ===============
+                                        ;================ TALA rendering engine installation ===============
   ;; With --dry-run the install script will print the commands it will use
   ;; to install without actually installing so you know what it's going to do.
   ;; curl -fsSL https://d2lang.com/install.sh | sh -s -- --tala --dry-run
   ;; If things look good, install for real.
-)
+  )
 
 
 (leaf yasnippet
@@ -3072,9 +3071,9 @@ We display [CRM<separator>], e.g., [CRM,] if the separator is a comma."
   (yas-wrap-around-region . t)
   :hook (term-mode-hook . (lambda() (setq yas-dont-activate-functions t)))
   :bind ((:yas-keymap
-                       ("<return>" . yas-exit-all-snippets)
-                       ("C-e" . yas/goto-end-of-active-field)
-                       ("C-a" . yas/goto-start-of-active-field))
+          ("<return>" . yas-exit-all-snippets)
+          ("C-e" . yas/goto-end-of-active-field)
+          ("C-a" . yas/goto-start-of-active-field))
          (:yas-minor-mode-map ("<f2>" . hydra-yas/body)))
   :config
   (add-to-list 'yas-snippet-dirs "~/.emacs.d/rc/snippets")
@@ -3083,21 +3082,21 @@ We display [CRM<separator>], e.g., [CRM,] if the separator is a comma."
   (defun yas/goto-end-of-active-field ()
     (interactive)
     (let* ((snippet (car (yas-active-snippets)))
-               (position (yas--field-end (yas--snippet-active-field snippet))))
-          (if (= (point) position)
-              (move-end-of-line 1)
-            (goto-char position))))
+           (position (yas--field-end (yas--snippet-active-field snippet))))
+      (if (= (point) position)
+          (move-end-of-line 1)
+        (goto-char position))))
 
   (defun yas/goto-start-of-active-field ()
     (interactive)
     (let* ((snippet (car (yas-active-snippets)))
-               (position (yas--field-start (yas--snippet-active-field snippet))))
-          (if (= (point) position)
-              (move-beginning-of-line 1)
-            (goto-char position))))
+           (position (yas--field-start (yas--snippet-active-field snippet))))
+      (if (= (point) position)
+          (move-beginning-of-line 1)
+        (goto-char position))))
 
   :hydra (hydra-yas (:color blue :hint nil)
-                            "
+                    "
               ^YASnippets^
 --------------------------------------------
   Modes:    Load/Visit:    Actions:
@@ -3107,16 +3106,16 @@ We display [CRM<separator>], e.g., [CRM,] if the separator is a comma."
  _e_xtra   _l_ist         _n_ew
          _a_ll
 "
-                            ("d" yas-load-directory)
-                            ("e" yas-activate-extra-mode)
-                            ("i" yas-insert-snippet)
-                            ("f" yas-visit-snippet-file :color blue)
-                            ("n" yas-new-snippet)
-                            ("t" yas-tryout-snippet)
-                            ("l" yas-describe-tables)
-                            ("g" yas/global-mode)
-                            ("m" yas/minor-mode)
-                            ("a" yas-reload-all))
+                    ("d" yas-load-directory)
+                    ("e" yas-activate-extra-mode)
+                    ("i" yas-insert-snippet)
+                    ("f" yas-visit-snippet-file :color blue)
+                    ("n" yas-new-snippet)
+                    ("t" yas-tryout-snippet)
+                    ("l" yas-describe-tables)
+                    ("g" yas/global-mode)
+                    ("m" yas/minor-mode)
+                    ("a" yas-reload-all))
   :config
   (leaf yasnippet-snippets
     :doc "Collection of yasnippet snippets"
@@ -3237,7 +3236,7 @@ Download and put appropriate file there."
                                 :picker (gts-prompt-picker)
                                 :engines (list (gts-bing-engine)
                                                (gts-google-engine :parser (gts-google-summary-parser))
-                                               (gts-deepl-engine :auth-key "" :pro nil))
+                                               (gts-deepl-engine :auth-key "77755e15-f92b-92b9-1b6b-f15d8ffdeb7b:fx" :pro nil))
                                 :render
                                 (gts-buffer-render)
                                 ;; (gts-posframe-pin-render)
@@ -3266,5 +3265,80 @@ Download and put appropriate file there."
 (setq auth-sources
       '((:source "~/.emacs.d/secrets/.authinfo.gpg")))
 
+(leaf gptai
+  :doc "Integrate with the OpenAI API"
+  :req "emacs-24.1"
+  :tag "convenience" "comm" "emacs>=24.1"
+  :url "https://github.com/antonhibl/gptai"
+  :added "2023-03-07"
+  :emacs>= 24.1
+  :ensure t
+  :require t
+  )
+
+(leaf haskell-mode
+  :doc "A Haskell editing mode"
+  :req "emacs-25.1"
+  :tag "haskell" "files" "faces" "emacs>=25.1"
+  :url "https://github.com/haskell/haskell-mode"
+  :added "2023-03-08"
+  :emacs>= 25.1
+  :ensure t
+  :hook ((haskell-mode-hook . #'turn-on-haskell-indentation)
+         (haskell-mode-hook . #'interactive-haskell-mode)
+         )
+  
+  :bind (:haskell-mode-map
+         ("C-," . #'haskell-move-nested-left)
+         ("C-." . #'haskell-move-nested-right)
+         ("<f7>" . #'haskell-navigate-imports)
+         ("C-c C-g" . #'haskell-interactive-bring)
+         ("C-c C-l" . #'haskell-process-load-or-reload)
+         ("C-c C-t" . #'haskell-process-do-type)
+         ("C-c C-i" . #'haskell-process-do-info)
+         ("C-c C-c" . #'haskell-process-cabal-build)
+         ("C-c C-k" . #'haskell-interactive-mode-clear)
+         ("C-c c" . #'haskell-process-cabal)
+         ;; ("<SPC>" . #'haskell-mode-contextual-space)
+         )
+  :custom ((haskell-stylish-on-save . t)
+           (haskell-process-type . 'cabal-repl)
+           (haskell-process-suggest-remove-import-lines . t)
+           (haskell-process-auto-import-loaded-modules . t)
+           (haskell-process-log . t)
+           )
+  :config
+  ;; (setq haskell-ghci-program-name "cabal")
+  ;; (setq haskell-ghci-prgram-args '("repl"))
+  )
+
+(leaf ghci-completion
+  :doc "Completion for GHCi commands in inferior-haskell buffers"
+  :req "emacs-24.1" "cl-lib-0.5"
+  :tag "convenience" "emacs>=24.1"
+  :added "2023-03-13"
+  :emacs>= 24.1
+  :ensure t
+  :config
+  (setq haskell-ghci-program-name "cabal")
+  (setq haskell-ghci-program-args '("repl"))
+  )
+
+(leaf lsp-haskell
+  :doc "Haskell support for lsp-mode"
+  :req "emacs-24.3" "lsp-mode-3.0" "haskell-mode-16.1"
+  :tag "haskell" "emacs>=24.3"
+  :url "https://github.com/emacs-lsp/lsp-haskell"
+  :added "2023-03-08"
+  :emacs>= 24.3
+  :ensure t
+  :after lsp-mode haskell-mode
+  :hook (
+         ((haskell-mode-hook haskell-literate-mode-hook) . lsp)
+         (lsp-after-initialize-hook . (lambda () (lsp--set-configuration '(:haskell (:plugin (:tactics (:config (:timeout_duration 5))))))))
+         )
+  )
+
 (message "Init finished")
 ;;; init.el ends here
+
