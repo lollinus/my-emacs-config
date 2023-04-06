@@ -1878,8 +1878,6 @@ This function is based on work of David Wilson.
   (leaf lsp-yasnippet
     :after yasnippet lsp-mode
     :custom (lsp-enable-snippet . t))
-
-  ;; (define-key lsp-ui-mode-map (kbd "M-.") #'lsp-ui-peek-find-definitions)
   )
 (leaf lsp-ui
   :doc "UI modules for lsp-mode"
@@ -2497,8 +2495,8 @@ We display [CRM<separator>], e.g., [CRM,] if the separator is a comma."
 
 (leaf counsel-fd
   :when (executable-find "fdfind")
-  :ensure t
-  :setq (counsel-fd-command . "fdfind --hidden --color never ")
+  :disabled t
+  :setq (setq counsel-fd-command . "fdfind --hidden --color never ")
   )
 
 (leaf fzf
@@ -2830,7 +2828,7 @@ We display [CRM<separator>], e.g., [CRM,] if the separator is a comma."
   :added "2022-10-31"
   :mode ("\\.py\\'" . python-mode)
   :interpreter ("python3" . python-mode)
-  :custom ((python-shell-interpreter . '(executable-find "python3"))
+  :custom ((python-shell-interpreter . "python3")
            (py-python-command-args . '("--gui=wx" "--pylab=wx" "-colors" "Linux"))
            (py-force-py-shell-name-p . t)
            (py-shell-switch-buffers-on-execute-p . t)
@@ -2838,6 +2836,7 @@ We display [CRM<separator>], e.g., [CRM,] if the separator is a comma."
            (py-split-windows-on-execute-p . nil)
            (py-smart-indentation . t)
            ))
+
 (leaf lsp-python-ms
   :doc "The lsp-mode client for Microsoft python-language-server"
   :req "emacs-25.1" "lsp-mode-6.1"
@@ -2845,11 +2844,13 @@ We display [CRM<separator>], e.g., [CRM,] if the separator is a comma."
   :url "https://github.com/emacs-lsp/lsp-python-ms"
   :added "2022-10-31"
   :emacs>= 25.1
-  :ensure t
+  :after lsp-mode python
+  :disabled t
   :hook (python-mode-hook . (lambda ()
                               (require 'lsp-python-ms)
                               (lsp)))
-  :init (setq lsp-python-ms-auto-install-server t))
+  :custom ((lsp-python-ms-auto-install-server . t))
+)
 
 (leaf magit
   :doc "A Git porcelain inside Emacs."
