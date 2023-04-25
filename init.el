@@ -1549,6 +1549,12 @@ This function is based on work of David Wilson.
   :added "2022-10-31"
   :ensure t)
 
+(leaf ox-gfm
+  :doc "Github Flavored Markdown Back-End for Org Export Engine"
+  :tag "github" "markdown" "wp" "org"
+  :added "2023-04-13"
+  :ensure t)
+
 (leaf ox-reveal
   :doc "reveal.js Presentation Back-End for Org Export Engine"
   :req "org-8.3"
@@ -1945,6 +1951,7 @@ This function is based on work of David Wilson.
     ;; :hook (cmake-mode-hook . cmake-font-lock-activate)
     )
   )
+
 (leaf treemacs
   :doc "A tree style file explorer package"
   :req "emacs-26.1" "cl-lib-0.5" "dash-2.11.0" "s-1.12.0" "ace-window-0.9.0" "pfuture-1.7" "hydra-0.13.2" "ht-2.2" "cfrs-1.3.2"
@@ -1967,18 +1974,19 @@ This function is based on work of David Wilson.
   (treemacs-git-untracked-face . '((t (:inherit font-lock-string-face :height 0.9))))
   :custom
   (treemacs-space-between-root-nodes . nil)
-  :config
-  (leaf lsp-treemacs
-    :doc "LSP treemacs"
-    :req "emacs-26.1" "dash-2.18.0" "f-0.20.0" "ht-2.0" "treemacs-2.5" "lsp-mode-6.0"
-    :tag "languages" "emacs>=26.1"
-    :url "https://github.com/emacs-lsp/lsp-treemacs"
-    :added "2022-10-31"
-    ;; :emacs>= 26.1
-    :ensure t
-    :after treemacs lsp-mode
-    :commands lsp-treemacs-errors-list)
   )
+
+(leaf lsp-treemacs
+  :doc "LSP treemacs"
+  :req "emacs-26.1" "dash-2.18.0" "f-0.20.0" "ht-2.0" "treemacs-2.5" "lsp-mode-6.0"
+  :tag "languages" "emacs>=26.1"
+  :url "https://github.com/emacs-lsp/lsp-treemacs"
+  :added "2022-10-31"
+  ;; :emacs>= 26.1
+  :ensure t
+  :after treemacs lsp-mode
+  :commands lsp-treemacs-errors-list)
+
 (leaf dap-mode
   :doc "Debug Adapter Protocol mode"
   :req "emacs-26.1" "dash-2.18.0" "lsp-mode-6.0" "bui-1.1.0" "f-0.20.0" "s-1.12.0" "lsp-treemacs-0.1" "posframe-0.7.0" "ht-2.3" "lsp-docker-1.0.0"
@@ -2495,8 +2503,8 @@ We display [CRM<separator>], e.g., [CRM,] if the separator is a comma."
 
 (leaf counsel-fd
   :when (executable-find "fdfind")
-  :disabled t
-  :setq (setq counsel-fd-command . "fdfind --hidden --color never ")
+  :ensure t
+  :setq (counsel-fd-command . "fdfind --hidden --color never ")
   )
 
 (leaf fzf
@@ -2799,6 +2807,9 @@ We display [CRM<separator>], e.g., [CRM,] if the separator is a comma."
            (projectile-completion-system . 'ivy)
            (projectile-enable-caching . t)
            (projectile-sort-order . 'recently-active)
+           ;;; Ubuntu provides fd command which isn't fdfind so need to override autodetected value
+           (projectile-generic-command . "fdfind . -0 --type f --color=never --strip-cwd-prefix")
+           (projectile-fd-executable . "fdfind")
            )
   :bind (:projectile-mode-map
          ("s-p" . projectile-command-map)
