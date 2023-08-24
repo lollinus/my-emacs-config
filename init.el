@@ -2,23 +2,25 @@
 ;;; Commentary:
 ;; Load all configuration parts
 
+;; TODO:
+;;  Check this init
+;; https://github.com/alexmurray/dot_emacs.d/blob/master/init.el
+
 ;;; Code:
 ;; don't let Customize mess with my .emacs
-(defconst kb/emacs-directory (concat (getenv "HOME") "/.emacs.d/"))
 (defun kb/emacs-subdirectory (dir)
   "Return DIR as subdirectory of HOME."
-  (expand-file-name dir kb/emacs-directory))
+  (expand-file-name dir user-emacs-directory))
 
-(setq custom-file (expand-file-name "custom.el" kb/emacs-directory))
-(when (file-exists-p custom-file)
-  (load custom-file 'noerror))
+(setq custom-file (locate-user-emacs-file "custom.el"))
+;; load custom but ignore error if doesn't exist
+(load custom-file 'noerror 'nomessage)
 
 ;;
 (setq user-full-name "Karol Barski")
 
-(defconst kb/environment-script (expand-file-name "environment.el" (kb/emacs-subdirectory "rc")))
-(when (file-exists-p kb/environment-script)
-  (load-file "~/.emacs.d/rc/environment.el"))
+(defconst kb/environment-script (locate-user-emacs-file "rc/environment.el"))
+(load kb/environment-script 'noerror 'nomessage)
 
 (add-to-list 'load-path (kb/emacs-subdirectory "rc"))
 (add-to-list 'load-path (kb/emacs-subdirectory "site-lisp/org-addons"))
@@ -45,7 +47,6 @@
 ;; (setq completion-ignore-case t)
 (setq read-file-name-completion-ignore-case t)
 (setq read-buffer-completion-ignore-case t)
-(setq load-prefer-newer t)
 
 (setq mouse-highlight 10)
 (setq make-pointer-invisible t)
@@ -70,23 +71,13 @@
                                     "%b %+%+ %f"))))
 (setq scroll-margin 0
       scroll-conservatively 100000
-      scroll-preserve-screen-position 1)
+      scroll-preserve-screen-position 'always)
 
 
 ;;--------------------------------------------------------------------------------
 ;; Elpa setup
 ;;--------------------------------------------------------------------------------
-(if (version< emacs-version "24")
-    ;; install elpa on emacs 23
-    (progn
-      (when (load (expand-file-name "~/.emacs.d/package.el"))
-        (package-initialize)))
-  "Emacs >= 24 has elpa integrated")
-
 (require 'cl-lib)
-;; (package-initialize)
-;; (setq package-check-signature nil)
-;; (require 'package)
 
 (defvar kb/package-archives ()
   "Set of achives which will be finally set to package-achives.")
@@ -142,13 +133,22 @@ There are two things you can do about this warning:
     (package-refresh-contents)
     (package-install 'leaf))
 
+  (leaf package
+      :custom ((package-archives . '(("org"   . "https://orgmode.org/elpa/")
+                                     ("melpa" . "https://melpa.org/packages/")
+                                     ("gnu"   . "https://elpa.gnu.org/packages/"))))
+      :config
+      (package-initialize)
+      )
+
+  (leaf hydra :ensure t)
+  ;; (leaf el-get :ensure t)
+  (leaf blackout :ensure t)
   (leaf leaf-keywords
     :ensure t
-    :init
-    ;; optional packages if you want to use :hydra, :el-get, :blackout,,,
-    (leaf hydra :ensure t)
-    (leaf el-get :ensure t)
-    (leaf blackout :ensure t)
+    :after leaf
+    ;; :init
+    ;; ;; optional packages if you want to use :hydra, :el-get, :blackout,,,
     :config
     ;; initialize leaf-keywords.el
     (leaf-keywords-init)))
@@ -193,6 +193,20 @@ There are two things you can do about this warning:
 ;;   ;;   :emacs>= 24.4
 ;;   ;;   :el-get t)
 ;;   )
+
+
+;; load no-littering as soon as possible during init so it can hook as many
+;; paths as possible
+(leaf no-littering
+  :ensure t
+  :emacs>= 25.1
+  :require recentf no-littering
+  :defvar (no-littering-var-directory no-littering-etc-directory)
+  :config
+  (with-eval-after-load 'recentf
+    (add-to-list 'recentf-exclude no-littering-var-directory)
+    (add-to-list 'recentf-exclude no-littering-etc-directory)))
+
 (leaf leaf-tree :ensure t)
 (leaf leaf-convert :ensure t)
 (leaf transient
@@ -208,6 +222,13 @@ There are two things you can do about this warning:
   (leaf transient-dwim
     :ensure t
     :bind (("M-=" . transient-dwim-dispatch))))
+
+(leaf system-packages
+  :ensure t
+  :custom
+  (system-packages-package-manager . 'apt)
+  (system-packages-noconfirm . t)
+  (system-packages-use-sudo . t))
 
 (leaf cus-start
   :doc "define customization properties of builtins"
@@ -268,9 +289,26 @@ There are two things you can do about this warning:
 
 (leaf alloc
   :tag "builtin"
-  :setq `((gc-cons-threshold . ,(* 100 1024 1024))
+  :setq `(
+          (gc-cons-threshold . ,(* 100 1024 1024))
           (read-process-output-max . ,(* 1024 1024))
           (garbage-collection-messages . t)))
+
+;; (leaf emacs-gc-stats
+;;   :doc "Collect Emacs GC statistics"
+;;   :req "emacs-25.1"
+;;   :tag "emacs>=25.1"
+;;   :url "https://git.sr.ht/~yantar92/emacs-gc-stats"
+;;   :added "2023-06-13"
+;;   :emacs>= 25.1
+;;   :ensure t
+;;   :mode emacs-gc-stats-mode
+;;   :require emacs-gc-stats
+;;   :config
+;;   ;; (setq emacs-gc-stats-gc-defaults 'emacs-defaults) ; optional
+;;   ;; (setq gc-cons-threshold (* 800000 (seq-random-elt '(1 2 4 8 16 32 64 128))))
+;;   (emacs-gc-stats-mode +1)
+;;   )
 
 (leaf battery
   :doc "display battery status information"
@@ -279,11 +317,12 @@ There are two things you can do about this warning:
   :config
   (display-battery-mode))
 
-(leaf auto-compile
-  :ensure t
-  :config (auto-compile-on-load-mode))
-
-(setq load-prefer-newer t)
+;; (leaf auto-compile
+;;   :ensure t
+;;   :require t
+;;   :config
+;;   (auto-compile-on-load-mode)
+;;   (auto-compile-on-save-mode))
 
 ;; MuLe commands
 (leaf mule-cmds
@@ -394,6 +433,7 @@ There are two things you can do about this warning:
   :added "2022-11-02"
   :emacs>= 24.4
   :ensure t
+  :require t
   :config (global-page-break-lines-mode))
 
 (leaf vc
@@ -637,6 +677,53 @@ should be imported.
            (doom-modeline-indent-info . t)
            (doom-modeline-checker-simple-format . nil)))
 
+(leaf nerd-icons
+  :doc "Emacs Nerd Font Icons Library. Required by doom-modeline"
+  :req "emacs-24.3"
+  :tag "lisp" "emacs>=24.3"
+  :url "https://github.com/rainstormstudio/nerd-icons.el"
+  :added "2023-06-15"
+  :emacs>= 24.3
+  :ensure t
+  :config
+  ;; (unless (file-exists-p (expand-file-name (concat (nerd-icons-fonts-subdirectory nerd-icons-font-names))))
+  (unless (file-exists-p (expand-file-name "~/.local/share/fonts/NFM.ttf"))
+    (nerd-icons-install-fonts t)))
+
+(leaf nerd-icons-ibuffer
+  :doc "Display nerd icons in ibuffer"
+  :req "emacs-24.3" "nerd-icons-0.0.1"
+  :tag "ibuffer" "icons" "convenience" "emacs>=24.3"
+  :url "https://github.com/seagle0128/nerd-icons-ibuffer"
+  :added "2023-06-15"
+  :emacs>= 24.3
+  :ensure t
+  :after nerd-icons
+  :hook ibuffer-mode-hook
+  :custom
+  (nerd-icons-ibuffer-icon . t)
+  (nerd-icons-ibuffer-color-icon . t)
+  (nerd-icons-ibuffer-icon-size . 1.0)
+  (nerd-icons-ibuffer-human-readable-size . t)
+  :config
+  ;; A list of ways to display buffer lines with `nerd-icons'.
+  ;; See `ibuffer-formats' for details.
+  ;; nerd-icons-ibuffer-formats
+  )
+
+(leaf treemacs-nerd-icons
+  :doc "Emacs Nerd Font Icons theme for treemacs"
+  :req "emacs-24.3" "nerd-icons-0.0.1" "treemacs-0.0"
+  :tag "lisp" "emacs>=24.3"
+  :url "https://github.com/rainstormstudio/treemacs-nerd-icons"
+  :added "2023-06-15"
+  :emacs>= 24.3
+  :ensure t
+  :defun treemacs-load-theme
+  :after nerd-icons treemacs
+  :require t
+  :config
+  (treemacs-load-theme "nerd-icons"))
 
 (defcustom kb/terminal-theme 'wombat
   "Theme which should be activated when frame is open inside terminal."
@@ -649,12 +736,18 @@ should be imported.
   :type 'string
   :group 'kb-config)
 (defvar kb/theme-window-loaded nil)
-(defvar kb/theme-window-font (if (eq system-type 'windows-nt)
+(defcustom kb/theme-window-font (if (eq system-type 'windows-nt)
                                  "Unifont"
                                         ;(set-frame-parameter nil 'font "Arial Unicode MS")
                                "Hack"
-                               ))
+                               )
+  "Font to used by my configuration.
 
+The font defined here is used when switching Emacs frame between
+GUI and TTY as well when changing between themes."
+  :type 'face
+  :group 'kb-config
+  )
 (defvar kb/theme-terminal-loaded nil)
 (defvar kb/theme-original-font nil)
 
@@ -664,7 +757,9 @@ should be imported.
 If Emacs is run in MS Windows then use Arial Unicode MS
 On U*x systems Use Hack"
   (setq kb/theme-original-font (frame-parameter nil 'font))
-  (set-frame-parameter nil 'font kb/theme-window-font))
+  (set-frame-parameter nil 'font kb/theme-window-font)
+  ;; (set-frame-font kb/theme-window-font nil t)
+  )
 
 (defun kb/switch-font ()
   "Function set screen font.
@@ -939,9 +1034,7 @@ If theme is'n loaded then it will be loaded at first"
   :added "2023-01-31"
   :ensure t
   :require vc-svn
-  :config
-  (autoload 'svn-status "dsvn" "Run `svn status'." t)
-  (autoload 'svn-update "dsvn" "Run `svn update'." t)
+  :commands svn-status svn-update
   )
 
 ;; subword-mode
@@ -1169,13 +1262,14 @@ If theme is'n loaded then it will be loaded at first"
     :after flycheck projectile
     :config (flycheck-clang-tidy-setup))
   (leaf flycheck-google-cpplint
-    :ensure t
+    :disabled t
     :after flycheck
     :defun flycheck-add-next-checker
     :require flycheck-google-cpplint
     :config
     (flycheck-add-next-checker 'c/c++-cppcheck
                                'c/c++-googlelint 'append))
+
   (leaf flycheck-projectile
     :after flycheck projectile
     :ensure t
@@ -1685,6 +1779,14 @@ This function is based on work of David Wilson.
 ;;   :ensure t
 ;;   :config (global-pabbrev-mode))
 
+(leaf abbrev
+  :blackout abbrev-mode
+  :custom
+  (save-abbrevs . t)
+  :config
+  (setq-default abbrev-mode t)
+  )
+
 (leaf iedit
   :doc "Edit multiple regions in the same way simultaneously."
   :tag "refactoring" "simultaneous" "region" "occurrence"
@@ -1928,8 +2030,6 @@ This function is based on work of David Wilson.
   :added "2022-10-31"
   :emacs>= 24.1
   :ensure t
-  ;; :if (package-installed-p 'cmake-mode)
-  ;; :defines (cmake-tab-width)
   :mode ("CMakeLists\\.txt\\'" "\\.cmake\\'")
   :hook (cmake-mode-hook . ((lambda ()
                               (message "CmakeMode custom")
@@ -1938,18 +2038,15 @@ This function is based on work of David Wilson.
                               (setq cmake-tab-width 4)
                               (setq indent-tabs-mode nil))
                             (lsp-deferred)))
-  :config
-  (leaf cmake-font-lock
-    :doc "Advanced, type aware, highlight support for CMake"
-    :req "cmake-mode-0.0"
-    :tag "languages" "faces"
-    :url "https://github.com/Lindydancer/cmake-font-lock"
-    :added "2022-10-31"
-    :ensure t
-    ;; :if (package-installed-p 'cmake-mode)
-    :after cmake-mode
-    ;; :hook (cmake-mode-hook . cmake-font-lock-activate)
-    )
+  )
+(leaf cmake-font-lock
+  :doc "Advanced, type aware, highlight support for CMake"
+  :req "cmake-mode-0.0"
+  :tag "languages" "faces"
+  :url "https://github.com/Lindydancer/cmake-font-lock"
+  :added "2022-10-31"
+  :ensure t
+  :after cmake-mode
   )
 
 (leaf treemacs
@@ -1975,6 +2072,19 @@ This function is based on work of David Wilson.
   :custom
   (treemacs-space-between-root-nodes . nil)
   )
+
+(leaf ace-window
+  :ensure t
+  :after avy
+  :bind
+  ("C-x o" . ace-window)
+  :custom
+  (aw-keys . '(?a ?s ?d ?f ?h ?h ?j ?k ?l))
+  )
+
+(leaf adaptive-wrap
+  :ensure t
+  :hook ((text-mode . adaptive-wrap-prefix-mode)))
 
 (leaf lsp-treemacs
   :doc "LSP treemacs"
@@ -2101,7 +2211,8 @@ This function is based on work of David Wilson.
   :emacs>= 24.3
   :ensure t
   :config
-  ;; (all-the-icons-install-fonts t)
+  (unless (file-exists-p (expand-file-name "~/.local/share/fonts/all-the-icons.ttf"))
+    (all-the-icons-install-fonts t))
   (leaf all-the-icons-dired
     :doc "Shows icons for each file in dired mode"
     :req "emacs-26.1" "all-the-icons-2.2.0"
@@ -2719,16 +2830,17 @@ We display [CRM<separator>], e.g., [CRM,] if the separator is a comma."
   :config
   (unless (require 'fuz-core nil t)
     (fuz-build-and-load-dymod))
-  (leaf ivy-fuz
-    :doc "Integration between fuz and ivy."
-    :req "emacs-25.1" "fuz-1.3.0" "ivy-0.13.0"
-    :tag "convenience" "emacs>=25.1"
-    :url "https://github.com/Silex/ivy-fuz.el"
-    :added "2022-10-31"
-    :emacs>= 25.1
-    :ensure t
-    :after fuz ivy)
   )
+
+(leaf ivy-fuz
+  :doc "Integration between fuz and ivy."
+  :req "emacs-25.1" "fuz-1.3.0" "ivy-0.13.0"
+  :tag "convenience" "emacs>=25.1"
+  :url "https://github.com/Silex/ivy-fuz.el"
+  :added "2022-10-31"
+  :emacs>= 25.1
+  :ensure t
+  :after fuz ivy)
 
 (leaf smart-compile
   :doc "an interface to `compile'"
@@ -2861,7 +2973,41 @@ We display [CRM<separator>], e.g., [CRM,] if the separator is a comma."
                               (require 'lsp-python-ms)
                               (lsp)))
   :custom ((lsp-python-ms-auto-install-server . t))
-)
+  )
+
+(leaf rust-mode
+  :doc "A major-mode for editing Rust source code"
+  :req "emacs-25.1"
+  :tag "languages" "emacs>=25.1"
+  :url "https://github.com/rust-lang/rust-mode"
+  :added "2023-06-21"
+  :emacs>= 25.1
+  :ensure t
+  :config
+  (add-hook 'rust-mode-hook #'lsp)
+  )
+
+(leaf flycheck-rust
+  :doc "Flycheck: Rust additions and Cargo support"
+  :req "emacs-24.1" "flycheck-28" "dash-2.13.0" "seq-2.3" "let-alist-1.0.4"
+  :tag "convenience" "tools" "emacs>=24.1"
+  :url "https://github.com/flycheck/flycheck-rust"
+  :added "2023-06-21"
+  :emacs>= 24.1
+  :ensure t
+  :after flycheck
+  (with-eval-after-load 'rust-mode
+      (add-hook 'flycheck-mode-hook #'flycheck-rust-setup))
+  )
+
+(leaf rustic
+  :doc "Rust development environment"
+  :req "emacs-26.1" "rust-mode-1.0.3" "dash-2.13.0" "f-0.18.2" "let-alist-1.0.4" "markdown-mode-2.3" "project-0.3.0" "s-1.10.0" "seq-2.3" "spinner-1.7.3" "xterm-color-1.6"
+  :tag "languages" "emacs>=26.1"
+  :added "2023-06-21"
+  :emacs>= 26.1
+  :ensure t
+  :after rust-mode markdown-mode project spinner xterm-color)
 
 (leaf magit
   :doc "A Git porcelain inside Emacs."
@@ -3260,6 +3406,15 @@ Download and put appropriate file there."
                                 ))
   )
 
+(leaf vterm
+  :doc "Fully-featured terminal emulator"
+  :req "emacs-25.1"
+  :tag "terminals" "emacs>=25.1"
+  :url "https://github.com/akermu/emacs-libvterm"
+  :added "2023-05-09"
+  :emacs>= 25.1
+  :ensure t)
+
 (leaf shroud
   :doc "Shroud secrets"
   :req "emacs-25" "epg-1.0.0" "s-1.6.0" "bui-1.2.0" "dash-2.18.0"
@@ -3274,8 +3429,14 @@ Download and put appropriate file there."
   (setq shroud-el--user-id "karol.barski@mobica.com")
   )
 
-(setq auth-sources
-      '((:source "~/.emacs.d/secrets/.authinfo.gpg")))
+(leaf auth-source
+  ;; prefer encrypted auth source to non-encrypted
+  :custom
+  (auth-sources . '("~/.emacs.d/secrets/.authinfo.gpg" "~/.authinfo.gpg" "~/.authinfo" "~/.netrc"
+                    (:source
+                     (:secrets default))
+                    "secrets:session" "secrets:Login" default))
+  )
 
 (leaf gptai
   :doc "Integrate with the OpenAI API"
@@ -3350,6 +3511,21 @@ Download and put appropriate file there."
          (lsp-after-initialize-hook . (lambda () (lsp--set-configuration '(:haskell (:plugin (:tactics (:config (:timeout_duration 5))))))))
          )
   )
+
+(leaf uuidgen
+  :doc "Provides various UUID generating functions"
+  :tag "tools" "lisp" "extensions"
+  :added "2023-08-10"
+  :ensure t)
+
+(leaf time-uuid-mode
+  :doc "Minor mode for previewing time uuids as an overlay"
+  :req "emacs-24.3"
+  :tag "tools" "data" "convenience" "extensions" "emacs>=24.3"
+  :url "https://github.com/RobertPlant/time-uuid-mode"
+  :added "2023-08-10"
+  :emacs>= 24.3
+  :ensure t)
 
 (message "Init finished")
 ;;; init.el ends here
