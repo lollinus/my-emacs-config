@@ -1829,6 +1829,12 @@ This function is based on work of David Wilson.
            (company-minimum-prefix-length . 1)
            (company-idle-delay . 0.0)
            (company-clang-excecutable . "clang")
+           ;; dabbrev case
+           (company-dabbrev-downcase . nil)
+           (company-dabbrev-ignore-case . t)
+           ;; code fuzzy matching
+           (company-dabbrev-code-ignore-case . t)
+           (company-dabbrev-code-completion-styles . '(basic flex))
            )
   :bind ((([remap dabbrev-expand] . company-dabbrev))
          ;; ((:map c-mode-map ("TAB" . company-complete))
@@ -3377,6 +3383,21 @@ Download and put appropriate file there."
             (message "/%s" (mapconcat 'identity path "/"))
           (format "/%s" (mapconcat 'identity path "/")))))))
 
+(leaf nxml-mode
+  :disabled t
+  :doc "a new XML mode"
+  :tag "builtin" "xml" "languages" "hypermedia" "wp"
+  :added "2023-08-30"
+  :config
+  (defun xml-find-file-hook ()
+    (when (derived-mode-p 'nxml-mode)
+      (which-function-mode t)
+      (setq which-func-mode t)
+      (add-hook 'which-func-functions 'nxml-where t t)))
+
+  (add-hook 'find-file-hook 'xml-find-file-hook t)
+)
+
 (leaf go-translate
   :doc "Translation framework supports multiple engines such as Google/Bing/DeepL"
   :req "emacs-27.1"
@@ -3498,6 +3519,7 @@ Download and put appropriate file there."
   )
 
 (leaf lsp-haskell
+  :disabled t
   :doc "Haskell support for lsp-mode"
   :req "emacs-24.3" "lsp-mode-3.0" "haskell-mode-16.1"
   :tag "haskell" "emacs>=24.3"
