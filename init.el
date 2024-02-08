@@ -597,7 +597,7 @@ should be imported.
            (whitespace-display-mappings . '((space-mark 32 [183] [46])
                                             (newline-mark 10 [9166 10])
                                             (tab-mark 9 [9654 9] [92 9]))))
-  :bind (("C-c w" . whitespace-mode))
+  :bind (("C-c w w" . whitespace-mode))
   :custom-face
   (whitespace-space . '((t (:inherit whitespace-space :foreground "DimGrey" :background nil))))
   (whitespace-newline . '((t (:inherit whitespace-newline :foreground "DimGrey" :background nil))))
@@ -652,14 +652,14 @@ should be imported.
   :ensure t
   :config
   (solaire-global-mode))
-(leaf modus-themes
-  :doc "Elegant, highly legible and customizable themes"
-  :req "emacs-27.1"
-  :tag "accessibility" "theme" "faces" "emacs>=27.1"
-  :url "https://git.sr.ht/~protesilaos/modus-themes"
-  :added "2023-02-10"
-  :emacs>= 27.1
-  :ensure t)
+;; (leaf modus-themes
+;;   :doc "Elegant, highly legible and customizable themes"
+;;   :req "emacs-27.1"
+;;   :tag "accessibility" "theme" "faces" "emacs>=27.1"
+;;   :url "https://git.sr.ht/~protesilaos/modus-themes"
+;;   :added "2023-02-10"
+;;   :emacs>= 27.1
+;;   :ensure t)
 
 (leaf doom-modeline
   :ensure t
@@ -771,7 +771,7 @@ Set original font."
 
 (define-key global-map (kbd "C-c o") 'kb/switch-font)
 ;;--------------------------------------------------------------------------------
-(defun kb/load-grapics-theme ()
+(defun kb/load-graphics-theme ()
   "Function to load theme for GUI Emacs."
   (interactive)
   (unless kb/theme-window-loaded
@@ -792,25 +792,39 @@ Set original font."
 
 If theme is'n loaded then it will be loaded at first"
   (interactive)
+  (message "Activate frame theme")
   (select-frame frame)
-  (if (window-system frame)
-      (progn
-        (if (kb/load-grapics-theme)
-            (enable-theme kb/window-theme))
-        (kb/set-window-font))
-    (if (kb/load-terminal-theme)
-        (enable-theme kb/terminal-theme))))
+  (cond ((window-system frame)
+         (message (format "Activate frame %s graphical-theme" frame))
+         (when (kb/load-graphics-theme)
+           (message "Activate frame theme: load-graphics-theme")
+           (enable-theme 'kb/window-theme))
+         (message "Activate frame theme: set-window-font")
+         (kb/set-window-font))
+    ((kb/load-terminal-theme)
+     (message (format "Activate frame %s theme: terminal-theme" frame))
+     (enable-theme 'kb/terminal-theme)))
+  )
 
 (defun kb/activate-theme (&optional frame)
   "Set theme on active FRAME."
   (interactive)
+  (message "Activate theme")
   (let ((frame (or frame (selected-frame))))
-    (if (frame-focus-state frame)
-        (kb/activate-frame-theme frame))))
+    (when (frame-focus-state frame)
+        (message (format "Activate theme for frame: %s" frame))
+        (kb/activate-frame-theme frame))
+
+    ))
 
 ;; (kb/activate-theme)
 ;; (add-function :after after-focus-change-function #'kb/activate-theme)
 ;; (add-hook 'after-make-frame-functions-hook 'kb/load-frame-theme)
+
+;; (frame-focus-state)
+;; (              doom-modeline-update-env)
+;; (beacon--blink-on-focus)
+
 (leaf custom
   :doc "tools for declaring and initializing options"
   :tag "builtin" "faces" "help"
@@ -818,9 +832,15 @@ If theme is'n loaded then it will be loaded at first"
   :init
   (add-to-list 'initial-frame-alist '(font . "Hack"))
   (add-to-list 'default-frame-alist '(font . "Hack"))
-  :config
-  (load-theme kb/window-theme t)
-  (kb/set-window-font)
+  :custom
+  (custom-safe-themes . t)
+  (custom-enabled-themes . '(doom-monokai-machine wombat tango-dark))
+  ;; :config
+  ;; (message "custom: load kb/window-theme")
+  ;; (load-theme kb/window-theme t)
+  ;; (kb/activate-theme)
+  ;; (message "custom: set kb/set-window-font")
+  ;; (kb/set-window-font)
   )
 
 ;;--------------------------------------------------------------------------------
@@ -1503,9 +1523,8 @@ If theme is'n loaded then it will be loaded at first"
 
 (leaf beacon
   :ensure t
-  ;; :pin "melpa"
-  :config (beacon-mode 1)
-  )
+  :config
+  (beacon-mode 1))
 
 (leaf gnuplot
   :doc "Major-mode and interactive frontend for gnuplot"
@@ -1745,6 +1764,18 @@ This function is based on work of David Wilson.
   :bind ("C-c C-j" . 'org-journal-new-entry)
   )
 ;; (define-key global-map (kbd "C-c C-j") 'org-journal-new-entry)
+
+(leaf verb
+  :doc "Organize and send HTTP requests"
+  :req "emacs-26.3"
+  :tag "tools" "emacs>=26.3"
+  :url "https://github.com/federicotdn/verb"
+  :added "2023-11-09"
+  :emacs>= 26.3
+  :ensure t
+  :after org
+  ;; :bind-keymap (:org-mode-map :package org ("C-c C-0" . verb-command-map))
+)
 
 (leaf deft
   :doc "quickly browse, filter, and edit plain text notes"
@@ -2064,7 +2095,7 @@ This function is based on work of David Wilson.
   ;; :emacs>= 26.1
   :ensure t
   ;; :after ace-window pfuture hydra cfrs
-  :bind ([f8] . treemacs)
+  :bind ("<f8>" . treemacs)
   :custom-face
   ;; update font size
   (treemacs-directory-face . '((t (:inherit font-lock-function-name-face :height 0.8))))
@@ -2824,6 +2855,9 @@ We display [CRM<separator>], e.g., [CRM,] if the separator is a comma."
 
 (unless (executable-find "cargo") (warn "cargo Rust package manager not found"))
 (leaf fuz
+  ;; not working with emacs from ubuntu/snap
+  :disabled t
+  ;; :ensure t
   :doc "Fast and precise fuzzy scoring/matching utils"
   :req "emacs-25.1"
   :tag "lisp" "emacs>=25.1"
@@ -2831,7 +2865,6 @@ We display [CRM<separator>], e.g., [CRM,] if the separator is a comma."
   :added "2022-10-31"
   :emacs>= 25.1
   :when (executable-find "cargo")
-  :ensure t
   :require fuz
   :config
   (unless (require 'fuz-core nil t)
@@ -2839,13 +2872,15 @@ We display [CRM<separator>], e.g., [CRM,] if the separator is a comma."
   )
 
 (leaf ivy-fuz
+  ;; fuz not working properly on emacs ubuntu/snap
+  :disabled t
+  ;; :ensure t
   :doc "Integration between fuz and ivy."
   :req "emacs-25.1" "fuz-1.3.0" "ivy-0.13.0"
   :tag "convenience" "emacs>=25.1"
   :url "https://github.com/Silex/ivy-fuz.el"
   :added "2022-10-31"
   :emacs>= 25.1
-  :ensure t
   :after fuz ivy)
 
 (leaf smart-compile
@@ -3180,7 +3215,13 @@ We display [CRM<separator>], e.g., [CRM,] if the separator is a comma."
   :tag "convenience" "tools" "asciidoc" "rst" "pod" "org-mode" "bitbucket" "gitlab" "hipchat" "jira" "slack" "github"
   :url "https://github.com/sshaw/copy-as-format"
   :added "2022-10-31"
-  :ensure t)
+  :ensure t
+  :custom
+  (copy-as-format-asciidoc-include-file-name . t)
+  (copy-as-format-include-line-number . t)
+  :bind
+  ("C-c w o" . copy-as-format-org-mode)
+  )
 
 (unless (executable-find "dot") (warn "dot command not found in system"))
 (leaf graphviz-dot-mode
