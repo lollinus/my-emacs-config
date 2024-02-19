@@ -527,12 +527,38 @@ should be imported.
         (setenv var value))
       (setq lst (cdr lst)))))
 
-(defun kb/filename ()
-  "Copy the full path of the current buffer."
-  (interactive)
-  (kill-new (buffer-file-name (window-buffer (minibuffer-selected-window)))))
+(leaf kill-file-path
+  :doc "Copy file name into kill ring"
+  :req "emacs-26"
+  :tag "files" "emacs>=26"
+  :url "https://github.com/chyla/kill-file-path/kill-file-path.el"
+  :added "2024-02-19"
+  :emacs>= 26
+  :ensure t
+  :bind
+  ("C-c f" . kill-file-path)
+  )
 
-(define-key global-map (kbd "C-c f") 'kb/filename)
+(when (not (package-installed-p 'kill-file-path))
+  (defun kb/filename ()
+    "Copy the full path of the current buffer."
+    (interactive)
+    (kill-new (buffer-file-name (window-buffer (minibuffer-selected-window)))))
+  (define-key global-map (kbd "C-c f") 'kb/filename)
+  )
+
+(leaf kill-or-bury-alive
+  :doc "Precise control over buffer killing"
+  :req "emacs-24.4"
+  :tag "convenience" "emacs>=24.4"
+  :url "https://github.com/mrkkrp/kill-or-bury-alive"
+  :added "2024-02-19"
+  :emacs>= 24.4
+  :ensure t
+  :bind
+  (([remap kill-buffer] . #'kill-or-bury-alive)
+   ("C-c p" . #'kill-or-bury-alive-purge-buffers))
+  )
 
 ;; I know that string is in my Emacs somewhere!
 ;; (require 'cl)
