@@ -209,6 +209,7 @@ There are two things you can do about this warning:
 
 (leaf leaf-tree :ensure t)
 (leaf leaf-convert :ensure t)
+
 (leaf transient
   :doc "Transient commands"
   :req "emacs-25.1" "compat-29.1.3.4"
@@ -557,8 +558,8 @@ should be imported.
   :ensure t
   :bind
   (([remap kill-buffer] . #'kill-or-bury-alive)
-   ("C-c p" . #'kill-or-bury-alive-purge-buffers))
-  )
+   ;; ("C-c p" . #'kill-or-bury-alive-purge-buffers)
+   ))
 
 ;; I know that string is in my Emacs somewhere!
 ;; (require 'cl)
@@ -1253,7 +1254,6 @@ If theme is'n loaded then it will be loaded at first"
   (global-anzu-mode +1))
 
 (leaf golden-ratio
-  :disabled t
   :ensure t
   :config (golden-ratio-mode))
 
@@ -1267,11 +1267,11 @@ If theme is'n loaded then it will be loaded at first"
 
 (leaf flycheck
   :doc "On-the-fly syntax checking"
-  :req "dash-2.12.1" "pkg-info-0.4" "let-alist-1.0.4" "seq-1.11" "emacs-24.3"
-  :tag "tools" "languages" "convenience" "emacs>=24.3"
-  :url "http://www.flycheck.org"
-  :added "2022-11-16"
-  :emacs>= 24.3
+  :req "emacs-26.1"
+  :tag "tools" "languages" "convenience" "emacs>=26.1"
+  :url "https://www.flycheck.org"
+  :added "2024-03-18"
+  :emacs>= 26.1
   :ensure t
   :init (global-flycheck-mode)
   :custom ((flycheck-indication-mode . 'right-fringe)
@@ -1282,58 +1282,58 @@ If theme is'n loaded then it will be loaded at first"
     (define-fringe-bitmap 'flycheck-fringe-bitmap-double-arrow
       [0 0 0 0 0 4 12 28 60 124 252 124 60 28 12 4 0 0 0 0]
       ))
-  :config
-  (leaf flycheck-hydra
-    :after flycheck hydra
-    :config
-    (defhydra hydra-flycheck
-      (global-map "C-c ! j"
-                  :pre (flycheck-list-errors)
-                  :post (quit-windows-on "*Flycheck errors*")
-                  :hint nil)
-      "Errors"
-      ("f" flycheck-error-list-set-filter "Filter")
-      ("j" flycheck-next-error "Next")
-      ("k" flycheck-previous-error "Previous")
-      ("gg" flycheck-first-error "First")
-      ("G" (progn (goto-char (point-max)) (flycheck-previous-error)) "Last")
-      ("q" nil))
-    )
-  (leaf flycheck-clang-analyzer
-    :ensure t
-    :after flycheck
-    :config (flycheck-clang-analyzer-setup))
-  (leaf flycheck-clang-tidy
-    :ensure t
-    :after flycheck projectile
-    :config (flycheck-clang-tidy-setup))
-  (leaf flycheck-google-cpplint
-    :disabled t
-    :after flycheck
-    :defun flycheck-add-next-checker
-    :require flycheck-google-cpplint
-    :config
-    (flycheck-add-next-checker 'c/c++-cppcheck
-                               'c/c++-googlelint 'append))
-
-  (leaf flycheck-projectile
-    :after flycheck projectile
-    :ensure t
-    :require flycheck-projectile)
-  (leaf avy-flycheck
-    :ensure t
-    :hook (flycheck-mode-hook . avy-flycheck-setup))
-  (leaf flycheck-posframe
-    :doc "Show flycheck error messages using posframe.el"
-    :req "flycheck-0.24" "emacs-26" "posframe-0.7.0"
-    :tag "emacs>=26"
-    :url "https://github.com/alexmurray/flycheck-posframe"
-    :added "2022-11-16"
-    :emacs>= 26
-    :ensure t
-    :after flycheck posframe
-    :hook flycheck-mode-hook)
   )
+
+(leaf flycheck-hydra
+  :after flycheck hydra
+  :config
+  (defhydra hydra-flycheck
+    (global-map "C-c ! j"
+                :pre (flycheck-list-errors)
+                :post (quit-windows-on "*Flycheck errors*")
+                :hint nil)
+    "Errors"
+    ("f" flycheck-error-list-set-filter "Filter")
+    ("j" flycheck-next-error "Next")
+    ("k" flycheck-previous-error "Previous")
+    ("gg" flycheck-first-error "First")
+    ("G" (progn (goto-char (point-max)) (flycheck-previous-error)) "Last")
+    ("q" nil))
+  )
+(leaf flycheck-clang-analyzer
+  :ensure t
+  :after flycheck
+  :config (flycheck-clang-analyzer-setup))
+(leaf flycheck-clang-tidy
+  :ensure t
+  :after flycheck projectile
+  :config (flycheck-clang-tidy-setup))
+(leaf flycheck-google-cpplint
+  :disabled t
+  :after flycheck
+  :defun flycheck-add-next-checker
+  :require flycheck-google-cpplint
+  :config
+  (flycheck-add-next-checker 'c/c++-cppcheck
+                             'c/c++-googlelint 'append))
+
+(leaf flycheck-projectile
+  :after flycheck projectile
+  :ensure t
+  :require flycheck-projectile)
+(leaf avy-flycheck
+  :ensure t
+  :hook (flycheck-mode-hook . avy-flycheck-setup))
+(leaf flycheck-posframe
+  :doc "Show flycheck error messages using posframe.el"
+  :req "flycheck-0.24" "emacs-26" "posframe-0.7.0"
+  :tag "emacs>=26"
+  :url "https://github.com/alexmurray/flycheck-posframe"
+  :added "2022-11-16"
+  :emacs>= 26
+  :ensure t
+  :after flycheck posframe
+  :hook flycheck-mode-hook)
 
 (leaf emamux
   :doc "Interact with tmux"
@@ -1568,16 +1568,36 @@ If theme is'n loaded then it will be loaded at first"
   :commands (org-capture org-agenda)
   :hook ((org-mode-hook . kb/org-mode-setup)
          (org-mode-hook . kb/org-font-setup))
-  :custom ((org-ellipsis . " ▾")
+  :custom (
+           (org-startup-indented . t)
+           (org-startup-with-inline-images . t)
+           (org-pretty-entities . t)
+           (org-use-sub-superscripts . "{}")
+           (org-hide-emphasis-markers . t)
+           (org-image-actual-width . '(300))
+
+           (org-ellipsis . " ▾")
            (org-hide-leading-stars . t)
            (org-agenda-start-with-log-mode . t)
            (org-log-done . 'time)
            (org-log-into-drawer . t)
            (org-src-fontify-natively . t)
+           (org-list-allow-alphabetical . t)
+
            (org-export-with-smart-quotes . t)
+           (org-export-with-drawers . nil)
+           (org-export-with-todo-keywords . nil)
+           (org-export-with-broken-links . t)
+           (org-export-with-toc . nil)
+           (org-export-with-smart-quotes . t)
+           (org-export-date-timestamp-format . "%d %B %Y")
+           (org-export-with-sub-superscripts . '{})
+
            ;; (setq org-src-fontify-natively t)
            ;; (setq org-export-with-smart-quotes nil)
-           (org-html-htmlize-output-type . nil)
+           ;; (org-html-htmlize-output-type . nil)
+           (org-html-table-default-attributes .
+                   '(:border "1" :rules "border" :frame "all"))
            (org-html-postamble . nil)
            (org-todo-keywords .
                               '((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d!)")
@@ -1646,6 +1666,20 @@ This function is based on work of David Wilson.
     ;;                          ("protobuf" (:background "grey5" :foreground "chartreuse"))
     ;;                          ))
     )
+
+ (defun ews-org-insert-screenshot ()
+    "Take a screenshot with ImageMagick and insert as an Org mode link."
+    (interactive)
+    (let ((filename (read-file-name "Enter filename for screenshot: " default-directory)))
+      (unless (string-equal "png" (file-name-extension filename))
+        (setq filename (concat (file-name-sans-extension filename) ".png")))
+      (call-process-shell-command (format "import %s" filename))
+      (insert (format "#+caption: %s\n" (read-from-minibuffer "Caption: ")))
+      (insert (format "[[file:%s]]" filename))
+      (org-redisplay-inline-images)))
+
+  (with-eval-after-load "org"
+    (define-key org-mode-map (kbd "C-<print>") #'ews-org-insert-screenshot))
   )
 
 (leaf org-superstar
@@ -1687,6 +1721,35 @@ This function is based on work of David Wilson.
   :url "https://github.com/hniksic/emacs-htmlize"
   :added "2022-10-31"
   :ensure t)
+
+(leaf ox-latex
+  :doc "LaTeX Backend for Org Export Engine"
+  :tag "builtin" "text" "calendar" "hypermedia" "outlines"
+  :added "2024-08-05"
+  :ensure nil
+  :custom
+  ;; Multiple LaTeX passes for bibliographies
+  (org-latex-pdf-process .
+   '("pdflatex -interaction nonstopmode -output-directory %o %f"
+     "bibtex %b"
+     "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
+     "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"))
+  ;; Clean temporary files after export
+  (org-latex-logfiles-extensions .
+   (quote ("lof" "lot" "tex~" "aux" "idx" "log" "out"
+           "toc" "nav" "snm" "vrb" "dvi" "fdb_latexmk"
+           "blg" "brf" "fls" "entoc" "ps" "spl" "bbl"
+           "tex" "bcf"))))
+
+(leaf ox-epub
+  :doc "Export org mode projects to EPUB"
+  :req "emacs-24.3" "org-9"
+  :tag "hypermedia" "emacs>=24.3"
+  :url "http://github.com/ofosos/org-epub"
+  :added "2024-08-05"
+  :emacs>= 24.3
+  :ensure t
+  :after org)
 
 (leaf ox-gfm
   :doc "Github Flavored Markdown Back-End for Org Export Engine"
@@ -1800,8 +1863,16 @@ This function is based on work of David Wilson.
   :emacs>= 26.3
   :ensure t
   :after org
-  ;; :bind-keymap (:org-mode-map :package org ("C-c C-0" . verb-command-map))
-)
+  :bind-keymap (:org-mode-map :package org ("C-c C-0" . #'verb-command-map))
+
+  :config
+  (add-to-list 'org-babel-load-languages '((verb . t)))
+  (org-babel-do-load-languages 'org-babel-load-languages '((plantuml . t)))
+  )
+
+;; (org-babel-do-load-languages
+;;  'org-babel-load-languages
+;;  '((verb . t)))
 
 (leaf deft
   :doc "quickly browse, filter, and edit plain text notes"
@@ -2560,16 +2631,6 @@ We display [CRM<separator>], e.g., [CRM,] if the separator is a comma."
     :after consult
     :bind (
            ("C-c L" . consult-git-log-grep)))
-  (leaf consult-projectile
-    :doc "Consult integration for projectile"
-    :req "emacs-25.1" "consult-0.12" "projectile-2.5.0"
-    :tag "convenience" "emacs>=25.1"
-    :url "https://gitlab.com/OlMon/consult-projectile"
-    :added "2022-11-23"
-    :emacs>= 25.1
-    :ensure t
-    :bind (([remap projectile-switch-project] . consult-projectile-switch-project))
-    :after consult projectile)
   (leaf consult-ag
     :doc "The silver searcher integration using Consult"
     :req "emacs-27.1" "consult-0.16"
@@ -2617,6 +2678,18 @@ We display [CRM<separator>], e.g., [CRM,] if the separator is a comma."
       (consult-notes-denote-mode)))
   (leaf denote :ensure t)
   )
+
+(leaf consult-projectile
+  :disabled t
+  :doc "Consult integration for projectile"
+  :req "emacs-25.1" "consult-0.12" "projectile-2.5.0"
+  :tag "convenience" "emacs>=25.1"
+  :url "https://gitlab.com/OlMon/consult-projectile"
+  :added "2022-11-23"
+  :emacs>= 25.1
+  :ensure t
+  :bind (([remap projectile-switch-project] . consult-projectile-switch-project))
+  :after consult projectile)
 
 (leaf counsel
   :ensure t
@@ -3389,11 +3462,10 @@ Download and put appropriate file there."
   :added "2022-10-31"
   :emacs>= 25.0
   :ensure t
-  :config
   :custom ((plantuml-jar-path . kb/plantuml-jar-path)
            (plantuml-default-exec-mode . 'jar)
            (plantuml-indent-level . 4)
-           (org-plantuml-jar-path . plantuml-jar-path)
+           (org-plantuml-jar-path . kb/plantuml-jar-path)
            )
   :hook (plantuml-mode-hook . (lambda ()
                                 (set-fill-column 100)
@@ -3463,35 +3535,36 @@ Download and put appropriate file there."
       (add-hook 'which-func-functions 'nxml-where t t)))
 
   (add-hook 'find-file-hook 'xml-find-file-hook t)
-)
+  )
 
 (leaf go-translate
-  :doc "Translation framework supports multiple engines such as Google/Bing/DeepL"
-  :req "emacs-27.1"
-  :tag "convenience" "emacs>=27.1"
+  :doc "Translation framework, configurable and scalable"
+  :req "emacs-28.1"
+  :tag "convenience" "emacs>=28.1"
   :url "https://github.com/lorniu/go-translate"
-  :added "2022-11-01"
-  :emacs>= 27.1
+  :added "2024-05-21"
+  :emacs>= 28.1
   :ensure t
   :custom
-  (gts-translate-list . '(("en" "de") ("pl" "en") ("en" "pl") ("en" "zh") ("zh" "en") ("ko" "en") ("ja" "en") ("pt" "en")))
+  (gt-langs .'(en de zh ko ja pt pl fr))
   :bind
-  (("<f5>" . #'gts-do-translate))
-  :config
-  (setq gts-default-translator (gts-translator
-                                :picker (gts-prompt-picker)
-                                :engines (list (gts-bing-engine)
-                                               (gts-google-engine :parser (gts-google-summary-parser))
-                                               (gts-deepl-engine :auth-key "77755e15-f92b-92b9-1b6b-f15d8ffdeb7b:fx" :pro nil))
-                                :render
-                                (gts-buffer-render)
-                                ;; (gts-posframe-pin-render)
-                                ;; (gts-posframe-pin-render :width 80 :height 25 :position (cons 1000 20) :forecolor "#ffffff" :backcolor "#111111")
-                                ;; (gts-kill-ring-render)
-                                :splitter
-                                ;; nil
-                                (gts-paragraph-splitter)
-                                ))
+  (("<f5>" . #'gt-do-translate))
+  ;; :config
+  ;; (gt-taker :text 'buffer :langs '(en pl) :prompt 'buffer :pick 'sentence)
+  ;; (gt-taker :text 'buffer :langs '(zh en) :prompt 'buffer :pick 'sentence)
+  ;; (setq gt-default-translator (gt-translator
+  ;;                              :taker (gt-taker)
+  ;;                              :engines (list (gt-bing-engine)
+  ;;                                             (gt-google-engine :parse (gt-google-summary-parser))
+  ;;                                             (gt-deepl-engine :pro nil))
+  ;;                              :render (gt-buffer-render)
+  ;;                               ;; (gts-posframe-pin-render)
+  ;;                               ;; (gts-posframe-pin-render :width 80 :height 25 :position (cons 1000 20) :forecolor "#ffffff" :backcolor "#111111")
+  ;;                               ;; (gts-kill-ring-render)
+  ;;                               ;; :splitter
+  ;;                               ;; nil
+  ;;                               ;; (gt-paragraph-splitter)
+  ;;                               ))
   )
 
 (leaf vterm
@@ -3545,10 +3618,9 @@ Download and put appropriate file there."
   :added "2023-03-08"
   :emacs>= 25.1
   :ensure t
-  :hook ((haskell-mode-hook . #'turn-on-haskell-indentation)
-         (haskell-mode-hook . #'interactive-haskell-mode)
-         )
-  
+  ;; :hook ((haskell-mode-hook . turn-on-haskell-indentation)
+  ;;        (haskell-mode-hook . interactive-haskell-mode))
+
   :bind (:haskell-mode-map
          ("C-," . #'haskell-move-nested-left)
          ("C-." . #'haskell-move-nested-right)
@@ -3573,20 +3645,19 @@ Download and put appropriate file there."
   ;; (setq haskell-ghci-prgram-args '("repl"))
   )
 
-(leaf ghci-completion
-  :doc "Completion for GHCi commands in inferior-haskell buffers"
-  :req "emacs-24.1" "cl-lib-0.5"
-  :tag "convenience" "emacs>=24.1"
-  :added "2023-03-13"
-  :emacs>= 24.1
-  :ensure t
-  :config
-  (setq haskell-ghci-program-name "cabal")
-  (setq haskell-ghci-program-args '("repl"))
-  )
+;; (leaf ghci-completion
+;;   :doc "Completion for GHCi commands in inferior-haskell buffers"
+;;   :req "emacs-24.1" "cl-lib-0.5"
+;;   :tag "convenience" "emacs>=24.1"
+;;   :added "2023-03-13"
+;;   :emacs>= 24.1
+;;   :ensure t
+;;   :config
+;;   (setq haskell-ghci-program-name "cabal")
+;;   (setq haskell-ghci-program-args '("repl"))
+;;   )
 
 (leaf lsp-haskell
-  :disabled t
   :doc "Haskell support for lsp-mode"
   :req "emacs-24.3" "lsp-mode-3.0" "haskell-mode-16.1"
   :tag "haskell" "emacs>=24.3"
@@ -3618,4 +3689,3 @@ Download and put appropriate file there."
 
 (message "Init finished")
 ;;; init.el ends here
-
