@@ -69,7 +69,7 @@
 (setq frame-title-format '((:eval (if (buffer-file-name)
                                       (concat (abbreviate-file-name (buffer-file-name)) " %+%+ ")
                                     "%b %+%+ %f"))))
-(setq scroll-margin 0
+(setq scroll-margin 10
       scroll-conservatively 100000
       scroll-preserve-screen-position 'always)
 
@@ -102,57 +102,64 @@ There are two things you can do about this warning:
     )
   )
 
-;;(add-to-list 'package-archives
-;;           '("gnu" . "http://elpa.gnu.org/packages/"))
-;;(setq gnutls-algorithm-priority "NORMAL:-VERS-TLS1.3")
-;; (add-to-list 'kb/package-archives '("melpa" . "https://melpa.org/packages/") t)
-;; (add-to-list 'kb/package-archives '("org" . "https://orgmode.org/elpa/") t)
-;; (add-to-list 'kb/package-archives '("gnu" . "http://elpa.gnu.org/packages/") t)
-;; (setq package-archives kb/package-archives)
+(customize-set-variable
+ 'package-archives '(("org" . "https://orgmode.org/elpa/")
+                     ("melpa" . "https://melpa.org/packages/")
+                     ("gnu" . "https://elpa.gnu.org/packages/")))
 
-;; (defun kb/ensure-package-installed (&rest packages)
-;;   "Assure every package is installed.
-;; Return a list of installed packages or nil of every skipped package.
-
-;; PACKAGES: list of packages to install."
-;;   (mapcar
-;;    (lambda (package)
-;;      (if (package-installed-p package)
-;;       package
-;;        (package-install package)))
-;;    packages))
+(defvar straight-bootstrap-version)
+(let ((bootstrap-file
+       (expand-file-name
+        "straight/repos/straight.el/bootstrap.el"
+        (or (bound-and-true-p straight-base-dir)
+            user-emacs-directory)))
+      (bootstrap-version 7))
+  (unless (file-exists-p bootstrap-file)
+    (with-current-buffer
+        (url-retrieve-synchronously
+         "https://raw.githubusercontent.com/radian-software/straight.el/develop/install.el"
+         'silent 'inhibit-cookies)
+      (goto-char (point-max))
+      (eval-print-last-sexp)))
+  (load bootstrap-file nil 'nomesage))
 
 ;; <leaf-install-code>
-(eval-and-compile
-  (customize-set-variable
-   'package-archives '(("org" . "https://orgmode.org/elpa/")
-                       ("melpa" . "https://melpa.org/packages/")
-                       ("gnu" . "https://elpa.gnu.org/packages/")))
-  (package-initialize)
-  (unless (package-installed-p 'leaf)
-    (package-refresh-contents)
-    (package-install 'leaf))
-
-  (leaf package
-      :custom ((package-archives . '(("org"   . "https://orgmode.org/elpa/")
-                                     ("melpa" . "https://melpa.org/packages/")
-                                     ("gnu"   . "https://elpa.gnu.org/packages/"))))
-      :config
-      (package-initialize)
-      )
-
-  (leaf hydra :ensure t)
-  ;; (leaf el-get :ensure t)
-  (leaf blackout :ensure t)
-  (leaf leaf-keywords
-    :ensure t
-    :after leaf
-    ;; :init
-    ;; ;; optional packages if you want to use :hydra, :el-get, :blackout,,,
-    :config
-    ;; initialize leaf-keywords.el
-    (leaf-keywords-init)))
+(straight-use-package 'leaf)
+(straight-use-package 'leaf-keywords)
 ;; </leaf-install-code>
+
+(require 'leaf)
+
+(leaf leaf-keywords
+  :doc "Additional leaf.el keywords for external packages."
+  :req "emacs-24.4" "leaf-3.5.0"
+  :tag "settings" "lisp" "emacs>=24.4"
+  :url "https://github.com/conao3/leaf-keywords.el"
+  :added "2025-01-16"
+  :emacs>= 24.4
+  :after leaf
+  ;; :init
+  ;; ;; optional packages if you want to use :hydra, :el-get, :blackout,,,
+  :require t
+  :config
+  ;; initialize leaf-keywords.el
+  (leaf-keywords-init))
+(leaf hydra
+  :doc "Make bindings that stick around."
+  :req "cl-lib-0.5" "lv-0"
+  :tag "bindings"
+  :url "https://github.com/abo-abo/hydra"
+  :added "2025-01-16"
+  :straight t
+  :after lv)
+(leaf blackout
+  :doc "Better mode lighter overriding."
+  :req "emacs-26"
+  :tag "extensions" "emacs>=26"
+  :url "https://github.com/radian-software/blackout"
+  :added "2025-01-16"
+  :emacs>= 26
+  :straight t)
 
 (leaf leaf-defaults
   :doc "Awesome leaf config collections"
@@ -169,36 +176,11 @@ There are two things you can do about this warning:
 ;; (leaf promise :el-get chuntaro/emacs-promise)
 ;; (leaf iter2 :el-get doublep/iter2)
 ;; (leaf async :el-get jwiegley/emacs-async)
-;; (leaf feather
-;;   :doc "Parallel thread modern package manager"
-;;   :req "emacs-26.3" "async-1.9" "async-await-1.0" "ppp-1.0" "page-break-lines-0.1"
-;;   :tag "package" "convenience" "emacs>=26.3"
-;;   :url "https://github.com/conao3/feather.el"
-;;   :added "2022-11-01"
-;;   :emacs>= 26.3
-;;   :ensure t
-;;   :after ppp page-break-lines
-;;   :config (feather-mode 1)
-;;   )
-;; (leaf feather
-;;   :el-get conao3/feather.el
-;;   :after page-break-lines
-;;   :config (feather-mode 1)
-;;   ;; (leaf page-break-lines
-;;   ;;   :doc "Display ^L page breaks as tidy horizontal lines"
-;;   ;;   :req "emacs-24.4"
-;;   ;;   :tag "faces" "convenience" "emacs>=24.4"
-;;   ;;   :url "https://github.com/purcell/page-break-lines"
-;;   ;;   :added "2022-11-01"
-;;   ;;   :emacs>= 24.4
-;;   ;;   :el-get t)
-;;   )
-
 
 ;; load no-littering as soon as possible during init so it can hook as many
 ;; paths as possible
 (leaf no-littering
-  :ensure t
+  :straight t
   :emacs>= 25.1
   :require recentf no-littering
   :defvar (no-littering-var-directory no-littering-etc-directory)
@@ -207,8 +189,8 @@ There are two things you can do about this warning:
     (add-to-list 'recentf-exclude no-littering-var-directory)
     (add-to-list 'recentf-exclude no-littering-etc-directory)))
 
-(leaf leaf-tree :ensure t)
-(leaf leaf-convert :ensure t)
+(leaf leaf-tree :straight t)
+(leaf leaf-convert :straight t)
 
 (leaf transient
   :doc "Transient commands"
@@ -217,19 +199,30 @@ There are two things you can do about this warning:
   :url "https://github.com/magit/transient"
   :added "2023-02-19"
   :emacs>= 25.1
-  :ensure t
+  :straight t
   :after compat
   :config
   (leaf transient-dwim
-    :ensure t
+    :doc "Useful preset transient commands"
+    :req "emacs-26.1" "transient-0.1"
+    :tag "tools" "emacs>=26.1"
+    :url "https://github.com/conao3/transient-dwim.el"
+    :added "2025-01-21"
+    :emacs>= 26.1
+    :straight t
     :bind (("M-=" . transient-dwim-dispatch))))
 
 (leaf system-packages
-  :ensure t
-  :custom
-  (system-packages-package-manager . 'apt)
-  (system-packages-noconfirm . t)
-  (system-packages-use-sudo . t))
+  :doc "functions to manage system packages"
+  :req "emacs-24.3"
+  :tag "emacs>=24.3"
+  :url "https://gitlab.com/jabranham/system-packages"
+  :added "2025-01-16"
+  :emacs>= 24.3
+  :straight t
+  :custom  ((system-packages-package-manager . 'apt)
+            (system-packages-noconfirm . t)
+            (system-packages-use-sudo . t)))
 
 (leaf cus-start
   :doc "define customization properties of builtins"
@@ -263,29 +256,31 @@ There are two things you can do about this warning:
   :doc "multi-frame management independent of window systems"
   :tag "builtin" "internal"
   :added "2022-11-01"
-  :init (defconst kb/frame-config '(;; (top . 1)
-                                    ;; (left . 1)
-                                    ;; (fullscreen . maximized)
-                                    (menu-bar-lines . 0)       ; turn menus off
-                                    (tool-bar-lines . 0)       ; disable toolbar
-                                    (scroll-bar-width . 10)
-                                    (vertical-scroll-bars . 'right)
-                                    ;; (background-mode . dark)
-                                    )
-          )
-  :setq ((initial-frame-alist . kb/frame-config)
-         (default-frame-alist . kb/frame-config)
-         )
-  :custom ((blink-cursor-mode . nil)
-           ;; turn off blinking cursor
-           (blink-cursor-blinks . 3)
-           (blink-cursor-delay . 1)
-           )
+;;   :pre-setq
+;;   (kb/frame-config . '(;; (top . 1)
+;;                        ;; (left . 1)
+;;                        ;; (fullscreen . maximized)
+;;                        (menu-bar-lines . 0)       ; turn menus off
+;;                        (tool-bar-lines . 0)       ; disable toolbar
+;;                        (scroll-bar-width . 10)
+;;                        (vertical-scroll-bars . 'right)
+;;                        ;; (background-mode . dark)
+;;                        (font . "Hack")))
+;;   :setq ((default-frame-alist . kb/frame-config)
+;;          ;; (initial-frame-alist . kb/frame-config)
+;;          )
+;;   :custom (
+;;            (blink-cursor-mode . nil)
+;;            ;; turn off blinking cursor
+;;            (blink-cursor-blinks . 3)
+;;            (blink-cursor-delay . 1)
+  ;;            )
+  :push ((default-frame-alist . '(font . "Hack")))
   :config
-  ;; (blink-cursor-mode -1)
-  ;; (mapc 'frame-set-background-mode (frame-list))
-  ;; (fullscreen-restore . fullheight)
-  ;; (fullscreen . fullboth)
+  (blink-cursor-mode -1)
+;;   ;; (mapc 'frame-set-background-mode (frame-list))
+;;   ;; (fullscreen-restore . fullheight)
+;;   ;; (fullscreen . fullboth)
   )
 
 (leaf alloc
@@ -302,7 +297,7 @@ There are two things you can do about this warning:
 ;;   :url "https://git.sr.ht/~yantar92/emacs-gc-stats"
 ;;   :added "2023-06-13"
 ;;   :emacs>= 25.1
-;;   :ensure t
+;;   :straight t
 ;;   :mode emacs-gc-stats-mode
 ;;   :require emacs-gc-stats
 ;;   :config
@@ -319,7 +314,7 @@ There are two things you can do about this warning:
   (display-battery-mode))
 
 ;; (leaf auto-compile
-;;   :ensure t
+;;   :straight t
 ;;   :require t
 ;;   :config
 ;;   (auto-compile-on-load-mode)
@@ -347,16 +342,15 @@ There are two things you can do about this warning:
   :added "2022-11-01"
   :custom ((inhibit-startup-screen . t)
            (user-mail-address . "karol.barski@mobica.com")
-           )
-  )
-(setq line-spacing 0)
+           ))
+(setopt line-spacing 0)
 ;; (help-char "? M-?")
 (put 'narrow-to-page 'disabled nil)
 (put 'narrow-to-region 'disabled nil)
 (put 'upcase-region 'disabled nil)
 (put 'downcase-region 'disabled nil)
 
-(define-key help-map "?" 'describe-key-briefly)
+(keymap-set help-map "?" 'describe-key-briefly)
 
 ;; ("C-h" . 'delete-backward-char)
 ;; ("C-?" . 'delete-char)
@@ -424,17 +418,18 @@ There are two things you can do about this warning:
   :custom ((tab-always-indent . 'complete)))
 
 ;; Use M-/ for `company` completion
-(define-key input-decode-map "\e[1;2A" [S-up])
+;; (define-key input-decode-map "\e[1;2A" [S-up])
+;; (key-valid-p "M-/")
+(keymap-set input-decode-map "M-/" 'company-dabbrev)
 
 (leaf page-break-lines
   :doc "Display ^L page breaks as tidy horizontal lines"
-  :req "emacs-24.4"
-  :tag "faces" "convenience" "emacs>=24.4"
+  :req "emacs-25.1"
+  :tag "faces" "convenience" "emacs>=25.1"
   :url "https://github.com/purcell/page-break-lines"
-  :added "2022-11-02"
-  :emacs>= 24.4
-  :ensure t
-  :require t
+  :added "2025-01-16"
+  :emacs>= 25.1
+  :straight t
   :config (global-page-break-lines-mode))
 
 (leaf vc
@@ -450,7 +445,12 @@ There are two things you can do about this warning:
   :custom ((temp-buffer-resize-mode . t))
   )
 ;; image
-(setq auto-image-file-mode 1)
+(leaf image-file
+  :doc "support for visiting image files"
+  :tag "builtin"
+  :added "2025-01-16"
+  :custom
+  (auto-image-file-mode . 1))
 ;; time
 
 (leaf time
@@ -494,10 +494,24 @@ There are two things you can do about this warning:
   (interactive)
   (set-buffer-file-eol-type 'mac))
 
+(defun kb/insert-random-number
+    (&optional arg)
+  "Insert a random number.   Use prefix argument ARG to specify the range.
+If called with a prefix argument, prompts for MIN and MAX values."
+  (interactive "P")
+  (let ((min 0)
+        (max 999))
+    (when arg
+      (setq min (read-number "Min value: " 0)
+            max (read-number "Max value: " 999)))
+    (insert (number-to-string (+ min (random (- max min)))))))
+
+(global-set-key (kbd "C-c r") 'kb/insert-random-number)
+
 (define-key global-map (kbd "C-a") 'prelude-move-beginning-of-line)
 ;;  (define-key global-map (kbd "C-c i") 'indent-region-or-buffer)
 ;; (define-key global-map (kbd "M-o") 'prelude-smart-open-line)
-(define-key global-map (kbd "%") 'match-parenthesis) ;; % key on paren moves cursor to matching paren
+;; (define-key global-map (kbd "%") 'match-parenthesis) ;; % key on paren moves cursor to matching paren
 (define-key global-map (kbd "C-c T") 'kb/delete-trailing-whitespaces-and-untabify)
 (define-key global-map (kbd "C-c u") 'kb/set-buffer-eol-unix)
 (define-key global-map (kbd "C-c d") 'kb/set-buffer-eol-dos)
@@ -535,18 +549,18 @@ should be imported.
   :url "https://github.com/chyla/kill-file-path/kill-file-path.el"
   :added "2024-02-19"
   :emacs>= 26
-  :ensure t
+  :straight t
   :bind
   ("C-c f" . kill-file-path)
   )
 
-(when (not (package-installed-p 'kill-file-path))
-  (defun kb/filename ()
-    "Copy the full path of the current buffer."
-    (interactive)
-    (kill-new (buffer-file-name (window-buffer (minibuffer-selected-window)))))
-  (define-key global-map (kbd "C-c f") 'kb/filename)
-  )
+;; (when (not (package-installed-p 'kill-file-path))
+;;   (defun kb/filename ()
+;;     "Copy the full path of the current buffer."
+;;     (interactive)
+;;     (kill-new (buffer-file-name (window-buffer (minibuffer-selected-window)))))
+;;   (define-key global-map (kbd "C-c f") 'kb/filename)
+;;   )
 
 (leaf kill-or-bury-alive
   :doc "Precise control over buffer killing"
@@ -555,7 +569,7 @@ should be imported.
   :url "https://github.com/mrkkrp/kill-or-bury-alive"
   :added "2024-02-19"
   :emacs>= 24.4
-  :ensure t
+  :straight t
   :bind
   (([remap kill-buffer] . #'kill-or-bury-alive)
    ;; ("C-c p" . #'kill-or-bury-alive-purge-buffers)
@@ -592,7 +606,7 @@ should be imported.
   :url "http://www.bookshelf.jp/elc/color-moccur.el"
   :added "2022-11-01"
   :disabled t
-  :ensure t
+  :straight t
   :commands (isearch-moccur isearch-all)
   :bind (("M-s O" . moccur)
          (:isearch-mode-map
@@ -600,7 +614,7 @@ should be imported.
           ("M-O" . isearch-moccur-all)))
   :custom ((isearch-lazy-highlight . t))
   ;; :config
-  ;; (leaf moccur-edit :ensure t)
+  ;; (leaf moccur-edit :straight t)
   )
 
 ;; (global-set-key [f7] 'search-all-buffers)
@@ -643,7 +657,7 @@ should be imported.
   :url "https://github.com/doomemacs/themes"
   :added "2022-11-04"
   ;; :emacs>= 25.1
-  :ensure t
+  :straight t
   ;; :defines (doom-themes-treemacs-theme)
   :after all-the-icons ;; doom-atom requires all-the-icons
   :custom
@@ -668,7 +682,7 @@ should be imported.
   :url "http://github.com/bbatsov/solarized-emacs"
   :added "2022-11-04"
   ;; :emacs>= 24.1
-  :ensure t)
+  :straight t)
 (leaf solaire-mode
   :doc "make certain buffers grossly incandescent"
   :req "emacs-25.1" "cl-lib-0.5"
@@ -676,7 +690,7 @@ should be imported.
   :url "https://github.com/hlissner/emacs-solaire-mode"
   :added "2023-02-14"
   :emacs>= 25.1
-  :ensure t
+  :straight t
   :config
   (solaire-global-mode))
 ;; (leaf modus-themes
@@ -686,10 +700,10 @@ should be imported.
 ;;   :url "https://git.sr.ht/~protesilaos/modus-themes"
 ;;   :added "2023-02-10"
 ;;   :emacs>= 27.1
-;;   :ensure t)
+;;   :straight t)
 
 (leaf doom-modeline
-  :ensure t
+  :straight t
   :hook after-init-hook
   :config
   :custom (
@@ -711,7 +725,7 @@ should be imported.
   :url "https://github.com/rainstormstudio/nerd-icons.el"
   :added "2023-06-15"
   :emacs>= 24.3
-  :ensure t
+  :straight t
   :config
   ;; (unless (file-exists-p (expand-file-name (concat (nerd-icons-fonts-subdirectory nerd-icons-font-names))))
   (unless (file-exists-p (expand-file-name "~/.local/share/fonts/NFM.ttf"))
@@ -724,7 +738,7 @@ should be imported.
   :url "https://github.com/seagle0128/nerd-icons-ibuffer"
   :added "2023-06-15"
   :emacs>= 24.3
-  :ensure t
+  :straight t
   :after nerd-icons
   :hook ibuffer-mode-hook
   :custom
@@ -738,6 +752,21 @@ should be imported.
   ;; nerd-icons-ibuffer-formats
   )
 
+(leaf circadian
+  :straight t
+  :custom
+  (calendar-latitude . 53.51)
+  (calendar-longitude . 14.57)
+  (circadian-themes . '((:sunrise . doom-monokai-machine)
+                        ("8:00"   . tango-dark)
+                        ("15:15" . doom-bluloco-dark)
+                        ("15:45" . doom-ephemeral)
+                        (:sunset  . doom-badger)
+                        ("21:30"  . doom-monokai-pro)))
+  :config
+  (circadian-setup)
+  )
+
 (leaf treemacs-nerd-icons
   :doc "Emacs Nerd Font Icons theme for treemacs"
   :req "emacs-24.3" "nerd-icons-0.0.1" "treemacs-0.0"
@@ -745,7 +774,7 @@ should be imported.
   :url "https://github.com/rainstormstudio/treemacs-nerd-icons"
   :added "2023-06-15"
   :emacs>= 24.3
-  :ensure t
+  :straight t
   :defun treemacs-load-theme
   :after nerd-icons treemacs
   :require t
@@ -841,7 +870,6 @@ If theme is'n loaded then it will be loaded at first"
     (when (frame-focus-state frame)
         (message (format "Activate theme for frame: %s" frame))
         (kb/activate-frame-theme frame))
-
     ))
 
 ;; (kb/activate-theme)
@@ -856,12 +884,10 @@ If theme is'n loaded then it will be loaded at first"
   :doc "tools for declaring and initializing options"
   :tag "builtin" "faces" "help"
   :added "2022-11-04"
-  :init
-  (add-to-list 'initial-frame-alist '(font . "Hack"))
-  (add-to-list 'default-frame-alist '(font . "Hack"))
   :custom
   (custom-safe-themes . t)
-  (custom-enabled-themes . '(doom-monokai-machine wombat tango-dark))
+  ;; (custom-enabled-themes . '(doom-monokai-machine wombat tango-dark))
+  ;; (custom-enabled-themes . '(doom-monokai-machine))
   ;; :config
   ;; (message "custom: load kb/window-theme")
   ;; (load-theme kb/window-theme t)
@@ -969,7 +995,7 @@ If theme is'n loaded then it will be loaded at first"
   :url "https://github.com/tarsius/hl-todo"
   :added "2022-11-02"
   :emacs>= 25.1
-  :ensure t
+  :straight t
   :bind ((:hl-todo-mode-map
           ("C-c t p" . #'hl-todo-previous)
           ("C-c t n" . #'hl-todo-next)
@@ -979,6 +1005,16 @@ If theme is'n loaded then it will be loaded at first"
   :config
   (add-to-list 'hl-todo-keyword-faces '("NOCOMMIT" . "#ff00ff"))
   (global-hl-todo-mode))
+
+(leaf hl-printf
+  :doc "Minor mode for highlighting \"printf\" format specifiers"
+  :req "emacs-24.1" "compat-29.1.0.1"
+  :tag "faces" "c" "emacs>=24.1"
+  :url "https://github.com/8dcc/hl-printf.el"
+  :added "2025-01-15"
+  :emacs>= 24.1
+  :straight t
+  :after compat)
 
 ;;--------------------------------------------------------------------------------
 ;; GDB
@@ -1066,7 +1102,7 @@ If theme is'n loaded then it will be loaded at first"
 
 ;; Highlight uncommitted changes
 (leaf diff-hl
-  :ensure t
+  :straight t
   :hook ((prog-mode-hook vc-dir-mode-hook) . turn-on-diff-hl-mode))
 
 ;; vc-hooks
@@ -1079,7 +1115,7 @@ If theme is'n loaded then it will be loaded at first"
   :doc "Subversion interface"
   :tag "docs"
   :added "2023-01-31"
-  :ensure t
+  :straight t
   :require vc-svn
   :commands svn-status svn-update
   )
@@ -1121,7 +1157,7 @@ If theme is'n loaded then it will be loaded at first"
 ;; speedup tramp
 (leaf tramp
   :disabled t
-  ;; :ensure tramp
+  ;; :straight tramp
   ;; :pin "gnu"
   :custom
   (tramp-verbose . 1)
@@ -1193,7 +1229,7 @@ If theme is'n loaded then it will be loaded at first"
   :url "https://github.com/purcell/ibuffer-projectile"
   :added "2022-11-01"
   :emacs>= 24.1
-  :ensure t
+  :straight t
   :after projectile
   :hook (ibuffer-mode-hook . (lambda ()
                                (ibuffer-projectile-set-filter-groups)
@@ -1210,23 +1246,23 @@ If theme is'n loaded then it will be loaded at first"
                                     project-relative-file)))
            )
   )
-(leaf ibuffer-vc :ensure t)
+(leaf ibuffer-vc :straight t)
 
 
 ;;--------------------------------------------------------------------------------
 ;; Additional packages
 ;;--------------------------------------------------------------------------------
 (leaf comment-dwim-2
-  :ensure t
+  :straight t
   :bind ("M-;" . comment-dwim-2)
   )
 (leaf banner-comment
-  :ensure t
+  :straight t
   :bind ("M-'" . banner-comment)
   )
 
 (leaf rainbow-delimiters
-  :ensure t
+  :straight t
   :hook prog-mode-hook)
 
 (leaf anzu
@@ -1236,7 +1272,7 @@ If theme is'n loaded then it will be loaded at first"
   :url "https://github.com/emacsorphanage/anzu"
   :added "2022-10-28"
   :emacs>= 25.1
-  :ensure t
+  :straight t
   :custom ((anzu-mode-lighter . "")
            (anzu-deactivate-region . t)
            (anzu-search-threshold . 1000)
@@ -1254,16 +1290,54 @@ If theme is'n loaded then it will be loaded at first"
   (global-anzu-mode +1))
 
 (leaf golden-ratio
-  :ensure t
+  :straight t
   :config (golden-ratio-mode))
 
 (leaf editorconfig
-  :ensure t
-  :blackout " EC"
+  :straight t
+  ;; :blackout " EC"
   :config (editorconfig-mode 1))
 
+;; (leaf lsp-docker
+;;   :doc "LSP Docker integration"
+;;   :req "emacs-27.1" "dash-2.14.1" "lsp-mode-6.2.1" "f-0.20.0" "s-1.13.0" "yaml-0.2.0" "ht-2.0"
+;;   :tag "langserver" "languages" "emacs>=27.1"
+;;   :url "https://github.com/emacs-lsp/lsp-docker"
+;;   :added "2025-01-20"
+;;   :emacs>= 27.1
+;;   :straight t
+;;   :after lsp-mode yaml
+;;   :config
+;;   (defvar lsp-docker-client-packages
+;;     '(lsp-css lsp-clients lsp-bash lsp-go lsp-pylsp lsp-html lsp-typescript
+;;               lsp-terraform lsp-clangd))
+
+;;   (setq lsp-docker-client-configs
+;;     '((:server-id bash-ls :docker-server-id bashls-docker :server-command "bash-language-server start")
+;;       (:server-id clangd :docker-server-id clangd-docker :server-command "clangd")
+;;       (:server-id css-ls :docker-server-id cssls-docker :server-command "css-languageserver --stdio")
+;;       (:server-id dockerfile-ls :docker-server-id dockerfilels-docker :server-command "docker-langserver --stdio")
+;;       (:server-id gopls :docker-server-id gopls-docker :server-command "gopls")
+;;       (:server-id html-ls :docker-server-id htmls-docker :server-command "html-languageserver --stdio")
+;;       (:server-id pylsp :docker-server-id pyls-docker :server-command "pylsp")
+;;       (:server-id ts-ls :docker-server-id tsls-docker :server-command "typescript-language-server --stdio")))
+
+;;   (require 'lsp-docker)
+;;   (lsp-docker-init-clients
+;;    :path-mappings '(("~/projects/ascgit154.speechcore22/" . "~/projects/ascgit154.speechcore22/"))
+;;    :client-packages lsp-docker-client-packages
+;;    :client-configs lsp-docker-client-configs)
+;;   )
+
 (leaf posframe
-  :ensure t)
+  :doc "Pop a posframe (just a frame) at point"
+  :req "emacs-26.1"
+  :tag "tooltip" "convenience" "emacs>=26.1"
+  :url "https://github.com/tumashu/posframe"
+  :added "2025-01-20"
+  :emacs>= 26.1
+  :straight t
+  :require t)
 
 (leaf flycheck
   :doc "On-the-fly syntax checking"
@@ -1272,7 +1346,7 @@ If theme is'n loaded then it will be loaded at first"
   :url "https://www.flycheck.org"
   :added "2024-03-18"
   :emacs>= 26.1
-  :ensure t
+  :straight t
   :init (global-flycheck-mode)
   :custom ((flycheck-indication-mode . 'right-fringe)
            (flycheck-check-syntax-automatically . '(save mode-enabled))
@@ -1301,11 +1375,11 @@ If theme is'n loaded then it will be loaded at first"
     ("q" nil))
   )
 (leaf flycheck-clang-analyzer
-  :ensure t
+  :straight t
   :after flycheck
   :config (flycheck-clang-analyzer-setup))
 (leaf flycheck-clang-tidy
-  :ensure t
+  :straight t
   :after flycheck projectile
   :config (flycheck-clang-tidy-setup))
 (leaf flycheck-google-cpplint
@@ -1319,10 +1393,10 @@ If theme is'n loaded then it will be loaded at first"
 
 (leaf flycheck-projectile
   :after flycheck projectile
-  :ensure t
+  :straight t
   :require flycheck-projectile)
 (leaf avy-flycheck
-  :ensure t
+  :straight t
   :hook (flycheck-mode-hook . avy-flycheck-setup))
 (leaf flycheck-posframe
   :doc "Show flycheck error messages using posframe.el"
@@ -1331,7 +1405,7 @@ If theme is'n loaded then it will be loaded at first"
   :url "https://github.com/alexmurray/flycheck-posframe"
   :added "2022-11-16"
   :emacs>= 26
-  :ensure t
+  :straight t
   :after flycheck posframe
   :hook flycheck-mode-hook)
 
@@ -1342,7 +1416,7 @@ If theme is'n loaded then it will be loaded at first"
   :url "https://github.com/syohex/emacs-emamux"
   :added "2023-02-07"
   :emacs>= 24.3
-  :ensure t)
+  :straight t)
 
 ;;================================================================================
 ;; Spell checking
@@ -1443,7 +1517,7 @@ If theme is'n loaded then it will be loaded at first"
   :added "2022-11-03"
   ;; :emacs>= 25.1
   :disabled t
-  :ensure t
+  :straight t
   :after flycheck
   :advice (:after ispell-pdict-save flycheck-maybe-recheck)
   :config
@@ -1452,7 +1526,7 @@ If theme is'n loaded then it will be loaded at first"
       (flycheck-buffer)))
   )
 
-(leaf unicode-fonts :ensure t)
+(leaf unicode-fonts :straight t)
 
 ;; http://unifoundry.com/pub/unifont/unifont-14.0.01/font-builds/unifont-14.0.01.ttf
 (defvar kb/fonts '((:url "http://unifoundry.com/pub/unifont/unifont-14.0.03/font-builds/"
@@ -1514,8 +1588,8 @@ If theme is'n loaded then it will be loaded at first"
 ;;                (if known-dest? "installed" "downloaded")
 ;;               font-dest))))
 
-(leaf undo-tree :ensure t
-  :blackout t
+(leaf undo-tree :straight t
+  ;; :blackout t
   :disabled t
   :custom ((undo-tree-auto-save-history . nil))
   :config (global-undo-tree-mode)
@@ -1525,13 +1599,17 @@ If theme is'n loaded then it will be loaded at first"
   )
 
 (leaf vundo
+  :doc "Visual undo tree"
+  :req "emacs-28.1"
+  :tag "editing" "text" "undo" "emacs>=28.1"
+  :url "https://github.com/casouri/vundo"
+  :added "2025-01-15"
   :emacs>= 28.1
-  :ensure t
+  :straight t
   :custom ((vundo-roll-back-on-quit . t) ; t is default
-           )
+           (vundo-glyph-alist . vundo-unicode-symbols))
   :defer-config
   (set-face-attribute 'vundo-default nil :family "Symbola")
-  (setq vundo-glyph-alist vundo-unicode-symbols)
   )
 (leaf undo-fu
   :doc "Undo helper with redo"
@@ -1540,7 +1618,7 @@ If theme is'n loaded then it will be loaded at first"
   :url "https://codeberg.org/ideasman42/emacs-undo-fu"
   :added "2022-12-05"
   :emacs>= 25.1
-  :ensure t
+  :straight t
   :config
   (global-unset-key (kbd "C-z"))
   (global-set-key (kbd "C-z") 'undo-fu-only-undo)
@@ -1548,7 +1626,7 @@ If theme is'n loaded then it will be loaded at first"
   )
 
 (leaf beacon
-  :ensure t
+  :straight t
   :config
   (beacon-mode 1))
 
@@ -1559,12 +1637,12 @@ If theme is'n loaded then it will be loaded at first"
   :url "https://github.com/emacs-gnuplot/gnuplot"
   :added "2022-10-31"
   :emacs>= 24.3
-  :ensure t)
+  :straight t)
 
 (leaf org
   :doc "Outline-based notes management and organizer"
   :added "2022-10-31"
-  :ensure t
+  :straight t
   :commands (org-capture org-agenda)
   :hook ((org-mode-hook . kb/org-mode-setup)
          (org-mode-hook . kb/org-font-setup))
@@ -1682,28 +1760,55 @@ This function is based on work of David Wilson.
     (define-key org-mode-map (kbd "C-<print>") #'ews-org-insert-screenshot))
   )
 
-(leaf org-superstar
-  :doc "Prettify headings and plain lists in Org mode"
-  :req "org-9.1.9" "emacs-26.1"
-  :tag "outlines" "faces" "emacs>=26.1"
-  :url "https://github.com/integral-dw/org-superstar-mode"
-  :added "2022-12-07"
-  :emacs>= 26.1
-  :ensure t
-  :hook org-mode-hook
+(leaf org-appear
+  :doc "Auto-toggle Org elements"
+  :req "emacs-29.1" "org-9.3"
+  :tag "emacs>=29.1"
+  :url "https://github.com/awth13/org-appear"
+  :added "2024-11-21"
+  :emacs>= 29.1
+  :straight t
   :after org
-  :custom
-  (org-superstart-headline-bullets-list . '("◉" "○" "●" "○" "●" "○" "●")))
+  :hook org-mode-hook)
 
-(leaf org-bullets
-  :doc "Show bullets in org-mode as UTF-8 characters"
-  :url "https://github.com/integral-dw/org-bullets"
-  :added "2022-10-31"
-  :disabled t
-  :ensure t
-  :hook org-mode-hook
+(leaf org-modern
+  :doc "Modern looks for Org"
+  :req "emacs-28.1" "compat-30"
+  :tag "text" "hypermedia" "outlines" "emacs>=28.1"
+  :url "https://github.com/minad/org-modern"
+  :added "2024-11-21"
+  :emacs>= 28.1
+  :straight t
+  :after compat
+  :hook org-mode-hook ;; global-org-modern-mode
   :custom
-  (org-bullets-bullet-list . '("◉" "○" "●" "○" "●" "○" "●")))
+  (org-modern-keyword . nil)
+  ;; (setq org-modern-checkbox . nil)
+  (org-modern-table . nil)
+  (org-modern-star . 'fold)
+  (org-modern-fold-stars . '(("◉" . "○") ("◈" . "◇") ("*" .  "⁑") ("✳" . "⁂") ("▶" . "▼") ("▷" . "▽") ("⯈" . "⯆") ("▹" . "▿") ("▸" . "▾")))
+  (org-modern-list . '((?* . "•")
+                       (?+ . "➤")
+                       (?- . "◦"))
+                   ))
+
+(leaf org-fragtog
+  :doc "Auto-toggle Org LaTeX fragments"
+  :req "emacs-27.1"
+  :tag "emacs>=27.1"
+  :url "https://github.com/io12/org-fragtog"
+  :added "2024-11-21"
+  :emacs>= 27.1
+  :after org
+  :straight t
+  :hook org-mode
+  :custom
+  (org-startup-with-latex-preview . t)
+  :config
+  (setf (plist-get org-format-latex-options :scale) 3)
+  ;; (setf (plist-get org-format-latex-options :foreground) auto)
+  ;; (setf (plist-get org-format-latex-options :background) auto)
+)
 
 (leaf org-make-toc
   :doc "Automatic tables of contents for Org files"
@@ -1712,7 +1817,7 @@ This function is based on work of David Wilson.
   :url "http://github.com/alphapapa/org-make-toc"
   :added "2022-12-05"
   :emacs>= 26.1
-  :ensure t
+  :straight t
   :after org)
 
 (leaf htmlize
@@ -1720,7 +1825,7 @@ This function is based on work of David Wilson.
   :tag "extensions" "hypermedia"
   :url "https://github.com/hniksic/emacs-htmlize"
   :added "2022-10-31"
-  :ensure t)
+  :straight t)
 
 (leaf ox-latex
   :doc "LaTeX Backend for Org Export Engine"
@@ -1748,21 +1853,21 @@ This function is based on work of David Wilson.
   :url "http://github.com/ofosos/org-epub"
   :added "2024-08-05"
   :emacs>= 24.3
-  :ensure t
+  :straight t
   :after org)
 
 (leaf ox-gfm
   :doc "Github Flavored Markdown Back-End for Org Export Engine"
   :tag "github" "markdown" "wp" "org"
   :added "2023-04-13"
-  :ensure t)
+  :straight t)
 
 (leaf ox-reveal
   :doc "reveal.js Presentation Back-End for Org Export Engine"
   :req "org-8.3"
   :tag "presentation" "slideshow" "hypermedia" "outlines"
   :added "2022-10-31"
-  :ensure t
+  :straight t
   :after org
   :custom (
            (org-reveal-root . "https://cdn.jsdelivr.net/npm/reveal.js")
@@ -1775,7 +1880,7 @@ This function is based on work of David Wilson.
   :tag "wp" "hypermedia" "outlines"
   :url "https://github.com/stig/ox-jira.el"
   :added "2022-10-31"
-  :ensure t
+  :straight t
   :after org
   :require ox-jira)
 (leaf ox-mediawiki
@@ -1784,17 +1889,8 @@ This function is based on work of David Wilson.
   :tag "mediawiki" "wp" "org"
   :url "https://github.com/tomalexander/orgmode-mediawiki"
   :added "2022-10-31"
-  :ensure t
+  :straight t
   :require ox-mediawiki)
-(leaf ox-pukiwiki
-  :doc "Pukiwiki Back-End for Org Export Engine"
-  :req "org-8.1"
-  :tag "pukiwiki" "org"
-  :url "https://github.com/yashi/org-pukiwiki"
-  :added "2022-10-31"
-  :ensure t
-  :after org
-  :require ox-pukiwiki)
 (leaf ox-tiddly
   :doc "Org TiddlyWiki exporter"
   :req "org-8" "emacs-24.4"
@@ -1802,7 +1898,7 @@ This function is based on work of David Wilson.
   :url "https://github.com/dfeich/org8-wikiexporters"
   :added "2022-10-31"
   ;; :emacs>= 24.4
-  :ensure t
+  :straight t
   :after org)
 (leaf ox-trac
   :doc "Org Export Backend to Trac WikiFormat"
@@ -1810,7 +1906,7 @@ This function is based on work of David Wilson.
   :tag "trac" "org-mode"
   :url "https://github.com/JalapenoGremlin/ox-trac"
   :added "2022-10-31"
-  :ensure t
+  :straight t
   :after org)
 (leaf ox-twiki
   :doc "Org Twiki and Foswiki export"
@@ -1819,7 +1915,7 @@ This function is based on work of David Wilson.
   :url "https://github.com/dfeich/org8-wikiexporters"
   :added "2022-10-31"
   ;; :emacs>= 24.4
-  :ensure t
+  :straight t
   :after org)
 (leaf ox-wk
   :doc "Wiki Back-End for Org Export Engine"
@@ -1828,7 +1924,7 @@ This function is based on work of David Wilson.
   :url "https://github.com/w-vi/ox-wk.el"
   :added "2022-10-31"
   ;; :emacs>= 24.4
-  :ensure t
+  :straight t
   :after org)
 
 ;; (require 'ox-confluence)
@@ -1840,7 +1936,7 @@ This function is based on work of David Wilson.
   :url "http://github.com/bastibe/org-journal"
   :added "2022-10-31"
   ;; :emacs>= 25.1
-  :ensure t
+  :straight t
   ;; :after org
   :commands (org-journal-new-entry)
   ;;  :init ()
@@ -1861,7 +1957,7 @@ This function is based on work of David Wilson.
   :url "https://github.com/federicotdn/verb"
   :added "2023-11-09"
   :emacs>= 26.3
-  :ensure t
+  :straight t
   :after org
   :bind-keymap (:org-mode-map :package org ("C-c C-0" . #'verb-command-map))
 
@@ -1880,7 +1976,7 @@ This function is based on work of David Wilson.
   :url "https://jblevins.org/projects/deft/"
   :added "2022-10-31"
   :disabled t
-  :ensure t
+  :straight t
   :custom ((deft-directory . org-journal-dir)
            (deft-recursive . t)))
 
@@ -1891,24 +1987,24 @@ This function is based on work of David Wilson.
   :url "https://jblevins.org/projects/markdown-mode/"
   :added "2022-10-31"
   :emacs>= 26.1
-  :ensure t
+  :straight t
   :mode ("\\.text\\'" "\\.markdown\\'" "\\.md\\'"))
 (leaf highlight-doxygen
   :doc "Highlight Doxygen comments"
   :tag "faces"
   :url "https://github.com/Lindydancer/highlight-doxygen"
   :added "2022-10-31"
-  :ensure t
+  :straight t
   :hook c-mode-common-hook)
 
 ;; (leaf pabbrev
 ;;   :doc "Predictive abbreviation expansion"
 ;;   :added "2022-10-31"
-;;   :ensure t
+;;   :straight t
 ;;   :config (global-pabbrev-mode))
 
 (leaf abbrev
-  :blackout abbrev-mode
+  ;; :blackout abbrev-mode
   :custom
   (save-abbrevs . t)
   :config
@@ -1920,7 +2016,7 @@ This function is based on work of David Wilson.
   :tag "refactoring" "simultaneous" "region" "occurrence"
   :url "https://github.com/victorhge/iedit"
   :added "2022-10-31"
-  :ensure t
+  :straight t
   :bind ("C-c ;" . iedit-mode))
 
 ;; (leaf volatile-highlights
@@ -1928,7 +2024,7 @@ This function is based on work of David Wilson.
 ;;   :tag "wp" "convenience" "emulations"
 ;;   :url "http://www.emacswiki.org/emacs/download/volatile-highlights.el"
 ;;   :added "2022-11-01"
-;;   :ensure t
+;;   :straight t
 ;;   :blackout t
 ;;   ;; :after undo-tree
 ;;   :custom (Vhl/highlight-zero-width-ranges . t)
@@ -1939,19 +2035,19 @@ This function is based on work of David Wilson.
 ;;   )
 
 (leaf ws-butler
-  :ensure t
+  :straight t
   :hook ((c-mode-common-hook text-mode-hook fundamental-mode-hook) . ws-butler-mode))
 
 (leaf cycle-quotes
-  :ensure t
+  :straight t
   :bind ("C-c q" . cycle-quotes))
 
 (leaf bool-flip
-  :ensure t
+  :straight t
   :bind ("C-c C-b" . bool-flip-do-flip))
 
 (leaf company
-  :ensure t
+  :straight t
   :hook (after-init-hook . global-company-mode)
   :custom (
            (company-minimum-prefix-length . 1)
@@ -1984,18 +2080,18 @@ This function is based on work of David Wilson.
                                       (add-to-list (make-local-variable 'company-backends) 'company-yasnippet))))
   :config
   (leaf company-statistics
-    :ensure t
+    :straight t
     :config
     (company-statistics-mode))
   (leaf company-posframe
-    :ensure t
+    :straight t
     :after posframe company
     :custom ((company-posframe-lighter . ""))
     :config
     (company-posframe-mode 1)
     )
   (leaf company-quickhelp
-    :ensure t
+    :straight t
     :disabled t
     :after company
     :bind (:company-active-map ("C-c h" . #'company-quickhelp-manual-begin))
@@ -2009,7 +2105,7 @@ This function is based on work of David Wilson.
     :tag "company" "development" "emacs>=24.1"
     :added "2022-10-31"
     :emacs>= 24.1
-    :ensure t
+    :straight t
     :disabled t
     :after company
     :config
@@ -2024,7 +2120,7 @@ This function is based on work of David Wilson.
   :url "https://github.com/Fanael/highlight-numbers"
   :added "2022-10-31"
   :emacs>= 24
-  :ensure t
+  :straight t
   :hook prog-mode-hook)
 (leaf highlight-defined
   :doc "Syntax highlighting of known Elisp symbols"
@@ -2033,13 +2129,13 @@ This function is based on work of David Wilson.
   :url "https://github.com/Fanael/highlight-defined"
   :added "2022-10-31"
   :emacs>= 24
-  :ensure t
+  :straight t
   :hook emacs-lisp-mode-hook)
 
 (leaf highlight-operators
   :doc "a face for operators in programming modes"
   :added "2022-10-31"
-  :ensure t
+  :straight t
   :hook c-mode-common-hook)
 
 (leaf highlight-escape-sequences
@@ -2047,7 +2143,7 @@ This function is based on work of David Wilson.
   :tag "convenience"
   :url "https://github.com/dgutov/highlight-escape-sequences"
   :added "2022-10-31"
-  :ensure t
+  :straight t
   :config (hes-mode))
 
 (leaf clang-format
@@ -2055,7 +2151,7 @@ This function is based on work of David Wilson.
   :req "cl-lib-0.3"
   :tag "c" "tools"
   :added "2022-10-31"
-  :ensure t
+  :straight t
   :when (executable-find "clang-format")
   :bind (("C-M-'" . clang-format-region)))
 (leaf clang-format+
@@ -2065,9 +2161,9 @@ This function is based on work of David Wilson.
   :url "https://github.com/SavchenkoValeriy/emacs-clang-format-plus"
   :added "2022-10-31"
   :emacs>= 25.1
-  :ensure t
+  :straight t
   :after clang-format
-  :ensure t
+  :straight t
   :custom (clang-format+-context 'modification)
   ;;:hook (c-mode-common-hook . clang-format+-mode)
   )
@@ -2078,7 +2174,7 @@ This function is based on work of David Wilson.
   :url "https://github.com/emacs-lsp/lsp-mode"
   :added "2022-10-31"
   :emacs>= 26.1
-  :ensure t
+  :straight t
   ;; :after spinner markdown-mode lv
   ;; :commands (lsp lsp-deferred which-key)
   ;; :init
@@ -2128,7 +2224,7 @@ This function is based on work of David Wilson.
   :url "https://github.com/emacs-lsp/lsp-ui"
   :added "2022-10-31"
   :emacs>= 26.1
-  :ensure t
+  :straight t
   ;; :after lsp-mode markdown-mode
   :hook (lsp-mode-hook . lsp-ui-mode)
   :bind (:lsp-ui-mode-map
@@ -2148,50 +2244,50 @@ This function is based on work of David Wilson.
   )
 (leaf lsp-ivy
   :doc "LSP ivy integration"
-  :req "emacs-25.1" "dash-2.14.1" "lsp-mode-6.2.1" "ivy-0.13.0"
-  :tag "debug" "languages" "emacs>=25.1"
+  :req "emacs-27.1" "dash-2.14.1" "lsp-mode-6.2.1" "ivy-0.13.0"
+  :tag "debug" "languages" "emacs>=27.1"
   :url "https://github.com/emacs-lsp/lsp-ivy"
-  :added "2022-10-31"
-  :emacs>= 25.1
-  :ensure t
+  :added "2025-01-17"
+  :emacs>= 27.1
+  ;; :disabled t
+  :straight t
   :after lsp-mode ivy
   :commands lsp-ivy-workspace-symbol)
 
 (leaf cmake-mode
-  :doc "major-mode for editing CMake sources"
+  :doc "Major-mode for editing CMake sources"
   :req "emacs-24.1"
   :tag "emacs>=24.1"
-  :added "2022-10-31"
+  :added "2025-01-17"
   :emacs>= 24.1
-  :ensure t
+  :straight t
   :mode ("CMakeLists\\.txt\\'" "\\.cmake\\'")
-  :hook (cmake-mode-hook . ((lambda ()
+  :hook ((cmake-mode-hook . (lambda ()
                               (message "CmakeMode custom")
                               (setq fill-column 80)
                               (auto-fill-mode)
                               (setq cmake-tab-width 4)
-                              (setq indent-tabs-mode nil))
-                            (lsp-deferred)))
-  )
+                              (setq indent-tabs-mode nil)))
+         (cmake-mode-hook . lsp-deferred)))
+  
 (leaf cmake-font-lock
   :doc "Advanced, type aware, highlight support for CMake"
   :req "cmake-mode-0.0"
   :tag "languages" "faces"
   :url "https://github.com/Lindydancer/cmake-font-lock"
-  :added "2022-10-31"
-  :ensure t
-  :after cmake-mode
-  )
+  :added "2025-01-17"
+  :straight t
+  :after cmake-mode)
 
 (leaf treemacs
   :doc "A tree style file explorer package"
   :req "emacs-26.1" "cl-lib-0.5" "dash-2.11.0" "s-1.12.0" "ace-window-0.9.0" "pfuture-1.7" "hydra-0.13.2" "ht-2.2" "cfrs-1.3.2"
   :tag "emacs>=26.1"
   :url "https://github.com/Alexander-Miller/treemacs"
-  :added "2022-10-31"
-  ;; :emacs>= 26.1
-  :ensure t
-  ;; :after ace-window pfuture hydra cfrs
+  :added "2025-01-17"
+  :emacs>= 26.1
+  :after ace-window pfuture hydra cfrs
+  :straight t
   :bind ("<f8>" . treemacs)
   :custom-face
   ;; update font size
@@ -2208,26 +2304,31 @@ This function is based on work of David Wilson.
   )
 
 (leaf ace-window
-  :ensure t
+  :doc "Quickly switch windows"
+  :req "avy-0.5.0"
+  :tag "location" "window"
+  :url "https://github.com/abo-abo/ace-window"
+  :added "2025-01-17"
+  :straight t
   :after avy
   :bind
   ("C-x o" . ace-window)
   :custom
   (aw-keys . '(?a ?s ?d ?f ?h ?h ?j ?k ?l))
-  )
+  :config (ace-window-posframe-mode))
 
 (leaf adaptive-wrap
-  :ensure t
+  :straight t
   :hook ((text-mode . adaptive-wrap-prefix-mode)))
 
 (leaf lsp-treemacs
   :doc "LSP treemacs"
-  :req "emacs-26.1" "dash-2.18.0" "f-0.20.0" "ht-2.0" "treemacs-2.5" "lsp-mode-6.0"
-  :tag "languages" "emacs>=26.1"
+  :req "emacs-27.1" "dash-2.18.0" "f-0.20.0" "ht-2.0" "treemacs-2.5" "lsp-mode-6.0"
+  :tag "languages" "emacs>=27.1"
   :url "https://github.com/emacs-lsp/lsp-treemacs"
-  :added "2022-10-31"
-  ;; :emacs>= 26.1
-  :ensure t
+  :added "2025-01-17"
+  :emacs>= 27.1
+  :straight t
   :after treemacs lsp-mode
   :commands lsp-treemacs-errors-list)
 
@@ -2238,7 +2339,7 @@ This function is based on work of David Wilson.
   :url "https://github.com/emacs-lsp/dap-mode"
   :added "2022-10-31"
   :emacs>= 26.1
-  :ensure t
+  :straight t
   :after lsp-mode
   :require 'dap-cpptools
   )
@@ -2249,19 +2350,13 @@ This function is based on work of David Wilson.
   :tag "tools" "files"
   :url "https://github.com/fourier/ztree"
   :added "2022-10-31"
-  :ensure t)
+  :straight t)
 
 (leaf which-key
   :doc "Display available keybindings in popup"
-  :req "emacs-24.4"
-  :tag "emacs>=24.4"
-  :url "https://github.com/justbur/emacs-which-key"
-  :added "2022-10-31"
-  :emacs>= 24.4
-  :ensure t
-  ;; :defer 0
-  :blackout t
-  :custom (which-key-idle-delay . 1)
+  :tag "builtin"
+  :added "2025-01-16"
+  :custom ((which-key-idle-delay . 1))
   :config (which-key-mode)
   (add-to-list 'which-key-replacement-alist
                '((nil . "\\`hydra-\\(.+\\)/body\\'") . (nil . "h/\\1")))
@@ -2275,30 +2370,30 @@ This function is based on work of David Wilson.
     :req "emacs-24.4" "which-key-3.3.2"
     :tag "convenience" "emacs>=24.4"
     :url "https://gitlab.com/jjzmajic/hercules"
-    :added "2022-10-31"
+    :added "2025-01-16"
     :emacs>= 24.4
-    :ensure t
+    :straight t
     :after which-key)
 
   (leaf which-key-posframe
     :doc "Using posframe to show which-key"
-    :req "emacs-26.0" "posframe-0.4.3" "which-key-3.3.2"
+    :req "emacs-26.0" "posframe-1.4.0" "which-key-3.6.0"
     :tag "tooltip" "bindings" "convenience" "emacs>=26.0"
-    :url "https://github.com/yanghaoxie/which-key-posframe"
-    :added "2022-10-31"
+    :url "https://github.com/emacsorphanage/which-key-posframe"
+    :added "2025-01-16"
     :emacs>= 26.0
-    :ensure t
     :after posframe which-key
-    :custom (which-key-posframe-font . "Liberation Mono"))
-  :config (which-key-posframe-mode)
-  )
+    :straight t
+    :custom (which-key-posframe-font . "Liberation Mono")
+    :config (which-key-posframe-mode)))
 (leaf ninja-mode
-  :doc "Major mode for editing .ninja files"
-  :req "emacs-24"
-  :tag "emacs>=24"
-  :added "2022-10-31"
-  :emacs>= 24
-  :ensure t)
+  :doc "Major mode for editing .ninja files."
+  :req "emacs-24.3"
+  :tag "languages" "emacs>=24.3"
+  :url "https://github.com/jhasse/ninja-emacs"
+  :added "2025-01-16"
+  :emacs>= 24.3
+  :straight t)
 (leaf yaml-mode
   :doc "Major mode for editing YAML files"
   :req "emacs-24.1"
@@ -2306,13 +2401,13 @@ This function is based on work of David Wilson.
   :url "https://github.com/yoshiki/yaml-mode"
   :added "2022-10-31"
   :emacs>= 24.1
-  :ensure t)
+  :straight t)
 (leaf ietf-docs
   :doc "Fetch, Cache and Load IETF documents"
   :tag "rfc" "ietf"
   :url "https://github.com/choppsv1/ietf-docs"
   :added "2022-10-31"
-  :ensure t
+  :straight t
   :bind (("C-c k o" . ietf-docs-open-at-point)))
 (leaf rfc-mode
   :doc "RFC document browser and viewer"
@@ -2321,7 +2416,7 @@ This function is based on work of David Wilson.
   :url "https://github.com/galdor/rfc-mode"
   :added "2022-10-31"
   :emacs>= 25.1
-  :ensure t)
+  :straight t)
 
 (leaf protobuf-mode
   :doc "major mode for editing protocol buffers."
@@ -2343,7 +2438,7 @@ This function is based on work of David Wilson.
   :url "https://github.com/domtronn/all-the-icons.el"
   :added "2022-10-31"
   :emacs>= 24.3
-  :ensure t
+  :straight t
   :config
   (unless (file-exists-p (expand-file-name "~/.local/share/fonts/all-the-icons.ttf"))
     (all-the-icons-install-fonts t))
@@ -2354,7 +2449,7 @@ This function is based on work of David Wilson.
     :url "https://github.com/wyuenho/all-the-icons-dired"
     :added "2022-10-31"
     :emacs>= 26.1
-    :ensure t
+    :straight t
     :after all-the-icons
     :hook dired-mode-hook)
   (leaf all-the-icons-ibuffer
@@ -2364,7 +2459,7 @@ This function is based on work of David Wilson.
     :url "https://github.com/seagle0128/all-the-icons-ibuffer"
     :added "2022-10-31"
     :emacs>= 24.4
-    :ensure t
+    :straight t
     :after all-the-icons
     :config
     (with-eval-after-load 'ibuffer
@@ -2376,7 +2471,7 @@ This function is based on work of David Wilson.
     :url "https://github.com/Alexander-Miller/treemacs"
     :added "2022-10-31"
     :emacs>= 26.1
-    :ensure t
+    :straight t
     :after all-the-icons treemacs)
   (leaf all-the-icons-ivy
     :doc "Shows icons while using ivy and counsel"
@@ -2384,7 +2479,7 @@ This function is based on work of David Wilson.
     :tag "faces" "emacs>=24.4"
     :added "2022-10-31"
     :emacs>= 24.4
-    :ensure t
+    :straight t
     :after all-the-icons ivy
     :config
     (all-the-icons-ivy-setup))
@@ -2395,7 +2490,7 @@ This function is based on work of David Wilson.
     :url "https://github.com/seagle0128/all-the-icons-ivy-rich"
     :added "2022-10-31"
     :emacs>= 25.1
-    :ensure t
+    :straight t
     :after ivy-rich all-the-icons
     :config (all-the-icons-ivy-rich-mode 1))
   (leaf all-the-icons-completion
@@ -2405,7 +2500,7 @@ This function is based on work of David Wilson.
     :url "https://github.com/iyefrat/all-the-icons-completion"
     :added "2022-10-31"
     :emacs>= 26.1
-    :ensure t
+    :straight t
     :after all-the-icons
     :hook (marginalia-mode-hook . #'all-the-icons-completion-marginalia-setup)
     :config (all-the-icons-completion-mode)
@@ -2418,7 +2513,7 @@ This function is based on work of David Wilson.
   :url "https://github.com/Alexander-Miller/treemacs"
   :added "2022-10-31"
   :emacs>= 26.1
-  :ensure t
+  :straight t
   :after treemacs)
 
 (leaf marginalia
@@ -2428,7 +2523,7 @@ This function is based on work of David Wilson.
   :url "https://github.com/minad/marginalia"
   :added "2022-10-31"
   :emacs>= 27.1
-  :ensure t
+  :straight t
   ;; Either bind `marginalia-cycle` globally or only in the minibuffer
   :bind (("M-A" . marginalia-cycle)
          (:minibuffer-local-map
@@ -2446,7 +2541,7 @@ This function is based on work of David Wilson.
   :tag "bindings"
   :url "https://github.com/abo-abo/hydra"
   :added "2022-10-31"
-  :ensure t
+  :straight t
   :after lv
   :config
   (defhydra hydra-goto (global-map "M-g")
@@ -2470,7 +2565,7 @@ This function is based on work of David Wilson.
   )
 
 (leaf vertico
-  :ensure t
+  :straight t
   :disabled t
   :bind (:vertico-map
          ("?" . #'minibuffer-completion-help)
@@ -2489,7 +2584,7 @@ This function is based on work of David Wilson.
 
   :config
   (leaf vertico-posframe
-    :ensure t
+    :straight t
     :after vertico
     :config
     (vertico-posframe-mode -1)))
@@ -2500,7 +2595,7 @@ This function is based on work of David Wilson.
   :url "https://github.com/oantolin/orderless"
   :added "2022-11-24"
   :emacs>= 26.1
-  :ensure t
+  :straight t
   :custom ((completion-styles . '(substring orderless basic))
            (completion-category-defaults . nil)
            (completion-category-overrides . '((file (styles partial-completion))))
@@ -2529,22 +2624,22 @@ This function is based on work of David Wilson.
   :config
   (savehist-mode 1)
 
-  (leaf ivy-dired-history
-    :doc "use ivy to open recent directories"
-    :req "ivy-0.9.0" "counsel-0.9.0" "cl-lib-0.5"
-    :url "https://github.com/jixiuf/ivy-dired-history"
-    :added "2023-02-28"
-    :ensure t
-    :after ivy counsel dired
-    :bind ((:dired-mode-map
-            ("," . #'dired)))
-    :require ivy-dired-history
-    :config
-    (add-to-list 'savehist-additional-variables 'ivy-dired-history-variable)
+  ;; (leaf ivy-dired-history
+  ;;   :doc "use ivy to open recent directories"
+  ;;   :req "ivy-0.9.0" "counsel-0.9.0" "cl-lib-0.5"
+  ;;   :url "https://github.com/jixiuf/ivy-dired-history"
+  ;;   :added "2023-02-28"
+  ;;   :straight t
+  ;;   :after ivy counsel dired
+  ;;   :bind ((:dired-mode-map
+  ;;           ("," . #'dired)))
+  ;;   :require ivy-dired-history
+  ;;   :config
+  ;;   (add-to-list 'savehist-additional-variables 'ivy-dired-history-variable)
 
-    ;; if you are using ido,you'd better disable ido for dired
-    ;; (define-key (cdr ido-minor-mode-map-entry) [remap dired] nil) ;in ido-setup-hook
-    )
+  ;;   ;; if you are using ido,you'd better disable ido for dired
+  ;;   ;; (define-key (cdr ido-minor-mode-map-entry) [remap dired] nil) ;in ido-setup-hook
+  ;;   )
   )
 
 (leaf emacs
@@ -2585,7 +2680,7 @@ We display [CRM<separator>], e.g., [CRM,] if the separator is a comma."
   :url "https://github.com/minad/consult"
   :added "2022-11-23"
   :emacs>= 27.1
-  :ensure t
+  :straight t
   :after compat
   :custom (setq completion-styles . '(substring basic))
   :bind (
@@ -2606,9 +2701,9 @@ We display [CRM<separator>], e.g., [CRM,] if the separator is a comma."
          )
   :config
   (leaf recentf :config (recentf-mode 1))
-  (leaf embark :ensure t)
+  (leaf embark :straight t)
   (leaf embark-consult
-    :ensure t)
+    :straight t)
   (leaf consult-ls-git
     :doc "Consult integration for git"
     :req "emacs-27.1" "consult-0.16"
@@ -2616,7 +2711,7 @@ We display [CRM<separator>], e.g., [CRM,] if the separator is a comma."
     :url "https://github.com/rcj/consult-ls-git"
     :added "2022-11-23"
     :emacs>= 27.1
-    :ensure t
+    :straight t
     :bind (("C-c g" . consult-ls-git-ls-status)
            ("C-c J" . consult-ls-git-ls-files))
     :after consult)
@@ -2627,7 +2722,7 @@ We display [CRM<separator>], e.g., [CRM,] if the separator is a comma."
     :url "https://github.com/Ghosty141/consult-git-log-grep"
     :added "2022-11-23"
     :emacs>= 27.1
-    :ensure t
+    :straight t
     :after consult
     :bind (
            ("C-c L" . consult-git-log-grep)))
@@ -2638,7 +2733,7 @@ We display [CRM<separator>], e.g., [CRM,] if the separator is a comma."
     :url "https://github.com/yadex205/consult-ag"
     :added "2022-11-23"
     :emacs>= 27.1
-    :ensure t
+    :straight t
     :after consult)
   (leaf consult-company
     :doc "Consult frontend for company"
@@ -2647,7 +2742,7 @@ We display [CRM<separator>], e.g., [CRM,] if the separator is a comma."
     :url "https://github.com/mohkale/consult-company"
     :added "2022-11-23"
     :emacs>= 27.1
-    :ensure t
+    :straight t
     :after company consult)
   (leaf consult-dir
     :doc "Insert paths into the minibuffer prompt"
@@ -2656,12 +2751,12 @@ We display [CRM<separator>], e.g., [CRM,] if the separator is a comma."
     :url "https://github.com/karthink/consult-dir"
     :added "2022-11-23"
     :emacs>= 26.1
-    :ensure t
+    :straight t
     :after consult project)
   (leaf consult-lsp
-    :ensure t)
+    :straight t)
   (leaf consult-notes
-    :ensure t
+    :straight t
     ;; :straight (:type git :host github :repo "mclear-tools/consult-notes")
     :commands (consult-notes
                consult-notes-search-in-all-notes
@@ -2676,7 +2771,7 @@ We display [CRM<separator>], e.g., [CRM,] if the separator is a comma."
     ;; Set org-roam integration OR denote integration
     (when (locate-library "denote")
       (consult-notes-denote-mode)))
-  (leaf denote :ensure t)
+  (leaf denote :straight t)
   )
 
 (leaf consult-projectile
@@ -2687,12 +2782,12 @@ We display [CRM<separator>], e.g., [CRM,] if the separator is a comma."
   :url "https://gitlab.com/OlMon/consult-projectile"
   :added "2022-11-23"
   :emacs>= 25.1
-  :ensure t
+  :straight t
   :bind (([remap projectile-switch-project] . consult-projectile-switch-project))
   :after consult projectile)
 
 (leaf counsel
-  :ensure t
+  :straight t
   :custom ((counsel-find-file-at-point . t)
            (counsel-find-file-ignore-regexp . (regexp-opt completion-ignored-extensions)))
   :bind (("<f2> j". counsel-set-variable)
@@ -2714,13 +2809,13 @@ We display [CRM<separator>], e.g., [CRM,] if the separator is a comma."
 
   :config
   (leaf counsel-tramp
-    :ensure t
+    :straight t
     :after counsel)
   (leaf counsel-projectile
-    :ensure t
+    :straight t
     :config(counsel-projectile-mode))
-  (leaf counsel-ag-popup :ensure t :require t)
-  (leaf counsel-edit-mode :ensure t
+  (leaf counsel-ag-popup :straight t :require t)
+  (leaf counsel-edit-mode :straight t
     :config (counsel-edit-mode-setup-ivy))
   (leaf counsel-jq
     :doc "Live preview of \"jq\" queries using counsel"
@@ -2730,11 +2825,11 @@ We display [CRM<separator>], e.g., [CRM,] if the separator is a comma."
     :added "2022-10-31"
     :emacs>= 24.1
     :when (executable-find "jq")
-    :ensure t
+    :straight t
     :after swiper ivy)
 
   (leaf helpful
-    :ensure t
+    :straight t
     :after counsel
     :custom
     (counsel-describe-function-function . #'helpful-callable)
@@ -2750,7 +2845,7 @@ We display [CRM<separator>], e.g., [CRM,] if the separator is a comma."
 
 (leaf counsel-fd
   :when (executable-find "fdfind")
-  :ensure t
+  :straight t
   :setq (counsel-fd-command . "fdfind --hidden --color never ")
   )
 
@@ -2761,10 +2856,10 @@ We display [CRM<separator>], e.g., [CRM,] if the separator is a comma."
   :url "https://github.com/bling/fzf.el"
   :added "2023-02-28"
   :emacs>= 24.4
-  :ensure t
+  :straight t
   )
 
-(leaf amx :ensure t :after ivy)
+(leaf amx :straight t :after ivy)
 (leaf ivy
   :doc "Incremental Vertical completYon"
   :req "emacs-24.5"
@@ -2772,8 +2867,8 @@ We display [CRM<separator>], e.g., [CRM,] if the separator is a comma."
   :url "https://github.com/abo-abo/swiper"
   :added "2022-10-31"
   :emacs>= 24.5
-  :ensure t
-  :blackout t
+  :straight t
+  ;; :blackout t
   :custom ((ivy-use-virutal-buffers . t)
            (ivy-count-format . "(%d/%d) ")
            (enable-recursive-minibuffers . t)
@@ -2837,19 +2932,21 @@ We display [CRM<separator>], e.g., [CRM,] if the separator is a comma."
     :url "https://github.com/abo-abo/swiper"
     :added "2022-10-31"
     :emacs>= 24.5
-    :ensure t
+    :straight t
     :after ivy
-    :ensure t
+    :straight t
     :bind ([remap isearch-forward] . swiper-isearch)
     )
+
   (leaf ivy-posframe
     :doc "Using posframe to show Ivy"
     :req "emacs-26.0" "posframe-1.0.0" "ivy-0.13.0"
     :tag "ivy" "matching" "convenience" "abbrev" "emacs>=26.0"
     :url "https://github.com/tumashu/ivy-posframe"
-    :added "2022-10-31"
+    :added "2025-01-17"
     :emacs>= 26.0
-    :ensure t
+    :after posframe ivy
+    :straight t
     :after posframe ivy
     ;; :defines (ivy-posframe-display-functions-alist)
     :custom (
@@ -2887,9 +2984,9 @@ We display [CRM<separator>], e.g., [CRM,] if the separator is a comma."
     :req "emacs-25.1" "ivy-0.13.0"
     :tag "ivy" "convenience" "emacs>=25.1"
     :url "https://github.com/Yevgnen/ivy-rich"
-    :added "2022-10-31"
+    :added "2025-01-17"
     :emacs>= 25.1
-    :ensure t
+    :straight t
     :after ivy
     :hook ivy-mode-hook)
   (leaf ivy-xref
@@ -2897,9 +2994,9 @@ We display [CRM<separator>], e.g., [CRM,] if the separator is a comma."
     :req "emacs-25.1" "ivy-0.10.0"
     :tag "emacs>=25.1"
     :url "https://github.com/alexmurray/ivy-xref"
-    :added "2022-10-31"
+    :added "2025-01-17"
     :emacs>= 25.1
-    :ensure t
+    :straight t
     :after ivy
     :custom (xref-show-xrefs-function . 'ivy-xref-show-xrefs))
   (leaf ivy-avy
@@ -2909,7 +3006,7 @@ We display [CRM<separator>], e.g., [CRM,] if the separator is a comma."
     :url "https://github.com/abo-abo/swiper"
     :added "2022-10-31"
     :emacs>= 24.5
-    :ensure t
+    :straight t
     :after ivy avy)
   (leaf ivy-hydra
     :doc "Additional key bindings for Ivy"
@@ -2918,7 +3015,7 @@ We display [CRM<separator>], e.g., [CRM,] if the separator is a comma."
     :url "https://github.com/abo-abo/swiper"
     :added "2022-10-31"
     :emacs>= 24.5
-    :ensure t
+    :straight t
     :after ivy hydra)
   (leaf ivy-emoji
     :doc "Insert emojis with ivy"
@@ -2927,7 +3024,7 @@ We display [CRM<separator>], e.g., [CRM,] if the separator is a comma."
     :url "https://github.com/sbozzolo/ivy-emoji.git"
     :added "2022-10-31"
     :emacs>= 26.1
-    :ensure t
+    :straight t
     :after ivy
     :config
     (set-fontset-font t 'symbol
@@ -2942,7 +3039,7 @@ We display [CRM<separator>], e.g., [CRM,] if the separator is a comma."
     )
   )
 (leaf windower
-  :ensure t
+  :straight t
   :bind (("<s-M-left>" . windower-move-border-left)
          ("<s-M-right>" . windower-move-border-right)
          ("<s-M-down>" . windower-move-border-below)
@@ -2955,14 +3052,14 @@ We display [CRM<separator>], e.g., [CRM,] if the separator is a comma."
 (unless (executable-find "cargo") (warn "cargo Rust package manager not found"))
 (leaf fuz
   ;; not working with emacs from ubuntu/snap
-  :disabled t
-  ;; :ensure t
+  ;; :disabled t
   :doc "Fast and precise fuzzy scoring/matching utils"
   :req "emacs-25.1"
   :tag "lisp" "emacs>=25.1"
   :url "https://github.com/cireu/fuz.el"
-  :added "2022-10-31"
+  :added "2025-01-17"
   :emacs>= 25.1
+  :straight t
   :when (executable-find "cargo")
   :require fuz
   :config
@@ -2972,28 +3069,29 @@ We display [CRM<separator>], e.g., [CRM,] if the separator is a comma."
 
 (leaf ivy-fuz
   ;; fuz not working properly on emacs ubuntu/snap
-  :disabled t
-  ;; :ensure t
-  :doc "Integration between fuz and ivy."
+  ;; :disabled t
+  :doc "Integration between fuz and ivy"
   :req "emacs-25.1" "fuz-1.3.0" "ivy-0.13.0"
   :tag "convenience" "emacs>=25.1"
   :url "https://github.com/Silex/ivy-fuz.el"
-  :added "2022-10-31"
+  :added "2025-01-17"
   :emacs>= 25.1
+  :straight t
   :after fuz ivy)
 
 (leaf smart-compile
-  :doc "an interface to `compile'"
+  :doc "An interface to `compile'"
   :tag "unix" "tools"
-  :added "2022-10-31"
-  :ensure t
+  :url "https://github.com/zenitani/elisp"
+  :added "2025-01-17"
+  :straight t
   :require smart-compile)
 
 (leaf zygospore
-  :doc "reversible C-x 1 (delete-other-windows)"
+  :doc "Reversible C-x 1 (delete-other-windows)"
   :url "https://github.com/louiskottmann/zygospore.el"
-  :added "2022-10-31"
-  :ensure t
+  :added "2025-01-17"
+  :straight t
   :bind ("C-x 1" . zygospore-toggle-delete-other-windows))
 
 ;; Use silversearcher-ag if available.
@@ -3004,7 +3102,7 @@ We display [CRM<separator>], e.g., [CRM,] if the separator is a comma."
   :url "https://github.com/Wilfred/ag.el"
   :added "2022-10-31"
   :when (executable-find "ag")
-  :ensure t
+  :straight t
   :config
   (leaf wgrep-ag
     :doc "Writable ag buffer and apply the changes to files"
@@ -3012,7 +3110,7 @@ We display [CRM<separator>], e.g., [CRM,] if the separator is a comma."
     :tag "extensions" "edit" "grep"
     :url "http://github.com/mhayashi1120/Emacs-wgrep/raw/master/wgrep-ag.el"
     :added "2022-10-31"
-    :ensure t
+    :straight t
     :after wgrep)
   )
 
@@ -3025,7 +3123,7 @@ We display [CRM<separator>], e.g., [CRM,] if the separator is a comma."
   :added "2022-10-31"
   :when (executable-find "rg")
   :emacs>= 25.1
-  :ensure t
+  :straight t
   :after wgrep)
 (leaf ripgrep
   :doc "Front-end for ripgrep, a command line search tool"
@@ -3033,7 +3131,7 @@ We display [CRM<separator>], e.g., [CRM,] if the separator is a comma."
   :url "https://github.com/nlamirault/ripgrep.el"
   :added "2022-10-31"
   :when (executable-find "rg")
-  :ensure t
+  :straight t
   :config
   (leaf projectile-ripgrep
     :doc "Run ripgrep with Projectile"
@@ -3041,7 +3139,7 @@ We display [CRM<separator>], e.g., [CRM,] if the separator is a comma."
     :tag "projectile" "ripgrep"
     :url "https://github.com/nlamirault/ripgrep.el"
     :added "2022-10-31"
-    :ensure t
+    :straight t
     :after ripgrep projectile))
 
 ;; :delight '(:eval (concat " " (projectile-project-name)))
@@ -3052,8 +3150,8 @@ We display [CRM<separator>], e.g., [CRM,] if the separator is a comma."
   :url "https://github.com/bbatsov/projectile"
   :added "2022-10-31"
   :emacs>= 25.1
-  :ensure t
-  :blackout t ; (projectile-project-name);  '(:eval (concat " " (projectile-project-name)))
+  :straight t
+  ;; :blackout t ; (projectile-project-name);  '(:eval (concat " " (projectile-project-name)))
   :commands projectile-project-p
   :custom ((projectile-indexing-method . 'alien)
            (projectile-completion-system . 'ivy)
@@ -3082,7 +3180,7 @@ We display [CRM<separator>], e.g., [CRM,] if the separator is a comma."
   :url "https://github.com/Alexander-Miller/treemacs"
   :added "2022-10-31"
   :emacs>= 26.1
-  :ensure t
+  :straight t
   :after projectile treemacs)
 
 (leaf python
@@ -3122,7 +3220,7 @@ We display [CRM<separator>], e.g., [CRM,] if the separator is a comma."
   :url "https://github.com/rust-lang/rust-mode"
   :added "2023-06-21"
   :emacs>= 25.1
-  :ensure t
+  :straight t
   :config
   (add-hook 'rust-mode-hook #'lsp)
   )
@@ -3134,7 +3232,7 @@ We display [CRM<separator>], e.g., [CRM,] if the separator is a comma."
   :url "https://github.com/flycheck/flycheck-rust"
   :added "2023-06-21"
   :emacs>= 24.1
-  :ensure t
+  :straight t
   :after flycheck
   (with-eval-after-load 'rust-mode
       (add-hook 'flycheck-mode-hook #'flycheck-rust-setup))
@@ -3146,19 +3244,19 @@ We display [CRM<separator>], e.g., [CRM,] if the separator is a comma."
   :tag "languages" "emacs>=26.1"
   :added "2023-06-21"
   :emacs>= 26.1
-  :ensure t
+  :straight t
   :after rust-mode markdown-mode project spinner xterm-color)
 
 (leaf magit
   :doc "A Git porcelain inside Emacs."
-  :req "emacs-25.1" "compat-29.1.3.4" "dash-20221013" "git-commit-20230101" "magit-section-20230101" "transient-20230201" "with-editor-20230118"
-  :tag "vc" "tools" "git" "emacs>=25.1"
+  :req "emacs-27.1" "compat-30.0.1.0" "dash-2.19.1" "magit-section-4.2.0" "seq-2.24" "transient-0.8.2" "with-editor-3.4.3"
+  :tag "vc" "tools" "git" "emacs>=27.1"
   :url "https://github.com/magit/magit"
-  :added "2022-10-31"
-  :emacs>= 25.1
-  :ensure t
+  :added "2025-01-07"
+  :emacs>= 27.1
+  :straight t
+  :after compat magit-section with-editor
   :commands magit-list-repos magit-status-quick
-  :after compat git-commit magit-section with-editor
   ;; :commands magit-status
   ;; :bind (:map global-map
   ;;          ("C-c n". magit-list-repos))
@@ -3179,7 +3277,7 @@ We display [CRM<separator>], e.g., [CRM,] if the separator is a comma."
     :url "https://github.com/Alexander-Miller/treemacs"
     :added "2022-10-31"
     :emacs>= 26.1
-    :ensure t
+    :straight t
     :after treemacs pfuture magit)
   )
 
@@ -3190,7 +3288,7 @@ We display [CRM<separator>], e.g., [CRM,] if the separator is a comma."
   :url "https://gitlab.com/pidu/git-timemachine"
   :added "2022-10-31"
   :emacs>= 24.3
-  :ensure t)
+  :straight t)
 
 (leaf transient-posframe
   :doc "Using posframe to show transient"
@@ -3199,13 +3297,18 @@ We display [CRM<separator>], e.g., [CRM,] if the separator is a comma."
   :url "https://github.com/yanghaoxie/transient-posframe"
   :added "2022-10-31"
   :emacs>= 26.0
-  :ensure t
+  :straight t
   :after posframe
-  :config (transient-posframe-mode))
+  :config (transient-posframe-mode)
+  ;; (customize-set-value 'transient-posframe-border-width 1 "customized by me")
+  ;; (customize-set-value 'transient-posframe-min-height 100 "customized by me")
+  ;; (customize-set-value 'transient-posframe-min-width 100 "customized by me")
+
+  )
 
 ;; ASC screws any option for using gerrit package
 ;; (leaf gerrit
-;;   :ensure t
+;;   :straight t
 ;;   :custom
 ;;   ;;https://asc.bmwgroup.net/gerrit/#/c/1850299/6
 ;;   (gerrit-host . "asc.bmwgroup.net")  ;; is needed for REST API calls
@@ -3216,84 +3319,128 @@ We display [CRM<separator>], e.g., [CRM,] if the separator is a comma."
 ;; Optional packages
 ;;--------------------------------------------------------------------------------
 
-(if (not (package-installed-p 'smartparens))
-    (progn
-      "smartparens not installed: Using builtin paren mode."
-      (leaf paren
-        :doc "highlight matching paren"
-        :tag "builtin"
-        :added "2022-10-31"
-        :custom ((show-paren-style . 'parenthesis)
-                 (show-paren-when-point-inside-paren . t)
-                 (show-paren-when-point-in-periphery . t)
-                 )
-        :config
-        (show-paren-mode 1)))
+;; (if (not (package-installed-p 'smartparens))
+;;     (progn
+;;       "smartparens not installed: Using builtin paren mode."
+;;       (leaf paren
+;;         :doc "highlight matching paren"
+;;         :tag "builtin"
+;;         :added "2022-10-31"
+;;         :custom ((show-paren-style . 'parenthesis)
+;;                  (show-paren-when-point-inside-paren . t)
+;;                  (show-paren-when-point-in-periphery . t)
+;;                  )
+;;         :config
+;;         (show-paren-mode 1)))
+;;   )
 
-  (leaf smartparens
-    :doc "Automatic insertion, wrapping and paredit-like navigation with user defined pairs."
-    :req "dash-2.13.0" "cl-lib-0.3"
-    :tag "editing" "convenience" "abbrev"
-    :url "https://github.com/Fuco1/smartparens"
-    :added "2022-10-31"
-    :ensure t
-    :blackout t
-    ;; :bind
-    ;; (:map smartparens-mode-map
-    ;;  (("C-M-f" . sp-forward-sexp)
-    ;;   ("C-M-b" . sp-backward-sexp)
-    ;;   ("C-M-<right>" . sp-forward-sexp)
-    ;;   ("C-M-<left>" . sp-backward-sexp)
+(leaf smartparens
+  :doc "Automatic insertion, wrapping and paredit-like navigation with user defined pairs"
+  :req "dash-2.13.0"
+  :tag "editing" "convenience" "abbrev"
+  :url "https://github.com/Fuco1/smartparens"
+  :added "2025-01-16"
+  :straight t
+  ;; :bind
+  ;; (:map smartparens-mode-map
+  ;; (
+  ;;   ("C-M-f" . sp-forward-sexp)
+  ;;   ("C-M-b" . sp-backward-sexp)
+  ;;   ("C-M-<right>" . sp-forward-sexp)
+  ;;   ("C-M-<left>" . sp-backward-sexp)
 
-    ;;   ("M-F" . sp-forward-sexp)
-    ;;   ("M-B" . sp-backward-sexp)
+  ;;   ("M-F" . sp-forward-sexp)
+  ;;   ("M-B" . sp-backward-sexp)
 
-    ;;   ("C-M-d" . sp-down-sexp)
-    ;;   ("C-M-a" . sp-backward-down-sexp)
-    ;;   ("C-S-d" . sp-beginning-of-sexp)
-    ;;   ("C-S-a" . sp-end-of-sexp)
+  ;;   ("C-M-d" . sp-down-sexp)
+  ;;   ("C-M-a" . sp-backward-down-sexp)
+  ;;   ("C-S-d" . sp-beginning-of-sexp)
+  ;; ("C-S-a" . sp-end-of-sexp)
 
-    ;;   ("C-M-e" . sp-up-sexp)
-    ;;   ("C-M-u" . sp-backward-up-sexp)
-    ;;   ("C-M-t" . sp-transpose-sexp)
+  ;;   ("C-M-e" . sp-up-sexp)
+  ;;   ("C-M-u" . sp-backward-up-sexp)
+  ;;   ("C-M-t" . sp-transpose-sexp)
+  ;;   ("C-M-n" . sp-next-sexp)
+  ;;   ("C-M-p" . sp-previous-sexp)
 
-    ;;   ("C-M-n" . sp-next-sexp)
-    ;;   ("C-M-p" . sp-previous-sexp)
+  ;;   ("C-M-k" . sp-kill-sexp)
+  ;;   ("C-M-w" . sp-copy-sexp)
 
-    ;;   ("C-M-k" . sp-kill-sexp)
-    ;;   ("C-M-w" . sp-copy-sexp)
+  ;;   ("M-r" . sp-unwrap-sexp)
 
-    ;;   ("M-r" . sp-unwrap-sexp)
+  ;;   ("C-(" . sp-forward-barf-sexp)
+  ;;   ("C-)" . sp-forward-slurp-sexp)
+  ;;   ("M-(" . sp-forward-barf-sexp)
+  ;;   ("M-)" . sp-forward-slurp-sexp)
 
-    ;;   ("C-(" . sp-forward-barf-sexp)
-    ;;   ("C-)" . sp-forward-slurp-sexp)
-    ;;   ("M-(" . sp-forward-barf-sexp)
-    ;;   ("M-)" . sp-forward-slurp-sexp)
+  ;;   ("M-D" . sp-splice-sexp)
+  ;; )
+  ;; :map emacs-lisp-mode-map (";" . sp-comment)
+  ;; :map smartparens-strict-mode-map ([remap c-electric-backspace] . sp-backward-delete-char)
+  ;; )
+  ;; :hook
+  ;; ((minibuffer-setup . turn-on-smartparens-strict-mode)
+  ;;  (c-mode-common-hook . (lambda () (require 'smartparens-c)))
+  ;;  (org-mode . (lambda () (require 'smartparens-org))))
+  ;; :config
+  ;; (setq sp-base-key-bindings 'dup)
+  :custom (
+           (sp-base-key-bindings . 'paredit)
+           (sp-autoskip-closing-pair . 'always)
+           (sp-hybrid-kill-entire-symbol . 'nil)
+           (sp-navigate-interactive-always-progress-point . t)
+           )
+  ;; :require smartparens-config
+  ;; :defvar smartparens-mode-map
+  :config
+  (defun kb/sp-match-parenthesis (arg)
+    "Match the current character according to the syntax table.
 
-    ;;   ("M-D" . sp-splice-sexp))
-    ;;  :map emacs-lisp-mode-map (";" . sp-comment)
-    ;;  :map smartparens-strict-mode-map ([remap c-electric-backspace] . sp-backward-delete-char))
-    ;; :hook
-    ;; ((minibuffer-setup . turn-on-smartparens-strict-mode)
-    ;;  (c-mode-common-hook . (lambda () (require 'smartparens-c)))
-    ;;  (org-mode . (lambda () (require 'smartparens-org))))
-    :custom ((sp-base-key-bindings . 'paredit)
-             (sp-autoskip-closing-pair . 'always)
-             (sp-hybrid-kill-entire-symbol . 'nil))
-    :require smartparens-config
-    :config
-    (electric-pair-mode -1)
-    ;; (smartparens-global-strict-mode 1)
-    (show-smartparens-global-mode 1)
-    (smartparens-global-mode 1)
-    )
-  )
+Based on the freely available match-paren.el by Kayvan Sylvan.
+I merged code from goto-matching-paren-or-insert and match-it.
+
+When ARG does not belong to matching pair then insert it at point.
+
+You can define new \"parentheses\" (matching pairs).
+Example: angle brackets.  Add the following to your .emacs file:
+
+	(modify-syntax-entry ?< \"(>\" )
+	(modify-syntax-entry ?> \")<\" )
+
+You can set hot keys to perform matching with one keystroke.
+Example: f6 and Control-C 6.
+
+	(global-set-key \"\\C-c6\" 'match-parenthesis)
+	(global-set-key [f6] 'match-parenthesis)
+
+Simon Hawkin <cema@cs.umd.edu> 03/14/1998"
+    (interactive "p")
+    (let
+        ((syntax (sp-get-buffer-char-syntax)))
+      (cond
+       ((= syntax ?\()
+        (sp-forward-sexp) (sp-backward-down-sexp))
+       ((= syntax ?\))
+        (sp-backward-up-sexp))
+       (t (self-insert-command (or arg 1)))
+       )
+      ))
+  :config
+  (electric-pair-mode -1)
+  ;; (smartparens-global-strict-mode 1)
+  (show-smartparens-global-mode t)
+  (smartparens-global-mode 1)
+
+  :bind (
+         (("C-S-a" . sp-end-of-sexp)
+          ("%" . kb/sp-match-parenthesis))
+         ))
 (leaf jira-markup-mode
   :doc "Emacs Major mode for JIRA-markup-formatted text files"
   :tag "markup" "jira"
   :url "https://github.com/mnuessler/jira-markup-mode"
   :added "2022-10-31"
-  :ensure t
+  :straight t
   :mode "\\.jira")
 (leaf org-jira
   :doc "Syncing between Jira and Org-mode."
@@ -3302,11 +3449,19 @@ We display [CRM<separator>], e.g., [CRM,] if the separator is a comma."
   :url "https://github.com/ahungry/org-jira"
   :added "2022-10-31"
   :emacs>= 24.5
-  :ensure t
+  :straight t
   :config
   (when (not (file-exists-p "~/.org-jira"))
     (make-directory "~/.org-jira"))
-  ;; (setq jiralib-url "https://asc.bmwgroup.net/mgujira/") ;; https://asc.bmwgroup.net/mgujira/secure/Dashboard.jspa")
+  (setopt jiralib-use-restapi t)
+  (setopt jiralib-url "https://jira.cc.bmwgroup.net") ;; https://asc.bmwgroup.net/mgujira/secure/Dashboard.jspa")
+  (setopt jiralib-host "jira.cc.bmwgroup.net")
+  (setopt jiralib-user "qxz2st8")
+  (setopt jiralib-use-PAT t)
+  (setopt jiralib-token
+          (cons "Authorization"
+                (concat "Bearer " (auth-source-pick-first-password
+                                   :host "jira.cc.bmwgroup.net"))))
   )
 (leaf copy-as-format
   :doc "Copy buffer locations as GitHub/Slack/JIRA etc... formatted code"
@@ -3314,7 +3469,7 @@ We display [CRM<separator>], e.g., [CRM,] if the separator is a comma."
   :tag "convenience" "tools" "asciidoc" "rst" "pod" "org-mode" "bitbucket" "gitlab" "hipchat" "jira" "slack" "github"
   :url "https://github.com/sshaw/copy-as-format"
   :added "2022-10-31"
-  :ensure t
+  :straight t
   :custom
   (copy-as-format-asciidoc-include-file-name . t)
   (copy-as-format-include-line-number . t)
@@ -3331,7 +3486,7 @@ We display [CRM<separator>], e.g., [CRM,] if the separator is a comma."
   :added "2022-10-31"
   :when (executable-find "dot")
   :emacs>= 25.0
-  :ensure t
+  :straight t
   :custom ((graphviz-dot-indent-width . 4))
   :hook (company-mode)
   :config
@@ -3347,7 +3502,7 @@ We display [CRM<separator>], e.g., [CRM,] if the separator is a comma."
   :added "2022-12-13"
   :when (executable-find "d2")
   :emacs>= 26.1
-  :ensure t
+  :straight t
   :mode ("\\.d2\\'")
 
                                         ;================ TALA rendering engine installation ===============
@@ -3357,14 +3512,13 @@ We display [CRM<separator>], e.g., [CRM,] if the separator is a comma."
   ;; If things look good, install for real.
   )
 
-
 (leaf yasnippet
   :doc "Yet another snippet extension for Emacs"
   :req "cl-lib-0.5"
   :tag "emulation" "convenience"
   :url "http://github.com/joaotavora/yasnippet"
   :added "2022-10-31"
-  :ensure t
+  :straight t
   ;; :after hydra
   ;; :defines (yas-snippet-dirs yas-active-snippets)
   ;; :pin "melpa"
@@ -3427,7 +3581,7 @@ We display [CRM<separator>], e.g., [CRM,] if the separator is a comma."
     :tag "snippets"
     :url "https://github.com/AndreaCrotti/yasnippet-snippets"
     :added "2022-10-31"
-    :ensure t
+    :straight t
     :after yasnippet)
   (leaf yasnippet-classic-snippets
     :doc "\"Classic\" yasnippet snippets"
@@ -3435,7 +3589,7 @@ We display [CRM<separator>], e.g., [CRM,] if the separator is a comma."
     :tag "snippets"
     :url "http://elpa.gnu.org/packages/yasnippet-classic-snippets.html"
     :added "2022-10-31"
-    :ensure t
+    :straight t
     :after yasnippet)
   (leaf ivy-yasnippet
     :doc "Preview yasnippets with ivy"
@@ -3444,7 +3598,7 @@ We display [CRM<separator>], e.g., [CRM,] if the separator is a comma."
     :url "https://github.com/mkcms/ivy-yasnippet"
     :added "2022-10-31"
     :emacs>= 24.1
-    :ensure t
+    :straight t
     :after ivy yasnippet)
   )
 
@@ -3461,7 +3615,7 @@ Download and put appropriate file there."
   :tag "ascii" "plantuml" "uml" "emacs>=25.0"
   :added "2022-10-31"
   :emacs>= 25.0
-  :ensure t
+  :straight t
   :custom ((plantuml-jar-path . kb/plantuml-jar-path)
            (plantuml-default-exec-mode . 'jar)
            (plantuml-indent-level . 4)
@@ -3488,7 +3642,7 @@ Download and put appropriate file there."
     :url "https://github.com/alexmurray/flycheck-plantuml"
     :added "2022-10-31"
     :emacs>= 24.4
-    :ensure t
+    :straight t
     :after flycheck plantuml-mode
     :config (flycheck-plantuml-setup)
     )
@@ -3501,8 +3655,20 @@ Download and put appropriate file there."
   :url "https://github.com/joshwnj/json-mode"
   :added "2022-11-01"
   :emacs>= 24.4
-  :ensure t
-  :after json-snatcher)
+  :straight t
+  :after json-snatcher
+  :config
+  (leaf json-snatcher
+    :doc "Grabs the path to JSON values in a JSON file"
+    :req "emacs-24"
+    :tag "emacs>=24"
+    :url "http://github.com/sterlingg/json-snatcher"
+    :added "2025-01-16"
+    :emacs>= 24
+    :straight t
+    :hook 
+    ((js-mode-hook js2-mode-hook) . 'js-mode-bindings)
+    ))
 
 (defun kb/nxml-where ()
   "Display the hierarchy of XML elements the point is on as a path."
@@ -3511,7 +3677,7 @@ Download and put appropriate file there."
     (save-excursion
       (save-restriction
         (widen)
-        (while (and (< (point-min) (point)) ;; Doesn't error if point is at beginning of buffer
+        (while (and (< (point-min) (point)) ;; Doesn')t error if point is at beginning of buffer
                     (condition-case nil
                         (progn
                           (nxml-backward-up-element) ; always returns nil
@@ -3544,7 +3710,7 @@ Download and put appropriate file there."
   :url "https://github.com/lorniu/go-translate"
   :added "2024-05-21"
   :emacs>= 28.1
-  :ensure t
+  :straight t
   :custom
   (gt-langs .'(en de zh ko ja pt pl fr))
   :bind
@@ -3574,7 +3740,7 @@ Download and put appropriate file there."
   :url "https://github.com/akermu/emacs-libvterm"
   :added "2023-05-09"
   :emacs>= 25.1
-  :ensure t)
+  :straight t)
 
 (leaf shroud
   :doc "Shroud secrets"
@@ -3583,7 +3749,7 @@ Download and put appropriate file there."
   :url "https://github.com/o-nly/emacs-shroud"
   :added "2023-01-11"
   :emacs>= 25
-  :ensure t
+  :straight t
   :require (shroud-cli shroud)
   :bind (("C-c s" . shroud-ui))
   :config
@@ -3606,7 +3772,7 @@ Download and put appropriate file there."
   :url "https://github.com/antonhibl/gptai"
   :added "2023-03-07"
   :emacs>= 24.1
-  :ensure t
+  :straight t
   :require t
   )
 
@@ -3617,7 +3783,7 @@ Download and put appropriate file there."
   :url "https://github.com/haskell/haskell-mode"
   :added "2023-03-08"
   :emacs>= 25.1
-  :ensure t
+  :straight t
   ;; :hook ((haskell-mode-hook . turn-on-haskell-indentation)
   ;;        (haskell-mode-hook . interactive-haskell-mode))
 
@@ -3651,7 +3817,7 @@ Download and put appropriate file there."
 ;;   :tag "convenience" "emacs>=24.1"
 ;;   :added "2023-03-13"
 ;;   :emacs>= 24.1
-;;   :ensure t
+;;   :straight t
 ;;   :config
 ;;   (setq haskell-ghci-program-name "cabal")
 ;;   (setq haskell-ghci-program-args '("repl"))
@@ -3664,7 +3830,7 @@ Download and put appropriate file there."
   :url "https://github.com/emacs-lsp/lsp-haskell"
   :added "2023-03-08"
   :emacs>= 24.3
-  :ensure t
+  :straight t
   :after lsp-mode haskell-mode
   :hook (
          ((haskell-mode-hook haskell-literate-mode-hook) . lsp)
@@ -3672,11 +3838,27 @@ Download and put appropriate file there."
          )
   )
 
+(leaf copilot-chat
+  :disabled t
+  :doc "Copilot chat interface"
+  :req "request-0.3.2" "markdown-mode-2.6" "emacs-27.1" "chatgpt-shell-1.6.1" "magit-4.0.0"
+  :tag "tools" "convenience" "emacs>=27.1"
+  :url "https://github.com/chep/copilot-chat.el"
+  :added "2024-11-18"
+  :emacs>= 27.1
+  :straight t
+  :after markdown-mode chatgpt-shell magit
+  :hook
+  (copilot-chat-insert-commit-message . git-commit-setup-hook)
+  ;; :custom
+  ;; (copilot-chat-frontend . 'markdown)
+  )
+
 (leaf uuidgen
   :doc "Provides various UUID generating functions"
   :tag "tools" "lisp" "extensions"
   :added "2023-08-10"
-  :ensure t)
+  :straight t)
 
 (leaf time-uuid-mode
   :doc "Minor mode for previewing time uuids as an overlay"
@@ -3685,7 +3867,7 @@ Download and put appropriate file there."
   :url "https://github.com/RobertPlant/time-uuid-mode"
   :added "2023-08-10"
   :emacs>= 24.3
-  :ensure t)
+  :straight t)
 
 (message "Init finished")
 ;;; init.el ends here

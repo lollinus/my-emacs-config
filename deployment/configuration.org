@@ -6234,8 +6234,8 @@ Link to latest version from date when this document was written
 #+end_src
 
 *** Ubuntu
-#+begin_src sh :dir /sudo:root@localhost:~/ :exports code
-  apt install unifont
+#+begin_src sh :dir /sudo:root@localhost:~/ :exports code :results raw pp
+  apt install -y unifont unifont-bin
 #+end_src
 
 ** Cantarell
@@ -6245,7 +6245,7 @@ Yet another set of fonts used by my setup.
 *** Local home
 
 #+NAME: cantarell-font-install
-#+begin_src sh :eval no :results scalar verbatim :dir ~/.emacs.d/deployment :exports code
+#+begin_src sh :eval no-export :results scalar verbatim :dir ~/.emacs.d/deployment :exports code
   mkdir -p work
   curl -L -o work/cantarell.zip https://fonts.google.com/download?family=Cantarell
   unzip -j work/cantarell.zip -d ~/.local/share/fonts
@@ -6255,17 +6255,183 @@ Yet another set of fonts used by my setup.
 #+RESULTS: cantarell-font-install
 #+begin_example
 Archive:  work/cantarell.zip
-/usr/share/fonts: caching, new cache contents: 0 fonts, 1 dirs
-/usr/share/fonts/truetype: caching, new cache contents: 0 fonts, 1 dirs
-/usr/share/fonts/truetype/dejavu: caching, new cache contents: 6 fonts, 0 dirs
+/usr/share/fonts: caching, new cache contents: 0 fonts, 6 dirs
+/usr/share/fonts/X11: caching, new cache contents: 0 fonts, 4 dirs
+/usr/share/fonts/X11/Type1: caching, new cache contents: 116 fonts, 0 dirs
+/usr/share/fonts/X11/encodings: caching, new cache contents: 0 fonts, 1 dirs
+/usr/share/fonts/X11/encodings/large: caching, new cache contents: 0 fonts, 0 dirs
+/usr/share/fonts/X11/misc: caching, new cache contents: 92 fonts, 0 dirs
+/usr/share/fonts/X11/util: caching, new cache contents: 0 fonts, 0 dirs
+/usr/share/fonts/cMap: caching, new cache contents: 0 fonts, 0 dirs
+/usr/share/fonts/cmap: caching, new cache contents: 0 fonts, 5 dirs
+/usr/share/fonts/cmap/adobe-cns1: caching, new cache contents: 0 fonts, 0 dirs
+/usr/share/fonts/cmap/adobe-gb1: caching, new cache contents: 0 fonts, 0 dirs
+/usr/share/fonts/cmap/adobe-japan1: caching, new cache contents: 0 fonts, 0 dirs
+/usr/share/fonts/cmap/adobe-japan2: caching, new cache contents: 0 fonts, 0 dirs
+/usr/share/fonts/cmap/adobe-korea1: caching, new cache contents: 0 fonts, 0 dirs
+/usr/share/fonts/opentype: caching, new cache contents: 0 fonts, 7 dirs
+/usr/share/fonts/opentype/cantarell: caching, new cache contents: 5 fonts, 0 dirs
+/usr/share/fonts/opentype/font-awesome: caching, new cache contents: 0 fonts, 0 dirs
+/usr/share/fonts/opentype/malayalam: caching, new cache contents: 7 fonts, 0 dirs
+/usr/share/fonts/opentype/mathjax: caching, new cache contents: 24 fonts, 0 dirs
+/usr/share/fonts/opentype/noto: caching, new cache contents: 30 fonts, 0 dirs
+/usr/share/fonts/opentype/porson: caching, new cache contents: 1 fonts, 0 dirs
+/usr/share/fonts/opentype/urw-base35: caching, new cache contents: 35 fonts, 0 dirs
+/usr/share/fonts/truetype: caching, new cache contents: 1 fonts, 57 dirs
+/usr/share/fonts/truetype/Gargi: caching, new cache contents: 1 fonts, 0 dirs
+/usr/share/fonts/truetype/Gubbi: caching, new cache contents: 1 fonts, 0 dirs
+/usr/share/fonts/truetype/Nakula: caching, new cache contents: 1 fonts, 0 dirs
+/usr/share/fonts/truetype/Navilu: caching, new cache contents: 1 fonts, 0 dirs
+/usr/share/fonts/truetype/Sahadeva: caching, new cache contents: 1 fonts, 0 dirs
+/usr/share/fonts/truetype/Sarai: caching, new cache contents: 1 fonts, 0 dirs
+/usr/share/fonts/truetype/abyssinica: caching, new cache contents: 1 fonts, 0 dirs
+/usr/share/fonts/truetype/arphic: caching, new cache contents: 0 fonts, 0 dirs
+/usr/share/fonts/truetype/baskerville: caching, new cache contents: 1 fonts, 0 dirs
+/usr/share/fonts/truetype/dejavu: caching, new cache contents: 22 fonts, 0 dirs
+/usr/share/fonts/truetype/droid: caching, new cache contents: 1 fonts, 0 dirs
+/usr/share/fonts/truetype/font-awesome: caching, new cache contents: 0 fonts, 0 dirs
+/usr/share/fonts/truetype/fonts-beng-extra: caching, new cache contents: 6 fonts, 0 dirs
+/usr/share/fonts/truetype/fonts-deva-extra: caching, new cache contents: 3 fonts, 0 dirs
+/usr/share/fonts/truetype/fonts-gujr-extra: caching, new cache contents: 5 fonts, 0 dirs
+/usr/share/fonts/truetype/fonts-guru-extra: caching, new cache contents: 1 fonts, 0 dirs
+/usr/share/fonts/truetype/fonts-kalapi: caching, new cache contents: 1 fonts, 0 dirs
+/usr/share/fonts/truetype/fonts-orya-extra: caching, new cache contents: 1 fonts, 0 dirs
+/usr/share/fonts/truetype/fonts-telu-extra: caching, new cache contents: 2 fonts, 0 dirs
+/usr/share/fonts/truetype/fonts-yrsa-rasa: caching, new cache contents: 15 fonts, 0 dirs
+/usr/share/fonts/truetype/freefont: caching, new cache contents: 12 fonts, 0 dirs
+/usr/share/fonts/truetype/inconsolata: caching, new cache contents: 1 fonts, 0 dirs
+/usr/share/fonts/truetype/kacst: caching, new cache contents: 15 fonts, 0 dirs
+/usr/share/fonts/truetype/kacst-one: caching, new cache contents: 2 fonts, 0 dirs
+/usr/share/fonts/truetype/lao: caching, new cache contents: 1 fonts, 0 dirs
+/usr/share/fonts/truetype/lato: caching, new cache contents: 18 fonts, 0 dirs
+/usr/share/fonts/truetype/liberation: caching, new cache contents: 16 fonts, 0 dirs
+/usr/share/fonts/truetype/liberation2: caching, new cache contents: 12 fonts, 0 dirs
+/usr/share/fonts/truetype/libreoffice: caching, new cache contents: 1 fonts, 0 dirs
+/usr/share/fonts/truetype/lohit-assamese: caching, new cache contents: 1 fonts, 0 dirs
+/usr/share/fonts/truetype/lohit-bengali: caching, new cache contents: 1 fonts, 0 dirs
+/usr/share/fonts/truetype/lohit-devanagari: caching, new cache contents: 1 fonts, 0 dirs
+/usr/share/fonts/truetype/lohit-gujarati: caching, new cache contents: 1 fonts, 0 dirs
+/usr/share/fonts/truetype/lohit-kannada: caching, new cache contents: 1 fonts, 0 dirs
+/usr/share/fonts/truetype/lohit-malayalam: caching, new cache contents: 1 fonts, 0 dirs
+/usr/share/fonts/truetype/lohit-oriya: caching, new cache contents: 1 fonts, 0 dirs
+/usr/share/fonts/truetype/lohit-punjabi: caching, new cache contents: 1 fonts, 0 dirs
+/usr/share/fonts/truetype/lohit-tamil: caching, new cache contents: 1 fonts, 0 dirs
+/usr/share/fonts/truetype/lohit-tamil-classical: caching, new cache contents: 1 fonts, 0 dirs
+/usr/share/fonts/truetype/lohit-telugu: caching, new cache contents: 1 fonts, 0 dirs
+/usr/share/fonts/truetype/malayalam: caching, new cache contents: 10 fonts, 0 dirs
+/usr/share/fonts/truetype/noto: caching, new cache contents: 4 fonts, 0 dirs
+/usr/share/fonts/truetype/openoffice: caching, new cache contents: 0 fonts, 0 dirs
+/usr/share/fonts/truetype/padauk: caching, new cache contents: 4 fonts, 0 dirs
+/usr/share/fonts/truetype/pagul: caching, new cache contents: 1 fonts, 0 dirs
+/usr/share/fonts/truetype/porson: caching, new cache contents: 0 fonts, 0 dirs
+/usr/share/fonts/truetype/quicksand: caching, new cache contents: 0 fonts, 0 dirs
+/usr/share/fonts/truetype/samyak: caching, new cache contents: 1 fonts, 0 dirs
+/usr/share/fonts/truetype/samyak-fonts: caching, new cache contents: 3 fonts, 0 dirs
+/usr/share/fonts/truetype/sinhala: caching, new cache contents: 1 fonts, 0 dirs
+/usr/share/fonts/truetype/teluguvijayam: caching, new cache contents: 20 fonts, 0 dirs
+/usr/share/fonts/truetype/tibetan-machine: caching, new cache contents: 1 fonts, 0 dirs
+/usr/share/fonts/truetype/tlwg: caching, new cache contents: 58 fonts, 0 dirs
+/usr/share/fonts/truetype/ttf-khmeros-core: caching, new cache contents: 2 fonts, 0 dirs
+/usr/share/fonts/truetype/ubuntu: caching, new cache contents: 14 fonts, 0 dirs
+/usr/share/fonts/truetype/unifont: caching, new cache contents: 4 fonts, 0 dirs
+/usr/share/fonts/truetype/vlgothic: caching, new cache contents: 2 fonts, 0 dirs
+/usr/share/fonts/type1: caching, new cache contents: 0 fonts, 3 dirs
+/usr/share/fonts/type1/gsfonts: caching, new cache contents: 35 fonts, 0 dirs
+/usr/share/fonts/type1/texlive-fonts-recommended: caching, new cache contents: 12 fonts, 0 dirs
+/usr/share/fonts/type1/urw-base35: caching, new cache contents: 35 fonts, 0 dirs
 /usr/local/share/fonts: caching, new cache contents: 0 fonts, 0 dirs
-/home/barskkar/.local/share/fonts: caching, new cache contents: 37 fonts, 0 dirs
-/home/barskkar/.fonts: skipping, no such directory
+/home/karolbarski/.local/share/fonts: caching, new cache contents: 16 fonts, 0 dirs
+/home/karolbarski/.fonts: skipping, no such directory
+/usr/share/texmf/fonts/opentype/public/lm: caching, new cache contents: 72 fonts, 0 dirs
+/usr/share/texmf/fonts/opentype/public/lm-math: caching, new cache contents: 1 fonts, 0 dirs
+/usr/share/texmf/fonts/opentype/public/tex-gyre: caching, new cache contents: 33 fonts, 0 dirs
+/usr/share/texmf/fonts/opentype/public/tex-gyre-math: caching, new cache contents: 5 fonts, 0 dirs
+/usr/share/fonts/X11: skipping, looped directory detected
+/usr/share/fonts/cMap: skipping, looped directory detected
+/usr/share/fonts/cmap: skipping, looped directory detected
+/usr/share/fonts/opentype: skipping, looped directory detected
 /usr/share/fonts/truetype: skipping, looped directory detected
+/usr/share/fonts/type1: skipping, looped directory detected
+/usr/share/fonts/X11/Type1: skipping, looped directory detected
+/usr/share/fonts/X11/encodings: skipping, looped directory detected
+/usr/share/fonts/X11/misc: skipping, looped directory detected
+/usr/share/fonts/X11/util: skipping, looped directory detected
+/usr/share/fonts/cmap/adobe-cns1: skipping, looped directory detected
+/usr/share/fonts/cmap/adobe-gb1: skipping, looped directory detected
+/usr/share/fonts/cmap/adobe-japan1: skipping, looped directory detected
+/usr/share/fonts/cmap/adobe-japan2: skipping, looped directory detected
+/usr/share/fonts/cmap/adobe-korea1: skipping, looped directory detected
+/usr/share/fonts/opentype/cantarell: skipping, looped directory detected
+/usr/share/fonts/opentype/font-awesome: skipping, looped directory detected
+/usr/share/fonts/opentype/malayalam: skipping, looped directory detected
+/usr/share/fonts/opentype/mathjax: skipping, looped directory detected
+/usr/share/fonts/opentype/noto: skipping, looped directory detected
+/usr/share/fonts/opentype/porson: skipping, looped directory detected
+/usr/share/fonts/opentype/urw-base35: skipping, looped directory detected
+/usr/share/fonts/truetype/Gargi: skipping, looped directory detected
+/usr/share/fonts/truetype/Gubbi: skipping, looped directory detected
+/usr/share/fonts/truetype/Nakula: skipping, looped directory detected
+/usr/share/fonts/truetype/Navilu: skipping, looped directory detected
+/usr/share/fonts/truetype/Sahadeva: skipping, looped directory detected
+/usr/share/fonts/truetype/Sarai: skipping, looped directory detected
+/usr/share/fonts/truetype/abyssinica: skipping, looped directory detected
+/usr/share/fonts/truetype/arphic: skipping, looped directory detected
+/usr/share/fonts/truetype/baskerville: skipping, looped directory detected
 /usr/share/fonts/truetype/dejavu: skipping, looped directory detected
+/usr/share/fonts/truetype/droid: skipping, looped directory detected
+/usr/share/fonts/truetype/font-awesome: skipping, looped directory detected
+/usr/share/fonts/truetype/fonts-beng-extra: skipping, looped directory detected
+/usr/share/fonts/truetype/fonts-deva-extra: skipping, looped directory detected
+/usr/share/fonts/truetype/fonts-gujr-extra: skipping, looped directory detected
+/usr/share/fonts/truetype/fonts-guru-extra: skipping, looped directory detected
+/usr/share/fonts/truetype/fonts-kalapi: skipping, looped directory detected
+/usr/share/fonts/truetype/fonts-orya-extra: skipping, looped directory detected
+/usr/share/fonts/truetype/fonts-telu-extra: skipping, looped directory detected
+/usr/share/fonts/truetype/fonts-yrsa-rasa: skipping, looped directory detected
+/usr/share/fonts/truetype/freefont: skipping, looped directory detected
+/usr/share/fonts/truetype/inconsolata: skipping, looped directory detected
+/usr/share/fonts/truetype/kacst: skipping, looped directory detected
+/usr/share/fonts/truetype/kacst-one: skipping, looped directory detected
+/usr/share/fonts/truetype/lao: skipping, looped directory detected
+/usr/share/fonts/truetype/lato: skipping, looped directory detected
+/usr/share/fonts/truetype/liberation: skipping, looped directory detected
+/usr/share/fonts/truetype/liberation2: skipping, looped directory detected
+/usr/share/fonts/truetype/libreoffice: skipping, looped directory detected
+/usr/share/fonts/truetype/lohit-assamese: skipping, looped directory detected
+/usr/share/fonts/truetype/lohit-bengali: skipping, looped directory detected
+/usr/share/fonts/truetype/lohit-devanagari: skipping, looped directory detected
+/usr/share/fonts/truetype/lohit-gujarati: skipping, looped directory detected
+/usr/share/fonts/truetype/lohit-kannada: skipping, looped directory detected
+/usr/share/fonts/truetype/lohit-malayalam: skipping, looped directory detected
+/usr/share/fonts/truetype/lohit-oriya: skipping, looped directory detected
+/usr/share/fonts/truetype/lohit-punjabi: skipping, looped directory detected
+/usr/share/fonts/truetype/lohit-tamil: skipping, looped directory detected
+/usr/share/fonts/truetype/lohit-tamil-classical: skipping, looped directory detected
+/usr/share/fonts/truetype/lohit-telugu: skipping, looped directory detected
+/usr/share/fonts/truetype/malayalam: skipping, looped directory detected
+/usr/share/fonts/truetype/noto: skipping, looped directory detected
+/usr/share/fonts/truetype/openoffice: skipping, looped directory detected
+/usr/share/fonts/truetype/padauk: skipping, looped directory detected
+/usr/share/fonts/truetype/pagul: skipping, looped directory detected
+/usr/share/fonts/truetype/porson: skipping, looped directory detected
+/usr/share/fonts/truetype/quicksand: skipping, looped directory detected
+/usr/share/fonts/truetype/samyak: skipping, looped directory detected
+/usr/share/fonts/truetype/samyak-fonts: skipping, looped directory detected
+/usr/share/fonts/truetype/sinhala: skipping, looped directory detected
+/usr/share/fonts/truetype/teluguvijayam: skipping, looped directory detected
+/usr/share/fonts/truetype/tibetan-machine: skipping, looped directory detected
+/usr/share/fonts/truetype/tlwg: skipping, looped directory detected
+/usr/share/fonts/truetype/ttf-khmeros-core: skipping, looped directory detected
+/usr/share/fonts/truetype/ubuntu: skipping, looped directory detected
+/usr/share/fonts/truetype/unifont: skipping, looped directory detected
+/usr/share/fonts/truetype/vlgothic: skipping, looped directory detected
+/usr/share/fonts/type1/gsfonts: skipping, looped directory detected
+/usr/share/fonts/type1/texlive-fonts-recommended: skipping, looped directory detected
+/usr/share/fonts/type1/urw-base35: skipping, looped directory detected
+/usr/share/fonts/X11/encodings/large: skipping, looped directory detected
 /var/cache/fontconfig: not cleaning unwritable cache directory
-/home/barskkar/.cache/fontconfig: cleaning cache directory
-/home/barskkar/.fontconfig: not cleaning non-existent cache directory
+/home/karolbarski/.cache/fontconfig: cleaning cache directory
+/home/karolbarski/.fontconfig: not cleaning non-existent cache directory
 fc-cache: succeeded
 #+end_example
 
@@ -6279,10 +6445,26 @@ fc-cache: succeeded
 [[https://dejavu-fonts.github.io][DejaVu]] is another set of useful fonts to be used by my setup.
 
 *** Ubuntu install:
-#+BEGIN_SRC sh :eval no :exports code
+#+BEGIN_SRC sh :dir /sudo::/ :eval no-export :exports code :results output raw pp
   apt install fonts-dejavu
   apt install ttf-dejavu
 #+END_SRC
+
+#+RESULTS:
+#+begin_example
+Czytanie list pakietów... 0%Czytanie list pakietów... 100%Czytanie list pakietów... Gotowe
+Budowanie drzewa zależności... 0%Budowanie drzewa zależności... 0%Budowanie drzewa zależności... 50%Budowanie drzewa zależności... 50%Budowanie drzewa zależności... Gotowe
+Odczyt informacji o stanie... 0%       Odczyt informacji o stanie... 0%Odczyt informacji o stanie... Gotowe
+fonts-dejavu jest już w najnowszej wersji (2.37-2build1).
+0 aktualizowanych, 0 nowo instalowanych, 0 usuwanych i 0 nieaktualizowanych.
+Czytanie list pakietów... 0%Czytanie list pakietów... 100%Czytanie list pakietów... Gotowe
+Budowanie drzewa zależności... 0%Budowanie drzewa zależności... 0%Budowanie drzewa zależności... 50%Budowanie drzewa zależności... 50%Budowanie drzewa zależności... Gotowe
+Odczyt informacji o stanie... 0%       Odczyt informacji o stanie... 0%Odczyt informacji o stanie... Gotowe
+Pakiet ttf-dejavu nie ma dostępnej wersji, ale odnosi się do niego inny pakiet.
+Zazwyczaj oznacza to, że pakietu brakuje, został zastąpiony przez inny
+pakiet lub nie jest dostępny przy pomocy obecnie ustawionych źródeł.
+
+#+end_example
 
 *** Local home
 #+name: dejavu-font-install
@@ -6322,60 +6504,822 @@ dejavu-fonts-ttf-2.37/ttf/DejaVuSansMono-Bold.ttf
 ** Refresh cache and list installed fonts
 
 #+NAME: font cache list
-#+begin_src sh :eval no :results scalar verbatim :dir ~/ :exports code
+#+begin_src sh :eval no-export :results output raw pp :dir ~/ :exports code
     fc-cache -frv
     fc-list
 #+end_src
 
 #+RESULTS: font cache list
 #+begin_example
-/usr/share/fonts: caching, new cache contents: 0 fonts, 1 dirs
-/usr/share/fonts/truetype: caching, new cache contents: 0 fonts, 1 dirs
-/usr/share/fonts/truetype/dejavu: caching, new cache contents: 6 fonts, 0 dirs
+/usr/share/fonts: caching, new cache contents: 0 fonts, 6 dirs
+/usr/share/fonts/X11: caching, new cache contents: 0 fonts, 4 dirs
+/usr/share/fonts/X11/Type1: caching, new cache contents: 116 fonts, 0 dirs
+/usr/share/fonts/X11/encodings: caching, new cache contents: 0 fonts, 1 dirs
+/usr/share/fonts/X11/encodings/large: caching, new cache contents: 0 fonts, 0 dirs
+/usr/share/fonts/X11/misc: caching, new cache contents: 92 fonts, 0 dirs
+/usr/share/fonts/X11/util: caching, new cache contents: 0 fonts, 0 dirs
+/usr/share/fonts/cMap: caching, new cache contents: 0 fonts, 0 dirs
+/usr/share/fonts/cmap: caching, new cache contents: 0 fonts, 5 dirs
+/usr/share/fonts/cmap/adobe-cns1: caching, new cache contents: 0 fonts, 0 dirs
+/usr/share/fonts/cmap/adobe-gb1: caching, new cache contents: 0 fonts, 0 dirs
+/usr/share/fonts/cmap/adobe-japan1: caching, new cache contents: 0 fonts, 0 dirs
+/usr/share/fonts/cmap/adobe-japan2: caching, new cache contents: 0 fonts, 0 dirs
+/usr/share/fonts/cmap/adobe-korea1: caching, new cache contents: 0 fonts, 0 dirs
+/usr/share/fonts/opentype: caching, new cache contents: 0 fonts, 7 dirs
+/usr/share/fonts/opentype/cantarell: caching, new cache contents: 5 fonts, 0 dirs
+/usr/share/fonts/opentype/font-awesome: caching, new cache contents: 0 fonts, 0 dirs
+/usr/share/fonts/opentype/malayalam: caching, new cache contents: 7 fonts, 0 dirs
+/usr/share/fonts/opentype/mathjax: caching, new cache contents: 24 fonts, 0 dirs
+/usr/share/fonts/opentype/noto: caching, new cache contents: 30 fonts, 0 dirs
+/usr/share/fonts/opentype/porson: caching, new cache contents: 1 fonts, 0 dirs
+/usr/share/fonts/opentype/urw-base35: caching, new cache contents: 35 fonts, 0 dirs
+/usr/share/fonts/truetype: caching, new cache contents: 1 fonts, 57 dirs
+/usr/share/fonts/truetype/Gargi: caching, new cache contents: 1 fonts, 0 dirs
+/usr/share/fonts/truetype/Gubbi: caching, new cache contents: 1 fonts, 0 dirs
+/usr/share/fonts/truetype/Nakula: caching, new cache contents: 1 fonts, 0 dirs
+/usr/share/fonts/truetype/Navilu: caching, new cache contents: 1 fonts, 0 dirs
+/usr/share/fonts/truetype/Sahadeva: caching, new cache contents: 1 fonts, 0 dirs
+/usr/share/fonts/truetype/Sarai: caching, new cache contents: 1 fonts, 0 dirs
+/usr/share/fonts/truetype/abyssinica: caching, new cache contents: 1 fonts, 0 dirs
+/usr/share/fonts/truetype/arphic: caching, new cache contents: 0 fonts, 0 dirs
+/usr/share/fonts/truetype/baskerville: caching, new cache contents: 1 fonts, 0 dirs
+/usr/share/fonts/truetype/dejavu: caching, new cache contents: 22 fonts, 0 dirs
+/usr/share/fonts/truetype/droid: caching, new cache contents: 1 fonts, 0 dirs
+/usr/share/fonts/truetype/font-awesome: caching, new cache contents: 0 fonts, 0 dirs
+/usr/share/fonts/truetype/fonts-beng-extra: caching, new cache contents: 6 fonts, 0 dirs
+/usr/share/fonts/truetype/fonts-deva-extra: caching, new cache contents: 3 fonts, 0 dirs
+/usr/share/fonts/truetype/fonts-gujr-extra: caching, new cache contents: 5 fonts, 0 dirs
+/usr/share/fonts/truetype/fonts-guru-extra: caching, new cache contents: 1 fonts, 0 dirs
+/usr/share/fonts/truetype/fonts-kalapi: caching, new cache contents: 1 fonts, 0 dirs
+/usr/share/fonts/truetype/fonts-orya-extra: caching, new cache contents: 1 fonts, 0 dirs
+/usr/share/fonts/truetype/fonts-telu-extra: caching, new cache contents: 2 fonts, 0 dirs
+/usr/share/fonts/truetype/fonts-yrsa-rasa: caching, new cache contents: 15 fonts, 0 dirs
+/usr/share/fonts/truetype/freefont: caching, new cache contents: 12 fonts, 0 dirs
+/usr/share/fonts/truetype/inconsolata: caching, new cache contents: 1 fonts, 0 dirs
+/usr/share/fonts/truetype/kacst: caching, new cache contents: 15 fonts, 0 dirs
+/usr/share/fonts/truetype/kacst-one: caching, new cache contents: 2 fonts, 0 dirs
+/usr/share/fonts/truetype/lao: caching, new cache contents: 1 fonts, 0 dirs
+/usr/share/fonts/truetype/lato: caching, new cache contents: 18 fonts, 0 dirs
+/usr/share/fonts/truetype/liberation: caching, new cache contents: 16 fonts, 0 dirs
+/usr/share/fonts/truetype/liberation2: caching, new cache contents: 12 fonts, 0 dirs
+/usr/share/fonts/truetype/libreoffice: caching, new cache contents: 1 fonts, 0 dirs
+/usr/share/fonts/truetype/lohit-assamese: caching, new cache contents: 1 fonts, 0 dirs
+/usr/share/fonts/truetype/lohit-bengali: caching, new cache contents: 1 fonts, 0 dirs
+/usr/share/fonts/truetype/lohit-devanagari: caching, new cache contents: 1 fonts, 0 dirs
+/usr/share/fonts/truetype/lohit-gujarati: caching, new cache contents: 1 fonts, 0 dirs
+/usr/share/fonts/truetype/lohit-kannada: caching, new cache contents: 1 fonts, 0 dirs
+/usr/share/fonts/truetype/lohit-malayalam: caching, new cache contents: 1 fonts, 0 dirs
+/usr/share/fonts/truetype/lohit-oriya: caching, new cache contents: 1 fonts, 0 dirs
+/usr/share/fonts/truetype/lohit-punjabi: caching, new cache contents: 1 fonts, 0 dirs
+/usr/share/fonts/truetype/lohit-tamil: caching, new cache contents: 1 fonts, 0 dirs
+/usr/share/fonts/truetype/lohit-tamil-classical: caching, new cache contents: 1 fonts, 0 dirs
+/usr/share/fonts/truetype/lohit-telugu: caching, new cache contents: 1 fonts, 0 dirs
+/usr/share/fonts/truetype/malayalam: caching, new cache contents: 10 fonts, 0 dirs
+/usr/share/fonts/truetype/noto: caching, new cache contents: 4 fonts, 0 dirs
+/usr/share/fonts/truetype/openoffice: caching, new cache contents: 0 fonts, 0 dirs
+/usr/share/fonts/truetype/padauk: caching, new cache contents: 4 fonts, 0 dirs
+/usr/share/fonts/truetype/pagul: caching, new cache contents: 1 fonts, 0 dirs
+/usr/share/fonts/truetype/porson: caching, new cache contents: 0 fonts, 0 dirs
+/usr/share/fonts/truetype/quicksand: caching, new cache contents: 0 fonts, 0 dirs
+/usr/share/fonts/truetype/samyak: caching, new cache contents: 1 fonts, 0 dirs
+/usr/share/fonts/truetype/samyak-fonts: caching, new cache contents: 3 fonts, 0 dirs
+/usr/share/fonts/truetype/sinhala: caching, new cache contents: 1 fonts, 0 dirs
+/usr/share/fonts/truetype/teluguvijayam: caching, new cache contents: 20 fonts, 0 dirs
+/usr/share/fonts/truetype/tibetan-machine: caching, new cache contents: 1 fonts, 0 dirs
+/usr/share/fonts/truetype/tlwg: caching, new cache contents: 58 fonts, 0 dirs
+/usr/share/fonts/truetype/ttf-khmeros-core: caching, new cache contents: 2 fonts, 0 dirs
+/usr/share/fonts/truetype/ubuntu: caching, new cache contents: 14 fonts, 0 dirs
+/usr/share/fonts/truetype/unifont: caching, new cache contents: 4 fonts, 0 dirs
+/usr/share/fonts/truetype/vlgothic: caching, new cache contents: 2 fonts, 0 dirs
+/usr/share/fonts/type1: caching, new cache contents: 0 fonts, 3 dirs
+/usr/share/fonts/type1/gsfonts: caching, new cache contents: 35 fonts, 0 dirs
+/usr/share/fonts/type1/texlive-fonts-recommended: caching, new cache contents: 12 fonts, 0 dirs
+/usr/share/fonts/type1/urw-base35: caching, new cache contents: 35 fonts, 0 dirs
 /usr/local/share/fonts: caching, new cache contents: 0 fonts, 0 dirs
-/home/barskkar/.local/share/fonts: caching, new cache contents: 30 fonts, 0 dirs
-/home/barskkar/.fonts: skipping, no such directory
+/home/karolbarski/.local/share/fonts: caching, new cache contents: 16 fonts, 0 dirs
+/home/karolbarski/.fonts: skipping, no such directory
+/usr/share/texmf/fonts/opentype/public/lm: caching, new cache contents: 72 fonts, 0 dirs
+/usr/share/texmf/fonts/opentype/public/lm-math: caching, new cache contents: 1 fonts, 0 dirs
+/usr/share/texmf/fonts/opentype/public/tex-gyre: caching, new cache contents: 33 fonts, 0 dirs
+/usr/share/texmf/fonts/opentype/public/tex-gyre-math: caching, new cache contents: 5 fonts, 0 dirs
+/usr/share/fonts/X11: skipping, looped directory detected
+/usr/share/fonts/cMap: skipping, looped directory detected
+/usr/share/fonts/cmap: skipping, looped directory detected
+/usr/share/fonts/opentype: skipping, looped directory detected
 /usr/share/fonts/truetype: skipping, looped directory detected
+/usr/share/fonts/type1: skipping, looped directory detected
+/usr/share/fonts/X11/Type1: skipping, looped directory detected
+/usr/share/fonts/X11/encodings: skipping, looped directory detected
+/usr/share/fonts/X11/misc: skipping, looped directory detected
+/usr/share/fonts/X11/util: skipping, looped directory detected
+/usr/share/fonts/cmap/adobe-cns1: skipping, looped directory detected
+/usr/share/fonts/cmap/adobe-gb1: skipping, looped directory detected
+/usr/share/fonts/cmap/adobe-japan1: skipping, looped directory detected
+/usr/share/fonts/cmap/adobe-japan2: skipping, looped directory detected
+/usr/share/fonts/cmap/adobe-korea1: skipping, looped directory detected
+/usr/share/fonts/opentype/cantarell: skipping, looped directory detected
+/usr/share/fonts/opentype/font-awesome: skipping, looped directory detected
+/usr/share/fonts/opentype/malayalam: skipping, looped directory detected
+/usr/share/fonts/opentype/mathjax: skipping, looped directory detected
+/usr/share/fonts/opentype/noto: skipping, looped directory detected
+/usr/share/fonts/opentype/porson: skipping, looped directory detected
+/usr/share/fonts/opentype/urw-base35: skipping, looped directory detected
+/usr/share/fonts/truetype/Gargi: skipping, looped directory detected
+/usr/share/fonts/truetype/Gubbi: skipping, looped directory detected
+/usr/share/fonts/truetype/Nakula: skipping, looped directory detected
+/usr/share/fonts/truetype/Navilu: skipping, looped directory detected
+/usr/share/fonts/truetype/Sahadeva: skipping, looped directory detected
+/usr/share/fonts/truetype/Sarai: skipping, looped directory detected
+/usr/share/fonts/truetype/abyssinica: skipping, looped directory detected
+/usr/share/fonts/truetype/arphic: skipping, looped directory detected
+/usr/share/fonts/truetype/baskerville: skipping, looped directory detected
 /usr/share/fonts/truetype/dejavu: skipping, looped directory detected
+/usr/share/fonts/truetype/droid: skipping, looped directory detected
+/usr/share/fonts/truetype/font-awesome: skipping, looped directory detected
+/usr/share/fonts/truetype/fonts-beng-extra: skipping, looped directory detected
+/usr/share/fonts/truetype/fonts-deva-extra: skipping, looped directory detected
+/usr/share/fonts/truetype/fonts-gujr-extra: skipping, looped directory detected
+/usr/share/fonts/truetype/fonts-guru-extra: skipping, looped directory detected
+/usr/share/fonts/truetype/fonts-kalapi: skipping, looped directory detected
+/usr/share/fonts/truetype/fonts-orya-extra: skipping, looped directory detected
+/usr/share/fonts/truetype/fonts-telu-extra: skipping, looped directory detected
+/usr/share/fonts/truetype/fonts-yrsa-rasa: skipping, looped directory detected
+/usr/share/fonts/truetype/freefont: skipping, looped directory detected
+/usr/share/fonts/truetype/inconsolata: skipping, looped directory detected
+/usr/share/fonts/truetype/kacst: skipping, looped directory detected
+/usr/share/fonts/truetype/kacst-one: skipping, looped directory detected
+/usr/share/fonts/truetype/lao: skipping, looped directory detected
+/usr/share/fonts/truetype/lato: skipping, looped directory detected
+/usr/share/fonts/truetype/liberation: skipping, looped directory detected
+/usr/share/fonts/truetype/liberation2: skipping, looped directory detected
+/usr/share/fonts/truetype/libreoffice: skipping, looped directory detected
+/usr/share/fonts/truetype/lohit-assamese: skipping, looped directory detected
+/usr/share/fonts/truetype/lohit-bengali: skipping, looped directory detected
+/usr/share/fonts/truetype/lohit-devanagari: skipping, looped directory detected
+/usr/share/fonts/truetype/lohit-gujarati: skipping, looped directory detected
+/usr/share/fonts/truetype/lohit-kannada: skipping, looped directory detected
+/usr/share/fonts/truetype/lohit-malayalam: skipping, looped directory detected
+/usr/share/fonts/truetype/lohit-oriya: skipping, looped directory detected
+/usr/share/fonts/truetype/lohit-punjabi: skipping, looped directory detected
+/usr/share/fonts/truetype/lohit-tamil: skipping, looped directory detected
+/usr/share/fonts/truetype/lohit-tamil-classical: skipping, looped directory detected
+/usr/share/fonts/truetype/lohit-telugu: skipping, looped directory detected
+/usr/share/fonts/truetype/malayalam: skipping, looped directory detected
+/usr/share/fonts/truetype/noto: skipping, looped directory detected
+/usr/share/fonts/truetype/openoffice: skipping, looped directory detected
+/usr/share/fonts/truetype/padauk: skipping, looped directory detected
+/usr/share/fonts/truetype/pagul: skipping, looped directory detected
+/usr/share/fonts/truetype/porson: skipping, looped directory detected
+/usr/share/fonts/truetype/quicksand: skipping, looped directory detected
+/usr/share/fonts/truetype/samyak: skipping, looped directory detected
+/usr/share/fonts/truetype/samyak-fonts: skipping, looped directory detected
+/usr/share/fonts/truetype/sinhala: skipping, looped directory detected
+/usr/share/fonts/truetype/teluguvijayam: skipping, looped directory detected
+/usr/share/fonts/truetype/tibetan-machine: skipping, looped directory detected
+/usr/share/fonts/truetype/tlwg: skipping, looped directory detected
+/usr/share/fonts/truetype/ttf-khmeros-core: skipping, looped directory detected
+/usr/share/fonts/truetype/ubuntu: skipping, looped directory detected
+/usr/share/fonts/truetype/unifont: skipping, looped directory detected
+/usr/share/fonts/truetype/vlgothic: skipping, looped directory detected
+/usr/share/fonts/type1/gsfonts: skipping, looped directory detected
+/usr/share/fonts/type1/texlive-fonts-recommended: skipping, looped directory detected
+/usr/share/fonts/type1/urw-base35: skipping, looped directory detected
+/usr/share/fonts/X11/encodings/large: skipping, looped directory detected
 /var/cache/fontconfig: not cleaning unwritable cache directory
-/home/barskkar/.cache/fontconfig: cleaning cache directory
-/home/barskkar/.fontconfig: not cleaning non-existent cache directory
+/home/karolbarski/.cache/fontconfig: cleaning cache directory
+/home/karolbarski/.fontconfig: not cleaning non-existent cache directory
 fc-cache: succeeded
-/home/barskkar/.local/share/fonts/DejaVuSansCondensed-Bold.ttf: DejaVu Sans,DejaVu Sans Condensed:style=Condensed Bold,Bold
+/usr/share/fonts/truetype/lato/Lato-Medium.ttf: Lato,Lato Medium:style=Medium,Regular
+/usr/share/fonts/truetype/tlwg/TlwgTypo-Bold.ttf: Tlwg Typo:style=Bold
+/usr/share/fonts/truetype/lato/Lato-SemiboldItalic.ttf: Lato,Lato Semibold:style=Semibold Italic,Italic
+/usr/share/texmf/fonts/opentype/public/lm/lmmonolt10-oblique.otf: Latin Modern Mono Light,LM Mono Light 10:style=10 Oblique,Italic
 /usr/share/fonts/truetype/dejavu/DejaVuSerif-Bold.ttf: DejaVu Serif:style=Bold
-/home/barskkar/.local/share/fonts/Cantarell-Italic.ttf: Cantarell:style=Oblique
+/usr/share/fonts/opentype/urw-base35/URWBookman-LightItalic.otf: URW Bookman:style=Light Italic
+/usr/share/fonts/truetype/fonts-kalapi/Kalapi.ttf: Kalapi:style=Regular
+/usr/share/fonts/truetype/fonts-gujr-extra/Rekha.ttf: Rekha:style=Medium
+/usr/share/fonts/truetype/tlwg/TlwgTypewriter-BoldOblique.ttf: Tlwg Typewriter:style=Bold Oblique
+/usr/share/texmf/fonts/opentype/public/lm/lmmono10-italic.otf: Latin Modern Mono,LM Mono 10:style=10 Italic,Italic
+/usr/share/fonts/opentype/urw-base35/URWBookman-Light.otf: URW Bookman:style=Light
 /usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf: DejaVu Sans Mono:style=Book
-/home/barskkar/.local/share/fonts/DejaVuSerifCondensed.ttf: DejaVu Serif,DejaVu Serif Condensed:style=Condensed,Book
-/home/barskkar/.local/share/fonts/DejaVuSans-Oblique.ttf: DejaVu Sans:style=Oblique
+/home/karolbarski/.local/share/fonts/material-design-icons.ttf: Material Icons:style=Regular
+/usr/share/fonts/truetype/ubuntu/UbuntuMono-RI.ttf: Ubuntu Mono:style=Italic
+/usr/share/fonts/truetype/malayalam/Rachana-Regular.ttf: Rachana:style=Regular
+/usr/share/fonts/type1/texlive-fonts-recommended/putb8a.pfb: Utopia:style=Bold
+/usr/share/fonts/X11/Type1/s050000l.pfb: Standard Symbols L:style=Regular
+/usr/share/fonts/truetype/liberation2/LiberationMono-Bold.ttf: Liberation Mono:style=Bold
+/home/karolbarski/.local/share/fonts/NFM.ttf: Symbols Nerd Font Mono:style=Regular
+/usr/share/fonts/truetype/teluguvijayam/PottiSreeramulu.ttf: Potti Sreeramulu:style=Regular
+/usr/share/fonts/truetype/malayalam/AnjaliOldLipi-Regular.ttf: AnjaliOldLipi:style=Regular
+/usr/share/fonts/truetype/dejavu/DejaVuSansCondensed-Oblique.ttf: DejaVu Sans,DejaVu Sans Condensed:style=Condensed Oblique,Oblique
+/usr/share/texmf/fonts/opentype/public/tex-gyre/texgyrebonum-bold.otf: TeX Gyre Bonum:style=Bold
+/usr/share/fonts/truetype/teluguvijayam/Suravaram.ttf: Suravaram:style=Regular
+/usr/share/fonts/opentype/noto/NotoSerifCJK-Bold.ttc: Noto Serif CJK SC:style=Bold
+/usr/share/texmf/fonts/opentype/public/lm/lmroman10-bold.otf: Latin Modern Roman,LM Roman 10:style=10 Bold,Bold
+/usr/share/fonts/truetype/malayalam/Keraleeyam-Regular.ttf: Keraleeyam:style=Regular
+/usr/share/fonts/truetype/tlwg/Garuda.ttf: Garuda:style=Regular
+/usr/share/texmf/fonts/opentype/public/lm/lmroman7-italic.otf: Latin Modern Roman,LM Roman 7:style=7 Italic,Italic
+/usr/share/fonts/truetype/lato/Lato-LightItalic.ttf: Lato,Lato Light:style=Light Italic,Italic
+/usr/share/fonts/opentype/urw-base35/NimbusMonoPS-Italic.otf: Nimbus Mono PS:style=Italic
+/usr/share/fonts/truetype/noto/NotoSansMono-Regular.ttf: Noto Sans Mono:style=Regular
+/home/karolbarski/.local/share/fonts/Hack-Bold.ttf: Hack:style=Bold
+/usr/share/fonts/X11/Type1/c0649bt_.pfb: Bitstream Charter:style=Italic
+/usr/share/fonts/X11/Type1/p052024l.pfb: URW Palladio L:style=Bold Italic
+/usr/share/texmf/fonts/opentype/public/tex-gyre/texgyrecursor-italic.otf: TeX Gyre Cursor:style=Italic
+/usr/share/fonts/opentype/noto/NotoSerifCJK-Bold.ttc: Noto Serif CJK TC:style=Bold
+/usr/share/fonts/truetype/freefont/FreeSansBold.ttf: FreeSans:style=Pogrubiony,получерен,negreta,tučné,fed,Fett,Έντονα,Bold,Negrita,Lihavoitu,Gras,Félkövér,Grassetto,Vet,Halvfet,Negrito,gros,Полужирный,Fet,Kalın,huruf tebal,жирний,Krepko,treknraksts,pusjuodis,đậm,Lodia,धृष्ट
+/usr/share/fonts/opentype/urw-base35/P052-Italic.otf: P052:style=Italic
+/usr/share/fonts/type1/urw-base35/URWGothic-BookOblique.t1: URW Gothic:style=Book Oblique
+/usr/share/fonts/truetype/freefont/FreeSans.ttf: FreeSans:style=Odmiana Zwykła,нормален,Normal,obyčejné,Mittel,µεσαία,Regular,Normaali,Normál,Medio,Gemiddeld,Обычный,Normálne,menengah,прямій,Navadno,vidējs,normalusis,vừa,Arrunta,सामान्य
+/usr/share/fonts/truetype/liberation/LiberationSansNarrow-Italic.ttf: Liberation Sans Narrow:style=Italic
+/usr/share/fonts/truetype/dejavu/DejaVuSerifCondensed-BoldItalic.ttf: DejaVu Serif,DejaVu Serif Condensed:style=Condensed Bold Italic,Bold Italic
+/usr/share/fonts/truetype/dejavu/DejaVuSans-ExtraLight.ttf: DejaVu Sans,DejaVu Sans Light:style=ExtraLight
+/usr/share/texmf/fonts/opentype/public/tex-gyre/texgyretermes-italic.otf: TeX Gyre Termes:style=Italic
+/usr/share/fonts/type1/gsfonts/n021024l.pfb: Nimbus Roman No9 L:style=Medium Italic
+/usr/share/fonts/truetype/kacst/KacstFarsi.ttf: KacstFarsi:style=Medium
+/usr/share/fonts/truetype/padauk/PadaukBook-Regular.ttf: Padauk Book:style=Regular
+/usr/share/fonts/opentype/mathjax/MathJax_Vector-Regular.otf: MathJax_Vector:style=Regular
 /usr/share/fonts/truetype/dejavu/DejaVuSans.ttf: DejaVu Sans:style=Book
-/home/barskkar/.local/share/fonts/Hack-BoldItalic.ttf: Hack:style=Bold Italic
-/home/barskkar/.local/share/fonts/DejaVuSerif-BoldItalic.ttf: DejaVu Serif:style=Bold Italic
-/home/barskkar/.local/share/fonts/DejaVuSans-ExtraLight.ttf: DejaVu Sans,DejaVu Sans Light:style=ExtraLight
-/home/barskkar/.local/share/fonts/DejaVuSerif-Italic.ttf: DejaVu Serif:style=Italic
-/home/barskkar/.local/share/fonts/DejaVuSerifCondensed-Bold.ttf: DejaVu Serif,DejaVu Serif Condensed:style=Condensed Bold,Bold
+/usr/share/fonts/opentype/urw-base35/NimbusSans-Regular.otf: Nimbus Sans:style=Regular
+/usr/share/fonts/truetype/fonts-yrsa-rasa/Rasa-SemiBold.ttf: Rasa,Rasa SemiBold:style=SemiBold,Regular
+/usr/share/texmf/fonts/opentype/public/lm/lmroman12-bold.otf: Latin Modern Roman,LM Roman 12:style=12 Bold,Bold
+/usr/share/fonts/X11/Type1/c0419bt_.pfb: Courier 10 Pitch:style=Regular
+/usr/share/fonts/truetype/liberation2/LiberationSans-BoldItalic.ttf: Liberation Sans:style=Bold Italic
+/usr/share/fonts/type1/urw-base35/URWBookman-DemiItalic.t1: URW Bookman:style=Demi Italic
+/usr/share/fonts/opentype/urw-base35/NimbusSansNarrow-Oblique.otf: Nimbus Sans Narrow:style=Oblique
+/usr/share/fonts/truetype/fonts-gujr-extra/padmaa-Medium-0.5.ttf: padmaa,padmmaa:style=regular,Medium
+/usr/share/fonts/X11/Type1/p052023l.pfb: URW Palladio L:style=Italic
+/usr/share/fonts/type1/urw-base35/NimbusSans-Regular.t1: Nimbus Sans:style=Regular
+/usr/share/fonts/type1/texlive-fonts-recommended/putri8a.pfb: Utopia:style=Italic
+/usr/share/fonts/opentype/noto/NotoSerifCJK-Bold.ttc: Noto Serif CJK JP:style=Bold
+/usr/share/fonts/opentype/noto/NotoSerifCJK-Bold.ttc: Noto Serif CJK HK:style=Bold
+/usr/share/fonts/opentype/noto/NotoSerifCJK-Bold.ttc: Noto Serif CJK KR:style=Bold
+/usr/share/fonts/truetype/freefont/FreeSerifBoldItalic.ttf: FreeSerif:style=Pogrubiona kursywa,получерен курсивен,negreta cursiva,tučné kurzíva,fed kursiv,Fett-Kursiv,Bold Italic,Negrita Cursiva,Lihavoitu Kursivoi,Gras Italique,Félkövér dőlt,Grassetto Corsivo,Vet Cursief,Halvfet Kursiv,Negrito Itálico,gros cursiv,Обычный Курсив,Tučná kurzíva,Fet Kursiv,ตัวเอียงหนา,Kalın İtalik,huruf tebal kursif,жирний курсив,Polkrepko Pežeče,treknais kursīvs,pusjuodis kursyvas,nghiêng đậm,Lodi etzana,धृष्ट-तिरछा
+/usr/share/fonts/truetype/ubuntu/UbuntuMono-B.ttf: Ubuntu Mono:style=Bold
+/usr/share/fonts/opentype/urw-base35/C059-Roman.otf: C059:style=Roman
+/usr/share/fonts/truetype/lato/Lato-Italic.ttf: Lato:style=Italic
+/usr/share/texmf/fonts/opentype/public/lm/lmmonocaps10-regular.otf: Latin Modern Mono Caps,LM Mono Caps 10:style=10 Regular,Regular
+/usr/share/texmf/fonts/opentype/public/lm/lmsans10-boldoblique.otf: Latin Modern Sans,LM Sans 10:style=10 Bold Oblique,Bold Italic
+/usr/share/fonts/truetype/malayalam/Uroob-Regular.ttf: Uroob:style=Regular
+/usr/share/fonts/truetype/fonts-yrsa-rasa/Yrsa-Bold.ttf: Yrsa:style=Bold
+/usr/share/texmf/fonts/opentype/public/tex-gyre/texgyreadventor-bold.otf: TeX Gyre Adventor:style=Bold
+/usr/share/fonts/truetype/kacst/mry_KacstQurn.ttf: mry_KacstQurn:style=Regular
+/usr/share/fonts/truetype/tlwg/TlwgTypist.ttf: Tlwg Typist:style=Regular
+/usr/share/fonts/truetype/teluguvijayam/Peddana-Regular.ttf: Peddana:style=Regular
+/usr/share/fonts/truetype/kacst-one/KacstOne-Bold.ttf: KacstOne:style=Bold
+/usr/share/fonts/type1/gsfonts/n021004l.pfb: Nimbus Roman No9 L:style=Medium
+/usr/share/fonts/opentype/urw-base35/NimbusMonoPS-BoldItalic.otf: Nimbus Mono PS:style=Bold Italic
+/usr/share/fonts/truetype/freefont/FreeMonoBoldOblique.ttf: FreeMono:style=Pogrubiona kursywa,получерен наклонен,Negreta cursiva,tučné kurzíva,fed kursiv,Fett-Kursiv,Έντονα Πλάγια,Bold Oblique,Negrita Cursiva,Lihavoitu Kursivoi,Gras Italique,Félkövér dőlt,Grassetto Corsivo,Vet Cursief,Halvfet Kursiv,Negrito Itálico,gros oblic,Полужирный Курсив,Tučná kurzíva,Fet Kursiv,Kalın İtalik,huruf tebal miring,жирний похилий,polkrepko ležeče,treknais slīpraksts,pusjuodis pasvirasis,Lodi etzana,धृष्ट-तिरछा
+/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf: Liberation Sans:style=Regular
+/usr/share/fonts/truetype/dejavu/DejaVuSerifCondensed.ttf: DejaVu Serif,DejaVu Serif Condensed:style=Condensed,Book
+/usr/share/fonts/truetype/dejavu/DejaVuSerifCondensed-Italic.ttf: DejaVu Serif,DejaVu Serif Condensed:style=Condensed Italic,Italic
+/usr/share/fonts/type1/urw-base35/URWGothic-DemiOblique.t1: URW Gothic:style=Demi Oblique
+/usr/share/fonts/X11/Type1/b018015l.pfb: URW Bookman L:style=Demi Bold
+/usr/share/fonts/opentype/malayalam/Gayathri-Bold.otf: Gayathri:style=Bold
+/usr/share/fonts/type1/gsfonts/p052023l.pfb: URW Palladio L:style=Italic
+/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc: Noto Sans CJK JP:style=Regular
+/usr/share/fonts/type1/gsfonts/n022003l.pfb: Nimbus Mono L:style=Regular
+/usr/share/fonts/truetype/liberation/LiberationMono-BoldItalic.ttf: Liberation Mono:style=Bold Italic
+/usr/share/texmf/fonts/opentype/public/lm/lmmonolt10-bold.otf: Latin Modern Mono Light,LM Mono Light 10:style=10 Bold,Bold
+/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc: Noto Sans CJK HK:style=Regular
+/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc: Noto Sans CJK KR:style=Regular
+/usr/share/fonts/truetype/tlwg/Loma-Oblique.ttf: Loma:style=Oblique
+/usr/share/fonts/X11/Type1/z003034l.pfb: URW Chancery L:style=Medium Italic
+/usr/share/fonts/truetype/liberation2/LiberationSans-Bold.ttf: Liberation Sans:style=Bold
+/usr/share/texmf/fonts/opentype/public/tex-gyre-math/texgyreschola-math.otf: TeX Gyre Schola Math:style=Regular
+/usr/share/fonts/truetype/liberation/LiberationSerif-Italic.ttf: Liberation Serif:style=Italic
+/usr/share/fonts/truetype/padauk/Padauk-Bold.ttf: Padauk:style=Bold
+/usr/share/fonts/type1/gsfonts/z003034l.pfb: URW Chancery L:style=Medium Italic
+/usr/share/fonts/X11/Type1/c0633bt_.pfb: Bitstream Charter:style=Bold Italic
+/usr/share/fonts/truetype/kacst/KacstDigital.ttf: KacstDigital:style=Medium
+/usr/share/fonts/truetype/tlwg/TlwgTypo-Oblique.ttf: Tlwg Typo:style=Oblique
+/usr/share/fonts/X11/Type1/c0648bt_.pfb: Bitstream Charter:style=Regular
+/usr/share/fonts/truetype/ubuntu/Ubuntu-L.ttf: Ubuntu,Ubuntu Light:style=Light,Regular
+/usr/share/fonts/X11/Type1/c059016l.pfb: Century Schoolbook L:style=Bold
+/usr/share/texmf/fonts/opentype/public/tex-gyre-math/texgyrepagella-math.otf: TeX Gyre Pagella Math:style=Regular
+/usr/share/fonts/type1/urw-base35/URWBookman-LightItalic.t1: URW Bookman:style=Light Italic
+/usr/share/texmf/fonts/opentype/public/lm/lmmonoproplt10-regular.otf: Latin Modern Mono Prop Light,LM Mono Prop Light 10:style=10 Regular,Regular
+/usr/share/fonts/opentype/urw-base35/NimbusSansNarrow-BoldOblique.otf: Nimbus Sans Narrow:style=Bold Oblique
+/usr/share/fonts/truetype/kacst/KacstPen.ttf: KacstPen:style=Medium
+/usr/share/fonts/truetype/teluguvijayam/Ponnala.ttf: Ponnala:style=Regular
+/usr/share/fonts/truetype/liberation/LiberationMono-Bold.ttf: Liberation Mono:style=Bold
+/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc: Noto Sans CJK SC:style=Regular
+/usr/share/fonts/truetype/tlwg/Laksaman-Italic.ttf: Laksaman:style=Italic
+/usr/share/fonts/opentype/malayalam/Chilanka-Regular.otf: Chilanka:style=Regular
+/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc: Noto Sans CJK TC:style=Regular
+/usr/share/fonts/truetype/tlwg/Kinnari-Italic.ttf: Kinnari:style=Italic
+/usr/share/fonts/X11/Type1/a010033l.pfb: URW Gothic L:style=Book Oblique
+/usr/share/fonts/truetype/lohit-punjabi/Lohit-Gurmukhi.ttf: Lohit Gurmukhi:style=Regular
+/usr/share/fonts/truetype/ubuntu/Ubuntu-BI.ttf: Ubuntu:style=Bold Italic
+/usr/share/fonts/truetype/tlwg/TlwgMono-Bold.ttf: Tlwg Mono:style=Bold
+/usr/share/texmf/fonts/opentype/public/lm/lmromandunh10-oblique.otf: Latin Modern Roman Dunhill,LM Roman Dunhill 10:style=10 Oblique,Italic
+/usr/share/fonts/X11/Type1/a010015l.pfb: URW Gothic L:style=Demi
+/usr/share/fonts/truetype/lato/Lato-MediumItalic.ttf: Lato,Lato Medium:style=Medium Italic,Italic
+/usr/share/fonts/X11/Type1/n019003l.pfb: Nimbus Sans L:style=Regular
+/usr/share/fonts/truetype/liberation2/LiberationMono-Italic.ttf: Liberation Mono:style=Italic
+/usr/share/texmf/fonts/opentype/public/tex-gyre/texgyrepagella-bolditalic.otf: TeX Gyre Pagella:style=Bold Italic
+/usr/share/texmf/fonts/opentype/public/lm/lmsansdemicond10-oblique.otf: Latin Modern Sans Demi Cond,LM Sans Demi Cond 10:style=10 Oblique,Italic
+/usr/share/fonts/truetype/teluguvijayam/Ramaraja-Regular.ttf: Ramaraja:style=Regular
+/usr/share/fonts/truetype/fonts-beng-extra/MitraMono.ttf: Mitra:style=Regular
+/usr/share/fonts/type1/gsfonts/c059013l.pfb: Century Schoolbook L:style=Roman
+/usr/share/fonts/truetype/tlwg/Waree.ttf: Waree:style=Regular
+/usr/share/texmf/fonts/opentype/public/tex-gyre/texgyreheros-regular.otf: TeX Gyre Heros:style=Regular
+/usr/share/fonts/truetype/Sarai/Sarai.ttf: Sarai:style=Regular
+/usr/share/fonts/type1/urw-base35/NimbusSansNarrow-BoldOblique.t1: Nimbus Sans Narrow:style=Bold Oblique
+/usr/share/fonts/opentype/urw-base35/NimbusSans-Bold.otf: Nimbus Sans:style=Bold
+/usr/share/texmf/fonts/opentype/public/lm/lmroman10-bolditalic.otf: Latin Modern Roman,LM Roman 10:style=10 Bold Italic,Bold Italic
+/usr/share/fonts/type1/urw-base35/NimbusMonoPS-Italic.t1: Nimbus Mono PS:style=Italic
+/usr/share/fonts/opentype/malayalam/Manjari-Bold.otf: Manjari:style=Bold
+/usr/share/fonts/truetype/tlwg/Kinnari-Oblique.ttf: Kinnari:style=Oblique
+/usr/share/fonts/truetype/tlwg/Umpush-BoldOblique.ttf: Umpush:style=Bold Oblique
+/usr/share/fonts/type1/urw-base35/NimbusRoman-BoldItalic.t1: Nimbus Roman:style=Bold Italic
+/usr/share/fonts/truetype/lato/Lato-Black.ttf: Lato,Lato Black:style=Black,Regular
+/usr/share/fonts/truetype/liberation/LiberationSansNarrow-Regular.ttf: Liberation Sans Narrow:style=Regular
+/usr/share/fonts/opentype/mathjax/MathJax_Typewriter-Regular.otf: MathJax_Typewriter:style=Regular
+/usr/share/texmf/fonts/opentype/public/lm/lmromancaps10-oblique.otf: Latin Modern Roman Caps,LM Roman Caps 10:style=10 Oblique,Italic
+/usr/share/fonts/truetype/tlwg/Umpush-Oblique.ttf: Umpush:style=Oblique
+/usr/share/fonts/opentype/urw-base35/Z003-MediumItalic.otf: Z003:style=Medium Italic
+/usr/share/fonts/truetype/vlgothic/VL-PGothic-Regular.ttf: VL PGothic,VL Pゴシック:style=regular
+/usr/share/fonts/opentype/urw-base35/NimbusSans-BoldItalic.otf: Nimbus Sans:style=Bold Italic
+/usr/share/fonts/type1/texlive-fonts-recommended/pcrb8a.pfb: Courier:style=Bold
+/usr/share/fonts/opentype/urw-base35/URWGothic-Book.otf: URW Gothic:style=Book
+/usr/share/fonts/truetype/ubuntu/Ubuntu-Th.ttf: Ubuntu,Ubuntu Thin:style=Thin,Regular
+/usr/share/fonts/type1/gsfonts/d050000l.pfb: Dingbats:style=Regular
+/usr/share/fonts/truetype/dejavu/DejaVuSerif-BoldItalic.ttf: DejaVu Serif:style=Bold Italic
+/usr/share/fonts/truetype/tlwg/Sawasdee-Bold.ttf: Sawasdee:style=Bold
+/usr/share/texmf/fonts/opentype/public/tex-gyre/texgyreheroscn-bolditalic.otf: TeX Gyre Heros Cn:style=Bold Italic
+/usr/share/fonts/X11/Type1/n019004l.pfb: Nimbus Sans L:style=Bold
+/usr/share/fonts/X11/Type1/d050000l.pfb: Dingbats:style=Regular
+/usr/share/fonts/truetype/liberation2/LiberationMono-Regular.ttf: Liberation Mono:style=Regular
+/usr/share/fonts/truetype/lohit-bengali/Lohit-Bengali.ttf: Lohit Bengali:style=Regular
+/usr/share/fonts/truetype/kacst/KacstScreen.ttf: KacstScreen:style=Medium,KacstScreen
+/usr/share/fonts/opentype/mathjax/MathJax_Fraktur-Bold.otf: MathJax_Fraktur:style=Bold
+/usr/share/fonts/truetype/kacst/KacstArt.ttf: KacstArt:style=Medium
+/usr/share/fonts/truetype/ubuntu/Ubuntu-RI.ttf: Ubuntu:style=Italic
+/usr/share/fonts/truetype/fonts-yrsa-rasa/Yrsa-Medium.ttf: Yrsa,Yrsa Medium:style=Medium,Regular
+/usr/share/fonts/type1/gsfonts/n021023l.pfb: Nimbus Roman No9 L:style=Regular Italic
+/usr/share/fonts/truetype/fonts-guru-extra/Saab.ttf: Saab:style=Regular
+/usr/share/fonts/truetype/samyak-fonts/Samyak-Tamil.ttf: Samyak Tamil:style=Regular
+/usr/share/texmf/fonts/opentype/public/lm/lmsans12-oblique.otf: Latin Modern Sans,LM Sans 12:style=12 Oblique,Italic
+/usr/share/fonts/X11/Type1/c0611bt_.pfb: Courier 10 Pitch:style=Bold Italic
+/usr/share/fonts/truetype/lohit-gujarati/Lohit-Gujarati.ttf: Lohit Gujarati:style=Regular
+/usr/share/fonts/opentype/urw-base35/D050000L.otf: D050000L:style=Regular
+/usr/share/fonts/truetype/unifont/unifont_csur.ttf: Unifont CSUR:style=Regular
+/usr/share/fonts/truetype/lohit-assamese/Lohit-Assamese.ttf: Lohit Assamese:style=Regular
+/usr/share/fonts/truetype/teluguvijayam/TimmanaRegular.ttf: Timmana:style=Regular
+/usr/share/fonts/type1/texlive-fonts-recommended/putr8a.pfb: Utopia:style=Regular
+/usr/share/fonts/truetype/teluguvijayam/RaviPrakash.ttf: RaviPrakash:style=Regular
+/usr/share/fonts/truetype/liberation2/LiberationMono-BoldItalic.ttf: Liberation Mono:style=Bold Italic
+/usr/share/fonts/X11/Type1/p052004l.pfb: URW Palladio L:style=Bold
+/usr/share/texmf/fonts/opentype/public/lm/lmmonocaps10-oblique.otf: Latin Modern Mono Caps,LM Mono Caps 10:style=10 Oblique,Italic
+/usr/share/texmf/fonts/opentype/public/lm/lmsansquot8-boldoblique.otf: Latin Modern Sans Quotation,LM Sans Quot 8:style=8 Bold Oblique,Italic
+/usr/share/fonts/truetype/liberation2/LiberationSerif-BoldItalic.ttf: Liberation Serif:style=Bold Italic
+/usr/share/fonts/opentype/noto/NotoSerifCJK-Regular.ttc: Noto Serif CJK SC:style=Regular
+/usr/share/texmf/fonts/opentype/public/tex-gyre/texgyrecursor-bold.otf: TeX Gyre Cursor:style=Bold
+/usr/share/fonts/truetype/liberation2/LiberationSerif-Italic.ttf: Liberation Serif:style=Italic
+/usr/share/fonts/type1/gsfonts/n019063l.pfb: Nimbus Sans L:style=Regular Condensed Italic
+/usr/share/texmf/fonts/opentype/public/tex-gyre/texgyreschola-regular.otf: TeX Gyre Schola:style=Regular
+/usr/share/fonts/opentype/noto/NotoSerifCJK-Regular.ttc: Noto Serif CJK TC:style=Regular
+/usr/share/fonts/truetype/dejavu/DejaVuSansMono-Oblique.ttf: DejaVu Sans Mono:style=Oblique
+/usr/share/fonts/opentype/urw-base35/C059-BdIta.otf: C059:style=Bold Italic
+/usr/share/fonts/truetype/dejavu/DejaVuSerifCondensed-Bold.ttf: DejaVu Serif,DejaVu Serif Condensed:style=Condensed Bold,Bold
+/usr/share/fonts/opentype/malayalam/Gayathri-Regular.otf: Gayathri:style=Regular
 /usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf: DejaVu Sans:style=Bold
-/home/barskkar/.local/share/fonts/DejaVuSansCondensed.ttf: DejaVu Sans,DejaVu Sans Condensed:style=Condensed,Book
-/home/barskkar/.local/share/fonts/DejaVuMathTeXGyre.ttf: DejaVu Math TeX Gyre:style=Regular
-/home/barskkar/.local/share/fonts/DejaVuSerif.ttf: DejaVu Serif:style=Book
-/home/barskkar/.local/share/fonts/DejaVuSerif-Bold.ttf: DejaVu Serif:style=Bold
-/home/barskkar/.local/share/fonts/Hack-Italic.ttf: Hack:style=Italic
-/home/barskkar/.local/share/fonts/Cantarell-Regular.ttf: Cantarell:style=Regular
+/usr/share/fonts/truetype/tlwg/Norasi-BoldItalic.ttf: Norasi:style=Bold Italic
+/usr/share/fonts/opentype/mathjax/MathJax_Math-Italic.otf: MathJax_Math:style=Italic
+/usr/share/texmf/fonts/opentype/public/lm/lmmono9-regular.otf: Latin Modern Mono,LM Mono 9:style=9 Regular,Regular
+/usr/share/texmf/fonts/opentype/public/tex-gyre/texgyreadventor-italic.otf: TeX Gyre Adventor:style=Italic
+/usr/share/fonts/opentype/mathjax/MathJax_Vector-Bold.otf: MathJax_Vector\-Bold:style=Bold
+/usr/share/fonts/truetype/liberation/LiberationSerif-Bold.ttf: Liberation Serif:style=Bold
+/usr/share/fonts/truetype/dejavu/DejaVuSansMono-BoldOblique.ttf: DejaVu Sans Mono:style=Bold Oblique
+/usr/share/fonts/truetype/tlwg/Laksaman-Bold.ttf: Laksaman:style=Bold
+/usr/share/fonts/truetype/tlwg/Purisa-Bold.ttf: Purisa:style=Bold
+/home/karolbarski/.local/share/fonts/Cantarell-Italic.ttf: Cantarell:style=Italic
+/usr/share/texmf/fonts/opentype/public/lm-math/latinmodern-math.otf: Latin Modern Math:style=Regular
+/usr/share/fonts/type1/gsfonts/a010013l.pfb: URW Gothic L:style=Book
+/usr/share/fonts/X11/Type1/n022024l.pfb: Nimbus Mono L:style=Bold Oblique
+/usr/share/fonts/truetype/fonts-gujr-extra/padmaa.ttf: padmaa,padmmaa:style=Normal,Medium
+/usr/share/texmf/fonts/opentype/public/lm/lmsans8-oblique.otf: Latin Modern Sans,LM Sans 8:style=8 Oblique,Italic
+/usr/share/fonts/truetype/tlwg/Waree-Oblique.ttf: Waree:style=Oblique
+/usr/share/fonts/opentype/urw-base35/NimbusRoman-Regular.otf: Nimbus Roman:style=Regular
+/usr/share/fonts/truetype/ttf-khmeros-core/KhmerOS.ttf: Khmer OS:style=Regular
+/usr/share/fonts/opentype/noto/NotoSerifCJK-Regular.ttc: Noto Serif CJK JP:style=Regular
+/usr/share/fonts/truetype/lato/Lato-Light.ttf: Lato,Lato Light:style=Light,Regular
+/usr/share/fonts/opentype/mathjax/MathJax_Main-Regular.otf: MathJax_Main:style=Regular
+/usr/share/fonts/opentype/noto/NotoSerifCJK-Regular.ttc: Noto Serif CJK KR:style=Regular
+/usr/share/texmf/fonts/opentype/public/lm/lmmono8-regular.otf: Latin Modern Mono,LM Mono 8:style=8 Regular,Regular
+/usr/share/fonts/opentype/noto/NotoSerifCJK-Regular.ttc: Noto Serif CJK HK:style=Regular
+/usr/share/fonts/truetype/ubuntu/Ubuntu-MI.ttf: Ubuntu,Ubuntu Light:style=Medium Italic,Bold Italic
+/usr/share/fonts/opentype/cantarell/Cantarell-Bold.otf: Cantarell:style=Bold
+/usr/share/fonts/opentype/urw-base35/C059-Italic.otf: C059:style=Italic
+/usr/share/texmf/fonts/opentype/public/lm/lmmonoprop10-regular.otf: Latin Modern Mono Prop,LM Mono Prop 10:style=10 Regular,Regular
+/usr/share/texmf/fonts/opentype/public/tex-gyre/texgyretermes-bolditalic.otf: TeX Gyre Termes:style=Bold Italic
+/usr/share/fonts/truetype/liberation2/LiberationSans-Regular.ttf: Liberation Sans:style=Regular
+/usr/share/fonts/truetype/liberation/LiberationMono-Regular.ttf: Liberation Mono:style=Regular
+/usr/share/texmf/fonts/opentype/public/tex-gyre/texgyreheroscn-italic.otf: TeX Gyre Heros Cn:style=Italic
+/usr/share/fonts/opentype/urw-base35/NimbusMonoPS-Bold.otf: Nimbus Mono PS:style=Bold
+/usr/share/fonts/opentype/urw-base35/NimbusRoman-Bold.otf: Nimbus Roman:style=Bold
+/usr/share/fonts/opentype/mathjax/MathJax_Fraktur-Regular.otf: MathJax_Fraktur:style=Regular
+/usr/share/fonts/opentype/mathjax/MathJax_Caligraphic-Bold.otf: MathJax_Caligraphic:style=Bold
+/usr/share/fonts/truetype/libreoffice/opens___.ttf: OpenSymbol:style=Regular
+/usr/share/fonts/type1/urw-base35/NimbusSansNarrow-Bold.t1: Nimbus Sans Narrow:style=Bold
+/usr/share/fonts/truetype/teluguvijayam/Gidugu.ttf: Gidugu:style=Regular
+/usr/share/fonts/opentype/urw-base35/NimbusRoman-BoldItalic.otf: Nimbus Roman:style=Bold Italic
+/usr/share/fonts/truetype/tlwg/Norasi-BoldOblique.ttf: Norasi:style=Bold Oblique
+/usr/share/fonts/truetype/fonts-japanese-gothic.ttf: VL Gothic,VL ゴシック:style=regular
+/usr/share/texmf/fonts/opentype/public/lm/lmsans9-oblique.otf: Latin Modern Sans,LM Sans 9:style=9 Oblique,Italic
+/usr/share/fonts/truetype/lato/Lato-Regular.ttf: Lato:style=Regular
+/usr/share/fonts/truetype/ubuntu/UbuntuMono-BI.ttf: Ubuntu Mono:style=Bold Italic
+/usr/share/fonts/truetype/ubuntu/Ubuntu-B.ttf: Ubuntu:style=Bold
+/usr/share/fonts/opentype/mathjax/MathJax_Caligraphic-Regular.otf: MathJax_Caligraphic:style=Regular
+/usr/share/fonts/truetype/tlwg/Garuda-Bold.ttf: Garuda:style=Bold
+/usr/share/fonts/truetype/lohit-devanagari/Lohit-Devanagari.ttf: Lohit Devanagari:style=Regular
+/usr/share/fonts/type1/gsfonts/n019064l.pfb: Nimbus Sans L:style=Bold Condensed Italic
+/usr/share/fonts/truetype/dejavu/DejaVuMathTeXGyre.ttf: DejaVu Math TeX Gyre:style=Regular
+/usr/share/fonts/truetype/liberation/LiberationSans-Italic.ttf: Liberation Sans:style=Italic
+/usr/share/texmf/fonts/opentype/public/lm/lmsansquot8-bold.otf: Latin Modern Sans Quotation,LM Sans Quot 8:style=8 Bold,Bold
+/usr/share/fonts/truetype/fonts-deva-extra/kalimati.ttf: Kalimati,नालिमाटी:style=Regular,कालिमाटी
+/usr/share/texmf/fonts/opentype/public/lm/lmsansdemicond10-regular.otf: Latin Modern Sans Demi Cond,LM Sans Demi Cond 10:style=10 Regular,Regular
+/usr/share/fonts/type1/texlive-fonts-recommended/bchb8a.pfb: Bitstream Charter:style=Bold
+/usr/share/fonts/truetype/tlwg/Loma.ttf: Loma:style=Regular
+/usr/share/fonts/truetype/tlwg/TlwgTypist-Oblique.ttf: Tlwg Typist:style=Oblique
+/usr/share/fonts/truetype/dejavu/DejaVuSansCondensed-BoldOblique.ttf: DejaVu Sans,DejaVu Sans Condensed:style=Condensed Bold Oblique,Bold Oblique
+/usr/share/fonts/truetype/droid/DroidSansFallbackFull.ttf: Droid Sans Fallback:style=Regular
+/usr/share/texmf/fonts/opentype/public/lm/lmsans10-oblique.otf: Latin Modern Sans,LM Sans 10:style=10 Oblique,Italic
+/usr/share/fonts/type1/gsfonts/p052004l.pfb: URW Palladio L:style=Bold
+/usr/share/texmf/fonts/opentype/public/lm/lmroman8-italic.otf: Latin Modern Roman,LM Roman 8:style=8 Italic,Italic
+/usr/share/fonts/truetype/ttf-khmeros-core/KhmerOSsys.ttf: Khmer OS System:style=Regular
+/usr/share/fonts/truetype/malayalam/Rachana-Bold.ttf: Rachana:style=Bold
+/usr/share/texmf/fonts/opentype/public/lm/lmromanunsl10-regular.otf: Latin Modern Roman Unslanted,LM Roman Unslanted 10:style=10 Regular,Regular
+/home/karolbarski/.local/share/fonts/octicons.ttf: github\-octicons:style=Regular
+/usr/share/fonts/truetype/fonts-yrsa-rasa/Yrsa-Light.ttf: Yrsa,Yrsa Light:style=Light,Regular
+/usr/share/fonts/truetype/lato/Lato-ThinItalic.ttf: Lato,Lato Thin:style=Thin Italic,Italic
+/usr/share/texmf/fonts/opentype/public/lm/lmmonoproplt10-boldoblique.otf: Latin Modern Mono Prop Light,LM Mono Prop Light 10:style=10 BoldOblique,Bold Italic
+/home/karolbarski/.local/share/fonts/Hack-BoldItalic.ttf: Hack:style=Bold Italic
+/usr/share/fonts/X11/Type1/n019063l.pfb: Nimbus Sans L:style=Regular Condensed Italic
+/usr/share/fonts/truetype/tlwg/Purisa-BoldOblique.ttf: Purisa:style=Bold Oblique
+/usr/share/fonts/type1/urw-base35/C059-Roman.t1: C059:style=Roman
+/usr/share/texmf/fonts/opentype/public/tex-gyre/texgyreheroscn-bold.otf: TeX Gyre Heros Cn:style=Bold
+/usr/share/texmf/fonts/opentype/public/tex-gyre-math/texgyrebonum-math.otf: TeX Gyre Bonum Math:style=Regular
+/usr/share/texmf/fonts/opentype/public/tex-gyre/texgyrebonum-bolditalic.otf: TeX Gyre Bonum:style=Bold Italic
+/usr/share/fonts/truetype/liberation/LiberationSerif-BoldItalic.ttf: Liberation Serif:style=Bold Italic
+/usr/share/fonts/X11/Type1/n021024l.pfb: Nimbus Roman No9 L:style=Medium Italic
+/usr/share/fonts/truetype/dejavu/DejaVuSansCondensed.ttf: DejaVu Sans,DejaVu Sans Condensed:style=Condensed,Book
+/usr/share/fonts/truetype/lohit-telugu/Lohit-Telugu.ttf: Lohit Telugu:style=Regular
+/usr/share/fonts/opentype/mathjax/MathJax_SansSerif-Bold.otf: MathJax_SansSerif:style=Bold
+/usr/share/fonts/type1/urw-base35/NimbusRoman-Italic.t1: Nimbus Roman:style=Italic
+/home/karolbarski/.local/share/fonts/fontawesome.ttf: FontAwesome:style=Regular
+/usr/share/fonts/opentype/urw-base35/NimbusSans-Italic.otf: Nimbus Sans:style=Italic
+/usr/share/fonts/truetype/freefont/FreeSerif.ttf: FreeSerif:style=odmiana zwykła,нормален,normal,obyčejné,Mittel,µεσαία,Regular,Normaali,Normál,Normale,Gemiddeld,Обычный,Normálne,ปกติ,menengah,прямій,Navadno,vidējs,normalusis,عادی,vừa,Arrunta,सामान्य
+/usr/share/texmf/fonts/opentype/public/tex-gyre/texgyrecursor-bolditalic.otf: TeX Gyre Cursor:style=Bold Italic
+/usr/share/fonts/truetype/tlwg/TlwgTypewriter-Bold.ttf: Tlwg Typewriter:style=Bold
+/usr/share/fonts/type1/gsfonts/n022023l.pfb: Nimbus Mono L:style=Regular Oblique
+/usr/share/fonts/truetype/tlwg/TlwgTypo.ttf: Tlwg Typo:style=Regular
+/usr/share/fonts/truetype/freefont/FreeMonoOblique.ttf: FreeMono:style=Kursywa,наклонен,cursiva,kurzíva,kursiv,Πλάγια,Oblique,Kursivoitu,Italique,Dőlt,Corsivo,Cursief,Itálico,oblic,Курсив,İtalik,huruf miring,похилий,ležeče,slīpraksts,pasvirasis,nghiêng,Etzana,तिरछा
+/usr/share/fonts/truetype/ubuntu/UbuntuMono-R.ttf: Ubuntu Mono:style=Regular
+/usr/share/fonts/truetype/liberation2/LiberationSans-Italic.ttf: Liberation Sans:style=Italic
+/usr/share/texmf/fonts/opentype/public/lm/lmroman17-regular.otf: Latin Modern Roman,LM Roman 17:style=17 Regular,Regular
+/usr/share/fonts/truetype/tlwg/Norasi-Bold.ttf: Norasi:style=Bold
+/usr/share/fonts/X11/Type1/b018032l.pfb: URW Bookman L:style=Light Italic
+/usr/share/texmf/fonts/opentype/public/lm/lmromanslant8-regular.otf: Latin Modern Roman Slanted,LM Roman Slanted 8:style=8 Regular,Regular
+/usr/share/fonts/truetype/teluguvijayam/ramabhadra.ttf: Ramabhadra:style=Regular
+/usr/share/fonts/truetype/teluguvijayam/NATS.ttf: NATS:style=Regular
+/usr/share/fonts/truetype/tlwg/Sawasdee-Oblique.ttf: Sawasdee:style=Oblique
+/usr/share/fonts/truetype/tlwg/Kinnari-Bold.ttf: Kinnari:style=Bold
+/usr/share/fonts/type1/urw-base35/URWBookman-Demi.t1: URW Bookman:style=Demi
+/usr/share/texmf/fonts/opentype/public/lm/lmsansquot8-regular.otf: Latin Modern Sans Quotation,LM Sans Quot 8:style=8 Regular,Regular
+/usr/share/fonts/X11/Type1/n021004l.pfb: Nimbus Roman No9 L:style=Medium
+/usr/share/fonts/X11/Type1/n022003l.pfb: Nimbus Mono L:style=Regular
+/usr/share/texmf/fonts/opentype/public/lm/lmromancaps10-regular.otf: Latin Modern Roman Caps,LM Roman Caps 10:style=10 Regular,Regular
+/usr/share/fonts/truetype/ubuntu/Ubuntu-LI.ttf: Ubuntu,Ubuntu Light:style=Light Italic,Italic
+/usr/share/texmf/fonts/opentype/public/tex-gyre-math/texgyretermes-math.otf: TeX Gyre Termes Math:style=Regular
+/usr/share/fonts/type1/gsfonts/a010015l.pfb: URW Gothic L:style=Demi
+/usr/share/fonts/truetype/tlwg/Umpush-Light.ttf: Umpush:style=Light
+/usr/share/fonts/truetype/lohit-oriya/Lohit-Odia.ttf: Lohit Odia:style=Regular
+/usr/share/fonts/truetype/tlwg/Waree-BoldOblique.ttf: Waree:style=Bold Oblique
+/usr/share/texmf/fonts/opentype/public/tex-gyre/texgyreadventor-bolditalic.otf: TeX Gyre Adventor:style=Bold Italic
+/usr/share/fonts/truetype/dejavu/DejaVuSansCondensed-Bold.ttf: DejaVu Sans,DejaVu Sans Condensed:style=Condensed Bold,Bold
+/usr/share/fonts/truetype/liberation/LiberationSansNarrow-BoldItalic.ttf: Liberation Sans Narrow:style=Bold Italic
+/usr/share/fonts/type1/urw-base35/URWGothic-Book.t1: URW Gothic:style=Book
+/usr/share/fonts/truetype/malayalam/Karumbi-Regular.ttf: Karumbi:style=Regular
+/usr/share/texmf/fonts/opentype/public/lm/lmromandemi10-regular.otf: Latin Modern Roman Demi,LM Roman Demi 10:style=10 Regular,Regular
+/usr/share/texmf/fonts/opentype/public/lm/lmmono10-regular.otf: Latin Modern Mono,LM Mono 10:style=10 Regular,Regular
 /usr/share/fonts/truetype/dejavu/DejaVuSansMono-Bold.ttf: DejaVu Sans Mono:style=Bold
-/home/barskkar/.local/share/fonts/DejaVuSansMono.ttf: DejaVu Sans Mono:style=Book
-/home/barskkar/.local/share/fonts/Cantarell-BoldItalic.ttf: Cantarell:style=BoldOblique
-/home/barskkar/.local/share/fonts/DejaVuSansMono-BoldOblique.ttf: DejaVu Sans Mono:style=Bold Oblique
-/home/barskkar/.local/share/fonts/DejaVuSans-Bold.ttf: DejaVu Sans:style=Bold
-/home/barskkar/.local/share/fonts/Cantarell-Bold.ttf: Cantarell:style=Bold
-/home/barskkar/.local/share/fonts/DejaVuSansMono-Bold.ttf: DejaVu Sans Mono:style=Bold
-/home/barskkar/.local/share/fonts/DejaVuSans-BoldOblique.ttf: DejaVu Sans:style=Bold Oblique
-/home/barskkar/.local/share/fonts/Hack-Bold.ttf: Hack:style=Bold
-/home/barskkar/.local/share/fonts/DejaVuSerifCondensed-BoldItalic.ttf: DejaVu Serif,DejaVu Serif Condensed:style=Condensed Bold Italic,Bold Italic
-/home/barskkar/.local/share/fonts/DejaVuSansCondensed-BoldOblique.ttf: DejaVu Sans,DejaVu Sans Condensed:style=Condensed Bold Oblique,Bold Oblique
-/home/barskkar/.local/share/fonts/Hack-Regular.ttf: Hack:style=Regular
-/home/barskkar/.local/share/fonts/DejaVuSansMono-Oblique.ttf: DejaVu Sans Mono:style=Oblique
-/home/barskkar/.local/share/fonts/DejaVuSans.ttf: DejaVu Sans:style=Book
-/home/barskkar/.local/share/fonts/DejaVuSansCondensed-Oblique.ttf: DejaVu Sans,DejaVu Sans Condensed:style=Condensed Oblique,Oblique
-/home/barskkar/.local/share/fonts/DejaVuSerifCondensed-Italic.ttf: DejaVu Serif,DejaVu Serif Condensed:style=Condensed Italic,Italic
+/usr/share/fonts/type1/urw-base35/NimbusRoman-Regular.t1: Nimbus Roman:style=Regular
+/usr/share/fonts/opentype/urw-base35/NimbusMonoPS-Regular.otf: Nimbus Mono PS:style=Regular
+/usr/share/fonts/truetype/freefont/FreeSansBoldOblique.ttf: FreeSans:style=Pogrubiona kursywa,получерен наклонен,negreta cursiva,tučné kurzíva,fed kursiv,Fett-Kursiv,Έντονη Πλάγια,Bold Oblique,Negrita Cursiva,Lihavoitu Kursivoi,Gras Italique,Félkövér dőlt,Grassetto Corsivo,Vet Cursief,Halvfet Kursiv,Negrito Itálico,gros oblic,Обычный Курсив,Tučná kurzíva,Fet Kursiv,Kalın İtalik,huruf tebal miring,жирний похилий,polkrepko ležeče,treknais  slīpraksts,pusjuodis pasvirasis,nghiêng đậm,Lodi etzana,धृष्ट-तिरछा
+/usr/share/fonts/opentype/urw-base35/NimbusSansNarrow-Regular.otf: Nimbus Sans Narrow:style=Regular
+/usr/share/fonts/truetype/tlwg/Garuda-Oblique.ttf: Garuda:style=Oblique
+/home/karolbarski/.local/share/fonts/weathericons.ttf: Weather Icons:style=Regular
+/usr/share/fonts/type1/gsfonts/n019043l.pfb: Nimbus Sans L:style=Regular Condensed
+/usr/share/fonts/truetype/dejavu/DejaVuSans-Oblique.ttf: DejaVu Sans:style=Oblique
+/usr/share/fonts/truetype/lao/Phetsarath_OT.ttf: Phetsarath OT:style=Normalny,Phetsarath OT,Normal,obyčejné,Standard,Κανονικά,Regular,Normaali,Normál,Normale,Standaard,Обычный,Normálne,Navadno,Arrunta
+/usr/share/fonts/X11/Type1/a010035l.pfb: URW Gothic L:style=Demi Oblique
+/usr/share/fonts/truetype/liberation2/LiberationSerif-Regular.ttf: Liberation Serif:style=Regular
+/usr/share/texmf/fonts/opentype/public/lm/lmromandunh10-regular.otf: Latin Modern Roman Dunhill,LM Roman Dunhill 10:style=10 Regular,Regular
+/usr/share/fonts/truetype/kacst/KacstDecorative.ttf: KacstDecorative:style=Medium
+/usr/share/fonts/truetype/sinhala/lklug.ttf: LKLUG:style=Regular
+/usr/share/texmf/fonts/opentype/public/tex-gyre/texgyreschola-bolditalic.otf: TeX Gyre Schola:style=Bold Italic
+/usr/share/fonts/opentype/cantarell/Cantarell-Regular.otf: Cantarell:style=Regular
+/usr/share/fonts/truetype/fonts-beng-extra/Ani.ttf: Ani,অনি:style=Regular
+/usr/share/texmf/fonts/opentype/public/lm/lmsans12-regular.otf: Latin Modern Sans,LM Sans 12:style=12 Regular,Regular
+/usr/share/fonts/opentype/urw-base35/URWBookman-Demi.otf: URW Bookman:style=Demi
+/usr/share/fonts/type1/urw-base35/NimbusMonoPS-Regular.t1: Nimbus Mono PS:style=Regular
+/usr/share/fonts/type1/urw-base35/NimbusSans-BoldItalic.t1: Nimbus Sans:style=Bold Italic
+/usr/share/fonts/type1/urw-base35/NimbusSans-Bold.t1: Nimbus Sans:style=Bold
+/usr/share/texmf/fonts/opentype/public/lm/lmromanslant9-regular.otf: Latin Modern Roman Slanted,LM Roman Slanted 9:style=9 Regular,Regular
+/usr/share/fonts/type1/gsfonts/n019044l.pfb: Nimbus Sans L:style=Bold Condensed
+/home/karolbarski/.local/share/fonts/Cantarell-Bold.ttf: Cantarell:style=Bold
+/usr/share/fonts/type1/urw-base35/NimbusMonoPS-BoldItalic.t1: Nimbus Mono PS:style=Bold Italic
+/usr/share/fonts/truetype/tlwg/Norasi.ttf: Norasi:style=Regular
+/usr/share/fonts/X11/Type1/n019023l.pfb: Nimbus Sans L:style=Regular Italic
+/usr/share/fonts/truetype/fonts-yrsa-rasa/Yrsa-LightItalic.ttf: Yrsa,Yrsa Light:style=Light Italic,Italic
+/usr/share/fonts/truetype/padauk/Padauk-Regular.ttf: Padauk:style=Regular
+/usr/share/fonts/truetype/teluguvijayam/LakkiReddy.ttf: LakkiReddy:style=Regular
+/usr/share/fonts/X11/Type1/n019044l.pfb: Nimbus Sans L:style=Bold Condensed
+/usr/share/fonts/truetype/tlwg/Garuda-BoldOblique.ttf: Garuda:style=Bold Oblique
+/home/karolbarski/.local/share/fonts/Cantarell-Regular.ttf: Cantarell:style=Regular
+/usr/share/texmf/fonts/opentype/public/lm/lmmonoprop10-oblique.otf: Latin Modern Mono Prop,LM Mono Prop 10:style=10 Oblique,Italic
+/usr/share/fonts/opentype/mathjax/MathJax_Size4-Regular.otf: MathJax_Size4:style=Regular
+/usr/share/fonts/truetype/tlwg/Laksaman-BoldItalic.ttf: Laksaman:style=Bold Italic
+/usr/share/fonts/X11/Type1/n019024l.pfb: Nimbus Sans L:style=Bold Italic
+/usr/share/fonts/type1/urw-base35/StandardSymbolsPS.t1: Standard Symbols PS:style=Regular
+/usr/share/fonts/truetype/lohit-tamil-classical/Lohit-Tamil-Classical.ttf: Lohit Tamil Classical:style=Regular
+/usr/share/fonts/opentype/urw-base35/URWGothic-Demi.otf: URW Gothic:style=Demi
+/usr/share/fonts/type1/gsfonts/a010033l.pfb: URW Gothic L:style=Book Oblique
+/usr/share/fonts/truetype/tlwg/Sawasdee-BoldOblique.ttf: Sawasdee:style=Bold Oblique
+/usr/share/texmf/fonts/opentype/public/lm/lmmono12-regular.otf: Latin Modern Mono,LM Mono 12:style=12 Regular,Regular
+/usr/share/fonts/type1/texlive-fonts-recommended/pcrr8a.pfb: Courier:style=Regular
+/usr/share/fonts/truetype/tlwg/TlwgTypist-Bold.ttf: Tlwg Typist:style=Bold
+/usr/share/fonts/opentype/mathjax/MathJax_Size2-Regular.otf: MathJax_Size2:style=Regular
+/usr/share/fonts/type1/texlive-fonts-recommended/putbi8a.pfb: Utopia:style=Bold Italic
+/usr/share/fonts/truetype/teluguvijayam/TenaliRamakrishna-Regular.ttf: TenaliRamakrishna:style=Regular
+/usr/share/texmf/fonts/opentype/public/lm/lmsans10-bold.otf: Latin Modern Sans,LM Sans 10:style=10 Bold,Bold
+/usr/share/texmf/fonts/opentype/public/lm/lmromanslant10-regular.otf: Latin Modern Roman Slanted,LM Roman Slanted 10:style=10 Regular,Regular
+/usr/share/texmf/fonts/opentype/public/tex-gyre/texgyrepagella-italic.otf: TeX Gyre Pagella:style=Italic
+/usr/share/fonts/truetype/tlwg/Sawasdee.ttf: Sawasdee:style=Regular
+/usr/share/fonts/opentype/mathjax/MathJax_Main-Italic.otf: MathJax_Main:style=Italic
+/usr/share/texmf/fonts/opentype/public/tex-gyre/texgyrechorus-mediumitalic.otf: TeX Gyre Chorus:style=Regular
+/usr/share/fonts/type1/gsfonts/n021003l.pfb: Nimbus Roman No9 L:style=Regular
+/usr/share/fonts/truetype/fonts-beng-extra/JamrulNormal.ttf: Jamrul:style=Normal
+/usr/share/fonts/truetype/fonts-yrsa-rasa/Yrsa-SemiBoldItalic.ttf: Yrsa,Yrsa SemiBold:style=SemiBold Italic,Italic
+/usr/share/texmf/fonts/opentype/public/lm/lmsans8-regular.otf: Latin Modern Sans,LM Sans 8:style=8 Regular,Regular
+/usr/share/fonts/type1/gsfonts/s050000l.pfb: Standard Symbols L:style=Regular
+/usr/share/texmf/fonts/opentype/public/tex-gyre/texgyreheros-bold.otf: TeX Gyre Heros:style=Bold
+/usr/share/texmf/fonts/opentype/public/lm/lmsans17-regular.otf: Latin Modern Sans,LM Sans 17:style=17 Regular,Regular
+/usr/share/fonts/truetype/tlwg/TlwgMono.ttf: Tlwg Mono:style=Regular
+/usr/share/fonts/truetype/vlgothic/VL-Gothic-Regular.ttf: VL Gothic,VL ゴシック:style=regular
+/usr/share/fonts/opentype/mathjax/MathJax_Size3-Regular.otf: MathJax_Size3:style=Regular
+/usr/share/fonts/truetype/ubuntu/Ubuntu-R.ttf: Ubuntu:style=Regular
+/usr/share/fonts/opentype/mathjax/MathJax_Math-BoldItalic.otf: MathJax_Math:style=BoldItalic
+/usr/share/fonts/opentype/mathjax/MathJax_AMS-Regular.otf: MathJax_AMS:style=Regular
+/usr/share/fonts/opentype/urw-base35/NimbusSansNarrow-Bold.otf: Nimbus Sans Narrow:style=Bold
+/usr/share/fonts/opentype/urw-base35/URWBookman-DemiItalic.otf: URW Bookman:style=Demi Italic
+/usr/share/fonts/truetype/padauk/PadaukBook-Bold.ttf: Padauk Book:style=Bold
+/usr/share/fonts/truetype/liberation/LiberationMono-Italic.ttf: Liberation Mono:style=Italic
+/usr/share/fonts/truetype/fonts-yrsa-rasa/Rasa-Light.ttf: Rasa,Rasa Light:style=Light,Regular
+/usr/share/fonts/truetype/liberation/LiberationSans-BoldItalic.ttf: Liberation Sans:style=Bold Italic
+/usr/share/fonts/opentype/urw-base35/URWGothic-BookOblique.otf: URW Gothic:style=Book Oblique
+/usr/share/fonts/type1/gsfonts/b018035l.pfb: URW Bookman L:style=Demi Bold Italic
+/usr/share/fonts/truetype/tlwg/Umpush-Bold.ttf: Umpush:style=Bold
+/usr/share/fonts/X11/Type1/c0632bt_.pfb: Bitstream Charter:style=Bold
+/usr/share/fonts/truetype/pagul/Pagul.ttf: Pagul:style=攀Ⰰ 漀爀 猀琀, 渀漀琀 瀀,  夀漀甀 洀愀,琀椀漀渀⸀਀,焀甀椀爀攀洀攀渀, 愀戀漀瘀攀 爀,Regular,瘀攀Ⰰ 洀愀, 眀愀礀⸀਀਀ ,猀 愀瀀瀀氀,渀猀㬀਀琀栀,攀砀挀攀瀀琀椀,㠀⸀ 吀攀爀洀椀渀,琀攀搀 愀猀, 氀椀挀攀渀,愀爀愀琀攀氀礀, 漀昀 愀 猀攀,攀爀洀椀猀猀,爀 渀漀渀ⴀ,琀栀攀਀昀漀爀,漀瀀愀最愀琀攀,琀攀搀 椀渀,眀爀椀琀琀攀, 戀攀 猀琀, 攀椀琀栀攀
+/usr/share/fonts/type1/texlive-fonts-recommended/bchbi8a.pfb: Bitstream Charter:style=Bold Italic
+/usr/share/texmf/fonts/opentype/public/lm/lmsans9-regular.otf: Latin Modern Sans,LM Sans 9:style=9 Regular,Regular
+/usr/share/fonts/truetype/lohit-tamil/Lohit-Tamil.ttf: Lohit Tamil:style=Regular
+/usr/share/fonts/truetype/fonts-beng-extra/LikhanNormal.ttf: Likhan:style=Normal
+/usr/share/fonts/truetype/lato/Lato-HairlineItalic.ttf: Lato,Lato Hairline:style=Hairline Italic,Italic
+/usr/share/fonts/opentype/malayalam/Gayathri-Thin.otf: Gayathri,Gayathri Thin:style=Thin,Regular
+/usr/share/fonts/type1/gsfonts/c059033l.pfb: Century Schoolbook L:style=Italic
+/usr/share/fonts/truetype/tlwg/TlwgMono-Oblique.ttf: Tlwg Mono:style=Oblique
+/usr/share/fonts/truetype/fonts-yrsa-rasa/Yrsa-BoldItalic.ttf: Yrsa:style=Bold Italic
+/home/karolbarski/.local/share/fonts/unifont-14.0.03.otf: Unifont CSUR:style=Regular
+/usr/share/fonts/X11/Type1/c0582bt_.pfb: Courier 10 Pitch:style=Italic
+/usr/share/fonts/opentype/mathjax/MathJax_Size1-Regular.otf: MathJax_Size1:style=Regular
+/usr/share/fonts/truetype/tlwg/TlwgTypewriter.ttf: Tlwg Typewriter:style=Regular
+/usr/share/fonts/type1/texlive-fonts-recommended/bchri8a.pfb: Bitstream Charter:style=Italic
+/home/karolbarski/.local/share/fonts/Hack-Italic.ttf: Hack:style=Italic
+/usr/share/fonts/X11/Type1/c0583bt_.pfb: Courier 10 Pitch:style=Bold
+/usr/share/fonts/opentype/cantarell/Cantarell-Light.otf: Cantarell,Cantarell Light:style=Light,Regular
+/usr/share/fonts/truetype/tlwg/Kinnari.ttf: Kinnari:style=Regular
+/home/karolbarski/.local/share/fonts/Hack-Regular.ttf: Hack:style=Regular
+/usr/share/texmf/fonts/opentype/public/lm/lmromanslant12-regular.otf: Latin Modern Roman Slanted,LM Roman Slanted 12:style=12 Regular,Regular
+/usr/share/texmf/fonts/opentype/public/tex-gyre/texgyrepagella-regular.otf: TeX Gyre Pagella:style=Regular
+/usr/share/fonts/truetype/lato/Lato-Thin.ttf: Lato,Lato Thin:style=Thin,Regular
+/usr/share/texmf/fonts/opentype/public/tex-gyre/texgyrecursor-regular.otf: TeX Gyre Cursor:style=Regular
+/usr/share/texmf/fonts/opentype/public/tex-gyre/texgyrebonum-regular.otf: TeX Gyre Bonum:style=Regular
+/usr/share/fonts/X11/Type1/n021003l.pfb: Nimbus Roman No9 L:style=Regular
+/usr/share/texmf/fonts/opentype/public/lm/lmsans10-regular.otf: Latin Modern Sans,LM Sans 10:style=10 Regular,Regular
+/usr/share/fonts/opentype/cantarell/Cantarell-ExtraBold.otf: Cantarell,Cantarell Extra Bold:style=Extra Bold,Regular
+/usr/share/texmf/fonts/opentype/public/lm/lmroman10-regular.otf: Latin Modern Roman,LM Roman 10:style=10 Regular,Regular
+/usr/share/fonts/truetype/samyak/Samyak-Devanagari.ttf: Samyak Devanagari:style=Regular
+/usr/share/fonts/type1/urw-base35/Z003-MediumItalic.t1: Z003:style=Medium Italic
+/usr/share/fonts/truetype/teluguvijayam/Gurajada.ttf: Gurajada:style=Regular
+/usr/share/fonts/type1/urw-base35/P052-BoldItalic.t1: P052:style=Bold Italic
+/usr/share/fonts/type1/urw-base35/C059-Italic.t1: C059:style=Italic
+/usr/share/fonts/truetype/tlwg/Purisa.ttf: Purisa:style=Regular
+/usr/share/fonts/truetype/tlwg/Norasi-Oblique.ttf: Norasi:style=Oblique
+/usr/share/fonts/type1/gsfonts/a010035l.pfb: URW Gothic L:style=Demi Oblique
+/usr/share/fonts/truetype/fonts-yrsa-rasa/Yrsa-SemiBold.ttf: Yrsa,Yrsa SemiBold:style=SemiBold,Regular
+/usr/share/fonts/type1/urw-base35/P052-Roman.t1: P052:style=Roman
+/usr/share/fonts/truetype/ubuntu/Ubuntu-M.ttf: Ubuntu,Ubuntu Light:style=Medium,Bold
+/usr/share/fonts/opentype/noto/NotoSansCJK-Bold.ttc: Noto Sans Mono CJK TC:style=Bold
+/usr/share/fonts/truetype/freefont/FreeSerifBold.ttf: FreeSerif:style=Pogrubiony,получерен,negreta,tučné,fed,Fett,Bold,Negrita,Lihavoitu,Gras,Félkövér,Grassetto,Vet,Halvfet,Negrito,gros,Обычный,Fet,ตัวหนา,Kalın,huruf tebal,жирний,Polkrepko,treknraksts,pusjuodis,ضخیم,đậm,Lodia,धृष्ट
+/usr/share/fonts/truetype/teluguvijayam/SyamalaRamana.ttf: Syamala Ramana:style=Regular
+/usr/share/texmf/fonts/opentype/public/lm/lmmonoltcond10-oblique.otf: Latin Modern Mono Light Cond,LM Mono Light Cond 10:style=10 Oblique,Italic
+/usr/share/texmf/fonts/opentype/public/lm/lmromandemi10-oblique.otf: Latin Modern Roman Demi,LM Roman Demi 10:style=10 Oblique,Italic
+/usr/share/fonts/truetype/lohit-malayalam/Lohit-Malayalam.ttf: Lohit Malayalam:style=Regular
+/usr/share/texmf/fonts/opentype/public/lm/lmroman5-regular.otf: Latin Modern Roman,LM Roman 5:style=5 Regular,Regular
+/usr/share/fonts/opentype/noto/NotoSansCJK-Bold.ttc: Noto Sans Mono CJK SC:style=Bold
+/usr/share/fonts/truetype/tlwg/Loma-Bold.ttf: Loma:style=Bold
+/usr/share/fonts/opentype/noto/NotoSansCJK-Bold.ttc: Noto Sans Mono CJK KR:style=Bold
+/usr/share/fonts/opentype/noto/NotoSansCJK-Bold.ttc: Noto Sans Mono CJK HK:style=Bold
+/usr/share/fonts/truetype/teluguvijayam/SreeKrushnadevaraya.ttf: Sree Krushnadevaraya:style=Regular
+/usr/share/fonts/type1/urw-base35/NimbusRoman-Bold.t1: Nimbus Roman:style=Bold
+/usr/share/fonts/type1/urw-base35/NimbusSansNarrow-Oblique.t1: Nimbus Sans Narrow:style=Oblique
+/usr/share/fonts/opentype/noto/NotoSansCJK-Bold.ttc: Noto Sans Mono CJK JP:style=Bold
+/usr/share/fonts/truetype/liberation/LiberationSerif-Regular.ttf: Liberation Serif:style=Regular
+/usr/share/fonts/opentype/malayalam/Manjari-Thin.otf: Manjari,Manjari Thin:style=Thin,Regular
+/usr/share/fonts/opentype/malayalam/Manjari-Regular.otf: Manjari:style=Regular
+/usr/share/fonts/truetype/tlwg/Purisa-Oblique.ttf: Purisa:style=Oblique
+/usr/share/fonts/opentype/urw-base35/P052-BoldItalic.otf: P052:style=Bold Italic
+/usr/share/fonts/truetype/kacst/KacstTitleL.ttf: KacstTitleL:style=Medium,Regular
+/usr/share/fonts/truetype/lato/Lato-BoldItalic.ttf: Lato:style=Bold Italic
+/usr/share/fonts/truetype/noto/NotoSansMono-Bold.ttf: Noto Sans Mono:style=Bold
+/usr/share/fonts/truetype/dejavu/DejaVuSerif-Italic.ttf: DejaVu Serif:style=Italic
+/usr/share/texmf/fonts/opentype/public/tex-gyre/texgyreadventor-regular.otf: TeX Gyre Adventor:style=Regular
+/usr/share/texmf/fonts/opentype/public/tex-gyre/texgyrepagella-bold.otf: TeX Gyre Pagella:style=Bold
+/usr/share/texmf/fonts/opentype/public/lm/lmroman6-regular.otf: Latin Modern Roman,LM Roman 6:style=6 Regular,Regular
+/usr/share/fonts/X11/Type1/c059013l.pfb: Century Schoolbook L:style=Roman
+/usr/share/texmf/fonts/opentype/public/lm/lmromanslant10-bold.otf: Latin Modern Roman Slanted,LM Roman Slanted 10:style=10 Bold,Bold
+/usr/share/fonts/truetype/Navilu/Navilu.ttf: Navilu:style=Normal
+/usr/share/fonts/truetype/ubuntu/Ubuntu-C.ttf: Ubuntu Condensed:style=Regular
+/usr/share/fonts/opentype/mathjax/MathJax_Math-Regular.otf: MathJax_Math:style=Regular
+/usr/share/fonts/truetype/kacst-one/KacstOne.ttf: KacstOne:style=Regular
+/usr/share/fonts/truetype/tibetan-machine/TibetanMachineUni.ttf: Tibetan Machine Uni:style=Regular
+/usr/share/fonts/opentype/porson/GFSPorson.otf: GFS Porson:style=Regular
+/usr/share/fonts/truetype/kacst/KacstLetter.ttf: KacstLetter:style=Medium
+/usr/share/fonts/truetype/lato/Lato-Bold.ttf: Lato:style=Bold
+/usr/share/fonts/truetype/fonts-yrsa-rasa/Yrsa-Italic.ttf: Yrsa:style=Italic
+/usr/share/texmf/fonts/opentype/public/lm/lmmonolt10-boldoblique.otf: Latin Modern Mono Light,LM Mono Light 10:style=10 Bold Oblique,Bold Italic
+/usr/share/fonts/type1/urw-base35/D050000L.t1: D050000L:style=Regular
+/usr/share/fonts/X11/Type1/b018035l.pfb: URW Bookman L:style=Demi Bold Italic
+/usr/share/fonts/opentype/cantarell/Cantarell-Thin.otf: Cantarell,Cantarell Thin:style=Thin,Regular
+/usr/share/fonts/truetype/fonts-yrsa-rasa/Yrsa-Regular.ttf: Yrsa:style=Regular
+/usr/share/fonts/opentype/urw-base35/StandardSymbolsPS.otf: Standard Symbols PS:style=Regular
+/usr/share/texmf/fonts/opentype/public/lm/lmmonolt10-regular.otf: Latin Modern Mono Light,LM Mono Light 10:style=10 Regular,Regular
+/usr/share/fonts/truetype/tlwg/TlwgMono-BoldOblique.ttf: Tlwg Mono:style=Bold Oblique
+/usr/share/fonts/truetype/fonts-orya-extra/utkal.ttf: ori1Uni,utkal:style=Medium
+/usr/share/fonts/truetype/malayalam/RaghuMalayalamSans-Regular.ttf: RaghuMalayalamSans:style=Regular
+/usr/share/texmf/fonts/opentype/public/lm/lmroman12-regular.otf: Latin Modern Roman,LM Roman 12:style=12 Regular,Regular
+/usr/share/fonts/truetype/tlwg/Norasi-Italic.ttf: Norasi:style=Italic
+/usr/share/fonts/type1/gsfonts/n019023l.pfb: Nimbus Sans L:style=Regular Italic
+/usr/share/fonts/truetype/fonts-gujr-extra/aakar-medium.ttf: aakar:style=medium
+/usr/share/texmf/fonts/opentype/public/lm/lmmonoproplt10-oblique.otf: Latin Modern Mono Prop Light,LM Mono Prop Light 10:style=10 Oblique,Italic
+/usr/share/fonts/type1/gsfonts/b018012l.pfb: URW Bookman L:style=Light
+/usr/share/fonts/X11/Type1/c059036l.pfb: Century Schoolbook L:style=Bold Italic
+/usr/share/fonts/truetype/noto/NotoMono-Regular.ttf: Noto Mono:style=Regular
+/usr/share/texmf/fonts/opentype/public/tex-gyre/texgyreheros-italic.otf: TeX Gyre Heros:style=Italic
+/usr/share/fonts/type1/urw-base35/URWGothic-Demi.t1: URW Gothic:style=Demi
+/usr/share/fonts/type1/urw-base35/NimbusSans-Italic.t1: Nimbus Sans:style=Italic
+/usr/share/fonts/type1/urw-base35/C059-BdIta.t1: C059:style=Bold Italic
+/usr/share/fonts/truetype/fonts-beng-extra/Mukti.ttf: Mukti,মুক্তি:style=Regular,Medium
+/usr/share/fonts/truetype/unifont/unifont_upper.ttf: Unifont Upper:style=Regular
+/usr/share/texmf/fonts/opentype/public/lm/lmroman7-regular.otf: Latin Modern Roman,LM Roman 7:style=7 Regular,Regular
+/usr/share/fonts/X11/Type1/a010013l.pfb: URW Gothic L:style=Book
+/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc: Noto Sans Mono CJK SC:style=Regular
+/usr/share/fonts/type1/urw-base35/NimbusMonoPS-Bold.t1: Nimbus Mono PS:style=Bold
+/usr/share/texmf/fonts/opentype/public/lm/lmroman8-bold.otf: Latin Modern Roman,LM Roman 8:style=8 Bold,Bold
+/usr/share/fonts/truetype/fonts-yrsa-rasa/Yrsa-MediumItalic.ttf: Yrsa,Yrsa Medium:style=Medium Italic,Italic
+/usr/share/fonts/type1/gsfonts/c059016l.pfb: Century Schoolbook L:style=Bold
+/usr/share/fonts/type1/gsfonts/n022004l.pfb: Nimbus Mono L:style=Bold
+/usr/share/fonts/X11/Type1/b018012l.pfb: URW Bookman L:style=Light
+/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc: Noto Sans Mono CJK TC:style=Regular
+/usr/share/fonts/type1/gsfonts/n019024l.pfb: Nimbus Sans L:style=Bold Italic
+/usr/share/texmf/fonts/opentype/public/tex-gyre-math/texgyredejavu-math.otf: TeX Gyre DejaVu Math:style=Regular
+/usr/share/texmf/fonts/opentype/public/tex-gyre/texgyreschola-italic.otf: TeX Gyre Schola:style=Italic
+/usr/share/fonts/truetype/teluguvijayam/suranna.ttf: Suranna:style=Regular
+/usr/share/fonts/type1/gsfonts/b018032l.pfb: URW Bookman L:style=Light Italic
+/usr/share/fonts/truetype/unifont/unifont.ttf: Unifont:style=Regular
+/usr/share/fonts/truetype/tlwg/Laksaman.ttf: Laksaman:style=Regular
+/usr/share/fonts/truetype/lohit-kannada/Lohit-Kannada.ttf: Lohit Kannada:style=Regular
+/usr/share/fonts/truetype/malayalam/Dyuthi-Regular.ttf: Dyuthi:style=Regular
+/usr/share/fonts/truetype/malayalam/Meera-Regular.ttf: Meera:style=Regular
+/usr/share/fonts/type1/gsfonts/p052003l.pfb: URW Palladio L:style=Roman
+/usr/share/texmf/fonts/opentype/public/lm/lmroman9-bold.otf: Latin Modern Roman,LM Roman 9:style=9 Bold,Bold
+/usr/share/fonts/X11/Type1/c059033l.pfb: Century Schoolbook L:style=Italic
+/usr/share/fonts/truetype/liberation/LiberationSansNarrow-Bold.ttf: Liberation Sans Narrow:style=Bold
+/usr/share/texmf/fonts/opentype/public/tex-gyre/texgyreheros-bolditalic.otf: TeX Gyre Heros:style=Bold Italic
+/usr/share/texmf/fonts/opentype/public/lm/lmroman6-bold.otf: Latin Modern Roman,LM Roman 6:style=6 Bold,Bold
+/usr/share/fonts/type1/texlive-fonts-recommended/pcrro8a.pfb: Courier:style=Italic
+/usr/share/fonts/truetype/teluguvijayam/dhurjati.ttf: Dhurjati:style=Regular
+/usr/share/fonts/truetype/tlwg/Kinnari-BoldOblique.ttf: Kinnari:style=Bold Oblique
+/usr/share/fonts/opentype/urw-base35/URWGothic-DemiOblique.otf: URW Gothic:style=Demi Oblique
+/usr/share/fonts/truetype/lato/Lato-Heavy.ttf: Lato,Lato Heavy:style=Heavy,Regular
+/usr/share/fonts/truetype/fonts-telu-extra/Pothana2000.ttf: Pothana2000:style=Regular
+/usr/share/fonts/truetype/teluguvijayam/Mandali-Regular.ttf: Mandali:style=Regular
+/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf: Liberation Sans:style=Bold
+/usr/share/fonts/truetype/Gubbi/Gubbi.ttf: Gubbi:style=Normal
+/usr/share/texmf/fonts/opentype/public/tex-gyre/texgyreschola-bold.otf: TeX Gyre Schola:style=Bold
+/usr/share/fonts/truetype/fonts-yrsa-rasa/Rasa-Medium.ttf: Rasa,Rasa Medium:style=Medium,Regular
+/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc: Noto Sans Mono CJK HK:style=Regular
+/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc: Noto Sans Mono CJK KR:style=Regular
+/usr/share/fonts/truetype/freefont/FreeSerifItalic.ttf: FreeSerif:style=kursywa,курсивен,cursiva,kurzíva,kursiv,Λειψίας,Italic,Kursivoitu,Italique,Dőlt,Corsivo,Cursief,Itálico,cursiv,Курсив,ตัวเอียง,İtalik,kursif,Ležeče,kursīvs,kursivas,nghiêng,Etzana,तिरछा
+/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc: Noto Sans Mono CJK JP:style=Regular
+/usr/share/fonts/type1/texlive-fonts-recommended/bchr8a.pfb: Bitstream Charter:style=Regular
+/usr/share/fonts/type1/urw-base35/P052-Bold.t1: P052:style=Bold
+/usr/share/texmf/fonts/opentype/public/lm/lmroman7-bold.otf: Latin Modern Roman,LM Roman 7:style=7 Bold,Bold
+/usr/share/fonts/truetype/teluguvijayam/mallanna.ttf: Mallanna:style=Regular
+/usr/share/fonts/X11/Type1/n022004l.pfb: Nimbus Mono L:style=Bold
+/usr/share/fonts/truetype/Gargi/Gargi.ttf: Gargi,गार्गी:style=Regular,गार्गी
+/usr/share/fonts/truetype/freefont/FreeMono.ttf: FreeMono:style=Normalny,нормален,normal,obyčejné,Standard,µεσαία,Regular,Normaali,Normál,Normale,Standaard,Обычный,Normálne,menengah,прямій,navadno,vidējs,normalusis,thường,Arrunta,सामान्य
+/usr/share/texmf/fonts/opentype/public/tex-gyre/texgyreheroscn-regular.otf: TeX Gyre Heros Cn:style=Regular
+/usr/share/fonts/X11/Type1/n022023l.pfb: Nimbus Mono L:style=Regular Oblique
+/usr/share/fonts/truetype/tlwg/Kinnari-BoldItalic.ttf: Kinnari:style=Bold Italic
+/usr/share/fonts/X11/Type1/n021023l.pfb: Nimbus Roman No9 L:style=Regular Italic
+/home/karolbarski/.local/share/fonts/Cantarell-BoldItalic.ttf: Cantarell:style=Bold Italic
+/usr/share/fonts/truetype/lato/Lato-Semibold.ttf: Lato,Lato Semibold:style=Semibold,Regular
+/usr/share/fonts/truetype/noto/NotoColorEmoji.ttf: Noto Color Emoji:style=Regular
+/usr/share/fonts/opentype/mathjax/MathJax_WinIE6-Regular.otf: MathJax_WinIE6:style=Regular
+/usr/share/fonts/opentype/noto/NotoSansCJK-Bold.ttc: Noto Sans CJK JP:style=Bold
+/usr/share/fonts/opentype/noto/NotoSansCJK-Bold.ttc: Noto Sans CJK KR:style=Bold
+/usr/share/fonts/opentype/noto/NotoSansCJK-Bold.ttc: Noto Sans CJK HK:style=Bold
+/usr/share/fonts/type1/gsfonts/n019004l.pfb: Nimbus Sans L:style=Bold
+/usr/share/fonts/truetype/samyak-fonts/Samyak-Gujarati.ttf: Samyak Gujarati:style=Regular
+/usr/share/texmf/fonts/opentype/public/tex-gyre/texgyretermes-regular.otf: TeX Gyre Termes:style=Regular
+/usr/share/texmf/fonts/opentype/public/lm/lmmonoproplt10-bold.otf: Latin Modern Mono Prop Light,LM Mono Prop Light 10:style=10 Bold,Bold
+/usr/share/texmf/fonts/opentype/public/lm/lmsansquot8-oblique.otf: Latin Modern Sans Quotation,LM Sans Quot 8:style=8 Oblique,Bold Italic
+/usr/share/fonts/truetype/tlwg/Loma-BoldOblique.ttf: Loma:style=Bold Oblique
+/usr/share/fonts/type1/gsfonts/b018015l.pfb: URW Bookman L:style=Demi Bold
+/usr/share/fonts/opentype/noto/NotoSansCJK-Bold.ttc: Noto Sans CJK TC:style=Bold
+/usr/share/fonts/truetype/tlwg/TlwgTypo-BoldOblique.ttf: Tlwg Typo:style=Bold Oblique
+/usr/share/fonts/truetype/fonts-deva-extra/chandas1-2.ttf: Chandas:style=Regular
+/usr/share/fonts/truetype/kacst/KacstBook.ttf: KacstBook:style=Medium
+/usr/share/fonts/X11/Type1/p052003l.pfb: URW Palladio L:style=Roman
+/usr/share/fonts/opentype/mathjax/MathJax_Script-Regular.otf: MathJax_Script:style=Regular
+/usr/share/texmf/fonts/opentype/public/lm/lmmonoltcond10-regular.otf: Latin Modern Mono Light Cond,LM Mono Light Cond 10:style=10 Regular,Regular
+/usr/share/fonts/type1/gsfonts/n022024l.pfb: Nimbus Mono L:style=Bold Oblique
+/usr/share/fonts/truetype/kacst/KacstPoster.ttf: KacstPoster:style=Medium
+/usr/share/texmf/fonts/opentype/public/lm/lmroman5-bold.otf: Latin Modern Roman,LM Roman 5:style=5 Bold,Bold
+/usr/share/fonts/type1/urw-base35/P052-Italic.t1: P052:style=Italic
+/usr/share/fonts/truetype/baskerville/GFSBaskerville.otf: GFS Baskerville:style=Regular
+/usr/share/fonts/opentype/noto/NotoSansCJK-Bold.ttc: Noto Sans CJK SC:style=Bold
+/usr/share/fonts/truetype/fonts-gujr-extra/padmaa-Bold.1.1.ttf: padmaa\-Bold.1.1,padmaa,padmmaa:style=Bold.1.1,bold,medium
+/usr/share/fonts/truetype/fonts-yrsa-rasa/Rasa-Bold.ttf: Rasa:style=Bold
+/usr/share/texmf/fonts/opentype/public/lm/lmroman8-regular.otf: Latin Modern Roman,LM Roman 8:style=8 Regular,Regular
+/usr/share/fonts/truetype/freefont/FreeSansOblique.ttf: FreeSans:style=kursywa,наклонен,negreta cursiva,kurzíva,kursiv,Πλάγια,Oblique,Cursiva,Kursivoitu,Italique,Dőlt,Corsivo,Cursief,Itálico,oblic,Курсив,İtalik,huruf miring,похилий,Ležeče,slīpraksts,pasvirasis,nghiêng,Etzana,तिरछा
+/usr/share/fonts/opentype/mathjax/MathJax_Main-Bold.otf: MathJax_Main:style=Bold
+/usr/share/fonts/type1/urw-base35/NimbusSansNarrow-Regular.t1: Nimbus Sans Narrow:style=Regular
+/usr/share/fonts/truetype/tlwg/TlwgTypewriter-Oblique.ttf: Tlwg Typewriter:style=Oblique
+/usr/share/texmf/fonts/opentype/public/lm/lmroman9-italic.otf: Latin Modern Roman,LM Roman 9:style=9 Italic,Italic
+/usr/share/fonts/truetype/Sahadeva/sahadeva.ttf: Sahadeva:style=Regular
+/usr/share/fonts/truetype/fonts-yrsa-rasa/Rasa-Regular.ttf: Rasa:style=Regular
+/usr/share/fonts/truetype/lato/Lato-HeavyItalic.ttf: Lato,Lato Heavy:style=Heavy Italic,Italic
+/usr/share/fonts/truetype/tlwg/TlwgTypist-BoldOblique.ttf: Tlwg Typist:style=Bold Oblique
+/usr/share/fonts/truetype/kacst/KacstQurn.ttf: KacstQurn:style=Medium,Regular
+/usr/share/fonts/type1/urw-base35/C059-Bold.t1: C059:style=Bold
+/usr/share/fonts/truetype/kacst/KacstNaskh.ttf: KacstNaskh:style=Medium
+/usr/share/fonts/X11/Type1/n019043l.pfb: Nimbus Sans L:style=Regular Condensed
+/usr/share/fonts/truetype/inconsolata/Inconsolata.otf: Inconsolata:style=Medium
+/usr/share/fonts/truetype/teluguvijayam/NTR.ttf: NTR:style=Regular
+/usr/share/fonts/truetype/Nakula/nakula.ttf: Nakula:style=Regular
+/usr/share/fonts/type1/gsfonts/c059036l.pfb: Century Schoolbook L:style=Bold Italic
+/usr/share/fonts/truetype/lato/Lato-BlackItalic.ttf: Lato,Lato Black:style=Black Italic,Italic
+/usr/share/fonts/type1/gsfonts/p052024l.pfb: URW Palladio L:style=Bold Italic
+/usr/share/texmf/fonts/opentype/public/lm/lmmonoslant10-regular.otf: Latin Modern Mono Slanted,LM Mono Slanted 10:style=10 Regular,Regular
+/usr/share/fonts/truetype/fonts-deva-extra/samanata.ttf: Samanata:style=Regular
+/home/karolbarski/.local/share/fonts/file-icons.ttf: file\-icons:style=Regular
+/usr/share/fonts/type1/urw-base35/URWBookman-Light.t1: URW Bookman:style=Light
+/usr/share/texmf/fonts/opentype/public/lm/lmromanslant17-regular.otf: Latin Modern Roman Slanted,LM Roman Slanted 17:style=17 Regular,Regular
 /usr/share/fonts/truetype/dejavu/DejaVuSerif.ttf: DejaVu Serif:style=Book
+/usr/share/texmf/fonts/opentype/public/lm/lmroman9-regular.otf: Latin Modern Roman,LM Roman 9:style=9 Regular,Regular
+/usr/share/texmf/fonts/opentype/public/tex-gyre/texgyretermes-bold.otf: TeX Gyre Termes:style=Bold
+/usr/share/fonts/truetype/fonts-telu-extra/vemana2000.ttf: Vemana2000:style=Regular
+/usr/share/fonts/truetype/freefont/FreeMonoBold.ttf: FreeMono:style=Pogrubiony,получерен,negreta,tučné,fed,Fett,Έντονα,Bold,Negrita,Lihavoitu,Gras,Félkövér,Grassetto,Vet,Halvfet,Negrito,gros,Полужирный,Fet,Kalın,huruf tebal,жирний,polkrepko,treknraksts,pusjuodis,đậm,Lodia,धृष्ट
+/usr/share/fonts/type1/texlive-fonts-recommended/pcrbo8a.pfb: Courier:style=Bold Italic
+/usr/share/fonts/opentype/urw-base35/P052-Roman.otf: P052:style=Roman
+/usr/share/fonts/truetype/tlwg/Waree-Bold.ttf: Waree:style=Bold
+/usr/share/texmf/fonts/opentype/public/tex-gyre/texgyrebonum-italic.otf: TeX Gyre Bonum:style=Italic
+/usr/share/texmf/fonts/opentype/public/lm/lmroman10-italic.otf: Latin Modern Roman,LM Roman 10:style=10 Italic,Italic
+/usr/share/texmf/fonts/opentype/public/lm/lmroman12-italic.otf: Latin Modern Roman,LM Roman 12:style=12 Italic,Italic
+/usr/share/fonts/truetype/tlwg/Umpush-LightOblique.ttf: Umpush:style=Light Oblique
+/usr/share/fonts/opentype/mathjax/MathJax_SansSerif-Italic.otf: MathJax_SansSerif:style=Italic
+/usr/share/fonts/opentype/urw-base35/C059-Bold.otf: C059:style=Bold
+/usr/share/fonts/truetype/liberation2/LiberationSerif-Bold.ttf: Liberation Serif:style=Bold
+/usr/share/texmf/fonts/opentype/public/lm/lmsans17-oblique.otf: Latin Modern Sans,LM Sans 17:style=17 Oblique,Italic
+/usr/share/fonts/opentype/mathjax/MathJax_WinChrome-Regular.otf: MathJax_WinChrome:style=Regular
+/usr/share/fonts/opentype/urw-base35/P052-Bold.otf: P052:style=Bold
+/usr/share/fonts/X11/Type1/n019064l.pfb: Nimbus Sans L:style=Bold Condensed Italic
+/usr/share/fonts/truetype/lato/Lato-Hairline.ttf: Lato,Lato Hairline:style=Hairline,Regular
+/usr/share/fonts/truetype/malayalam/Suruma.ttf: Suruma:style=Medium
+/usr/share/fonts/truetype/fonts-beng-extra/Muktibold.ttf: Mukti,মুক্তি:style=Bold
+/usr/share/fonts/truetype/tlwg/Umpush.ttf: Umpush:style=Regular
+/usr/share/fonts/truetype/kacst/KacstTitle.ttf: KacstTitle:style=Medium
+/usr/share/fonts/truetype/samyak-fonts/Samyak-Malayalam.ttf: Samyak Malayalam:style=Medium
+/usr/share/fonts/opentype/mathjax/MathJax_SansSerif-Regular.otf: MathJax_SansSerif:style=Regular
+/usr/share/fonts/opentype/urw-base35/NimbusRoman-Italic.otf: Nimbus Roman:style=Italic
+/usr/share/fonts/truetype/dejavu/DejaVuSans-BoldOblique.ttf: DejaVu Sans:style=Bold Oblique
+/usr/share/fonts/truetype/kacst/KacstOffice.ttf: KacstOffice:style=Medium
+/usr/share/fonts/type1/gsfonts/n019003l.pfb: Nimbus Sans L:style=Regular
+/home/karolbarski/.local/share/fonts/all-the-icons.ttf: all\-the\-icons:style=Regular
+/usr/share/fonts/truetype/abyssinica/AbyssinicaSIL-Regular.ttf: Abyssinica SIL:style=Regular
 #+end_example
-

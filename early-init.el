@@ -3,6 +3,7 @@
 ;;; Code:
 ;; Used in emacs 27 to speed up initial package loading
 (setq package-quickstart t)
+(setq package-enable-at-startup nil)
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
 ;; use the system monospace font
 (setq-default font-use-system-font t)
