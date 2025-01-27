@@ -123,6 +123,9 @@ There are two things you can do about this warning:
       (eval-print-last-sexp)))
   (load bootstrap-file nil 'nomesage))
 
+(setopt straight-enable-package-integration t)
+
+
 ;; <leaf-install-code>
 (straight-use-package 'leaf)
 (straight-use-package 'leaf-keywords)
@@ -1298,6 +1301,15 @@ If theme is'n loaded then it will be loaded at first"
   ;; :blackout " EC"
   :config (editorconfig-mode 1))
 
+(leaf dockerfile-mode
+  :doc "Major mode for editing Docker's Dockerfiles"
+  :req "emacs-24"
+  :tag "tools" "processes" "languages" "docker" "emacs>=24"
+  :url "https://github.com/spotify/dockerfile-mode"
+  :added "2025-01-25"
+  :emacs>= 24
+  :straight t)
+
 ;; (leaf lsp-docker
 ;;   :doc "LSP Docker integration"
 ;;   :req "emacs-27.1" "dash-2.14.1" "lsp-mode-6.2.1" "f-0.20.0" "s-1.13.0" "yaml-0.2.0" "ht-2.0"
@@ -1662,6 +1674,10 @@ If theme is'n loaded then it will be loaded at first"
            (org-src-fontify-natively . t)
            (org-list-allow-alphabetical . t)
 
+           (org-export-with-fixed-width . nil)
+           (org-export-preserve-breaks . t)
+           (org-export-with-properties . t)
+           (org-export-with-section-numbers . nil)
            (org-export-with-smart-quotes . t)
            (org-export-with-drawers . nil)
            (org-export-with-todo-keywords . nil)
@@ -1670,6 +1686,8 @@ If theme is'n loaded then it will be loaded at first"
            (org-export-with-smart-quotes . t)
            (org-export-date-timestamp-format . "%d %B %Y")
            (org-export-with-sub-superscripts . '{})
+           (org-export-copy-to-kill-ring . 'if-interactive)
+           (org-export-show-temporary-export-buffer . nil)
 
            ;; (setq org-src-fontify-natively t)
            ;; (setq org-export-with-smart-quotes nil)
@@ -1682,6 +1700,7 @@ If theme is'n loaded then it will be loaded at first"
                                 (sequence "BACKLOG(b)" "PLAN(p)" "READY(r)" "ACTIVE(a)" "REVIEW(v)" "WAIT(w@/!)" "HOLD(h)" "|" "COMPLETED(c)" "CANC(k@)")))
            )
   :config
+  (require 'ox-md)
   (defun kb/org-mode-setup ()
     (org-indent-mode 1)
     ;;(variable-pitch-mode 1)
@@ -1860,7 +1879,9 @@ This function is based on work of David Wilson.
   :doc "Github Flavored Markdown Back-End for Org Export Engine"
   :tag "github" "markdown" "wp" "org"
   :added "2023-04-13"
-  :straight t)
+  :straight t
+  :after org
+  :require ox-gfm)
 
 (leaf ox-reveal
   :doc "reveal.js Presentation Back-End for Org Export Engine"
@@ -1890,7 +1911,8 @@ This function is based on work of David Wilson.
   :url "https://github.com/tomalexander/orgmode-mediawiki"
   :added "2022-10-31"
   :straight t
-  :require ox-mediawiki)
+  :require ox-mediawiki
+  :after org)
 (leaf ox-tiddly
   :doc "Org TiddlyWiki exporter"
   :req "org-8" "emacs-24.4"
@@ -3439,17 +3461,18 @@ Simon Hawkin <cema@cs.umd.edu> 03/14/1998"
   :doc "Emacs Major mode for JIRA-markup-formatted text files"
   :tag "markup" "jira"
   :url "https://github.com/mnuessler/jira-markup-mode"
-  :added "2022-10-31"
+  :added "2025-01-23"
   :straight t
   :mode "\\.jira")
 (leaf org-jira
-  :doc "Syncing between Jira and Org-mode."
+  :doc "Syncing between Jira and Org-mode"
   :req "emacs-24.5" "cl-lib-0.5" "request-0.2.0" "dash-2.14.1"
   :tag "tracker" "bug" "org" "jira" "ahungry" "emacs>=24.5"
   :url "https://github.com/ahungry/org-jira"
-  :added "2022-10-31"
+  :added "2025-01-23"
   :emacs>= 24.5
   :straight t
+  :after org
   :config
   (when (not (file-exists-p "~/.org-jira"))
     (make-directory "~/.org-jira"))
@@ -3466,15 +3489,16 @@ Simon Hawkin <cema@cs.umd.edu> 03/14/1998"
 (leaf copy-as-format
   :doc "Copy buffer locations as GitHub/Slack/JIRA etc... formatted code"
   :req "cl-lib-0.5"
-  :tag "convenience" "tools" "asciidoc" "rst" "pod" "org-mode" "bitbucket" "gitlab" "hipchat" "jira" "slack" "github"
+  :tag "convenience" "tools" "whatsapp" "asciidoc" "rst" "pod" "org-mode" "bitbucket" "gitlab" "telegram" "jira" "slack" "github"
   :url "https://github.com/sshaw/copy-as-format"
-  :added "2022-10-31"
+  :added "2025-01-23"
   :straight t
   :custom
   (copy-as-format-asciidoc-include-file-name . t)
   (copy-as-format-include-line-number . t)
   :bind
-  ("C-c w o" . copy-as-format-org-mode)
+  (("C-c w o" . copy-as-format-org-mode)
+   ("C-c w j" . copy-as-format-org-mode))
   )
 
 (unless (executable-find "dot") (warn "dot command not found in system"))
