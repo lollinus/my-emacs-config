@@ -881,7 +881,6 @@ If theme is'n loaded then it will be loaded at first"
 
 ;; (frame-focus-state)
 ;; (              doom-modeline-update-env)
-;; (beacon--blink-on-focus)
 
 (leaf custom
   :doc "tools for declaring and initializing options"
@@ -1298,8 +1297,15 @@ If theme is'n loaded then it will be loaded at first"
 
 (leaf editorconfig
   :straight t
-  ;; :blackout " EC"
   :config (editorconfig-mode 1))
+(leaf editorconfig-generate
+  :doc "Generate .editorconfig"
+  :req "emacs-24"
+  :tag "tools" "emacs>=24"
+  :url "https://github.com/10sr/editorconfig-generate-el"
+  :added "2025-01-28"
+  :emacs>= 24
+  :straight t)
 
 (leaf dockerfile-mode
   :doc "Major mode for editing Docker's Dockerfiles"
@@ -1430,108 +1436,22 @@ If theme is'n loaded then it will be loaded at first"
   :emacs>= 24.3
   :straight t)
 
+
+;; (advice-add 'ispell-pdict-save :after (lambda (_) (message "KB advice added") '((name . kukuryku))))
+
 ;;================================================================================
 ;; Spell checking
 ;;================================================================================
-(leaf ispell
-  :doc "interface to spell checkers"
-  :tag "builtin"
-  :added "2022-11-03"
-  :disabled t
-  ;; :when ispell-program-name
-  ;; ispell-cmd-args is useless, it's the list of *extra* arguments we will append to the ispell process when "ispell-word" is called.
-  ;; ispell-extra-args is the command arguments which will *always* be used when start ispell process
-  ;; Please note when you use hunspell, ispell-extra-args will NOT be used.
-  ;; Hack ispell-local-dictionary-alist instead.
-  :custom ((ispell-extra-args . '(flyspell-detect-ispell-args t))
-           ;; (setq ispell-cmd-args (flyspell-detect-ispell-args))
-           )
-  :config
-  ;; if (aspell installed) { use aspell}
-  ;; else if (hunspell installed) { use hunspell }
-  ;; whatever spell checker I use, I always use English dictionary
-  ;; I prefer use aspell because:
-  ;; 1. aspell is older
-  ;; 2. looks Kevin Atkinson still get some road map for aspell:
-  ;; @see http://lists.gnu.org/archive/html/aspell-announce/2011-09/msg00000.html
-  (defun flyspell-detect-ispell-args (&optional run-together)
-    "If RUN-TOGETHER is true, spell check the CamelCase words."
-    (let (args)
-      (cond
-       ((string-match  "aspell$" ispell-program-name)
-        ;; Force the English dictionary for aspell
-        ;; Support Camel Case spelling check (tested with aspell 0.6)
-        (setq args (list "--sug-mode=ultra" "--lang=en_US"))
-        (when run-together
-          (cond
-           ;; Kevin Atkinson said now aspell supports camel case directly
-           ;; https://github.com/redguardtoo/emacs.d/issues/796
-           ((string-match-p "--camel-case"
-                            (shell-command-to-string (concat ispell-program-name " --help")))
-            (setq args (append args '("--camel-case"))))
-
-           ;; old aspell uses "--run-together". Please note we are not dependent on this option
-           ;; to check camel case word. wucuo is the final solution. This aspell options is just
-           ;; some extra check to speed up the whole process.
-           (t
-            (setq args (append args '("--run-together" "--run-together-limit=16")))))))
-       ((string-match "hunspell$" ispell-program-name)
-        ;; Force the English dictionary for hunspell
-        (setq args "-d en_US")))
-      args))
-
-  ;; ispell-program-name
-  (cond
-   ((executable-find "aspell")
-    ;; you may also need `ispell-extra-args'
-    (setq ispell-program-name "aspell"))
-   ((executable-find "hunspell")
-    (setq ispell-program-name "hunspell")
-
-    ;; Please note that `ispell-local-dictionary` itself will be passed to hunspell cli with "-d"
-    ;; it's also used as the key to lookup ispell-local-dictionary-alist
-    ;; if we use different dictionary
-    (setq ispell-local-dictionary nil)
-    (setq ispell-local-dictionary-alist
-          '(("en_US" "[[:alpha:]]" "[^[:alpha:]]" "[']" nil ("-d" "en_US") nil utf-8)
-            ("pl_PL" "[[:alpha:]]" "[^[:alpha:]]" "[']" nil ("-d" "pl_PL") nil utf-8))))
-   (t (setq ispell-program-name nil)))
-
-  (defadvice ispell-word (around my-ispell-word activate)
-    (let ((old-ispell-extra-args ispell-extra-args))
-      (ispell-kill-ispell t)
-      (setq ispell-extra-args (flyspell-detect-ispell-args))
-      ad-do-it
-      (setq ispell-extra-args old-ispell-extra-args)
-      (ispell-kill-ispell t)))
-
-  (defadvice flyspell-auto-correct-word (around my-flyspell-auto-correct-word activate)
-    (let ((old-ispell-extra-args ispell-extra-args))
-      (ispell-kill-ispell t)
-      ;; use emacs original arguments
-      (setq ispell-extra-args (flyspell-detect-ispell-args))
-      ad-do-it
-      ;; restore our own ispell arguments
-      (setq ispell-extra-args old-ispell-extra-args)
-      (ispell-kill-ispell t)))
-
-  (defun text-mode-hook-setup ()
-    ;; Turn off RUN-TOGETHER option when spell check text-mode
-    (setq-local ispell-extra-args (flyspell-detect-ispell-args)))
-  :hook (text-mode-hook . text-mode-hook-setup)
-  )
-
 (leaf flycheck-aspell
   :doc "Aspell checker for flycheck"
   :req "flycheck-28.0" "emacs-25.1"
   :tag "aspell" "spell" "flycheck" "wp" "emacs>=25.1"
   :url "https://github.com/leotaku/flycheck-aspell"
-  :added "2022-11-03"
-  ;; :emacs>= 25.1
-  :disabled t
+  :added "2025-01-27"
+  :emacs>= 25.1
   :straight t
   :after flycheck
-  :advice (:after ispell-pdict-save flycheck-maybe-recheck)
+  :advice ((:after ispell-pdict-save flycheck-maybe-recheck))
   :config
   (defun flycheck-maybe-recheck (_)
     (when (bound-and-true-p flycheck-mode)
@@ -1541,20 +1461,21 @@ If theme is'n loaded then it will be loaded at first"
 (leaf unicode-fonts :straight t)
 
 ;; http://unifoundry.com/pub/unifont/unifont-14.0.01/font-builds/unifont-14.0.01.ttf
-(defvar kb/fonts '((:url "http://unifoundry.com/pub/unifont/unifont-14.0.03/font-builds/"
-                         :fonts "unifont-14.0.03.otf"
-                         :method 'download)
-                   (:url "https://github.com/source-foundry/Hack/releases/download/v3.003/"
-                         :fonts "Hack-v3.003-ttf.tar.xz"
-                         :archive "Hack-v3.003-ttf.tar.xz"
-                         :method 'tarxz)
-                   (:url "https://github.com/google/fonts/raw/main/ofl/cantarell/"
-                         :fonts ("Cantarell-BoldOblique.ttf"
-                                 "Cantarell-Bold.ttf"
-                                 "Cantarell-Oblique.ttf"
-                                 "Cantarell-Regular.ttf")
-                         :metod 'download)
-                   ) "List of font urls which should be installed.")
+;; (defvar kb/fonts '((:url "http://unifoundry.com/pub/unifont/unifont-14.0.03/font-builds/"
+;;                          :fonts "unifont-14.0.03.otf"
+;;                          :method 'download)
+;;                    (:url "https://github.com/source-foundry/Hack/releases/download/v3.003/"
+;;                          :fonts "Hack-v3.003-ttf.tar.xz"
+;;                          :archive "Hack-v3.003-ttf.tar.xz"
+;;                          :method 'tarxz)
+;;                    (:url "https://github.com/google/fonts/raw/main/ofl/cantarell/"
+;;                          :fonts ("Cantarell-BoldOblique.ttf"
+;;                                  "Cantarell-Bold.ttf"
+;;                                  "Cantarell-Oblique.ttf"
+;;                                  "Cantarell-Regular.ttf")
+;;                          :metod 'download)
+;;                    )
+;;   "List of font urls which should be installed.")
 
 ;; (defun kb/install-fonts (&optional pfx)
 ;;   "Helper function to download and install recommended fonts based on OS.
@@ -1600,7 +1521,8 @@ If theme is'n loaded then it will be loaded at first"
 ;;                (if known-dest? "installed" "downloaded")
 ;;               font-dest))))
 
-(leaf undo-tree :straight t
+(leaf undo-tree
+  :straight t
   ;; :blackout t
   :disabled t
   :custom ((undo-tree-auto-save-history . nil))
@@ -1637,7 +1559,38 @@ If theme is'n loaded then it will be loaded at first"
   (global-set-key (kbd "C-S-z") 'undo-fu-only-redo)
   )
 
+(leaf afterglow
+  :doc "Temporary Highlighting after Function Calls"
+  :req "emacs-26.1"
+  :tag "evil" "convenience" "line" "highlight" "emacs>=26.1"
+  :url "https://github.com/ernstvanderlinden/emacs-afterglow"
+  :added "2025-01-28"
+  :emacs>= 26.1
+  :straight t
+  :require t
+  :config
+  (afterglow-mode t)
+;; ;; Optional
+;; (setq afterglow-default-duration 0.5)
+;; ;; Optional
+;; (setq afterglow-default-face 'hl-line)
+;;
+  (afterglow-add-triggers
+   '(
+     ;; (evil-previous-visual-line :thing line :width 5 :duration 0.2)
+     ;; (evil-next-visual-line :thing line :width 5 :duration 0.2)
+     (previous-line :thing line :duration 0.2)
+     (next-line :thing line :duration 0.2)
+     (eval-buffer :thing window :duration 0.2)
+     (eval-defun :thing defun :duration 0.2)
+     (eval-expression :thing sexp :duration 1)
+     (eval-last-sexp :thing sexp :duration 1)
+     ;; (my-function :thing my-region-function :duration 0.5 :face 'highlight)
+     ))
+)
+
 (leaf beacon
+  :disabled t
   :straight t
   :config
   (beacon-mode 1))
@@ -2209,7 +2162,7 @@ This function is based on work of David Wilson.
    (lsp-keymap-prefix . "C-c l")
    (lsp-completion-provider . :capf)
    (lsp-headerline-breadcrumb-enable . t)
-   (lsp-headerline-breadcrumb-segments . '(symbols project))
+   ;; (lsp-headerline-breadcrumb-segments . '(symbols project))
    (lsp-enable-snippet . nil)
    )
 
@@ -2291,7 +2244,7 @@ This function is based on work of David Wilson.
                               (setq cmake-tab-width 4)
                               (setq indent-tabs-mode nil)))
          (cmake-mode-hook . lsp-deferred)))
-  
+
 (leaf cmake-font-lock
   :doc "Advanced, type aware, highlight support for CMake"
   :req "cmake-mode-0.0"
@@ -2766,15 +2719,15 @@ We display [CRM<separator>], e.g., [CRM,] if the separator is a comma."
     :emacs>= 27.1
     :straight t
     :after company consult)
-  (leaf consult-dir
-    :doc "Insert paths into the minibuffer prompt"
-    :req "emacs-26.1" "consult-0.9" "project-0.6.0"
-    :tag "convenience" "emacs>=26.1"
-    :url "https://github.com/karthink/consult-dir"
-    :added "2022-11-23"
-    :emacs>= 26.1
-    :straight t
-    :after consult project)
+  ;; (leaf consult-dir
+  ;;   :doc "Insert paths into the minibuffer prompt"
+  ;;   :req "emacs-26.1" "consult-0.9" "project-0.6.0"
+  ;;   :tag "convenience" "emacs>=26.1"
+  ;;   :url "https://github.com/karthink/consult-dir"
+  ;;   :added "2022-11-23"
+  ;;   :emacs>= 26.1
+  ;;   :straight t
+  ;;   :after consult project)
   (leaf consult-lsp
     :straight t)
   (leaf consult-notes
@@ -3260,14 +3213,14 @@ We display [CRM<separator>], e.g., [CRM,] if the separator is a comma."
       (add-hook 'flycheck-mode-hook #'flycheck-rust-setup))
   )
 
-(leaf rustic
-  :doc "Rust development environment"
-  :req "emacs-26.1" "rust-mode-1.0.3" "dash-2.13.0" "f-0.18.2" "let-alist-1.0.4" "markdown-mode-2.3" "project-0.3.0" "s-1.10.0" "seq-2.3" "spinner-1.7.3" "xterm-color-1.6"
-  :tag "languages" "emacs>=26.1"
-  :added "2023-06-21"
-  :emacs>= 26.1
-  :straight t
-  :after rust-mode markdown-mode project spinner xterm-color)
+;; (leaf rustic
+;;   :doc "Rust development environment"
+;;   :req "emacs-26.1" "rust-mode-1.0.3" "dash-2.13.0" "f-0.18.2" "let-alist-1.0.4" "markdown-mode-2.3" "project-0.3.0" "s-1.10.0" "seq-2.3" "spinner-1.7.3" "xterm-color-1.6"
+;;   :tag "languages" "emacs>=26.1"
+;;   :added "2023-06-21"
+;;   :emacs>= 26.1
+;;   :straight t
+;;   :after rust-mode markdown-mode spinner xterm-color)
 
 (leaf magit
   :doc "A Git porcelain inside Emacs."
@@ -3302,6 +3255,48 @@ We display [CRM<separator>], e.g., [CRM,] if the separator is a comma."
     :straight t
     :after treemacs pfuture magit)
   )
+
+(leaf tsc
+  :doc "Core Tree-sitter APIs"
+  :req "emacs-25.1"
+  :tag "tree-sitter" "dynamic-modules" "parsers" "tools" "languages" "emacs>=25.1"
+  :url "https://github.com/emacs-tree-sitter/elisp-tree-sitter"
+  :added "2025-01-27"
+  :emacs>= 25.1
+  :straight t)
+(leaf tree-sitter
+  :doc "Incremental parsing system"
+  :req "emacs-25.1" "tsc-0.18.0"
+  :tag "tree-sitter" "parsers" "tools" "languages" "emacs>=25.1"
+  :url "https://github.com/emacs-tree-sitter/elisp-tree-sitter"
+  :added "2025-01-27"
+  :emacs>= 25.1
+  :straight t
+  :after tsc
+  :hook (tree-sitter-after-on-hook . tree-sitter-hl-mode)
+  :config
+  (global-tree-sitter-mode)
+  )
+(leaf tree-sitter-langs
+  :doc "Grammar bundle for tree-sitter"
+  :req "emacs-25.1" "tree-sitter-0.15.0"
+  :tag "tree-sitter" "parsers" "tools" "languages" "emacs>=25.1"
+  :url "https://github.com/emacs-tree-sitter/tree-sitter-langs"
+  :added "2025-01-27"
+  :emacs>= 25.1
+  :straight t
+  :after tree-sitter)
+
+(leaf tree-sitter-ispell
+  :doc "Run ispell on tree-sitter text nodes"
+  :req "emacs-26.1" "tree-sitter-0.15.0"
+  :tag "emacs>=26.1"
+  :url "https://github.com/erickgnavar/tree-sitter-ispell.el"
+  :added "2025-01-27"
+  :emacs>= 26.1
+  :straight t
+  :after tree-sitter
+  :bind (("C-c C-s" . 'tree-sitter-ispell-run-at-point)))
 
 (leaf git-timemachine
   :doc "Walk through git revisions of a file"
@@ -3687,11 +3682,16 @@ Download and put appropriate file there."
     :req "emacs-24"
     :tag "emacs>=24"
     :url "http://github.com/sterlingg/json-snatcher"
-    :added "2025-01-16"
+    :added "2025-01-27"
     :emacs>= 24
     :straight t
-    :hook 
-    ((js-mode-hook js2-mode-hook) . 'js-mode-bindings)
+    :config
+    (defun js-mode-bindings ()
+      "Sets a hotkey for using the json-snatcher plugin."
+      (when (string-match  "\\.json$" (buffer-name))
+        (local-set-key (kbd "C-c C-g") 'jsons-print-path)))
+    :hook
+    ((js-mode-hook js2-mode-hook) . js-mode-bindings)
     ))
 
 (defun kb/nxml-where ()
@@ -3861,6 +3861,16 @@ Download and put appropriate file there."
          (lsp-after-initialize-hook . (lambda () (lsp--set-configuration '(:haskell (:plugin (:tactics (:config (:timeout_duration 5))))))))
          )
   )
+
+;; (leaf copilot
+;;   :doc "An unofficial Copilot plugin"
+;;   :req "emacs-27.2" "s-1.12.0" "dash-2.19.1" "editorconfig-0.8.2" "jsonrpc-1.0.14" "f-0.20.0"
+;;   :tag "copilot" "convenience" "emacs>=27.2"
+;;   :url "https://github.com/copilot-emacs/copilot.el"
+;;   :added "2025-01-27"
+;;   :emacs>= 27.2
+;;   :straight t
+;;   :after editorconfig jsonrpc)
 
 (leaf copilot-chat
   :disabled t
