@@ -125,7 +125,6 @@ There are two things you can do about this warning:
 
 (setopt straight-enable-package-integration t)
 
-
 ;; <leaf-install-code>
 (straight-use-package 'leaf)
 (straight-use-package 'leaf-keywords)
@@ -1156,19 +1155,28 @@ If theme is'n loaded then it will be loaded at first"
          )
   :config (speedbar-add-supported-extension '(".tex" ".bib" ".w"))
   )
-;; speedup tramp
+
 (leaf tramp
-  :disabled t
+  :doc "Transparent Remote Access, Multiple Protocol"
+  :tag "builtin"
+  :added "2025-02-04"
   ;; :straight tramp
   ;; :pin "gnu"
   :custom
-  (tramp-verbose . 1)
-  (vc-ignore-dir-regexp .
-                        '(format "\\(%s\\)\\|\\(%s\\)"
-                                 vc-ignore-dir-regexp
-                                 tramp-file-name-regexp))
-  ;; :config
-  ;; (tramp-recompile-elpa)
+  ;; (setq vc-ignore-dir-regexp .
+  ;;                       '(format "\\(%s\\)\\|\\(%s\\)"
+  ;;                                vc-ignore-dir-regexp
+  ;;                                tramp-file-name-regexp))
+  ;; Tips to speed up connections
+  (tramp-verbose . 0)
+  (tramp-chunksize . 2000)
+  (tramp-use-ssh-controlmaster-options . nil)
+  :config
+  ;; Enable full-featured Dirvish over TRAMP on certain connections
+  ;; https://www.gnu.org/software/tramp/#Improving-performance-of-asynchronous-remote-processes-1.
+  ;; (add-to-list 'tramp-connection-properties
+  ;;              (list (regexp-quote "/ssh:YOUR_HOSTNAME:")
+  ;;                    "direct-async-process" t))
   )
 
 ;;--------------------------------------------------------------------------------
@@ -1357,6 +1365,16 @@ If theme is'n loaded then it will be loaded at first"
   :straight t
   :require t)
 
+(leaf stillness-mode
+  :doc "Prevent windows from jumping on minibuffer activation"
+  :req "emacs-26.1" "dash-2.18.0"
+  :tag "convenience" "emacs>=26.1"
+  :url "https://github.com/neeasade/stillness-mode.el"
+  :added "2025-02-03"
+  :emacs>= 26.1
+  :straight t)
+
+
 (leaf flycheck
   :doc "On-the-fly syntax checking"
   :req "emacs-26.1"
@@ -1410,10 +1428,23 @@ If theme is'n loaded then it will be loaded at first"
                              'c/c++-googlelint 'append))
 
 (leaf flycheck-projectile
+  :doc "Project-wide errors"
+  :req "emacs-25.1" "flycheck-31" "projectile-2.2"
+  :tag "emacs>=25.1"
+  :url "https://github.com/nbfalcon/flycheck-projectile"
+  :added "2025-02-03"
+  :emacs>= 25.1
   :after flycheck projectile
-  :straight t
-  :require flycheck-projectile)
+  :straight t)
+
 (leaf avy-flycheck
+  :doc "Jump to and fix syntax errors using `flycheck' with `avy' interface"
+  :req "emacs-24.1" "flycheck-0.14" "seq-1.11" "avy-0.4.0"
+  :tag "flycheck" "avy" "convenience" "tools" "emacs>=24.1"
+  :url "https://github.com/magicdirac/avy-flycheck"
+  :added "2025-02-03"
+  :emacs>= 24.1
+  :after flycheck avy
   :straight t
   :hook (flycheck-mode-hook . avy-flycheck-setup))
 (leaf flycheck-posframe
@@ -1421,21 +1452,11 @@ If theme is'n loaded then it will be loaded at first"
   :req "flycheck-0.24" "emacs-26" "posframe-0.7.0"
   :tag "emacs>=26"
   :url "https://github.com/alexmurray/flycheck-posframe"
-  :added "2022-11-16"
+  :added "2025-02-03"
   :emacs>= 26
   :straight t
   :after flycheck posframe
   :hook flycheck-mode-hook)
-
-(leaf emamux
-  :doc "Interact with tmux"
-  :req "emacs-24.3"
-  :tag "emacs>=24.3"
-  :url "https://github.com/syohex/emacs-emamux"
-  :added "2023-02-07"
-  :emacs>= 24.3
-  :straight t)
-
 
 ;; (advice-add 'ispell-pdict-save :after (lambda (_) (message "KB advice added") '((name . kukuryku))))
 
@@ -1803,7 +1824,6 @@ This function is based on work of David Wilson.
   :doc "LaTeX Backend for Org Export Engine"
   :tag "builtin" "text" "calendar" "hypermedia" "outlines"
   :added "2024-08-05"
-  :ensure nil
   :custom
   ;; Multiple LaTeX passes for bibliographies
   (org-latex-pdf-process .
@@ -2022,15 +2042,24 @@ This function is based on work of David Wilson.
   :bind ("C-c C-b" . bool-flip-do-flip))
 
 (leaf company
+  :doc "Modular text completion framework"
+  :req "emacs-26.1"
+  :tag "matching" "convenience" "abbrev" "emacs>=26.1"
+  :url "http://company-mode.github.io/"
+  :added "2025-02-07"
+  :emacs>= 26.1
   :straight t
   :hook (after-init-hook . global-company-mode)
   :custom (
+           (company-require-match . nil)            ; Don't require match, so you can still move your cursor as expected.
            (company-minimum-prefix-length . 1)
            (company-idle-delay . 0.0)
            (company-clang-excecutable . "clang")
            ;; dabbrev case
-           (company-dabbrev-downcase . nil)
+           (company-dabbrev-downcase . nil)  ; No downcase when completion.
            (company-dabbrev-ignore-case . t)
+           (company-tooltip-align-annotations . t)  ; Align annotation to the right side.
+           (company-eclim-auto-save . nil)          ; Stop eclim auto save.
            ;; code fuzzy matching
            (company-dabbrev-code-ignore-case . t)
            (company-dabbrev-code-completion-styles . '(basic flex))
@@ -2053,6 +2082,14 @@ This function is based on work of David Wilson.
       (add-hook 'c-mode-common-hook (lambda ()
                                       (message "Yo this is yasnippet backend")
                                       (add-to-list (make-local-variable 'company-backends) 'company-yasnippet))))
+
+  :config
+  ;; Enable downcase only when completing the completion.
+  (defun jcs--company-complete-selection--advice-around (fn)
+    "Advice execute around `company-complete-selection' command."
+    (let ((company-dabbrev-downcase t))
+      (call-interactively fn)))
+  :advice ((:around company-complete-selection jcs--company-complete-selection--advice-around))
   :config
   (leaf company-statistics
     :straight t
@@ -2087,6 +2124,27 @@ This function is based on work of David Wilson.
     (add-to-list 'company-backends 'company-c-headers)
     )
   )
+
+(leaf company-fuzzy
+  :doc "Fuzzy matching for `company-mode'"
+  :req "emacs-26.1" "company-0.8.12" "s-1.12.0" "ht-2.0"
+  :tag "fuzzy" "complete" "auto-complete" "matching" "emacs>=26.1"
+  :url "https://github.com/jcs-elpa/company-fuzzy"
+  :added "2025-02-07"
+  :emacs>= 26.1
+  :straight t
+  :after company
+  :hook (company-mode . company-fuzzy-mode)
+  :init
+  (setopt company-fuzzy-sorting-backend 'flx
+          company-fuzzy-reset-selection t
+          company-fuzzy-prefix-on-top nil
+          company-fuzzy-show-annotation t
+          company-fuzzy-annotation-format "<%s>"
+          company-fuzzy-trigger-symbols '("." "->" "<" "\"" "'" "@"))
+  ;; (setq company-fuzzy-passthrough-backends '(company-capf))
+  :config
+  (global-company-fuzzy-mode 1))
 
 (leaf highlight-numbers
   :doc "Highlight numbers in source code"
@@ -2194,13 +2252,13 @@ This function is based on work of David Wilson.
   )
 (leaf lsp-ui
   :doc "UI modules for lsp-mode"
-  :req "emacs-26.1" "dash-2.18.0" "lsp-mode-6.0" "markdown-mode-2.3"
-  :tag "tools" "languages" "emacs>=26.1"
+  :req "emacs-27.1" "dash-2.18.0" "lsp-mode-6.0" "markdown-mode-2.3"
+  :tag "tools" "languages" "emacs>=27.1"
   :url "https://github.com/emacs-lsp/lsp-ui"
-  :added "2022-10-31"
-  :emacs>= 26.1
+  :added "2025-02-03"
+  :emacs>= 27.1
+  :after lsp-mode markdown-mode
   :straight t
-  ;; :after lsp-mode markdown-mode
   :hook (lsp-mode-hook . lsp-ui-mode)
   :bind (:lsp-ui-mode-map
          ([remap xref-find-definitions] . #'lsp-ui-peek-find-definitions)
@@ -2215,6 +2273,7 @@ This function is based on work of David Wilson.
            (lsp-ui-imenu-enable . t)
            (lsp-ui-peek-enable . t)
            (lsp-ui-sideline-enable . t)
+           (lsp-ui-flycheck-list-position . 'right)
            )
   )
 (leaf lsp-ivy
@@ -2278,19 +2337,92 @@ This function is based on work of David Wilson.
   (treemacs-space-between-root-nodes . nil)
   )
 
-(leaf ace-window
-  :doc "Quickly switch windows"
-  :req "avy-0.5.0"
-  :tag "location" "window"
-  :url "https://github.com/abo-abo/ace-window"
-  :added "2025-01-17"
+(leaf dirvish
+  :doc "A modern file manager based on dired mode"
+  :req "emacs-27.1" "transient-0.3.7"
+  :tag "convenience" "files" "emacs>=27.1"
+  :url "https://github.com/alexluigit/dirvish"
+  :added "2025-02-04"
+  :emacs>= 27.1
   :straight t
-  :after avy
+  :custom (
+           ;; subtree-state: A indicator for directory expanding state.
+           ;; all-the-icons: File icons provided by all-the-icons.el.
+           ;; vscode-icon: File icons provided by vscode-icon.el.
+           ;; collapse: Collapse unique nested paths.
+           ;; git-msg: Append git commit message to filename.
+           ;; vc-state: The version control state at left fringe.
+           ;; file-size: Show file size or directories file count at right fringe.
+           ;; file-time (newly added): Show file modification time before the file-size
+           ;; (dirvish-attributes . '(vc-state file-time)) ; file-time vc-state vscode-icon
+           (dirvish-attributes . '(all-the-icons file-time file-size collapse subtree-state vc-state git-msg))
+           ;; Placement
+           ;; (setq dirvish-use-header-line nil)     ; hide header line (show the classic dired header)
+           ;; (setq dirvish-use-mode-line nil)       ; hide mode line
+           (dirvish-use-header-line . 'global)    ; make header line span all panes
+
+           ;; Height
+           ;;; '(25 . 35) means
+           ;;; - height in single window sessions is 25
+           ;;; - height in full-frame sessions is 35
+           (dirvish-header-line-height . '(25 . 35))
+           (dirvish-mode-line-height . 25) ; shorthand for '(25 . 25)
+
+           ;; Segments
+           ;;; 1. the order of segments *matters* here
+           ;;; 2. it's ok to place raw string inside
+           (dirvish-header-line-format . '(:left (path) :right (free-space)))
+           (dirvish-mode-line-format . '(:left (sort file-time " " file-size symlink) :right (omit yank index)))
+
+           (dirvish-quick-access-entries . ; It's a custom option, `setq' won't work
+                                         '(("h" "~/"                          "Home")
+                                           ("d" "~/Downloads/"                "Downloads")
+                                           ("m" "/mnt/"                       "Drives")
+                                           ("t" "~/.local/share/Trash/files/" "TrashCan")))
+           (dired-listing-switches . "-l --almost-all --human-readable --group-directories-first --no-group")
+
+           (dired-mouse-drag-files . t)                   ; added in Emacs 29
+           (mouse-drag-and-drop-region-cross-program . t) ; added in Emacs 29
+           (mouse-1-click-follows-link . nil)
+           )
   :bind
-  ("C-x o" . ace-window)
-  :custom
-  (aw-keys . '(?a ?s ?d ?f ?h ?h ?j ?k ?l))
-  :config (ace-window-posframe-mode))
+  (("C-c f" . dirvish-fd)
+   (:dirvish-mode-map ("a" . dirvish-quick-access)
+                      ("f" . dirvish-file-info-menu)
+                      ("y" . dirvish-yank-menu)
+                      ("N" . dirvish-narrow)
+                      ("^"   . dirvish-history-last)
+                      ("h"   . dirvish-history-jump) ; remapped `describe-mode'
+                      ("s"   . dirvish-quicksort)    ; remapped `dired-sort-toggle-or-edit'
+                      ("v"   . dirvish-vc-menu)      ; remapped `dired-view-file'
+                      ("TAB" . dirvish-subtree-toggle)
+                      ("M-f" . dirvish-history-go-forward)
+                      ("M-b" . dirvish-history-go-backward)
+                      ("M-l" . dirvish-ls-switches-menu)
+                      ("M-m" . dirvish-mark-menu)
+                      ("M-t" . dirvish-layout-toggle)
+                      ("M-s" . dirvish-setup-menu)
+                      ("M-e" . dirvish-emerge-menu)
+                      ("M-j" . dirvish-fd-jump)
+                      ((kbd "<mouse-1>") . 'dirvish-subtree-toggle-or-open)
+                      ((kbd "<mouse-2>") . 'dired-mouse-find-file-other-window)
+                      ((kbd "<mouse-3>") . 'dired-mouse-find-file)))
+:init
+  (dirvish-override-dired-mode)
+  :config
+  (setopt dirvish-preview-dispatchers (remove 'epub dirvish-preview-dispatchers))
+  (setopt dirvish-preview-dispatchers (cl-substitute 'pdf-preface 'pdf dirvish-preview-dispatchers))
+  (when (executable-find "exa")
+    (message "found exa")
+    (dirvish-define-preview exa (file)
+      "Use `exa' to generate directory preview."
+      :require ("exa") ; tell Dirvish to check if we have the executable
+      (when (file-directory-p file) ; we only interest in directories here
+        `(shell . ("exa" "-al" "--color=always" "--icons"
+                   "--group-directories-first" ,file))))
+    (setopt dirvish-preview-dispatchers (add-to-list 'dirvish-preview-dispatchers 'exa))
+    )
+  )
 
 (leaf adaptive-wrap
   :straight t
@@ -2377,6 +2509,23 @@ This function is based on work of David Wilson.
   :added "2022-10-31"
   :emacs>= 24.1
   :straight t)
+(leaf yaml-imenu
+   :doc "Enhancement of the imenu support in yaml-mode"
+   :req "emacs-24.4" "yaml-mode-0"
+   :tag "imenu" "convenience" "outlining" "emacs>=24.4"
+   :url "https://github.com/knu/yaml-imenu.el"
+   :added "2025-02-05"
+   :emacs>= 24.4
+   :straight t
+   :after yaml-mode)
+(leaf yaml
+  :doc "YAML parser for Elisp"
+  :req "emacs-25.1"
+  :tag "tools" "emacs>=25.1"
+  :url "https://github.com/zkry/yaml.el"
+  :added "2025-02-05"
+  :emacs>= 25.1
+  :straight t)
 (leaf ietf-docs
   :doc "Fetch, Cache and Load IETF documents"
   :tag "rfc" "ietf"
@@ -2417,16 +2566,6 @@ This function is based on work of David Wilson.
   :config
   (unless (file-exists-p (expand-file-name "~/.local/share/fonts/all-the-icons.ttf"))
     (all-the-icons-install-fonts t))
-  (leaf all-the-icons-dired
-    :doc "Shows icons for each file in dired mode"
-    :req "emacs-26.1" "all-the-icons-2.2.0"
-    :tag "dired" "icons" "files" "emacs>=26.1"
-    :url "https://github.com/wyuenho/all-the-icons-dired"
-    :added "2022-10-31"
-    :emacs>= 26.1
-    :straight t
-    :after all-the-icons
-    :hook dired-mode-hook)
   (leaf all-the-icons-ibuffer
     :doc "Display icons for all buffers in ibuffer"
     :req "emacs-24.4" "all-the-icons-2.2.0"
@@ -2901,13 +3040,12 @@ We display [CRM<separator>], e.g., [CRM,] if the separator is a comma."
 
   :config
   (leaf swiper
-    :doc "Isearch with an overview. Oh, man!"
-    :req "emacs-24.5" "ivy-0.13.4"
+    :doc "Isearch with an overview.  Oh, man!"
+    :req "emacs-24.5" "ivy-0.14.2"
     :tag "matching" "emacs>=24.5"
     :url "https://github.com/abo-abo/swiper"
-    :added "2022-10-31"
+    :added "2025-02-03"
     :emacs>= 24.5
-    :straight t
     :after ivy
     :straight t
     :bind ([remap isearch-forward] . swiper-isearch)
@@ -2920,7 +3058,6 @@ We display [CRM<separator>], e.g., [CRM,] if the separator is a comma."
     :url "https://github.com/tumashu/ivy-posframe"
     :added "2025-01-17"
     :emacs>= 26.0
-    :after posframe ivy
     :straight t
     :after posframe ivy
     ;; :defines (ivy-posframe-display-functions-alist)
@@ -2976,19 +3113,19 @@ We display [CRM<separator>], e.g., [CRM,] if the separator is a comma."
     :custom (xref-show-xrefs-function . 'ivy-xref-show-xrefs))
   (leaf ivy-avy
     :doc "Avy integration for Ivy"
-    :req "emacs-24.5" "ivy-0.13.4" "avy-0.5.0"
+    :req "emacs-24.5" "ivy-0.14.2" "avy-0.5.0"
     :tag "convenience" "emacs>=24.5"
     :url "https://github.com/abo-abo/swiper"
-    :added "2022-10-31"
+    :added "2025-02-03"
     :emacs>= 24.5
     :straight t
     :after ivy avy)
   (leaf ivy-hydra
     :doc "Additional key bindings for Ivy"
-    :req "emacs-24.5" "ivy-0.13.4" "hydra-0.14.0"
+    :req "emacs-24.5" "ivy-0.14.2" "hydra-0.14.0"
     :tag "convenience" "emacs>=24.5"
     :url "https://github.com/abo-abo/swiper"
-    :added "2022-10-31"
+    :added "2025-02-03"
     :emacs>= 24.5
     :straight t
     :after ivy hydra)
@@ -3757,6 +3894,14 @@ Download and put appropriate file there."
   ;;                               ))
   )
 
+(leaf emamux
+  :doc "Interact with tmux"
+  :req "emacs-24.3"
+  :tag "emacs>=24.3"
+  :url "https://github.com/syohex/emacs-emamux"
+  :added "2023-02-07"
+  :emacs>= 24.3
+  :straight t)
 (leaf vterm
   :doc "Fully-featured terminal emulator"
   :req "emacs-25.1"
@@ -3766,6 +3911,11 @@ Download and put appropriate file there."
   :emacs>= 25.1
   :straight t)
 
+(leaf password-generator
+  :doc "Password generator for humans. Good, Bad, Phonetic passwords included"
+  :url "http://github.com/vandrlexay/emacs-password-genarator"
+  :added "2025-02-07"
+  :straight t)
 (leaf shroud
   :doc "Shroud secrets"
   :req "emacs-25" "epg-1.0.0" "s-1.6.0" "bui-1.2.0" "dash-2.18.0"
@@ -3777,8 +3927,7 @@ Download and put appropriate file there."
   :require (shroud-cli shroud)
   :bind (("C-c s" . shroud-ui))
   :config
-  (setq shroud-el--user-id "karol.barski@mobica.com")
-  )
+  (setq shroud-el--user-id "karol.barski@mobica.com"))
 
 (leaf auth-source
   ;; prefer encrypted auth source to non-encrypted
