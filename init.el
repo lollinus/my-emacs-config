@@ -124,6 +124,7 @@ There are two things you can do about this warning:
   (load bootstrap-file nil 'nomesage))
 
 (setopt straight-enable-package-integration t)
+(setopt straight-vc-git-default-clone-depth 1)
 
 ;; <leaf-install-code>
 (straight-use-package 'leaf)
@@ -162,7 +163,6 @@ There are two things you can do about this warning:
   :added "2025-01-16"
   :emacs>= 26
   :straight t)
-
 (leaf leaf-defaults
   :doc "Awesome leaf config collections"
   :req "emacs-26.1" "leaf-4.1" "leaf-keywords-1.1"
@@ -173,6 +173,12 @@ There are two things you can do about this warning:
   :disabled t
   :require t
   :config (leaf-defaults-init))
+(leaf el-get
+  :doc "Manage the external elisp bits and pieces you depend upon"
+  :tag "emacswiki" "http-tar" "http" "pacman" "fink" "apt-get" "hg" "darcs" "svn" "cvs" "bzr" "git-svn" "git" "elpa" "install" "elisp" "package" "emacs"
+  :url "http://www.emacswiki.org/emacs/el-get"
+  :added "2025-03-11"
+  :ensure t)
 
 ;; (leaf async-await :el-get chuntaro/emacs-async-await)
 ;; (leaf promise :el-get chuntaro/emacs-promise)
@@ -193,6 +199,47 @@ There are two things you can do about this warning:
 
 (leaf leaf-tree :straight t)
 (leaf leaf-convert :straight t)
+
+(leaf dashboard
+  :doc "A startup screen extracted from Spacemacs"
+  :req "emacs-27.1"
+  :tag "dashboard" "tools" "screen" "startup" "emacs>=27.1"
+  :url "https://github.com/emacs-dashboard/emacs-dashboard"
+  :added "2025-02-27"
+  :emacs>= 27.1
+  :straight t
+  :config
+  (dashboard-setup-startup-hook)
+  (when (featurep 'projectile)
+    (setopt dashboard-projects-backend 'projectile))
+  (setopt initial-buffer-choice (lambda () (get-buffer-create dashboard-buffer-name)))
+  (setq dashboard-items '((projects . 10)
+                          (recents . 10)
+                          (bookmarks . 5)
+                          (agenda . 5)
+                          ;; (registers . 5)
+                          ))
+
+
+  ;; (setopt dashboard-icon-type (cond ((featurep 'all-the-icons)
+  ;;        ('all-the-icons))
+  ;;       ((featurep 'nerd-icons)
+  ;;        (setopt dashboard-icon-type 'nerd-icons))
+  ;;       (t (message "Icon package not detected")))
+
+  ;; (setq dashboard-display-icons-p t)
+  ;; (setq dashboard-icon-type 'nerd-icons)
+  ;; (setq dashboard-set-heading-icons t)
+  ;; (setq dashboard-set-file-icons t)
+
+  (setq dashboard-navigation-cycle t)
+  ;; Content is not centered by default. To center, set
+  (setq dashboard-center-content t)
+  ;; vertically center content
+  (setq dashboard-vertically-center-content t)
+  ;; To disable shortcut "jump" indicators for each section, set
+  ;; (setq dashboard-show-shortcuts nil)
+  )
 
 (leaf transient
   :doc "Transient commands"
@@ -418,11 +465,6 @@ There are two things you can do about this warning:
   :tag "builtin"
   :added "2022-11-01"
   :custom ((tab-always-indent . 'complete)))
-
-;; Use M-/ for `company` completion
-;; (define-key input-decode-map "\e[1;2A" [S-up])
-;; (key-valid-p "M-/")
-(keymap-set input-decode-map "M-/" 'company-dabbrev)
 
 (leaf page-break-lines
   :doc "Display ^L page breaks as tidy horizontal lines"
@@ -703,6 +745,54 @@ should be imported.
 ;;   :added "2023-02-10"
 ;;   :emacs>= 27.1
 ;;   :straight t)
+(leaf amber-glow-theme
+  :doc "A warm and inviting theme"
+  :req "emacs-24.1"
+  :tag "dark" "glow" "amber" "warm" "theme" "faces" "emacs>=24.1"
+  :url "https://github.com/madara123pain/unique-emacs-theme-pack"
+  :added "2025-03-11"
+  :emacs>= 24.1
+  :straight t)
+(leaf ember-twilight-theme
+  :doc "Ember Twilight theme"
+  :req "emacs-24.1"
+  :tag "dark" "twilight" "ember" "theme" "faces" "emacs>=24.1"
+  :url "https://github.com/madara123pain/unique-emacs-theme-pack"
+  :added "2025-03-11"
+  :emacs>= 24.1
+  :straight t)
+(leaf marron-gold-theme
+  :doc "A rich marron-gold theme"
+  :req "emacs-24.1"
+  :tag "elegant" "warm" "gold" "marron" "theme" "faces" "emacs>=24.1"
+  :url "https://github.com/madara123pain/unique-emacs-theme-pack"
+  :added "2025-03-11"
+  :emacs>= 24.1
+  :straight t)
+(leaf sexy-theme
+  :doc "Sexy color theme"
+  :req "emacs-24.1"
+  :tag "emacs>=24.1"
+  :url "http://github.com/bgcicca/sexy-theme.el"
+  :added "2025-03-11"
+  :emacs>= 24.1
+  :straight t)
+(leaf sixcolors-theme
+  :doc "Just another theme"
+  :req "emacs-27.1"
+  :tag "colors" "faces" "emacs>=27.1"
+  :url "https://github.com/mastro35/sixcolors-theme"
+  :added "2025-03-11"
+  :emacs>= 27.1
+  :straight t)
+(leaf solarized-gruvbox-theme
+  :doc "Solarized Gruvbox theme"
+  :req "emacs-24.1"
+  :tag "dark" "gruvbox" "solarized" "theme" "faces" "emacs>=24.1"
+  :url "https://github.com/madara123pain/unique-emacs-theme-pack"
+  :added "2025-03-11"
+  :emacs>= 24.1
+  :straight t)
 
 (leaf doom-modeline
   :straight t
@@ -760,11 +850,31 @@ should be imported.
   (calendar-latitude . 53.51)
   (calendar-longitude . 14.57)
   (circadian-themes . '((:sunrise . doom-monokai-machine)
-                        ("8:00"   . tango-dark)
+                        (:sunset . doom-badger)
+                        ("8:00" . tango-dark)
+                        ("8:15" . (solarized-gruvbox
+                                   sixcolors
+                                   sexy
+                                   amber-glow
+                                   ember-twilight
+                                   marron-gold
+                                   doom-acario-dark
+                                   doom-bluloco-dark
+                                   doom-dark+
+                                   doom-feather-dark
+                                   doom-material-dark
+                                   doom-oksolar-dark
+                                   doom-solarized-dark-high-contrast
+                                   doom-solarized-dark
+                                   ))
+                        ;; ("8:45" . solarized-selenized-black)
+                        ;; ("9:00" . solarized-selenized-dark)
+                        ;; ("09:15" doom-winter-is-coming-dark-blue)
+                        ;; doom-ayu-dark
                         ("15:15" . doom-bluloco-dark)
                         ("15:45" . doom-ephemeral)
-                        (:sunset  . doom-badger)
-                        ("21:30"  . doom-monokai-pro)))
+                        ("16:00" . doom-plain-dark) ; should I end workday??
+                        ("21:30" . doom-monokai-pro)))
   :config
   (circadian-setup)
   )
@@ -1393,6 +1503,48 @@ If theme is'n loaded then it will be loaded at first"
       [0 0 0 0 0 4 12 28 60 124 252 124 60 28 12 4 0 0 0 0]
       ))
   )
+(leaf pretty-hydra
+  :doc "A macro for creating nice-looking hydras"
+  :req "hydra-0.15.0" "s-1.12.0" "dash-2.18.0" "emacs-24" "compat-29.1.4.1"
+  :tag "emacs>=24"
+  :url "https://github.com/jerrypnz/major-mode-hydra.el"
+  :added "2025-03-11"
+  :emacs>= 24
+  :straight t
+  :after hydra compat)
+(leaf major-mode-hydra
+  :doc "Major mode keybindings managed by Hydra"
+  :req "dash-2.18.0" "pretty-hydra-0.2.2" "emacs-25"
+  :tag "emacs>=25"
+  :url "https://github.com/jerrypnz/major-mode-hydra.el"
+  :added "2025-03-11"
+  :emacs>= 25
+  :straight t
+  :after pretty-hydra
+  :bind
+  ("M-SPC" . major-mode-hydra)
+  :config
+  (major-mode-hydra-define emacs-lisp-mode nil
+  ("Eval"
+   (("b" eval-buffer "buffer")
+    ("e" eval-defun "defun")
+    ("r" eval-region "region"))
+   "REPL"
+   (("I" ielm "ielm"))
+   "Test"
+   (("t" ert "prompt")
+    ("T" (ert t) "all")
+    ("F" (ert :failed) "failed"))
+   "Doc"
+   (("d" describe-foo-at-point "thing-at-pt")
+    ("f" describe-function "function")
+    ("v" describe-variable "variable")
+    ("i" info-lookup-symbol "info lookup")))))
+(leaf hydra-posframe
+  :el-get "Ladicle/hydra-posframe"
+  :hook (after-init . hydra-posframe-mode)
+  :config
+  (hydra-posframe-enable))
 
 (leaf flycheck-hydra
   :after flycheck hydra
@@ -1591,11 +1743,11 @@ If theme is'n loaded then it will be loaded at first"
   :require t
   :config
   (afterglow-mode t)
-;; ;; Optional
-;; (setq afterglow-default-duration 0.5)
-;; ;; Optional
-;; (setq afterglow-default-face 'hl-line)
-;;
+  ;; ;; Optional
+  ;; (setq afterglow-default-duration 0.5)
+  ;; ;; Optional
+  ;; (setq afterglow-default-face 'hl-line)
+  ;;
   (afterglow-add-triggers
    '(
      ;; (evil-previous-visual-line :thing line :width 5 :duration 0.2)
@@ -1608,7 +1760,7 @@ If theme is'n loaded then it will be loaded at first"
      (eval-last-sexp :thing sexp :duration 1)
      ;; (my-function :thing my-region-function :duration 0.5 :face 'highlight)
      ))
-)
+  )
 
 (leaf beacon
   :disabled t
@@ -1667,7 +1819,7 @@ If theme is'n loaded then it will be loaded at first"
            ;; (setq org-export-with-smart-quotes nil)
            ;; (org-html-htmlize-output-type . nil)
            (org-html-table-default-attributes .
-                   '(:border "1" :rules "border" :frame "all"))
+                                              '(:border "1" :rules "border" :frame "all"))
            (org-html-postamble . nil)
            (org-todo-keywords .
                               '((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d!)")
@@ -1738,7 +1890,7 @@ This function is based on work of David Wilson.
     ;;                          ))
     )
 
- (defun ews-org-insert-screenshot ()
+  (defun ews-org-insert-screenshot ()
     "Take a screenshot with ImageMagick and insert as an Org mode link."
     (interactive)
     (let ((filename (read-file-name "Enter filename for screenshot: " default-directory)))
@@ -1801,7 +1953,7 @@ This function is based on work of David Wilson.
   (setf (plist-get org-format-latex-options :scale) 3)
   ;; (setf (plist-get org-format-latex-options :foreground) auto)
   ;; (setf (plist-get org-format-latex-options :background) auto)
-)
+  )
 
 (leaf org-make-toc
   :doc "Automatic tables of contents for Org files"
@@ -1827,16 +1979,16 @@ This function is based on work of David Wilson.
   :custom
   ;; Multiple LaTeX passes for bibliographies
   (org-latex-pdf-process .
-   '("pdflatex -interaction nonstopmode -output-directory %o %f"
-     "bibtex %b"
-     "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
-     "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"))
+                         '("pdflatex -interaction nonstopmode -output-directory %o %f"
+                           "bibtex %b"
+                           "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
+                           "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"))
   ;; Clean temporary files after export
   (org-latex-logfiles-extensions .
-   (quote ("lof" "lot" "tex~" "aux" "idx" "log" "out"
-           "toc" "nav" "snm" "vrb" "dvi" "fdb_latexmk"
-           "blg" "brf" "fls" "entoc" "ps" "spl" "bbl"
-           "tex" "bcf"))))
+                                 (quote ("lof" "lot" "tex~" "aux" "idx" "log" "out"
+                                         "toc" "nav" "snm" "vrb" "dvi" "fdb_latexmk"
+                                         "blg" "brf" "fls" "entoc" "ps" "spl" "bbl"
+                                         "tex" "bcf"))))
 
 (leaf ox-epub
   :doc "Export org mode projects to EPUB"
@@ -2041,6 +2193,7 @@ This function is based on work of David Wilson.
   :straight t
   :bind ("C-c C-b" . bool-flip-do-flip))
 
+(when (not (executable-find "clang")) (message "clang executable not found"))
 (leaf company
   :doc "Modular text completion framework"
   :req "emacs-26.1"
@@ -2070,6 +2223,11 @@ This function is based on work of David Wilson.
          (:company-active-map ("<tab>" . company-complete-selection))
          ;;(:map lsp-mode-map ("<tab>" . company-indent-or-complete-common))
          )
+  :init
+  ;; Use M-/ for `company` completion
+  ;; (define-key input-decode-map "\e[1;2A" [S-up])
+  ;; (key-valid-p "M-/")
+  (keymap-set input-decode-map "M-/" 'company-dabbrev)
   :config
   (defun kb/company-hook ()
     "Hook to setup company mode"
@@ -2104,7 +2262,7 @@ This function is based on work of David Wilson.
     )
   (leaf company-quickhelp
     :straight t
-    :disabled t
+    ;; :disabled t
     :after company
     :bind (:company-active-map ("C-c h" . #'company-quickhelp-manual-begin))
     :config
@@ -2283,7 +2441,6 @@ This function is based on work of David Wilson.
   :url "https://github.com/emacs-lsp/lsp-ivy"
   :added "2025-01-17"
   :emacs>= 27.1
-  ;; :disabled t
   :straight t
   :after lsp-mode ivy
   :commands lsp-ivy-workspace-symbol)
@@ -2375,10 +2532,10 @@ This function is based on work of David Wilson.
            (dirvish-mode-line-format . '(:left (sort file-time " " file-size symlink) :right (omit yank index)))
 
            (dirvish-quick-access-entries . ; It's a custom option, `setq' won't work
-                                         '(("h" "~/"                          "Home")
-                                           ("d" "~/Downloads/"                "Downloads")
-                                           ("m" "/mnt/"                       "Drives")
-                                           ("t" "~/.local/share/Trash/files/" "TrashCan")))
+                                         '(("h" "~/"             "Home")
+                                           ("d" "~/Downloads/"   "Downloads")
+                                           ("m" "/mnt/"          "Drives")
+                                           ("p" "~/projects/"    "Projects")))
            (dired-listing-switches . "-l --almost-all --human-readable --group-directories-first --no-group")
 
            (dired-mouse-drag-files . t)                   ; added in Emacs 29
@@ -2993,7 +3150,7 @@ We display [CRM<separator>], e.g., [CRM,] if the separator is a comma."
          ;; ("C-c v" . ivy-push-view)
          ("C-c V" . ivy-pop-view)
          ;; ("C-c m" . kb/ivy-switch-project)
-         ("C-c n" . kb/ivy-switch-git)
+         ;; ("C-c n" . kb/ivy-switch-git)
          )
   :config
   (defun kb/ivy-switch-project ()
@@ -4051,6 +4208,59 @@ Download and put appropriate file there."
   :added "2023-08-10"
   :emacs>= 24.3
   :straight t)
+
+(leaf org-gnosis
+  :disabled t
+  :doc "Roam-like Knowledge Management System"
+  :req "emacs-27.2" "emacsql-4.0.0" "compat-29.1.4.2"
+  :tag "extensions" "emacs>=27.2"
+  :url "https://thanosapollo.org/projects/org-gnosis/"
+  :added "2025-02-17"
+  :emacs>= 27.2
+  :straight t
+  :after emacsql compat
+  :init
+  ;; Example for separated journaling & notes keymap
+  (define-prefix-command 'kb/notes-map)
+  (define-prefix-command 'kb/journal-map)
+  :config
+  ;; Common settings you might want to tweak to your liking
+  (setf org-gnosis-dir "~/Notes"
+  	;; Whe non-nil, create notes as gpg encrypted files
+  	org-gnosis-create-as-gpg nil
+  	;; TODO files, commonly used for templates.
+  	org-gnosis-todo-files org-agenda-files
+  	;; Used in #'org-gnosis-todos for template generation
+  	org-gnosis-bullet-point-char "+"
+  	;; Default completing-read function
+  	org-gnosis-completing-read-func #'org-completing-read
+  	;; Recommended if you use a vertical completion system (e.g vertico)
+  	org-gnosis-show-tags t)
+
+  (defun example/org-gnosis-book-template ()
+    (let ((date (format-time-string "%Y-%m-%d"))
+  	  (book-title (completing-read
+  		       "Example book: "
+  		       '("Free Software, Free Society" "How to Take Smart Notes"))))
+      (format "#+DATE: %s \n#+BOOK_TITLE: %s\n\n* Main Idea\n* Key Points\n* Own Thoughts"
+  	      date book-title)))
+
+  (add-to-list 'org-gnosis-node-templates
+  	       '("Book Example" example/org-gnosis-book-template))
+  :bind (("C-c n n" . kb/notes-map)
+  	 ("C-c n j" . kb/journal-map)
+  	 (:kb/notes-map
+  	  ("f" . org-gnosis-find)
+  	  ("i" . org-gnosis-insert)
+  	  ("t" . org-gnosis-find-by-tag))
+  	 (:kb/journal-map
+  	  ("j" . org-gnosis-journal)
+  	  ("f" . org-gnosis-journal-find)
+  	  ("i" . org-gnosis-journal-insert))
+  	 (:org-mode-map
+  	  ("C-c C-." . org-gnosis-insert-tag)
+  	  ("C-c i" . org-id-get-create)))
+  )
 
 (message "Init finished")
 ;;; init.el ends here
