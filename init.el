@@ -24,6 +24,7 @@
 
 (add-to-list 'load-path (kb/emacs-subdirectory "rc"))
 (add-to-list 'load-path (kb/emacs-subdirectory "site-lisp/org-addons"))
+(require 'kb-secrets)
 
 (when (file-exists-p (expand-file-name "rc-functions.el" (kb/emacs-subdirectory "rc")))
   (load "~/.emacs.d/rc/rc-functions.el"))
@@ -131,6 +132,28 @@ There are two things you can do about this warning:
 (straight-use-package 'leaf-keywords)
 ;; </leaf-install-code>
 
+;; ========================== el-get bootstrap =========================
+;; (message "el-get bootstrap")
+
+;; (add-to-list 'load-path (expand-file-name "el-get/el-get" user-emacs-directory))
+
+;; (unless (require 'el-get nil 'noerror)
+;;   (with-current-buffer
+;;       (url-retrieve-synchronously
+;;        "https://raw.githubusercontent.com/dimitri/el-get/master/el-get-install.el")
+;;     (goto-char (point-max))
+;;     (eval-print-last-sexp)))
+
+;; ;; (add-to-list 'el-get-recipe-path "~/.emacs.d/el-get-user/recipes")
+;; ;; (el-get 'sync)
+;; (message "el-get done")
+
+;; (unless (fboundp 'hydra-posframe-mode)
+;;   (el-get-bundle "Ladicle/hydra-posframe")
+;;   (autoload #'hydra-posframe-mode "hydra-posframe" nil t))
+;; (add-hook 'after-init-hook #'hydra-posframe-mode)
+;========================== el-get bootstrap =========================
+
 (require 'leaf)
 
 (leaf leaf-keywords
@@ -173,12 +196,21 @@ There are two things you can do about this warning:
   :disabled t
   :require t
   :config (leaf-defaults-init))
+
 (leaf el-get
-  :doc "Manage the external elisp bits and pieces you depend upon"
+  :doc "Manage the external elisp bits and pieces you depend upon."
   :tag "emacswiki" "http-tar" "http" "pacman" "fink" "apt-get" "hg" "darcs" "svn" "cvs" "bzr" "git-svn" "git" "elpa" "install" "elisp" "package" "emacs"
   :url "http://www.emacswiki.org/emacs/el-get"
   :added "2025-03-11"
-  :ensure t)
+  :ensure t
+)
+(leaf hydra-posframe
+  :el-get "Ladicle/hydra-posframe"
+  ;; :init (require 'el-get)
+  ;; :unless (fboundp 'hydra-posframe-mode)
+  ;; (el-get-bundle "Ladicle/hydra-posframe")
+  ;; (autoload #'hydra-posframe-mode "hydra-posframe" nil t))
+  :hook (after-init-hook . #'hydra-posframe-mode))
 
 ;; (leaf async-await :el-get chuntaro/emacs-async-await)
 ;; (leaf promise :el-get chuntaro/emacs-promise)
@@ -390,7 +422,7 @@ There are two things you can do about this warning:
   :tag "builtin" "internal"
   :added "2022-11-01"
   :custom ((inhibit-startup-screen . t)
-           (user-mail-address . "karol.barski@mobica.com")
+           (user-mail-address . (secrets-get-attribute "default" "MOBICA" :email))
            ))
 (setopt line-spacing 0)
 ;; (help-char "? M-?")
@@ -1521,30 +1553,25 @@ If theme is'n loaded then it will be loaded at first"
   :emacs>= 25
   :straight t
   :after pretty-hydra
-  :bind
-  ("M-SPC" . major-mode-hydra)
+  :bind (("C-'" . #'major-mode-hydra))
   :config
   (major-mode-hydra-define emacs-lisp-mode nil
-  ("Eval"
-   (("b" eval-buffer "buffer")
-    ("e" eval-defun "defun")
-    ("r" eval-region "region"))
-   "REPL"
-   (("I" ielm "ielm"))
-   "Test"
-   (("t" ert "prompt")
-    ("T" (ert t) "all")
-    ("F" (ert :failed) "failed"))
-   "Doc"
-   (("d" describe-foo-at-point "thing-at-pt")
-    ("f" describe-function "function")
-    ("v" describe-variable "variable")
-    ("i" info-lookup-symbol "info lookup")))))
-(leaf hydra-posframe
-  :el-get "Ladicle/hydra-posframe"
-  :hook (after-init . hydra-posframe-mode)
-  :config
-  (hydra-posframe-enable))
+    ("Eval"
+     (("b" eval-buffer "buffer")
+      ("e" eval-defun "defun")
+      ("r" eval-region "region"))
+     "REPL"
+     (("I" ielm "ielm"))
+     "Test"
+     (("t" ert "prompt")
+      ("T" (ert t) "all")
+      ("F" (ert :failed) "failed"))
+     "Doc"
+     (
+      ;; ("d" describe-foo-at-point "thing-at-pt")
+      ("f" describe-function "function")
+      ("v" describe-variable "variable")
+      ("i" info-lookup-symbol "info lookup")))))
 
 (leaf flycheck-hydra
   :after flycheck hydra
@@ -3318,7 +3345,7 @@ We display [CRM<separator>], e.g., [CRM,] if the separator is a comma."
          ("s-\\" . windower-toggle-split)
          ))
 
-(unless (executable-find "cargo") (warn "cargo Rust package manager not found"))
+(unless (executable-find "cargo") (warn "Cargo Rust package manager not found"))
 (leaf fuz
   ;; not working with emacs from ubuntu/snap
   ;; :disabled t
@@ -3364,7 +3391,7 @@ We display [CRM<separator>], e.g., [CRM,] if the separator is a comma."
   :bind ("C-x 1" . zygospore-toggle-delete-other-windows))
 
 ;; Use silversearcher-ag if available.
-(unless (executable-find "ag") (warn "silversearcher-ag not found"))
+(unless (executable-find "ag") (warn "Command: silversearcher-ag not found"))
 (leaf ag
   :doc "A front-end for ag ('the silver searcher'), the C ack replacement."
   :req "dash-2.8.0" "s-1.9.0" "cl-lib-0.5"
@@ -3384,7 +3411,7 @@ We display [CRM<separator>], e.g., [CRM,] if the separator is a comma."
   )
 
 ;; Use ripgrep if available
-(unless (executable-find "rg") (warn "ripgrep not found"))
+(unless (executable-find "rg") (warn "Command: ripgrep not found"))
 (leaf rg
   :doc "A search tool based on ripgrep"
   :tag "tools" "matching" "emacs>=25.1"
@@ -3768,13 +3795,10 @@ Simon Hawkin <cema@cs.umd.edu> 03/14/1998"
   (setopt jiralib-use-restapi t)
   (setopt jiralib-url "https://jira.cc.bmwgroup.net") ;; https://asc.bmwgroup.net/mgujira/secure/Dashboard.jspa")
   (setopt jiralib-host "jira.cc.bmwgroup.net")
-  (setopt jiralib-user "qxz2st8")
+  (setopt jiralib-user (secrets-get-attribute "default" "QX" :user))
   (setopt jiralib-use-PAT t)
-  (setopt jiralib-token
-          (cons "Authorization"
-                (concat "Bearer " (auth-source-pick-first-password
-                                   :host "jira.cc.bmwgroup.net"))))
-  )
+  (setopt jiralib-token (cons "Authorization" (concat "Bearer " (auth-source-pick-first-password :host "jira.cc.bmwgroup.net"))))
+)
 (leaf copy-as-format
   :doc "Copy buffer locations as GitHub/Slack/JIRA etc... formatted code"
   :req "cl-lib-0.5"
@@ -3790,7 +3814,7 @@ Simon Hawkin <cema@cs.umd.edu> 03/14/1998"
    ("C-c w j" . copy-as-format-org-mode))
   )
 
-(unless (executable-find "dot") (warn "dot command not found in system"))
+(unless (executable-find "dot") (warn "Command: `dot` not found in system"))
 (leaf graphviz-dot-mode
   :doc "Mode for the dot-language used by graphviz (att)."
   :req "emacs-25.0"
@@ -4067,24 +4091,11 @@ Download and put appropriate file there."
   :added "2023-05-09"
   :emacs>= 25.1
   :straight t)
-
 (leaf password-generator
   :doc "Password generator for humans. Good, Bad, Phonetic passwords included"
   :url "http://github.com/vandrlexay/emacs-password-genarator"
   :added "2025-02-07"
   :straight t)
-(leaf shroud
-  :doc "Shroud secrets"
-  :req "emacs-25" "epg-1.0.0" "s-1.6.0" "bui-1.2.0" "dash-2.18.0"
-  :tag "password" "tools" "emacs>=25"
-  :url "https://github.com/o-nly/emacs-shroud"
-  :added "2023-01-11"
-  :emacs>= 25
-  :straight t
-  :require (shroud-cli shroud)
-  :bind (("C-c s" . shroud-ui))
-  :config
-  (setq shroud-el--user-id "karol.barski@mobica.com"))
 
 (leaf auth-source
   ;; prefer encrypted auth source to non-encrypted
