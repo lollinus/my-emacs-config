@@ -6,9 +6,7 @@
 (set-frame-parameter (selected-frame) 'alpha '(100 100))
 (defun kb/toggle-transparency ()
   (interactive)
-  (if (/=
-       (cadr (frame-parameter nil 'alpha))
-       100)
+  (if (/= (cadr (frame-parameter nil 'alpha)) 100)
       (set-frame-parameter nil 'alpha '(100 100))
     (set-frame-parameter nil 'alpha '(92 50))))
 

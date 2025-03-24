@@ -2,32 +2,36 @@
 ;;; Commentary:
 ;; Load all configuration parts
 
+;;
+(setq user-full-name "Karol Barski")
+
 ;; TODO:
 ;;  Check this init
 ;; https://github.com/alexmurray/dot_emacs.d/blob/master/init.el
 
+(defgroup kb-config nil
+  "Custom options for KB config."
+  :group 'convenience
+  :link '(url-link :tag "Github" "https://github.com/lollinus/my-emacs-config"))
+
 ;;; Code:
 ;; don't let Customize mess with my .emacs
-(defun kb/emacs-subdirectory (dir)
-  "Return DIR as subdirectory of HOME."
-  (expand-file-name dir user-emacs-directory))
+(defconst rc-directory (expand-file-name "rc" user-emacs-directory))
+(add-to-list 'load-path rc-directory)
+
+(when (eq system-type 'windows-nt)
+  (setopt w32-pipe-read-delay '-1)
+)
 
 (setq custom-file (locate-user-emacs-file "custom.el"))
 ;; load custom but ignore error if doesn't exist
 (load custom-file 'noerror 'nomessage)
 
-;;
-(setq user-full-name "Karol Barski")
-
-(defconst kb/environment-script (locate-user-emacs-file "rc/environment.el"))
-(load kb/environment-script 'noerror 'nomessage)
-
-(add-to-list 'load-path (kb/emacs-subdirectory "rc"))
-(add-to-list 'load-path (kb/emacs-subdirectory "site-lisp/org-addons"))
-(require 'kb-secrets)
-
-(when (file-exists-p (expand-file-name "rc-functions.el" (kb/emacs-subdirectory "rc")))
-  (load "~/.emacs.d/rc/rc-functions.el"))
+(add-to-list 'load-path (expand-file-name "rc" user-emacs-directory))
+(defconst kb-rc-functions (expand-file-name "rc-functions.el" rc-directory))
+(require 'rc-functions kb-rc-functions t)
+(defconst kb-secrets (expand-file-name "kb-secrets.el" rc-directory))
+(require 'kb-secrets kb-secrets t)
 
 (setq read-process-output-max (* 3 1024 1024))
 (setq tab-width 4)                       ; default to 4 visible spaces to display a tab
@@ -133,25 +137,19 @@ There are two things you can do about this warning:
 ;; </leaf-install-code>
 
 ;; ========================== el-get bootstrap =========================
-;; (message "el-get bootstrap")
+(message "el-get bootstrap")
 
-;; (add-to-list 'load-path (expand-file-name "el-get/el-get" user-emacs-directory))
+(add-to-list 'load-path (expand-file-name "el-get/el-get" user-emacs-directory))
+(unless (require 'el-get nil 'noerror)
+  (with-current-buffer
+      (url-retrieve-synchronously
+       "https://raw.githubusercontent.com/dimitri/el-get/master/el-get-install.el")
+    (goto-char (point-max))
+    (eval-print-last-sexp)))
 
-;; (unless (require 'el-get nil 'noerror)
-;;   (with-current-buffer
-;;       (url-retrieve-synchronously
-;;        "https://raw.githubusercontent.com/dimitri/el-get/master/el-get-install.el")
-;;     (goto-char (point-max))
-;;     (eval-print-last-sexp)))
-
-;; ;; (add-to-list 'el-get-recipe-path "~/.emacs.d/el-get-user/recipes")
-;; ;; (el-get 'sync)
-;; (message "el-get done")
-
-;; (unless (fboundp 'hydra-posframe-mode)
-;;   (el-get-bundle "Ladicle/hydra-posframe")
-;;   (autoload #'hydra-posframe-mode "hydra-posframe" nil t))
-;; (add-hook 'after-init-hook #'hydra-posframe-mode)
+;; (add-to-list 'el-get-recipe-path "~/.emacs.d/el-get-user/recipes")
+;; (el-get 'sync)
+(message "el-get done")
 ;========================== el-get bootstrap =========================
 
 (require 'leaf)
@@ -197,20 +195,20 @@ There are two things you can do about this warning:
   :require t
   :config (leaf-defaults-init))
 
-(leaf el-get
-  :doc "Manage the external elisp bits and pieces you depend upon."
-  :tag "emacswiki" "http-tar" "http" "pacman" "fink" "apt-get" "hg" "darcs" "svn" "cvs" "bzr" "git-svn" "git" "elpa" "install" "elisp" "package" "emacs"
-  :url "http://www.emacswiki.org/emacs/el-get"
-  :added "2025-03-11"
-  :ensure t
-)
+;; (leaf el-get
+;;   :doc "Manage the external elisp bits and pieces you depend upon."
+;;   :tag "emacswiki" "http-tar" "http" "pacman" "fink" "apt-get" "hg" "darcs" "svn" "cvs" "bzr" "git-svn" "git" "elpa" "install" "elisp" "package" "emacs"
+;;   :url "http://www.emacswiki.org/emacs/el-get"
+;;   :added "2025-03-11"
+;;   :ensure t
+;; )
 (leaf hydra-posframe
   :el-get "Ladicle/hydra-posframe"
   ;; :init (require 'el-get)
   ;; :unless (fboundp 'hydra-posframe-mode)
   ;; (el-get-bundle "Ladicle/hydra-posframe")
   ;; (autoload #'hydra-posframe-mode "hydra-posframe" nil t))
-  :hook (after-init-hook . #'hydra-posframe-mode))
+  :hook (after-init-hook . hydra-posframe-mode))
 
 ;; (leaf async-await :el-get chuntaro/emacs-async-await)
 ;; (leaf promise :el-get chuntaro/emacs-promise)
@@ -416,15 +414,15 @@ There are two things you can do about this warning:
 ;;--------------------------------------------------------------------------------
 ;; My emacs config
 ;;--------------------------------------------------------------------------------
-
 (leaf startup
   :doc "process Emacs shell arguments"
   :tag "builtin" "internal"
   :added "2022-11-01"
-  :custom ((inhibit-startup-screen . t)
-           (user-mail-address . (secrets-get-attribute "default" "MOBICA" :email))
-           ))
-(setopt line-spacing 0)
+  :custom ((inhibit-startup-screen . t))
+  :config
+  (setopt user-mail-address "karol.barski@cognizant.com")
+  (setopt line-spacing 0))
+
 ;; (help-char "? M-?")
 (put 'narrow-to-page 'disabled nil)
 (put 'narrow-to-region 'disabled nil)
@@ -508,12 +506,6 @@ There are two things you can do about this warning:
   :straight t
   :config (global-page-break-lines-mode))
 
-(leaf vc
-  :doc "drive a version-control system from within Emacs"
-  :tag "builtin"
-  :added "2022-11-01"
-  :custom ((vc-follow-symlinks . t))
-  )
 (leaf help
   :doc "help commands for Emacs"
   :tag "builtin" "internal" "help"
@@ -653,10 +645,6 @@ should be imported.
 
 ;; I know that string is in my Emacs somewhere!
 ;; (require 'cl)
-(defgroup kb-config nil
-  "Custom options for KB config."
-  :group 'convenience
-  :link '(url-link :tag "Github" "https://github.com/lollinus/my-emacs-config"))
 (defcustom kb/search-all-buffers-ignored-files (list (rx-to-string '(and bos (or ".bash_history" "TAGS") eos)))
   "Files to ignore when searching buffers via \\[search-all-buffers]."
   :type 'editable-list
@@ -825,6 +813,14 @@ should be imported.
   :added "2025-03-11"
   :emacs>= 24.1
   :straight t)
+(leaf rg-themes
+  :doc "The rg theme collection"
+  :req "emacs-25.1"
+  :tag "faces" "emacs>=25.1"
+  :url "https://github.com/raegnald/rg-themes"
+  :added "2025-03-24"
+  :emacs>= 25.1
+  :straight t)
 
 (leaf doom-modeline
   :straight t
@@ -898,6 +894,10 @@ should be imported.
                                    doom-oksolar-dark
                                    doom-solarized-dark-high-contrast
                                    doom-solarized-dark
+                                   rg-themes-cappuccino-noir
+                                   rg-themes-ellas
+                                   rg-themes-purpurina
+                                   rg-themes-somnus
                                    ))
                         ;; ("8:45" . solarized-selenized-black)
                         ;; ("9:00" . solarized-selenized-dark)
@@ -1250,9 +1250,11 @@ If theme is'n loaded then it will be loaded at first"
 
 ;; vc-hooks
 (leaf vc
-  :doc "Version Control settings"
+  :doc "drive a version-control system from within Emacs"
   :tag "builtin"
-  :custom (vc-handled-backends . '(git svn)))
+  :added "2022-11-01"
+  :custom ((vc-follow-symlinks . t)
+           (vc-handled-backends . '(git svn))))
 
 (leaf dsvn
   :doc "Subversion interface"
@@ -1516,7 +1518,6 @@ If theme is'n loaded then it will be loaded at first"
   :emacs>= 26.1
   :straight t)
 
-
 (leaf flycheck
   :doc "On-the-fly syntax checking"
   :req "emacs-26.1"
@@ -1576,18 +1577,30 @@ If theme is'n loaded then it will be loaded at first"
 (leaf flycheck-hydra
   :after flycheck hydra
   :config
-  (defhydra hydra-flycheck
-    (global-map "C-c ! j"
+  (pretty-hydra-define hydra-flycheck-pretty (global-map "C-c ! j"
                 :pre (flycheck-list-errors)
                 :post (quit-windows-on "*Flycheck errors*")
                 :hint nil)
-    "Errors"
-    ("f" flycheck-error-list-set-filter "Filter")
-    ("j" flycheck-next-error "Next")
-    ("k" flycheck-previous-error "Previous")
-    ("gg" flycheck-first-error "First")
-    ("G" (progn (goto-char (point-max)) (flycheck-previous-error)) "Last")
-    ("q" nil))
+    ("Errors"
+     (("f" flycheck-error-list-set-filter "Filter")
+      ("j" flycheck-next-error "Next")
+      ("k" flycheck-previous-error "Previous")
+      ("gg" flycheck-first-error "First")
+      ("G" (progn (goto-char (point-max)) (flycheck-previous-error)) "Last")
+      ("q" nil)
+      )))
+  ;; (defhydra hydra-flycheck
+  ;;   (global-map "C-c ! j"
+  ;;               :pre (flycheck-list-errors)
+  ;;               :post (quit-windows-on "*Flycheck errors*")
+  ;;               :hint nil)
+  ;;   "Errors"
+  ;;   ("f" flycheck-error-list-set-filter "Filter")
+  ;;   ("j" flycheck-next-error "Next")
+  ;;   ("k" flycheck-previous-error "Previous")
+  ;;   ("gg" flycheck-first-error "First")
+  ;;   ("G" (progn (goto-char (point-max)) (flycheck-previous-error)) "Last")
+  ;;   ("q" nil))
   )
 (leaf flycheck-clang-analyzer
   :straight t
@@ -3102,8 +3115,7 @@ We display [CRM<separator>], e.g., [CRM,] if the separator is a comma."
          ([remap insert-register] . counsel-register)
          (:minibuffer-local-map
           ("C-r" . counsel-minibuffer-history)))
-  :init
-  (counsel-mode 1)
+  :hook after-init-hook
 
   :config
   (leaf counsel-tramp
@@ -3157,7 +3169,6 @@ We display [CRM<separator>], e.g., [CRM,] if the separator is a comma."
   :straight t
   )
 
-(leaf amx :straight t :after ivy)
 (leaf ivy
   :doc "Incremental Vertical completYon"
   :req "emacs-24.5"
@@ -3334,6 +3345,16 @@ We display [CRM<separator>], e.g., [CRM,] if the separator is a comma."
     ;; Run fc-cache -fv
     )
   )
+(leaf amx
+  :doc "Alternative M-x with extra features"
+  :req "emacs-24.4" "s-0"
+  :tag "completion" "usability" "convenience" "emacs>=24.4"
+  :url "http://github.com/DarwinAwardWinner/amx/"
+  :added "2025-03-19"
+  :emacs>= 24.4
+  :straight t
+  :hook ivy-mode-hook)
+
 (leaf windower
   :straight t
   :bind (("<s-M-left>" . windower-move-border-left)
