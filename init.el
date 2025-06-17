@@ -27,9 +27,6 @@
 ;; quickly self-correct.
 (setq fast-but-imprecise-scrolling t)
 
-;; Don't ping things that look like domain names.
-(setq ffap-machine-p-known 'reject)
-
 ;; Resizing the Emacs frame can be a terribly expensive part of changing the
 ;; font. By inhibiting this, we halve startup times, particularly when we use
 ;; fonts that are larger than the system default (which would resize the frame).
@@ -96,11 +93,6 @@ By default is subdirectory of `user-emacs-directory'.")
 ;; minibuffer window expands vertically as necessary to hold the text that
 ;; you put in the minibuffer
 (setq resize-mini-windows t)
-
-;; do not consider case significant in completion (GNU Emacs default)
-;; (setq completion-ignore-case t)
-(setq read-file-name-completion-ignore-case t)
-(setq read-buffer-completion-ignore-case t)
 
 (setq mouse-highlight 10)
 (setq make-pointer-invisible t)
@@ -509,8 +501,17 @@ By default is subdirectory of `user-emacs-directory'.")
   :custom ((large-file-warning-threshold . 100000000)
            (mode-require-final-newline . t)      ; add a newline to end of file)
            (make-backup-files . nil)
-           )
-  )
+           ))
+
+(leaf ffap
+  :doc "find file (or url) at point"
+  :tag "builtin"
+  :added "2025-06-17"
+  :init
+  (ffap-bindings)
+  :config
+  ;; Don't ping things that look like domain names.
+  (setq ffap-machine-p-known 'reject))
 
 (leaf indent
   :doc "indentation commands for Emacs"
@@ -841,10 +842,43 @@ should be imported.
   :added "2025-03-24"
   :emacs>= 25.1
   :ensure t)
+(leaf zerodark-theme
+  :doc "A dark, medium contrast theme for Emacs"
+  :req "all-the-icons-2.0.0"
+  :tag "themes"
+  :url "https://github.com/NicolasPetton/zerodark-theme"
+  :added "2025-06-16"
+  :after all-the-icons
+  :require t
+  :config
+  (defun kb/zerodark-theme-enabled (theme)
+    (if (eq theme 'zerodark)
+        (let ((background-purple (if (true-color-p) "#48384c" "#5f5f5f"))
+              (class '((class color) (min-colors 89)))
+              (green (if (true-color-p) "#98be65" "#87af5f"))
+              (orange (if (true-color-p) "#da8548" "#d7875f"))
+              (purple (if (true-color-p) "#c678dd" "#d787d7")))
+          (custom-theme-set-faces
+           'zerodark
+           `(vertico-current
+             ((,class (:background
+                       ,background-purple
+                       :weight bold
+                       :foreground ,purple))))
+           `(prescient-primary-highlight ((,class (:foreground ,orange))))
+           `(prescient-secondary-highlight ((,class (:foreground ,green))))
+           `(completions-common-part nil))
+
+          (dolist (face '(outline-1
+                          outline-2
+                          outline-3))
+            (set-face-attribute face nil :height 1.0)))
+      (message (format "Theme %S activated" theme))
+      ))
+  (add-hook 'enable-theme-functions #'kb/zerodark-theme-enabled))
 
 (leaf doom-modeline
-  :hook after-init-hook
-  :config
+  :hook window-setup-hook
   :ensure t
   :custom (
            (doom-modeline-hud . t)
@@ -902,7 +936,7 @@ should be imported.
   (nerd-icons-ibuffer-color-icon . t)
   (nerd-icons-ibuffer-icon-size . 1.0)
   (nerd-icons-ibuffer-human-readable-size . t)
-  :config
+  ;; :config
   ;; A list of ways to display buffer lines with `nerd-icons'.
   ;; See `ibuffer-formats' for details.
   ;; nerd-icons-ibuffer-formats
@@ -942,7 +976,8 @@ should be imported.
   (circadian-themes . '((:sunrise . doom-monokai-machine)
                         (:sunset . doom-badger)
                         ("8:00" . tango-dark)
-                        ("8:15" . (solarized-gruvbox
+                        ("8:15" . zerodark)
+                        ("15:00" . (solarized-gruvbox
                                    sixcolors
                                    sexy
                                    ember-twilight
@@ -1136,30 +1171,6 @@ If theme is'n loaded then it will be loaded at first"
     )
   "Style used for C++ source editing.")
 
-(defconst kb/c++-mavenir
-  '(
-    (fill-column . 100)
-    (c-basic-offset . 4)
-    (tab-width . 4)
-    (indent-tabs-mode . nil)
-    (c-offsets-alist . ((innamespace . 0)
-                        (inline-open . 0)
-                        (substatement-open . 0)
-                        (arglist-intro . ++)
-                        ;; (func-decl-cont . ++)
-                        (statement-cont . ++)
-                        (statement-case-open . 0)
-                        ;; (statement-case-intro  . 0)
-                        (case-label . +)
-                        ))
-    (c-hanging-braces-alist . ((brace-list-open . before)
-                               (brace-entry-open . before)
-                               (substatement-open . before)
-                               ;; (namespace-open . before)
-                               ))
-    )
-  "Style used for C++ source editing at mavenir.")
-
 (defun kb/c++-setup-symbol-compose ()
   "Define additional symbol composition rules for C++ mode."
   (push '("<=" . ?⩽) prettify-symbols-alist)
@@ -1313,7 +1324,8 @@ If theme is'n loaded then it will be loaded at first"
   :added "2025-03-27"
   :emacs>= 26.1
   :ensure t
-  :hook ((prog-mode-hook vc-dir-mode-hook) . turn-on-diff-hl-mode))
+  :hook (((prog-mode-hook vc-dir-mode-hook) . turn-on-diff-hl-mode)
+         (magit-post-refresh-hook . diff-hl-magit-post-refresh)))
 
 ;; vc-hooks
 (leaf vc
@@ -1498,7 +1510,6 @@ If theme is'n loaded then it will be loaded at first"
   :added "2025-01-28"
   :emacs>= 24
   :ensure t)
-
 
 (defun kb/projectile-project-compilation (docker-image cmd)
   "Prepare projectile compilation CMD to be run in DOCKER-IMAGE."
@@ -1692,6 +1703,7 @@ Based on config described in https://www.rahuljuliato.com/posts/emacs-docker-pod
   :ensure t
   :after flycheck
   :config (flycheck-clang-analyzer-setup))
+
 (leaf flycheck-clang-tidy
   :doc "Flycheck syntax checker using clang-tidy"
   :req "flycheck-0.30"
@@ -1727,8 +1739,7 @@ Based on config described in https://www.rahuljuliato.com/posts/emacs-docker-pod
   :emacs>= 26
   :ensure t
   :after flycheck posframe
-  :hook flycheck-mode-hook
-  )
+  :hook flycheck-mode-hook)
 
 ;; (advice-add 'ispell-pdict-save :after (lambda (_) (message "KB advice added") '((name . kukuryku))))
 
@@ -1841,19 +1852,25 @@ Based on config described in https://www.rahuljuliato.com/posts/emacs-docker-pod
   :defer-config
   (set-face-attribute 'vundo-default nil :family "Symbola")
   )
-(leaf undo-fu
-  :doc "Undo helper with redo"
-  :req "emacs-25.1"
-  :tag "emacs>=25.1"
-  :url "https://codeberg.org/ideasman42/emacs-undo-fu"
-  :added "2022-12-05"
-  :emacs>= 25.1
+
+(leaf undo-fu-session
+  :doc "Persistent undo, available between sessions"
+  :req "emacs-28.1"
+  :tag "convenience" "emacs>=28.1"
+  :url "https://codeberg.org/ideasman42/emacs-undo-fu-session"
+  :added "2025-06-12"
+  :emacs>= 28.1
   :ensure t
+  ;; :bind (("C-x u"   . undo-only)
+  ;;        ("C-/" . undo-only)
+  ;;        ("C-?" . undo-redo)
+  ;;        ("C-z"     . undo-only)
+  ;;        ("C-S-z"   . undo-redo))
+  ;; (global-unset-key (kbd "C-z"))
+  ;; (global-set-key (kbd "C-z") 'undo-fu-only-undo)
+  ;; (global-set-key (kbd "C-S-z") 'undo-fu-only-redo)
   :config
-  (global-unset-key (kbd "C-z"))
-  (global-set-key (kbd "C-z") 'undo-fu-only-undo)
-  (global-set-key (kbd "C-S-z") 'undo-fu-only-redo)
-  )
+  (undo-fu-session-global-mode))
 
 (leaf keycast
   :doc "Show current command and its binding"
@@ -1917,6 +1934,7 @@ Based on config described in https://www.rahuljuliato.com/posts/emacs-docker-pod
            (org-pretty-entities . t)
            (org-use-sub-superscripts . "{}")
            (org-hide-emphasis-markers . t)
+           (org-hide-block-startup . t)
            (org-image-actual-width . '(300))
 
            (org-ellipsis . " ▾")
@@ -2214,11 +2232,11 @@ This function is based on work of David Wilson.
   :emacs>= 26.3
   :ensure t
   :after org
-  :bind-keymap (:org-mode-map :package org ("C-c C-0" . #'verb-command-map))
-
+  :bind-keymap (:org-mode-map ("C-c C-0" . verb-command-map))
   :config
   (add-to-list 'org-babel-load-languages '((verb . t)))
   (org-babel-do-load-languages 'org-babel-load-languages '((plantuml . t)))
+  ;; (define-key org-mode-map (kbd "C-c C-0") verb-command-map)
   )
 
 (leaf markdown-mode
@@ -2291,93 +2309,6 @@ This function is based on work of David Wilson.
 
 (message "clang")
 (when (not (executable-find "clang")) (message "clang executable not found"))
-(leaf company
-  :doc "Modular text completion framework"
-  :req "emacs-26.1"
-  :tag "matching" "convenience" "abbrev" "emacs>=26.1"
-  :url "http://company-mode.github.io/"
-  :added "2025-02-07"
-  :emacs>= 26.1
-  :ensure t
-  :hook (after-init-hook . global-company-mode)
-  :custom (
-           (company-require-match . nil)            ; Don't require match, so you can still move your cursor as expected.
-           (company-minimum-prefix-length . 1)
-           (company-idle-delay . 0.0)
-           (company-clang-excecutable . "clang")
-           ;; dabbrev case
-           (company-dabbrev-downcase . nil)  ; No downcase when completion.
-           (company-dabbrev-ignore-case . t)
-           (company-tooltip-align-annotations . t)  ; Align annotation to the right side.
-           (company-eclim-auto-save . nil)          ; Stop eclim auto save.
-           ;; code fuzzy matching
-           (company-dabbrev-code-ignore-case . t)
-           (company-dabbrev-code-completion-styles . '(basic flex))
-           )
-  :bind ((([remap dabbrev-expand] . company-dabbrev))
-         ;; ((:map c-mode-map ("TAB" . company-complete))
-         ;;  (:map c++-mode-map ("TAB" . company-complete)))
-         (:company-active-map ("<tab>" . company-complete-selection))
-         ;;(:map lsp-mode-map ("<tab>" . company-indent-or-complete-common))
-         )
-  :init
-  ;; Use M-/ for `company` completion
-  ;; (define-key input-decode-map "\e[1;2A" [S-up])
-  ;; (key-valid-p "M-/")
-  (keymap-set input-decode-map "M-/" 'company-dabbrev)
-  :config
-  (defun kb/company-hook ()
-    "Hook to setup company mode"
-    (global-company-mode))
-
-  (delete 'company-semantic company-backends)
-  (delete 'company-oddmuse company-backends)
-  (delete 'company-gtags company-backends)
-  (if (fboundp 'yas-expand)
-      (add-hook 'c-mode-common-hook (lambda ()
-                                      (message "Yo this is yasnippet backend")
-                                      (add-to-list (make-local-variable 'company-backends) 'company-yasnippet))))
-
-  :config
-  ;; Enable downcase only when completing the completion.
-  (defun kb--company-complete-selection--advice-around (fn)
-    "Advice execute around `company-complete-selection' command."
-    (let ((company-dabbrev-downcase t))
-      (call-interactively fn)))
-  :advice ((:around company-complete-selection kb--company-complete-selection--advice-around))
-  :config
-  (message "config company")
-  (leaf company-posframe
-    :ensure t
-    :after posframe company
-    :custom ((company-posframe-lighter . ""))
-    :config
-    ;; :hook (company-mode-hook . (lambda () (company-posframe-mode company-mode)))
-    ;; :hook (company-mode-hook . (lambda () (message (format "company-mode: %S" company-mode))))
-    :config
-    (company-posframe-mode 1)
-    (message (format "company-posframe-mode: %S" company-posframe-mode))
-    )
-  (leaf company-quickhelp
-    :ensure t
-    :after company
-    :bind (:company-active-map ("C-c h" . #'company-quickhelp-manual-begin))
-    :config
-    (company-quickhelp-mode 1))
-
-  (leaf company-c-headers
-    :disabled t
-    :doc "Company mode backend for C/C++ header files"
-    :req "emacs-24.1" "company-0.8"
-    :tag "company" "development" "emacs>=24.1"
-    :added "2022-10-31"
-    :emacs>= 24.1
-    :ensure t
-    :after company
-    :config
-    (add-to-list 'company-backends 'company-c-headers)
-    )
-  )
 
 (leaf highlight-numbers
   :doc "Highlight numbers in source code"
@@ -2452,17 +2383,16 @@ This function is based on work of David Wilson.
    (lsp-log-io . nil)
    (lsp-idle-delay . 0.5)
    (lsp-keymap-prefix . "C-c l")
-   (lsp-completion-provider . :capf)
+   (lsp-completion-provider . :none)
    (lsp-headerline-breadcrumb-enable . t)
    ;; (lsp-headerline-breadcrumb-segments . '(symbols project))
    (lsp-enable-snippet . nil)
-   )
-  :hook ((c-mode-common-hook . lsp-deferred))
-  
-  :bind
-  ;; :bind (:map lsp-mode-map ("M-." . lsp-find-declaration))
-  (:lsp-mode-map ("<tab>" . company-indent-or-complete-common))
-
+   ;; Super super slow to have LSP on remote files because TRAMP is not
+   ;; async.
+   (lsp-auto-register-remote-clients . nil)
+  )
+  :hook ((c-mode-common-hook . lsp-deferred)
+         (cmake-mode-hook . lsp-deferred))
   :config
   (defun kb/lsp-breadcrumb-face-setup ()
     "Fix headerlime colors for breadcrumbs"
@@ -2477,6 +2407,7 @@ This function is based on work of David Wilson.
 
   :config
   (leaf lsp-mode-which-key
+    :doc "Enable which-key integration after which-key and lsp-mode are loaded"
     :after which-key lsp-mode
     :config (lsp-enable-which-key-integration t))
 
@@ -2521,7 +2452,6 @@ This function is based on work of David Wilson.
   :emacs>= 28.1
   :ensure t
   :hook ((flycheck-mode-hook lsp-mode-hook) . sideline-mode))
-
 (leaf sideline-flycheck
   :doc "Show flycheck errors with sideline"
   :req "emacs-28.1" "sideline-0.1.1" "flycheck-0.14" "ht-2.4"
@@ -2533,8 +2463,7 @@ This function is based on work of David Wilson.
   :after sideline flycheck
   :hook (flycheck-mode-hook . sideline-flycheck-setup)
   :config
-  (add-to-list 'sideline-backends-right 'sideline-flycheck))
-
+  (add-to-list 'sideline-backends-left 'sideline-flycheck))
 (leaf sideline-lsp
   :doc "Show lsp information with sideline"
   :req "emacs-28.1" "sideline-0.1.0" "lsp-mode-6.0" "dash-2.18.0" "ht-2.4" "s-1.12.0"
@@ -2560,8 +2489,7 @@ This function is based on work of David Wilson.
 		              (setq fill-column 80)
 		              (auto-fill-mode)
 		              (setq cmake-tab-width 4)
-		              (setq indent-tabs-mode nil)))
-         (cmake-mode-hook . lsp-deferred)))
+		              (setq indent-tabs-mode nil)))))
 
 (leaf cmake-font-lock
   :doc "Advanced, type aware, highlight support for CMake"
@@ -2715,7 +2643,7 @@ This function is based on work of David Wilson.
 
 (leaf adaptive-wrap
   :ensure t
-  :hook ((text-mode . adaptive-wrap-prefix-mode)))
+  :hook ((text-mode-hook . adaptive-wrap-prefix-mode)))
 
 (leaf lsp-treemacs
   :doc "LSP treemacs"
@@ -2741,26 +2669,33 @@ This function is based on work of David Wilson.
   :require 'dap-cpptools
   )
 
-(leaf ztree
-  :doc "Text mode directory tree"
-  :req "cl-lib-0"
-  :tag "tools" "files"
-  :url "https://github.com/fourier/ztree"
-  :added "2022-10-31"
-  :ensure t)
+;; (leaf ztree
+;;   :doc "Text mode directory tree"
+;;   :req "cl-lib-0"
+;;   :tag "tools" "files"
+;;   :url "https://github.com/fourier/ztree"
+;;   :added "2022-10-31"
+;;   :ensure t)
 
 (leaf which-key
   :doc "Display available keybindings in popup"
   :tag "builtin"
   :added "2025-01-16"
-  :custom ((which-key-idle-delay . 1))
-  :config (which-key-mode)
+  ;; We configure it so that `which-key' is triggered by typing C-h
+  ;; during a key sequence (the usual way to show bindings). See
+  ;; <https://github.com/justbur/emacs-which-key#manual-activation>.
+  :custom ((which-key-idle-delay . 1)
+           (which-key-show-early-on-C-h . t)
+           (which-key-idle-delay . most-positive-fixnum)
+           (which-key-idle-secondary-delay . 1e-100))
+  :config
   (add-to-list 'which-key-replacement-alist
                '((nil . "\\`hydra-\\(.+\\)/body\\'") . (nil . "h/\\1")))
 
   (add-to-list 'which-key-replacement-alist
                '((nil . "\\`hydra-\\(.+\\)/body\\'") . (nil . "h/\\1")))
-  (which-key-setup-side-window-right)
+
+  (which-key-mode)
   :config
   (leaf hercules
     :doc "An auto-magical, which-key-based hydra banisher."
@@ -2870,7 +2805,7 @@ This function is based on work of David Wilson.
     :added "2022-10-31"
     :emacs>= 24.4
     :ensure t
-    :hook ibuffer-mode)
+    :hook ibuffer-mode-hook)
   (leaf treemacs-all-the-icons
     :doc "all-the-icons integration for treemacs"
     :req "emacs-26.1" "all-the-icons-4.0.1" "treemacs-0.0"
@@ -2949,7 +2884,7 @@ This function is based on work of David Wilson.
   ;;        ([remap insert-register] . counsel-register)
   ;;        (:minibuffer-local-map
   ;;         ("C-r" . counsel-minibuffer-history));
-  
+
   :bind (;; C-c bindings in `mode-specific-map'
          ("C-c M-x" . consult-mode-command)
          ("C-c h" . consult-history)
@@ -3010,7 +2945,12 @@ This function is based on work of David Wilson.
 
   ;; Enable automatic preview at point in the *Completions* buffer. This is
   ;; relevant when you use the default completion UI.
-  :hook (completion-list-mode . consult-preview-at-point-mode)
+  :hook (((completion-list-mode-hook embark-collect-mode-hook) . consult-preview-at-point-mode))
+
+  :custom
+  ;; Optionally configure the narrowing key.
+  ;; Both < and C-+ work reasonably well.
+  (consult-narrow-key . "C-+") ;; "<"
 
   ;; The :init configuration is always executed (Not lazy)
   :init
@@ -3045,14 +2985,6 @@ This function is based on work of David Wilson.
    consult--source-recent-file consult--source-project-recent-file
    ;; :preview-key "M-."
    :preview-key '(:debounce 0.4 any))
-
-  ;; Optionally configure the narrowing key.
-  ;; Both < and C-+ work reasonably well.
-  (setq consult-narrow-key "<") ;; "C-+"
-
-  ;; Optionally make narrowing help available in the minibuffer.
-  ;; You may want to use `embark-prefix-help-command' or which-key instead.
-  (keymap-set consult-narrow-map (concat consult-narrow-key " ?") #'consult-narrow-help)
   )
 
 (leaf consult-projectile
@@ -3063,8 +2995,10 @@ This function is based on work of David Wilson.
   :added "2025-06-06"
   :emacs>= 25.1
   :ensure t
-  :after consult projectile
-  :bind (([remap projectile-switch-project] . #'consult-projectile-switch-project)
+  :require t
+  :after projectile
+  :bind (("C-c p p" . #'consult-projectile)
+         ([remap projectile-switch-project] . #'consult-projectile)
          ([remap projectile-recentf] . #'consult-projectile-recentf)
          ([remap projectile-find-file] . #'consult-projectile-find-file)
          ([remap projectile-find-dir] . #'consult-projectile-find-dir)
@@ -3084,6 +3018,7 @@ This function is based on work of David Wilson.
   :ensure t
   :after consult flycheck)
 (leaf consult-company
+  :disabled t
   :doc "Consult frontend for company"
   :req "emacs-27.1" "company-0.9" "consult-0.9"
   :tag "emacs>=27.1"
@@ -3106,7 +3041,7 @@ This function is based on work of David Wilson.
 				           ("C-x C-j" . #'consult-dir-jump-file))
          )
   :hook
-  ((projectile-mode-hook . (lambda (&rest _) (setq consult-dir-project-list-function 'consult-dir-projectile-dirs)))))
+  ((projectile-mode-hook . (lambda (&rest _) (message "Run consult-dir hook") (setq consult-dir-project-list-function 'consult-dir-projectile-dirs)))))
 (leaf consult-lsp
   :doc "LSP-mode Consult integration"
   :req "emacs-27.1" "lsp-mode-5.0" "consult-1.9" "f-0.20.0"
@@ -3154,25 +3089,33 @@ This function is based on work of David Wilson.
          ;; Option 2: Replace `vertico-insert' to enable TAB prefix expansion.
          ;; (keymap-set vertico-map "TAB" #'minibuffer-complete)
          )
-  :hook ((vertico-mode-hook . (lambda () (message (format "vertico-mode: %S" vertico-mode))))
-         (after-init-hook))
+  :hook after-init-hook
   :custom ((vertico-cycle . t)
            (vertico-resize . t)
-           (vertico-scroll-margin . 0))
+           (vertico-scroll-margin . 0)
+           (vertico-preselect . 'first))
 
-  ;; (setq read-file-name-completion-ignore-case t
-  ;;       read-buffer-completion-ignore-case t
-  ;;       completion-ignore-case t)
+
+  ;; do not consider case significant in completion (GNU Emacs default)
+  (setq completion-ignore-case t
+        read-file-name-completion-ignore-case t
+        read-buffer-completion-ignore-case t)
   :config
   (message "Configure vertico")
   (vertico-mode)
+  (vertico-mouse-mode +1)
   (setq completion-in-region-function
         (lambda (&rest args)
           (apply (if vertico-mode
 #'consult-completion-in-region
 	           #'completion--in-region)
-	         args))))
+	         args)))
 
+  ;; Don't re-sort buffer candidates. The recency order is correct.
+  ;; (vertico-multiform-mode +1)
+  (setq vertico-multiform-categories
+        '((buffer (vertico-sort-function . copy-sequence))))
+  )
 ;; Configure directory extension.
 (leaf vertico-directory
   :after vertico
@@ -3183,7 +3126,7 @@ This function is based on work of David Wilson.
          ("DEL" . vertico-directory-delete-char)
          ("M-DEL" . vertico-directory-delete-word))
   ;; Tidy shadowed file names
-  :hook (rfn-eshadow-update-overlay . vertico-directory-tidy))
+  :hook (rfn-eshadow-update-overlay-hook . vertico-directory-tidy))
 
 (leaf vertico-posframe
   :doc "Using posframe to show Vertico"
@@ -3225,11 +3168,12 @@ This function is based on work of David Wilson.
 
   ;; We follow a suggestion by company maintainer u/hvis:
   ;; https://www.reddit.com/r/emacs/comments/nichkl/comment/gz1jr3s/
-  (defun company-completion-styles (capf-fn &rest args)
-    (let ((completion-styles '(basic partial-completion)))
-      (apply capf-fn args)))
+  ;; (defun company-completion-styles (capf-fn &rest args)
+  ;;   (let ((completion-styles '(basic partial-completion)))
+  ;;     (apply capf-fn args)))
 
-    (advice-add 'company-capf :around #'company-completion-styles))
+  ;;   (advice-add 'company-capf :around #'company-completion-styles)
+  )
 
 (leaf marginalia
   :doc "Enrich existing commands with completion annotations"
@@ -3259,14 +3203,15 @@ This function is based on work of David Wilson.
   :added "2025-06-06"
   :emacs>= 28.1
   :ensure t
+  :commands (embark-info-lookup-symbol embark-save-unicode-character)
   :after compat
+  :require t
   :bind (("C-." . embark-act)         ;; pick some comfortable binding
          ;; ("C-;" . embark-dwim)        ;; good alternative: M-.
          ("M-." . embark-dwim)        ;; good alternative: M-.
          ("C-h B" . embark-bindings)  ;; alternative for `describe-bindings'
          ("<f2> i" . #'embark-info-lookup-symbol)
-         ("<f2> u" . #'embark-save-unicode-character)
-         )
+         ("<f2> u" . #'embark-save-unicode-character))
   :custom
   ;; Optionally replace the key help with a completing-read interface
   (prefix-help-command . #'embark-prefix-help-command)
@@ -3281,7 +3226,7 @@ This function is based on work of David Wilson.
   ;; (setq eldoc-documentation-strategy #'eldoc-documentation-compose-eagerly)
 
   :config
-
+  (message "Configure embark")
   ;; Hide the mode line of the Embark live/completions buffers
   (add-to-list 'display-buffer-alist
 	       '("\\`\\*Embark Collect \\(Live\\|Completions\\)\\*"
@@ -3300,6 +3245,13 @@ This function is based on work of David Wilson.
   :ensure t ; only need to install it, embark loads it after consult if found
   :hook (embark-collect-mode-hook . consult-preview-at-point-mode))
 
+;; (leaf completion-preview
+;;   :doc "Preview completion with inline overlay"
+;;   :tag "builtin"
+;;   :added "2025-06-12"
+;;   :config
+;;   (global-completion-preview-mode))
+
 (leaf prescient
   :doc "Better sorting and filtering"
   :req "emacs-25.1"
@@ -3310,26 +3262,29 @@ This function is based on work of David Wilson.
   :ensure t
   :custom
   (completion-preview-sort-function . #'prescient-completion-sort)
+  :after prescient
   :config
-  (prescient-persist-mode))
-(leaf company-prescient
-  :doc "Prescient.el + Company"
-  :req "emacs-25.1" "prescient-6.1.0" "company-0.9.6"
-  :tag "extensions" "emacs>=25.1"
-  :url "https://github.com/raxod502/prescient.el"
-  :added "2025-06-11"
-  :emacs>= 25.1
-  :ensure t
-  :after company
-  :config (company-prescient-mode))
+  (message "Enable prescient-persist-mode")
+  (prescient-persist-mode)
+  ;; The default settings seem a little forgetful to me. Let's try
+  ;; this out.
+  (setq prescient-history-length 1000)
+  ;; Common sense.
+  (setq prescient-sort-full-matches-first t))
+
 (leaf vertico-prescient
   :ensure t
   :after vertico
-  :config (vertico-prescient-mode))
+  :config
+  (message "Configure vertico-perscient")
+  (vertico-prescient-mode))
 (leaf corfu-prescient
   :ensure t
   :after corfu
-  :config (corfu-prescient-mode))
+  :config
+  (message "Configure corfu-perscient")
+  (corfu-prescient-mode))
+
 (leaf corfu
   :doc "COmpletion in Region FUnction"
   :req "emacs-28.1" "compat-30"
@@ -3347,12 +3302,28 @@ This function is based on work of David Wilson.
   (corfu-preview-current . nil)    ;; Disable current candidate preview
   (corfu-preselect . 'prompt)      ;; Preselect the prompt
   (corfu-on-exact-match . nil)     ;; Configure handling of exact matches
-
+  (corfu-auto . t)
+  (corfu-auto-prefix . 2)
+  (corfu-auto-delay . 0.1)
+  (corfu-echo-delay . 0.25)
+  (corfu-popupinfo-delay . '(0.5 . 0.2))
   ;; Enable Corfu only for certain modes. See also `global-corfu-modes'.
   ;; :hook ((prog-mode . corfu-mode)
   ;;        (shell-mode . corfu-mode)
   ;;        (eshell-mode . corfu-mode))
-
+  :hook (eshell-mode-hook . (lambda () (setq-local corfu-quit-at-boundary t
+                                              corfu-quit-no-match t
+                                              corfu-auto nil)
+                              (corfu-mode)))
+  :bind (:corfu-map
+         ("M-SPC" . corfu-insert-separator)
+         ("RET" . nil) ; Leave my enter alone!
+         ("TAB" . corfu-next)
+         ("S-TAB" . corfu-previous)
+         ([backtab] . corfu-previous)
+         ("M-RET" . corfu-insert)
+         ("S-RET" . corfu-insert)
+         ("C-RET" . corfu-insert))
   :init
   ;; Recommended: Enable Corfu globally.  Recommended since many modes provide
   ;; Capfs and Dabbrev can be used globally (M-/).  See also the customization
@@ -3362,11 +3333,75 @@ This function is based on work of David Wilson.
   ;; Enable optional extension modes:
   (corfu-history-mode)
   (corfu-popupinfo-mode)
-  (corfu-echo-mode))
+  (corfu-echo-mode -1))
 
-;; A few more useful configurations...
+(leaf envrc
+  :doc "Support for `direnv' that operates buffer-locally"
+  :req "emacs-27.1" "inheritenv-0.1" "seq-2.24"
+  :tag "tools" "processes" "emacs>=27.1"
+  :url "https://github.com/purcell/envrc"
+  :added "2025-06-12"
+  :emacs>= 27.1
+  :ensure t
+  :after inheritenv
+  :config
+  (envrc-global-mode))
+
+(leaf cape
+  :disabled t
+  :doc "Completion At Point Extensions"
+  :req "emacs-28.1" "compat-30"
+  :tag "text" "completion" "matching" "convenience" "abbrev" "emacs>=28.1"
+  :url "https://github.com/minad/cape"
+  :added "2025-06-11"
+  :emacs>= 28.1
+  :ensure t
+  :after compat
+  ;; :init
+  ;; ;; Add `completion-at-point-functions', used by `completion-at-point'.
+  ;; (defun kb/add-shell-completion ()
+  ;;   (interactive)
+  ;;   (add-hook 'completion-at-point-functions 'cape-history)
+  ;;   (add-hook 'completion-at-point-functions 'pcomplete-completions-at-point))
+  ;; (add-hook 'shell-mode-hook #'kb/add-shell-completion nil t)
+
+  :config
+  (message "Configure cape")
+  ;; (add-hook 'completion-at-point-functions #'cape-dabbrev)
+  ;; (add-hook 'completion-at-point-functions #'cape-file)
+  (add-hook 'completion-at-point-functions #'cape-emoji)
+  ;; (add-hook 'completion-at-point-functions #'cape-elisp-block)
+
+  ;; (add-to-list 'completion-at-point-functions #'cape-file t)
+  ;; ;; Nice completion to have available everywhere
+  ;; (add-to-list 'completion-at-point-functions #'cape-dabbrev t)
+  ;; (add-to-list 'completion-at-point-functions #'cape-emoji t)
+
+  (when (< emacs-major-version 29)
+    ;; Silence then pcomplete capf, no errors or messages!
+    (advice-add 'pcomplete-completions-at-point :around #'cape-wrap-silent)
+    ;; Ensure that pcomplete does not write to the buffer and behaves as
+    ;; pure `completion-at-point-function'.
+    (advice-add 'pcomplete-completions-at-point :around #'cape-wrap-purify))
+
+  ;; (defalias 'cape-dabbrev-min-2 (cape-capf-prefix-length #'cape-dabbrev 2))
+  ;; (setq-local completion-at-point-functions (list (cape-capf-prefix-length #'cape-dabbrev 2)))
+  )
+
+
+;; a few more useful configurations...
 (leaf emacs
+  :bind
+  (("M-c" . capitalize-dwim)
+   ("M-u" . upcase-dwim)
+   ("M-l" . downcase-dwim)
+   ("M-z" . zap-up-to-char)
+   )
   :custom
+  ;; According to the POSIX, a line is defined as "a sequence of zero or
+  ;; more non-newline characters followed by a terminating newline".
+  (require-final-newline . t)
+  (kill-region-dwim . 'emacs-word)
   ;; Enable context menu. `vertico-multiform-mode' adds a menu in the minibuffer
   ;; to switch display modes.
   (context-menu-mode . t)
@@ -3387,8 +3422,22 @@ This function is based on work of David Wilson.
   (read-extended-command-predicate . #'command-completion-default-include-p)
 
   ;; Do not allow the cursor in the minibuffer prompt
-  (minibuffer-prompt-properties .
-   '(read-only t cursor-intangible t face minibuffer-prompt)))
+  (minibuffer-prompt-properties . '(read-only t cursor-intangible t face minibuffer-prompt))
+
+  :config
+  (message "Configure emacs fringe")
+  ;; change truncation indicators
+  (define-fringe-bitmap 'right-curly-arrow
+    [#b10000000 #b10000000 #b01000000
+                #b01000000 #b00100000 #b00100000
+                #b00010000 #b00010000 #b00001000
+                #b00001000 #b00000100 #b00000100])
+  (define-fringe-bitmap 'left-curly-arrow
+    [#b00000100 #b00000100 #b00001000
+                #b00001000 #b00010000 #b00010000
+                #b00100000 #b00100000 #b01000000
+                #b01000000 #b10000000 #b10000000])
+  )
 
 ;; Use Dabbrev with Corfu!
 (leaf dabbrev
@@ -3403,46 +3452,9 @@ This function is based on work of David Wilson.
   (add-to-list 'dabbrev-ignored-buffer-modes 'pdf-view-mode)
   (add-to-list 'dabbrev-ignored-buffer-modes 'tags-table-mode))
 
-
 (leaf savehist
   :config
   (savehist-mode))
-
-(leaf counsel
-  :disabled t
-  :ensure t
-  :custom ((counsel-find-file-at-point . t)
-           (counsel-find-file-ignore-regexp . (regexp-opt completion-ignored-extensions)))
-  :bind (("<f2> j". counsel-set-variable)
-         ("<f2> i" . counsel-info-lookup-symbol)
-         ("<f2> u" . counsel-unicode-char)
-         ("<f7>" . counsel-recentf)
-         ;; ("C-c g" . counsel-git)
-         ("C-c j" . counsel-git-grep)
-         ("C-c L" . counsel-git-log)
-         ("C-c J" . counsel-file-jump)
-         ("C-x l" . counsel-locate)
-         ;; ("C-c t" . counsel-load-theme)
-         ("C-c C-o" . counsel-imenu)
-         ([remap insert-register] . counsel-register)
-         (:minibuffer-local-map
-          ("C-r" . counsel-minibuffer-history)))
-  :hook after-init-hook
-
-  :config
-  (leaf counsel-tramp
-    :ensure t
-    :after counsel)
-  (leaf counsel-projectile
-    :disabled t
-    :ensure t
-    :config(counsel-projectile-mode))
-  (leaf counsel-ag-popup :disabled t :ensure t :require t)
-  (leaf counsel-edit-mode
-    :disabled t
-    :ensure t
-    :config (counsel-edit-mode-setup-ivy))
-  )
 
 (leaf helpful
   :doc "A better *help* buffer"
@@ -3585,7 +3597,6 @@ This function is based on work of David Wilson.
          (message "Prefix: %s" (key-description (vector key)))))
      keymap))
 
-;; :delight '(:eval (concat " " (projectile-project-name)))
 (leaf projectile
   :doc "Manage and navigate projects in Emacs easily"
   :req "emacs-25.1"
@@ -3594,7 +3605,7 @@ This function is based on work of David Wilson.
   :added "2022-10-31"
   :emacs>= 25.1
   :ensure t
-  :require t
+  ;; :require t
   ;; :blackout t ; (projectile-project-name);  '(:eval (concat " " (projectile-project-name)))
   :commands projectile-project-p
   :custom ((projectile-indexing-method . 'alien)
@@ -3620,9 +3631,8 @@ This function is based on work of David Wilson.
     (projectile-save-known-projects)
     (message "Magit known projects added"))
 
-  (message "Running projectile mode")
-  (projectile-mode)
-  (message "Projectile mode"))
+  (message "Configure projectile mode")
+  (projectile-mode))
 
 (leaf treemacs-projectile
   :doc "Projectile integration for treemacs"
@@ -3715,11 +3725,10 @@ This function is based on work of David Wilson.
            (magit-repository-directories . '(("~/projects" . 2)))
            (git-commit-summary-max-length . 50)
            )
-  :bind (
+  :bind (("C-x v SPC" . magit-status)
          ;; ("C-c g" . magit-file-dispatch)
          ("C-x g" . magit-status-quick)
-         ("C-x M-g" . magit-dispatch)
-         )
+         ("C-x M-g" . magit-dispatch))
   :config
   (put 'magit-clean 'disabled nil)
   (leaf treemacs-magit
@@ -3933,9 +3942,9 @@ Otherwise, open the repository's main page."
 ;; Optional packages
 ;;--------------------------------------------------------------------------------
 
-(if (not (package-installed-p 'smartparens))
+(if (not (package-installed-p 'puni))
     (progn
-      "smartparens not installed: Using builtin paren mode."
+      "puni not installed: Using builtin paren mode."
       (leaf paren
         :doc "highlight matching paren"
         :tag "builtin"
@@ -3948,7 +3957,77 @@ Otherwise, open the repository's main page."
         (show-paren-mode 1)))
   )
 
+
+(leaf puni
+  :doc "Parentheses Universalistic"
+  :req "emacs-26.1"
+  :tag "tools" "lisp" "convenience" "emacs>=26.1"
+  :url "https://github.com/AmaiKinono/puni"
+  :added "2025-06-12"
+  :emacs>= 26.1
+  :ensure t
+  :require t
+  :config
+  ;; The autoloads of Puni are set up so you can enable `puni-mode` or
+  ;; `puni-global-mode` before `puni` is actually loaded. Only after you press
+  ;; any key that calls Puni commands, it's loaded.
+  (puni-global-mode)
+  (add-hook 'term-mode-hook #'puni-disable-puni-mode)
+
+ ;;  :bind (("%" . kb/puni-match-parenthesis))
+
+ ;;  :config
+ ;;  (defun kb/puni-match-parenthesis (arg)
+ ;;    "Match the current character according to the syntax table.
+
+ ;; Based on the freely available match-paren.el by Kayvan Sylvan.
+ ;; I merged code from goto-matching-paren-or-insert and match-it.
+
+ ;; When ARG does not belong to matching pair then insert it at point.
+
+ ;; You can define new \"parentheses\" (matching pairs).
+ ;; Example: angle brackets.  Add the following to your .emacs file:
+
+ ;; (modify-syntax-entry ?< \"(>\" )
+ ;; (modify-syntax-entry ?> \")<\" )
+
+ ;; You can set hot keys to perform matching with one keystroke.
+ ;; Example: f6 and Control-C 6.
+
+ ;; (global-set-key \"\\C-c6\" 'match-parenthesis)
+ ;; (global-set-key [f6] 'match-parenthesis)
+
+ ;; Simon Hawkin <cema@cs.umd.edu> 03/14/1998"
+ ;;    (interactive "p")
+ ;;    (let
+ ;;        ((syntax (puni--syntax-char-after)))
+ ;;      (cond
+ ;;       ((= syntax ?\()
+ ;;        ;; (puni-end-of-list-around-point)
+ ;;        ;; (puni-up-list)
+ ;;        ;; (146259 . 146289)
+ ;;        ;; (goto-char (puni-end-pos-of-list-around-point))
+ ;;        ;; (puni-strict-forward-sexp)
+ ;;        ;; (puni-bounds-of-sexp-at-point)
+ ;;        ;; (puni-forward-sexp-or-up-list)
+ ;;        (puni--forward-same-char)
+ ;;        (puni--forward-same-syntax (puni-end-pos-of-list-around-point))
+ ;;        ;; (puni-beginning-of-list-around-point)
+ ;;        )
+ ;;       ((= syntax ?\))
+ ;;        ;; (goto-char (puni-beginning-pos-of-list-around-point))
+ ;;        ;; (puni-beginning-of-list-around-point)
+ ;;        ;; (puni-end-of-list-around-point)
+ ;;        ;; (puni-backward-sexp-or-up-list)
+ ;;        ;; (puni-strict-backward-sexp)
+ ;;        (puni-backward-sexp-or-up-list)
+ ;;        (puni--backward-same-syntax)
+ ;;        )
+ ;;       (t (self-insert-command (or arg 1))) ) )
+)
+
 (leaf smartparens
+  :disabled t
   :doc "Automatic insertion, wrapping and paredit-like navigation with user defined pairs"
   :req "dash-2.13.0"
   :tag "editing" "convenience" "abbrev"
@@ -4042,7 +4121,7 @@ Simon Hawkin <cema@cs.umd.edu> 03/14/1998"
   ;; (smartparens-global-strict-mode 1)
   (show-smartparens-global-mode t)
   (smartparens-global-mode 1)
-  
+
   :bind (("C-S-a" . sp-end-of-sexp)
          ("%" . kb/sp-match-parenthesis)))
 (leaf jira-markup-mode
@@ -4095,7 +4174,6 @@ Simon Hawkin <cema@cs.umd.edu> 03/14/1998"
   :emacs>= 25.0
   :ensure t
   :custom ((graphviz-dot-indent-width . 4))
-  :hook (company-mode)
   :config
   (when (executable-find "xdot")
     (customize-set-variable 'graphviz-dot-view-command "xdot %s")))
@@ -4141,7 +4219,7 @@ Simon Hawkin <cema@cs.umd.edu> 03/14/1998"
           ("C-a" . yas/goto-start-of-active-field))
          (:yas-minor-mode-map ("<f2>" . hydra-yas/body)))
   :config
-  (add-to-list 'yas-snippet-dirs "~/.emacs.d/rc/snippets")
+  (add-to-list 'yas-snippet-dirs (expand-file-name (concat user-emacs-directory "rc/snippets")))
   (yas-global-mode 1)
   ;; Inter-field navigation
   (defun yas/goto-end-of-active-field ()
@@ -4165,7 +4243,7 @@ Simon Hawkin <cema@cs.umd.edu> 03/14/1998"
 ;;        ^YASnippets^
 ;;  --------------------------------------------
 ;;  Modes:    Load/Visit:    Actions:
-;;  
+;;
 ;;  _g_lobal  _d_irectory    _i_nsert
 ;;  _m_inor   _f_ile         _t_ryout
 ;;  _e_xtra   _l_ist         _n_ew
