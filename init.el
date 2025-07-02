@@ -2,6 +2,18 @@
 ;;; Commentary:
 ;; Load all configuration parts
 
+(message "** Init entered")
+
+;; useful for quickly debugging Emacs
+(setq debug-on-error t)
+(setenv "LSP_USE_PLISTS" "true")
+;;; Startup
+(add-hook 'emacs-startup-hook
+          (lambda ()
+            (message "*** Emacs loaded in %s seconds with %d garbage collections."
+                     (emacs-init-time "%.2f")
+                     gcs-done)))
+
 ;;
 (setq user-full-name "Karol Barski")
 
@@ -57,6 +69,9 @@
 (setq user-mail-address "karol.barski@cognizant.com")
 (setq line-spacing 0)
 
+(setopt sentence-end-double-space nil)
+
+
 ;;; Code:
 ;; don't let Customize mess with my .emacs
 (defconst rc-directory (expand-file-name "rc" user-emacs-directory)
@@ -66,8 +81,7 @@ By default is subdirectory of `user-emacs-directory'.")
 (add-to-list 'load-path rc-directory)
 
 (when (eq system-type 'windows-nt)
-  (setopt w32-pipe-read-delay '-1)
-  )
+  (setopt w32-pipe-read-delay '-1))
 
 (setq custom-file (locate-user-emacs-file "custom.el"))
 ;; load custom but ignore error if doesn't exist
@@ -103,7 +117,6 @@ By default is subdirectory of `user-emacs-directory'.")
 ;;--------------------------------------------------------------------------------
 ;; fancy streching cursor
 (setq x-stretch-cursor nil)
-;; (global-hl-line-mode -1)
 
 ;; use inactive face for mode-line in non-selected windows
 (setq mode-line-in-non-selected-windows t)
@@ -120,85 +133,31 @@ By default is subdirectory of `user-emacs-directory'.")
       scroll-preserve-screen-position 'always)
 
 
-;;--------------------------------------------------------------------------------
-;; Elpa setup
-;;--------------------------------------------------------------------------------
-;; (require 'cl-lib)
-;; (defvar kb/package-archives ()
-;;   "Set of achives which will be finally set to package-achives.")
-
-;; (let* ((no-ssl (and (memq system-type '(windows-nt ms-dos))
-;;                     (not (gnutls-available-p))))
-;;        (proto (if no-ssl "http" "https")))
-;;   (when no-ssl
-;;     (warn "\
-;; Your version of Emacs does not support SSL connections,
-;; which is unsafe because it allows man-in-the middle attacks.
-;; There are two things you can do about this warning:
-;; 1. Install an Emacs version that does support SSL and be safe.
-;; 2. Remove this  warning from your init file so you won't see it again."))
-;;   ;; Comment/uncomment these two lines to enable/disable MELPA and MELPA Stable as desired
-;;   (add-to-list 'kb/package-archives (cons "melpa" (concat proto "://melpa.org/packages/")) t)
-;;   (add-to-list 'kb/package-archives (cons "org" (concat proto "://orgmode.org/elpa/")) t)
-
-;;   (when (< emacs-major-version 24)
-;;     ;; For important compatibility libraries like cl-lib
-;;     (add-to-list 'kb/package-archives (cons "gnu" (concat proto "://elpa.gnu.org/packages/")) t)
-;;     )
-;;   )
-
-;; (customize-set-variable
-;;  'package-archives '(("org" . "https://orgmode.org/elpa/")
-;;                      ("melpa" . "https://melpa.org/packages/")
-;;                      ("gnu" . "https://elpa.gnu.org/packages/")
-;; 		     ))
-;; (package-initialize)
-
-;; ========================= straight bootstrap ========================
-(defvar straight-bootstrap-version)
-(let ((bootstrap-file
-       (expand-file-name
-        "straight/repos/straight.el/bootstrap.el"
-        (or (bound-and-true-p straight-base-dir)
-            user-emacs-directory)))
-      (bootstrap-version 7))
-  (unless (file-exists-p bootstrap-file)
-    (with-current-buffer
-        (url-retrieve-synchronously
-         "https://raw.githubusercontent.com/radian-software/straight.el/develop/install.el"
-         'silent 'inhibit-cookies)
-      (goto-char (point-max))
-      (eval-print-last-sexp)))
-  (load bootstrap-file nil 'nomesage))
-
-(setopt straight-enable-package-integration t)
-(setopt straight-vc-git-default-clone-depth 1)
-(message "straight bootstrap done")
-;; ========================= straight bootstrap ========================
-
-;; ========================== el-get bootstrap =========================
-(message "el-get bootstrap")
-
-(add-to-list 'load-path (expand-file-name "el-get/el-get" user-emacs-directory))
-(unless (require 'el-get nil 'noerror)
-  (with-current-buffer
-      (url-retrieve-synchronously
-       "https://raw.githubusercontent.com/dimitri/el-get/master/el-get-install.el")
-    (goto-char (point-max))
-    (eval-print-last-sexp)))
-
-;; (add-to-list 'el-get-recipe-path "~/.emacs.d/el-get-user/recipes")
-;; (el-get 'sync)
-(message "el-get bootstrap done")
-;; ========================== el-get bootstrap =========================
-
 ;; =========================== leaf bootstrap ==========================
 ;; <leaf-install-code>
+;; Make it easy to jump between packages
+;; (with-eval-after-load 'package (message "**** Package loaded"))
+(message "leaf bootstrap begin")
 (eval-and-compile
-  (customize-set-variable
-   'package-archives '(("org" . "https://orgmode.org/elpa/")
-                       ("melpa" . "https://melpa.org/packages/")
-                       ("gnu" . "https://elpa.gnu.org/packages/")))
+  (customize-set-variable 'package-archives
+                          '(("org" . "https://orgmode.org/elpa/")
+                            ("nongnu"   . "http://elpa.nongnu.org/nongnu/")
+                            ("melpa" . "https://melpa.org/packages/")
+                            ("gnu" . "https://elpa.gnu.org/packages/")
+                            ("jcs-elpa" . "https://jcs-emacs.github.io/jcs-elpa/packages/")))
+  (customize-set-variable 'package-archive-priorities
+      '(("gnu"      . 0)
+        ("nongnu"   . 0)
+        ("melpa"    . 5)
+        ("jcs-elpa" . 10)))
+
+;;  (setq package-enable-at-startup nil  ; To avoid initializing twice
+  ;;        package-check-signature nil)
+
+  ;;(require 'package)
+
+  ;; (when noninteractive (package--archives-initialize))
+  ;; (package--archives-initialize)
   (package-initialize)
   (unless (package-installed-p 'leaf)
     (package-refresh-contents)
@@ -218,45 +177,6 @@ By default is subdirectory of `user-emacs-directory'.")
 ;; </leaf-install-code>
 ;; =========================== leaf bootstrap ==========================
 
-;; (leaf el-get
-;;   :doc "Manage the external elisp bits and pieces you depend upon."
-;;   :tag "emacswiki" "http-tar" "http" "pacman" "fink" "apt-get" "hg" "darcs" "svn" "cvs" "bzr" "git-svn" "git" "elpa" "install" "elisp" "package" "emacs"
-;;   :url "http://www.emacswiki.org/emacs/el-get"
-;;   :added "2025-03-11"
-;;   :ensure t)
-(leaf hydra-posframe
-  ;; :disabled t
-  :el-get "Ladicle/hydra-posframe"
-  ;; :init (require 'el-get)
-  ;; :unless (fboundp 'hydra-posframe-mode)
-  ;; (el-get-bundle "Ladicle/hydra-posframe")
-  ;; (autoload #'hydra-posframe-mode "hydra-posframe" nil t))
-  :hook (after-init-hook . hydra-posframe-mode))
-
-;; (leaf async-await :el-get chuntaro/emacs-async-await)
-;; (leaf promise :el-get chuntaro/emacs-promise)
-;; (leaf iter2 :el-get doublep/iter2)
-;; (leaf async :el-get jwiegley/emacs-async)
-
-;; load no-littering as soon as possible during init so it can hook as many
-;; paths as possible
-(leaf no-littering
-  :doc "Help keeping ~/.config/emacs clean."
-  :req "emacs-26.1" "compat-30.1"
-  :tag "convenience" "emacs>=26.1"
-  :url "https://github.com/emacscollective/no-littering"
-  :added "2025-06-09"
-  :emacs>= 26.1
-  :ensure t
-  :after compat
-  :require recentf no-littering
-  :defvar (no-littering-var-directory no-littering-etc-directory)
-  :config
-  (with-eval-after-load 'recentf
-    (add-to-list 'recentf-exclude no-littering-var-directory)
-    (add-to-list 'recentf-exclude no-littering-etc-directory)))
-
-;; (leaf leaf-tree :ensure t)
 (leaf leaf-convert :ensure t)
 
 (leaf dashboard
@@ -267,29 +187,32 @@ By default is subdirectory of `user-emacs-directory'.")
   :added "2025-02-27"
   :emacs>= 27.1
   :ensure t
-  :config
-  (dashboard-setup-startup-hook)
-  (when (featurep 'projectile)
+  :bind (dashboard-mode-map
+         ("<up>" . previous-line)
+         ("<down>"  . next-line)
+         ("C-k C-p" . package-list-packages)
+         )
+  :require t
+  :init
+  (when (package-installed-p 'nerd-icons)
+    (setopt dashboard-icon-type 'nerd-icons))
+  (when (package-installed-p 'projectile)
     (setopt dashboard-projects-backend 'projectile))
+
+  :config
+  (message "**** Configure dashboard")
+  (dashboard-setup-startup-hook)
   (setopt initial-buffer-choice (lambda () (get-buffer-create dashboard-buffer-name)))
-  (setq dashboard-items '((projects . 10)
+  (setq dashboard-items '((projects . 5)
                           (recents . 10)
                           (bookmarks . 5)
-                          (agenda . 5)
-                          ;; (registers . 5)
+                          ;; (agenda . 5)
+                          (registers . 5)
                           ))
 
-
-  ;; (setopt dashboard-icon-type (cond ((featurep 'all-the-icons)
-  ;;        ('all-the-icons))
-  ;;       ((featurep 'nerd-icons)
-  ;;        (setopt dashboard-icon-type 'nerd-icons))
-  ;;       (t (message "Icon package not detected")))
-
-  ;; (setq dashboard-display-icons-p t)
-  ;; (setq dashboard-icon-type 'nerd-icons)
-  ;; (setq dashboard-set-heading-icons t)
-  ;; (setq dashboard-set-file-icons t)
+  (setq dashboard-display-icons-p t)
+  (setq dashboard-set-heading-icons t)
+  (setq dashboard-set-file-icons t)
 
   (setq dashboard-navigation-cycle t)
   ;; Content is not centered by default. To center, set
@@ -344,6 +267,10 @@ By default is subdirectory of `user-emacs-directory'.")
   ;; :config
   ;; (tool-bar-mode -1)
   )
+
+(leaf delsel :hook (emacs-startup-hook .  delete-selection-mode))
+(leaf goto-addr :hook (emacs-startup-hook . global-goto-address-mode))
+(leaf mb-depth :hook (emacs-startup-hook . minibuffer-depth-indicate-mode))
 
 (leaf scroll-bar
   :doc "window system-independent scroll bar support"
@@ -463,7 +390,7 @@ By default is subdirectory of `user-emacs-directory'.")
            (mark-ring-max . 5000)                ; increase kill ring to contains 5000 entries
            (kill-ring-max . 5000) ; increase kill-ring capacity
            (kill-whole-line . t)
-           (transient-mark-mode . nil)
+           (transient-mark-mode . t)
            (indent-tabs-mode . nil)
            )
   :bind (("C-;" . kill-whole-line)
@@ -501,7 +428,18 @@ By default is subdirectory of `user-emacs-directory'.")
   :custom ((large-file-warning-threshold . 100000000)
            (mode-require-final-newline . t)      ; add a newline to end of file)
            (make-backup-files . nil)
-           ))
+           )
+  :config
+  ;; Tell Emacs to prefer the treesitter mode
+  ;; You'll want to run the command `M-x treesit-install-language-grammar' before editing.
+  (setq major-mode-remap-alist '((yaml-mode . yaml-ts-mode)
+                                 (bash-mode . bash-ts-mode)
+                                 (js2-mode . js-ts-mode)
+                                 (typescript-mode . typescript-ts-mode)
+                                 (json-mode . json-ts-mode)
+                                 (css-mode . css-ts-mode)
+                                 (python-mode . python-ts-mode)))
+  )
 
 (leaf ffap
   :doc "find file (or url) at point"
@@ -530,6 +468,7 @@ By default is subdirectory of `user-emacs-directory'.")
   :added "2025-01-16"
   :emacs>= 25.1
   :ensure t
+  :hook (emacs-startup-hook . global-page-break-lines-mode)
   ;; :config (global-page-break-lines-mode)
   )
 
@@ -555,7 +494,8 @@ By default is subdirectory of `user-emacs-directory'.")
   :custom ((display-time-format . "%H:%M %d/%m/%Y")
            (display-time-24hr-format . t)
            (display-time-day-and-date . t)
-           (display-time-default-load-average . 15))
+           (display-time-default-load-average . nil) ; this information is useless for most
+           )
   :config
   (display-time)
   )
@@ -609,7 +549,7 @@ If called with a prefix argument, prompts for MIN and MAX values."
 ;; (define-key global-map (kbd "%") 'match-parenthesis) ;; % key on paren moves cursor to matching paren
 (define-key global-map (kbd "C-c T") 'kb/delete-trailing-whitespaces-and-untabify)
 (define-key global-map (kbd "C-c u") 'kb/set-buffer-eol-unix)
-(define-key global-map (kbd "C-c d") 'kb/set-buffer-eol-dos)
+;; (define-key global-map (kbd "C-c d") 'kb/set-buffer-eol-dos)
 ;; (define-key global-map (kbd "C-c m") 'kb/set-buffer-eol-mac)
 ;; TODO: Temporary disable
 ;; (define-key global-map (kbd "C-c C-d") 'kb/insert-date-time)
@@ -639,7 +579,6 @@ should be imported.
       (setq lst (cdr lst)))))
 
 (leaf kill-file-path
-  :disabled t
   :doc "Copy file name into kill ring"
   :req "emacs-26"
   :tag "files" "emacs>=26"
@@ -647,8 +586,8 @@ should be imported.
   :added "2024-02-19"
   :emacs>= 26
   :ensure t
-  :bind
-  ("C-c f" . kill-file-path))
+  ;; :bind ("C-c f" . kill-file-path)
+  )
 
 (leaf ascii-table
   :doc "Interactive ASCII table"
@@ -731,42 +670,9 @@ should be imported.
   :config
   (global-whitespace-mode 1)
   )
-(leaf show-eol
-  :doc "Show end of line symbol in buffer"
-  :req "emacs-24.4"
-  :tag "line" "eol" "end" "convenience" "emacs>=24.4"
-  :url "https://github.com/jcs-elpa/show-eol"
-  :added "2025-06-06"
-  :emacs>= 24.4
-  :ensure t)
 
 ;; Set Theme depending if emacs frame is inside TTY o GUI
 ;;--------------------------------------------------------------------------------
-(leaf doom-themes
-  :doc "an opinionated pack of modern color-themes"
-  :req "emacs-25.1" "cl-lib-0.5"
-  :tag "faces" "themes" "emacs>=25.1"
-  :url "https://github.com/doomemacs/themes"
-  :added "2022-11-04"
-  ;; :emacs>= 25.1
-  :ensure t
-  ;; :defines (doom-themes-treemacs-theme)
-  :after all-the-icons ;; doom-atom requires all-the-icons
-  :custom
-  (doom-themes-enable-bold . t)
-  (doom-themes-enable-italic . t)
-  (doom-themes-treemacs-theme . "doom-atom")
-  :config
-  ;; (load-theme 'doom-one t)
-  ;; (load-theme 'doom-xcode t)
-  ;; (when (fboundp doom-dark+-blue-modeline)
-  ;; (setq doom-dark+-blue-modeline t)
-  ;; (setq doom-dark+-padded-modeline nil)
-  ;; )
-  (doom-themes-visual-bell-config)
-  ;; (doom-themes-neotree-config)
-  (doom-themes-treemacs-config)
-  (doom-themes-org-config))
 (leaf solarized-theme
   :doc "The Solarized color theme"
   :req "emacs-24.1"
@@ -783,33 +689,8 @@ should be imported.
   :added "2023-02-14"
   :emacs>= 25.1
   :ensure t
-  :require t
   :config
   (solaire-global-mode))
-;; (leaf modus-themes
-;;   :doc "Elegant, highly legible and customizable themes"
-;;   :req "emacs-27.1"
-;;   :tag "accessibility" "theme" "faces" "emacs>=27.1"
-;;   :url "https://git.sr.ht/~protesilaos/modus-themes"
-;;   :added "2023-02-10"
-;;   :emacs>= 27.1
-;;   :ensure t)
-(leaf ember-twilight-theme
-  :doc "Ember Twilight theme"
-  :req "emacs-24.1"
-  :tag "dark" "twilight" "ember" "theme" "faces" "emacs>=24.1"
-  :url "https://github.com/madara123pain/unique-emacs-theme-pack"
-  :added "2025-03-11"
-  :emacs>= 24.1
-  :ensure t)
-(leaf marron-gold-theme
-  :doc "A rich marron-gold theme"
-  :req "emacs-24.1"
-  :tag "elegant" "warm" "gold" "marron" "theme" "faces" "emacs>=24.1"
-  :url "https://github.com/madara123pain/unique-emacs-theme-pack"
-  :added "2025-03-11"
-  :emacs>= 24.1
-  :ensure t)
 (leaf sexy-theme
   :doc "Sexy color theme"
   :req "emacs-24.1"
@@ -842,14 +723,14 @@ should be imported.
   :added "2025-03-24"
   :emacs>= 25.1
   :ensure t)
+
 (leaf zerodark-theme
-  :doc "A dark, medium contrast theme for Emacs"
+  :doc "A dark, medium contrast theme for Emacs."
   :req "all-the-icons-2.0.0"
   :tag "themes"
   :url "https://github.com/NicolasPetton/zerodark-theme"
   :added "2025-06-16"
-  :after all-the-icons
-  :require t
+  :ensure t
   :config
   (defun kb/zerodark-theme-enabled (theme)
     (if (eq theme 'zerodark)
@@ -873,15 +754,14 @@ should be imported.
                           outline-2
                           outline-3))
             (set-face-attribute face nil :height 1.0)))
-      (message (format "Theme %S activated" theme))
       ))
   (add-hook 'enable-theme-functions #'kb/zerodark-theme-enabled))
 
 (leaf doom-modeline
+  :disabled t
   :hook window-setup-hook
   :ensure t
-  :custom (
-           (doom-modeline-hud . t)
+  :custom ((doom-modeline-hud . t)
            (doom-modeline-buffer-file-name-style . 'truncate-with-project)
            ;; (setq doom-modeline-enable-word-count nil)
            (doom-modeline-buffer-encoding . 'nondefault)
@@ -893,21 +773,6 @@ should be imported.
            (doom-modeline-checker-simple-format . nil)
            (mode-line-right-align-edge . 'right-fringe)))
 
-(leaf all-the-icons-nerd-fonts
-  :disabled t
-  :doc "Nerd font integration for all-the-icons"
-  :req "emacs-28.1" "all-the-icons-5.0" "nerd-icons-0.0.1"
-  :tag "lisp" "convenience" "emacs>=28.1"
-  :url "https://github.com/mohkale/all-the-icons-nerd-fonts"
-  :added "2025-06-02"
-  :emacs>= 28.1
-  :ensure t
-  :after all-the-icons nerd-icons
-  :config
-  (all-the-icons-nerd-fonts-prefer)
-  ;; (set-face-attribute 'default nil :family "JetBrainsMono Nerd Font" :height 105)
-  )
-
 (leaf nerd-icons
   :doc "Emacs Nerd Font Icons Library. Required by doom-modeline"
   :req "emacs-24.3"
@@ -917,9 +782,10 @@ should be imported.
   :emacs>= 24.3
   :ensure t
   :config
-  ;; (unless (file-exists-p (expand-file-name (concat (nerd-icons-fonts-subdirectory nerd-icons-font-names))))
-  (unless (file-exists-p (expand-file-name "~/.local/share/fonts/NFM.ttf"))
-    (nerd-icons-install-fonts t)))
+  (setq nerd-icons-fonts-subdirectory (expand-file-name (concat user-emacs-directory "fonts/")))
+  (unless (file-exists-p (expand-file-name (concat nerd-icons-fonts-subdirectory (car nerd-icons-font-names))))
+    (nerd-icons-install-fonts t))
+  )
 
 (leaf nerd-icons-ibuffer
   :doc "Display nerd icons in ibuffer"
@@ -929,7 +795,6 @@ should be imported.
   :added "2023-06-15"
   :emacs>= 24.3
   :ensure t
-  :after nerd-icons
   :hook ibuffer-mode-hook
   :custom
   (nerd-icons-ibuffer-icon . t)
@@ -950,9 +815,30 @@ should be imported.
   :added "2025-06-06"
   :emacs>= 27.1
   :ensure t
-  :after nerd-icons
+  :after corfu
   :config
   (add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter))
+
+(leaf nerd-icons-completion
+  :doc "Add icons to completion candidates"
+  :req "emacs-25.1" "nerd-icons-0.0.1" "compat-30"
+  :tag "lisp" "emacs>=25.1"
+  :url "https://github.com/rainstormstudio/nerd-icons-completion"
+  :added "2025-07-01"
+  :emacs>= 25.1
+  :ensure t
+  :after nerd-icons compat
+  :hook (marginalia-mode-hook . nerd-icons-completion-marginalia-setup))
+
+(leaf kind-icon
+  :ensure t
+  :when (display-graphic-p)
+  :after corfu
+  :custom
+  (kind-icon-blend-background . t)
+  (kind-icon-default-face . 'corfu-default) ; only needed with blend-background
+  :config
+  (add-to-list 'corfu-margin-formatters #'kind-icon-margin-formatter))
 
 (leaf circadian
   :doc "Theme-switching based on daytime."
@@ -964,47 +850,27 @@ should be imported.
   :ensure t
   :hook ((emacs-startup-hook . circadian-setup)
          (circadian-after-load-theme-hook .
-                                         (lambda (theme)
-                                           ;; Line numbers appearance
-                                           (setq linum-format 'linum-format-func)
-                                           ;; Cursor
-                                           (set-default 'cursor-type 'box)
-                                           (set-cursor-color "#F52503"))))
+                                          (lambda (theme)
+                                            ;; Line numbers appearance
+                                            (setq linum-format 'linum-format-func)
+                                            ;; Cursor
+                                            (set-default 'cursor-type 'box)
+                                            (set-cursor-color "#F52503"))))
   :custom
   (calendar-latitude . 53.51)
   (calendar-longitude . 14.57)
-  (circadian-themes . '((:sunrise . doom-monokai-machine)
-                        (:sunset . doom-badger)
+  (circadian-themes . '((:sunrise . solarized-gruvbox)
+                        (:sunset . rg-themes-somnus)
                         ("8:00" . tango-dark)
                         ("8:15" . zerodark)
-                        ("15:00" . (solarized-gruvbox
-                                   sixcolors
-                                   sexy
-                                   ember-twilight
-                                   marron-gold
-                                   doom-acario-dark
-                                   doom-bluloco-dark
-                                   doom-dark+
-                                   doom-feather-dark
-                                   doom-material-dark
-                                   doom-solarized-dark-high-contrast
-                                   doom-solarized-dark
-                                   rg-themes-cappuccino-noir
-                                   ;; rg-themes-ellas
-                                   rg-themes-purpurina
-                                   rg-themes-somnus
-                                   ))
-                        ;; ("8:45" . solarized-selenized-black)
-                        ;; ("9:00" . solarized-selenized-dark)
-                        ;; ("09:15" doom-winter-is-coming-dark-blue)
-                        ;; doom-ayu-dark
-                        ("15:15" . doom-bluloco-dark)
-                        ("15:45" . doom-ephemeral)
-                        ("16:00" . doom-plain-dark) ; should I end workday??
+                        ("15:00" . (
+                                    modus-vivendi
+                                    sixcolors
+                                    sexy
+                                    rg-themes-purpurina
+                                    ))
                         ("17:00" . sixcolors)
-                        ("21:30" . doom-monokai-pro)))
-  :config
-  (circadian-setup)
+                        ("21:30" . rg-themes-cappuccino-noir)))
   )
 
 (leaf treemacs-nerd-icons
@@ -1021,119 +887,13 @@ should be imported.
   :config
   (treemacs-load-theme "nerd-icons"))
 
-(defcustom kb/terminal-theme 'wombat
-  "Theme which should be activated when frame is open inside terminal."
-  :type 'string
-  :group 'kb-config)
-;; (doom-one doom-snazzy)
-;; (doom-moonlight doom-monokai-machine modus-vivendi-tinted misterioso)
-(defcustom kb/window-theme 'doom-monokai-machine
-  "Theme which should be activated when frame is open inside GUI."
-  :type 'string
-  :group 'kb-config)
-(defvar kb/theme-window-loaded nil)
-(defcustom kb/theme-window-font (if (eq system-type 'windows-nt)
-                                    "Unifont"
-                                        ;(set-frame-parameter nil 'font "Arial Unicode MS")
-                                  "Hack"
-                                  )
-  "Font to used by my configuration.
-
-The font defined here is used when switching Emacs frame between
-GUI and TTY as well when changing between themes."
-  :type 'face
-  :group 'kb-config
-  )
-(defvar kb/theme-terminal-loaded nil)
-(defvar kb/theme-original-font nil)
-
-;; font configuration
-(defun kb/set-window-font ()
-  "Function set screen font.
-If Emacs is run in MS Windows then use Arial Unicode MS
-On U*x systems Use Hack"
-  (setq kb/theme-original-font (frame-parameter nil 'font))
-  (set-frame-parameter nil 'font kb/theme-window-font)
-  ;; (set-frame-font kb/theme-window-font nil t)
-  )
-
-(defun kb/switch-font ()
-  "Function set screen font.
-Set original font."
-  (interactive)
-  (if (and kb/theme-original-font (eq kb/theme-original-font (frame-parameter nil 'font)))
-      (kb/set-window-font)
-    (set-frame-parameter nil 'font kb/theme-original-font)))
-
-(define-key global-map (kbd "C-c o") 'kb/switch-font)
 ;;--------------------------------------------------------------------------------
-(defun kb/load-graphics-theme ()
-  "Function to load theme for GUI Emacs."
-  (interactive)
-  (unless kb/theme-window-loaded
-    (setq kb/theme-window-loaded (load-theme kb/window-theme t t))
-    (message "Theme `%S' loaded %S" kb/window-theme kb/theme-window-loaded))
-  kb/theme-window-loaded)
-
-(defun kb/load-terminal-theme ()
-  "Function to load theme for TTY Emacs."
-  (interactive)
-  (unless kb/theme-terminal-loaded
-    (setq kb/theme-terminal-loaded (load-theme kb/terminal-theme t t))
-    (message "Theme `%S' loaded %S" kb/terminal-theme kb/theme-terminal-loaded))
-  kb/theme-terminal-loaded)
-
-(defun kb/activate-frame-theme (frame)
-  "Activate theme depending on current FRAME window system.
-
-If theme is'n loaded then it will be loaded at first"
-  (interactive)
-  (message "Activate frame theme")
-  (select-frame frame)
-  (cond ((window-system frame)
-         (message (format "Activate frame %s graphical-theme" frame))
-         (when (kb/load-graphics-theme)
-           (message "Activate frame theme: load-graphics-theme")
-           (enable-theme 'kb/window-theme))
-         (message "Activate frame theme: set-window-font")
-         (kb/set-window-font))
-        ((kb/load-terminal-theme)
-         (message (format "Activate frame %s theme: terminal-theme" frame))
-         (enable-theme 'kb/terminal-theme)))
-  )
-
-(defun kb/activate-theme (&optional frame)
-  "Set theme on active FRAME."
-  (interactive)
-  (message "Activate theme")
-  (let ((frame (or frame (selected-frame))))
-    (when (frame-focus-state frame)
-      (message (format "Activate theme for frame: %s" frame))
-      (kb/activate-frame-theme frame))
-    ))
-
-;; (kb/activate-theme)
-;; (add-function :after after-focus-change-function #'kb/activate-theme)
-;; (add-hook 'after-make-frame-functions-hook 'kb/load-frame-theme)
-
-;; (frame-focus-state)
-;; (              doom-modeline-update-env)
-
 (leaf custom
   :doc "tools for declaring and initializing options"
   :tag "builtin" "faces" "help"
   :added "2022-11-04"
   :custom
-  (custom-safe-themes . t)
-  ;; (custom-enabled-themes . '(doom-monokai-machine wombat tango-dark))
-  ;; (custom-enabled-themes . '(doom-monokai-machine))
-  ;; :config
-  ;; (message "custom: load kb/window-theme")
-  ;; (load-theme kb/window-theme t)
-  ;; (kb/activate-theme)
-  ;; (message "custom: set kb/set-window-font")
-  ;; (kb/set-window-font)
-  )
+  (custom-safe-themes . t))
 
 ;;--------------------------------------------------------------------------------
 ;; Programming modes
@@ -1211,11 +971,11 @@ If theme is'n loaded then it will be loaded at first"
   :added "2022-11-02"
   :emacs>= 25.1
   :ensure t
-  :bind ((:hl-todo-mode-map
-          ("C-c t p" . #'hl-todo-previous)
-          ("C-c t n" . #'hl-todo-next)
-          ("C-c t o" . #'hl-todo-occur)
-          ("C-c t i" . #'hl-todo-insert)))
+  ;; :bind ((:hl-todo-mode-map
+  ;;         ("C-c t p" . #'hl-todo-previous)
+  ;;         ("C-c t n" . #'hl-todo-next)
+  ;;         ("C-c t o" . #'hl-todo-occur)
+  ;;         ("C-c t i" . #'hl-todo-insert)))
   :hook prog-mode-hook
   :config
   (add-to-list 'hl-todo-keyword-faces '("NOCOMMIT" . "#ff00ff"))
@@ -1304,16 +1064,6 @@ If theme is'n loaded then it will be loaded at first"
     )
   :hook (c-mode-common-hook . kb/whitespace-progmode-setup)
   )
-
-;; (defun kb/checkpatch-enable ()
-;;   "Add checkpatch for diff files if project provides checkpatch.pl script."
-;;   (if (file-exists-p "./scripts/checkpatch.pl")
-;;       (progn (print "setting compile-command")
-;;              (set (make-local-variable 'compile-command)
-;;                   (concat "./scripts/checkpatch.pl --emacs "
-;;                           (buffer-file-name))))
-;;     (print "checkpatch not found")))
-;; (add-hook 'diff-mode-hook 'kb/checkpatch-enable)
 
 ;; Highlight uncommitted changes
 (leaf diff-hl
@@ -1497,6 +1247,7 @@ If theme is'n loaded then it will be loaded at first"
 
 (leaf golden-ratio
   :ensure t
+  :blackout t
   :config (golden-ratio-mode))
 
 (leaf editorconfig
@@ -1525,8 +1276,8 @@ If theme is'n loaded then it will be loaded at first"
 
 Based on config described in https://www.rahuljuliato.com/posts/emacs-docker-podman."
   :type '(choice
-	  (const :tag "docker" docker)
-	  (const :tag "podman" podman))
+          (const :tag "docker" docker)
+          (const :tag "podman" podman))
   :group 'kb-config)
 
 (leaf docker
@@ -1543,12 +1294,12 @@ Based on config described in https://www.rahuljuliato.com/posts/emacs-docker-pod
   (pcase kb/docker-executable
     ('docker
      (setf docker-command "docker"
-	   docker-compose-command "docker-compose"
-	   docker-container-tramp-method "docker"))
+           docker-compose-command "docker-compose"
+           docker-container-tramp-method "docker"))
     ('podman
      (setf docker-command "podman"
-	   docker-compose-command "podman-compose"
-	   docker-container-tramp-method "podman"))))
+           docker-compose-command "podman-compose"
+           docker-container-tramp-method "podman"))))
 
 (leaf dockerfile-mode
   :doc "Major mode for editing Docker's Dockerfiles"
@@ -1603,10 +1354,10 @@ Based on config described in https://www.rahuljuliato.com/posts/emacs-docker-pod
   :url "https://github.com/tumashu/posframe"
   :added "2025-01-20"
   :emacs>= 26.1
-  :ensure t
-  :require t)
+  :ensure t)
 
 (leaf stillness-mode
+  :disabled t
   :doc "Prevent windows from jumping on minibuffer activation"
   :req "emacs-26.1" "dash-2.18.0"
   :tag "convenience" "emacs>=26.1"
@@ -1713,14 +1464,6 @@ Based on config described in https://www.rahuljuliato.com/posts/emacs-docker-pod
   :ensure t
   :after flycheck projectile
   :hook (flycheck-mode-hook . flycheck-clang-tidy-setup))
-(leaf flycheck-google-cpplint
-  :disabled t
-  :after flycheck
-  :defun flycheck-add-next-checker
-  :require flycheck-google-cpplint
-  :config
-  (flycheck-add-next-checker 'c/c++-cppcheck
-                             'c/c++-googlelint 'append))
 (leaf flycheck-projectile
   :doc "Project-wide errors"
   :req "emacs-25.1" "flycheck-31" "projectile-2.2"
@@ -1729,7 +1472,8 @@ Based on config described in https://www.rahuljuliato.com/posts/emacs-docker-pod
   :added "2025-02-03"
   :emacs>= 25.1
   :after flycheck projectile
-  :ensure t)
+  :ensure t
+  :require t)
 (leaf flycheck-posframe
   :doc "Show flycheck error messages using posframe.el"
   :req "flycheck-0.24" "emacs-26" "posframe-0.7.0"
@@ -1737,8 +1481,8 @@ Based on config described in https://www.rahuljuliato.com/posts/emacs-docker-pod
   :url "https://github.com/alexmurray/flycheck-posframe"
   :added "2025-02-03"
   :emacs>= 26
+  :after flycheck
   :ensure t
-  :after flycheck posframe
   :hook flycheck-mode-hook)
 
 ;; (advice-add 'ispell-pdict-save :after (lambda (_) (message "KB advice added") '((name . kukuryku))))
@@ -1755,14 +1499,39 @@ Based on config described in https://www.rahuljuliato.com/posts/emacs-docker-pod
   :emacs>= 25.1
   :ensure t
   :after flycheck
+  :require t
   :advice ((:after ispell-pdict-save flycheck-maybe-recheck))
-  :config
+  :preface
   (defun flycheck-maybe-recheck (_)
     (when (bound-and-true-p flycheck-mode)
       (flycheck-buffer)))
   )
 
+(leaf use-ttf
+  :doc "Keep font consistency across different OSs."
+  :req "emacs-26.1"
+  :tag "ttf" "install" "font" "customize" "convenience" "emacs>=26.1"
+  :url "https://github.com/jcs-elpa/use-ttf"
+  :added "2025-06-23"
+  :emacs>= 26.1
+  :ensure t
+  :hook (after-init-hook . use-ttf-set-default-font)
+  :init
+  (setq use-ttf-default-ttf-fonts
+        (mapcar (lambda (file) (concat user-emacs-directory file))
+                '("fonts/clacon.ttf"
+                  "fonts/DejaVuSans.ttf"
+                  "fonts/DejaVuSansMono.ttf"
+                  "fonts/NFM.ttf"                      ; nerd-icons
+                  "fonts/NotoSans-Regular.ttf"
+                  "fonts/NotoSansSymbols-Regular.ttf"
+                  "fonts/Quivira.otf"
+                  "fonts/Symbola.otf"                  ; for unicode
+                  "fonts/UbuntuMono-R.ttf"))
+        use-ttf-default-ttf-font-name "Ubuntu Mono"))
+
 (leaf unicode-fonts
+  :disabled t
   :doc "Configure Unicode fonts"
   :req "font-utils-0.7.8" "ucs-utils-0.8.2" "list-utils-0.4.2" "persistent-soft-0.8.10" "pcache-0.3.1"
   :tag "interface" "wp" "frames" "faces" "i18n"
@@ -1770,6 +1539,8 @@ Based on config described in https://www.rahuljuliato.com/posts/emacs-docker-pod
   :added "2025-03-27"
   :ensure t
   :after font-utils ucs-utils list-utils persistent-soft pcache
+  ;; :config
+
 
   ;;         https://dn-works.com/wp-content/uploads/2020/UFAS-Fonts/Symbola.zip
   ;;         http://www.quivira-font.com/files/Quivira.ttf   ; or Quivira.otf
@@ -1892,7 +1663,6 @@ Based on config described in https://www.rahuljuliato.com/posts/emacs-docker-pod
   :ensure t
   :require t
   :config
-  (afterglow-mode t)
   ;; ;; Optional
   ;; (setq afterglow-default-duration 0.5)
   ;; ;; Optional
@@ -1908,9 +1678,10 @@ Based on config described in https://www.rahuljuliato.com/posts/emacs-docker-pod
      (eval-defun :thing defun :duration 0.2)
      (eval-expression :thing sexp :duration 1)
      (eval-last-sexp :thing sexp :duration 1)
+
      ;; (my-function :thing my-region-function :duration 0.5 :face 'highlight)
      ))
-  )
+  (afterglow-mode t))
 
 (leaf gnuplot
   :doc "Major-mode and interactive frontend for gnuplot"
@@ -1973,7 +1744,6 @@ Based on config described in https://www.rahuljuliato.com/posts/emacs-docker-pod
                                 (sequence "BACKLOG(b)" "PLAN(p)" "READY(r)" "ACTIVE(a)" "REVIEW(v)" "WAIT(w@/!)" "HOLD(h)" "|" "COMPLETED(c)" "CANC(k@)")))
            )
   :config
-  (require 'ox-md)
   (defun kb/org-mode-setup ()
     (org-indent-mode 1)
     ;;(variable-pitch-mode 1)
@@ -2092,9 +1862,11 @@ This function is based on work of David Wilson.
   :added "2022-12-05"
   :emacs>= 26.1
   :ensure t
-  :after org)
+  :after org
+  :hook org-mode-hook)
 
 (leaf htmlize
+  :disabled t
   :doc "Convert buffer text and decorations to HTML."
   :tag "extensions" "hypermedia"
   :url "https://github.com/hniksic/emacs-htmlize"
@@ -2119,23 +1891,13 @@ This function is based on work of David Wilson.
                                          "blg" "brf" "fls" "entoc" "ps" "spl" "bbl"
                                          "tex" "bcf"))))
 
-(leaf ox-epub
-  :doc "Export org mode projects to EPUB"
-  :req "emacs-24.3" "org-9"
-  :tag "hypermedia" "emacs>=24.3"
-  :url "http://github.com/ofosos/org-epub"
-  :added "2024-08-05"
-  :emacs>= 24.3
-  :ensure t
-  :after org)
-
 (leaf ox-gfm
   :doc "Github Flavored Markdown Back-End for Org Export Engine"
   :tag "github" "markdown" "wp" "org"
   :added "2023-04-13"
   :ensure t
-  :after org
-  :require ox-gfm)
+  :after ox
+  :require t)
 
 (leaf ox-reveal
   :doc "reveal.js Presentation Back-End for Org Export Engine"
@@ -2144,10 +1906,9 @@ This function is based on work of David Wilson.
   :added "2022-10-31"
   :ensure t
   :after org
-  :custom (
-           (org-reveal-root . "https://cdn.jsdelivr.net/npm/reveal.js")
+  :custom ((org-reveal-root . "https://cdn.jsdelivr.net/npm/reveal.js")
            (org-reveal-mathjax . t))
-  )
+  :require t)
 
 (leaf ox-jira
   :doc "JIRA Backend for Org Export Engine"
@@ -2156,8 +1917,8 @@ This function is based on work of David Wilson.
   :url "https://github.com/stig/ox-jira.el"
   :added "2022-10-31"
   :ensure t
-  :after org
-  :require ox-jira)
+  :after ox
+  :require t)
 (leaf ox-mediawiki
   :doc "Mediawiki Back-End for Org Export Engine"
   :req "cl-lib-0.5" "s-1.9.0"
@@ -2166,7 +1927,8 @@ This function is based on work of David Wilson.
   :added "2022-10-31"
   :ensure t
   :require ox-mediawiki
-  :after org)
+  :after ox
+  :require t)
 (leaf ox-tiddly
   :doc "Org TiddlyWiki exporter"
   :req "org-8" "emacs-24.4"
@@ -2175,22 +1937,9 @@ This function is based on work of David Wilson.
   :added "2022-10-31"
   ;; :emacs>= 24.4
   :ensure t
-  :after org)
-(leaf ox-trac
-  :doc "Org Export Backend to Trac WikiFormat"
-  :req "org-9.0"
-  :tag "trac" "org-mode"
-  :url "https://github.com/JalapenoGremlin/ox-trac"
-  :added "2022-10-31"
-  :ensure t
-  :after org)
-(leaf ox-twiki
-  :doc "Org Twiki and Foswiki export"
-  :req "org-8" "emacs-24.4"
-  :tag "org" "emacs>=24.4"
-  :url "https://github.com/dfeich/org8-wikiexporters"
-  :added "2022-10-31"
-  :after org)
+  :after ox
+  :require t)
+
 (leaf ox-wk
   :doc "Wiki Back-End for Org Export Engine"
   :req "emacs-24.4" "org-8.3"
@@ -2198,7 +1947,8 @@ This function is based on work of David Wilson.
   :url "https://github.com/w-vi/ox-wk.el"
   :added "2022-10-31"
   :ensure t
-  :after org)
+  :after ox
+  :require t)
 
 ;; (require 'ox-confluence)
 
@@ -2232,11 +1982,11 @@ This function is based on work of David Wilson.
   :emacs>= 26.3
   :ensure t
   :after org
-  :bind-keymap (:org-mode-map ("C-c C-0" . verb-command-map))
+  ;; :bind-keymap (:org-mode-map ("C-c C-0" . verb-command-map))
   :config
   (add-to-list 'org-babel-load-languages '((verb . t)))
   (org-babel-do-load-languages 'org-babel-load-languages '((plantuml . t)))
-  ;; (define-key org-mode-map (kbd "C-c C-0") verb-command-map)
+  (define-key org-mode-map (kbd "C-c C-0") verb-command-map)
   )
 
 (leaf markdown-mode
@@ -2249,7 +1999,21 @@ This function is based on work of David Wilson.
   :ensure t
   :mode ("\\.text\\'" "\\.markdown\\'" "\\.md\\'")
   :bind (:markdown-mode-map
-         ("C-c C-e" . markdown-do)))
+         ("C-c C-e" . markdown-do))
+  :config
+  (when (not (executable-find "pandoc"))
+    (message "**** Configure markdown-mode pandoc not found")))
+
+(leaf markdown-preview-mode
+  :doc "Markdown realtime preview minor mode"
+  :req "emacs-24.4" "websocket-1.6" "markdown-mode-2.0" "cl-lib-0.5" "web-server-0.1.1"
+  :tag "convenience" "gfm" "markdown" "emacs>=24.4"
+  :url "https://github.com/ancane/markdown-preview-mode"
+  :added "2025-06-26"
+  :emacs>= 24.4
+  :ensure t
+  :after websocket markdown-mode web-server)
+
 (leaf highlight-doxygen
   :doc "Highlight Doxygen comments"
   :tag "faces"
@@ -2265,12 +2029,11 @@ This function is based on work of David Wilson.
 ;;   :config (global-pabbrev-mode))
 
 (leaf abbrev
-  ;; :blackout abbrev-mode
+  :blackout abbrev-mode
   :custom
   (save-abbrevs . t)
   :config
-  (setq-default abbrev-mode t)
-  )
+  (abbrev-mode t))
 
 (leaf iedit
   :doc "Edit multiple regions in the same way simultaneously."
@@ -2296,19 +2059,16 @@ This function is based on work of David Wilson.
 ;;   )
 
 (leaf ws-butler
+  :blackout t
   :ensure t
   :hook ((c-mode-common-hook text-mode-hook fundamental-mode-hook) . ws-butler-mode))
-
-(leaf cycle-quotes
-  :ensure t
-  :bind ("C-c q" . cycle-quotes))
 
 (leaf bool-flip
   :ensure t
   :bind ("C-c C-b" . bool-flip-do-flip))
 
-(message "clang")
-(when (not (executable-find "clang")) (message "clang executable not found"))
+(message "**** Check clang executable location")
+(when (not (executable-find "clang")) (message "***** clang executable not found"))
 
 (leaf highlight-numbers
   :doc "Highlight numbers in source code"
@@ -2350,8 +2110,22 @@ This function is based on work of David Wilson.
   :url "https://github.com/emacsmirror/clang-format"
   :added "2022-10-31"
   :ensure t
+  :after cc-mode
   :when (executable-find "clang-format")
-  :bind (("C-M-'" . clang-format-region)))
+  ;; :bind ((:c-mode-base-map
+  ;;         ("C-M-'" . #'clang-format-region))
+  ;;        (:c++-mode-map
+  ;;         ("C-M-'" . #'clang-format-region))
+  ;;        (:c-mode-map
+  ;;         ("C-M-'" . #'clang-format-region)))
+  :preface
+  (defun kb/bind-clang-format ()
+    "Hook used to bind clang-format on moded activation."
+    (interactive)
+    (define-key c-mode-base-map (kbd "C-M-'") 'clang-format-region))
+  :hook (c-mode-common-hook . kb/bind-clang-format)
+  )
+
 (leaf clang-format+
   :doc "Minor mode for automatic clang-format application"
   :req "emacs-25.1" "clang-format-20180406.1514"
@@ -2361,8 +2135,8 @@ This function is based on work of David Wilson.
   :emacs>= 25.1
   :after clang-format
   :ensure t
-  :custom (clang-format+-context 'modification)
-  ;;:hook (c-mode-common-hook . clang-format+-mode)
+  :custom (clang-format+-context . 'modification)
+  :hook (c-mode-common-hook . clang-format+-mode)
   )
 
 (leaf lsp-mode
@@ -2450,6 +2224,7 @@ This function is based on work of David Wilson.
   :url "https://github.com/emacs-sideline/sideline"
   :added "2025-05-15"
   :emacs>= 28.1
+  :blackout t
   :ensure t
   :hook ((flycheck-mode-hook lsp-mode-hook) . sideline-mode))
 (leaf sideline-flycheck
@@ -2485,11 +2260,11 @@ This function is based on work of David Wilson.
   :ensure t
   :mode ("CMakeLists\\.txt\\'" "\\.cmake\\'")
   :hook ((cmake-mode-hook . (lambda ()
-		              (message "CmakeMode custom")
-		              (setq fill-column 80)
-		              (auto-fill-mode)
-		              (setq cmake-tab-width 4)
-		              (setq indent-tabs-mode nil)))))
+                              (message "***** cmakemode custom")
+                              (setq fill-column 80)
+                              (auto-fill-mode)
+                              (setq cmake-tab-width 4)
+                              (setq indent-tabs-mode nil)))))
 
 (leaf cmake-font-lock
   :doc "Advanced, type aware, highlight support for CMake"
@@ -2532,13 +2307,15 @@ This function is based on work of David Wilson.
   :added "2025-05-07"
   :emacs>= 25.1
   :ensure t
-  :after edit-indirect
   :custom
   (separedit-default-mode . 'markdown-mode)
   (separedit-preserve-string-indentation . t)
   (separedit-continue-fill-column . t)
   (separedit-write-file-when-execute-save . t)
   (separedit-remove-trailing-spaces-in-comment . t)
+  :init
+  (defun kb/bind-separedit () (define-key prog-mode-map (kbd "C-c '") 'separedit))
+  :hook ((c-mode-common-hook) . kb/bind-separedit)
   :bind
   ((:prog-mode-map
     ((kbd "C-c '") . #'separedit))
@@ -2549,9 +2326,12 @@ This function is based on work of David Wilson.
    ;; (:helpful-mode-map
    ;;  ((kbd "C-c '") . #'separedit))
    )
-  :config
-  (message "spareedit configured")
-  (require 'separedit))
+  :init
+  ;; (require 'separedit)
+  (define-key prog-mode-map "C-c '" 'separedit)
+  (define-key c-mode-map "C-c '" 'separedit)
+  (define-key c++-mode-map "C-c '" 'separedit)
+)
 
 (leaf dirvish
   :doc "A modern file manager based on dired mode"
@@ -2571,7 +2351,7 @@ This function is based on work of David Wilson.
            ;; file-size: Show file size or directories file count at right fringe.
            ;; file-time (newly added): Show file modification time before the file-size
            ;; (dirvish-attributes . '(vc-state file-time)) ; file-time vc-state vscode-icon
-           (dirvish-attributes . '(all-the-icons file-time file-size collapse subtree-state vc-state git-msg))
+           (dirvish-attributes . '(nerd-icons file-time file-size collapse subtree-state vc-state git-msg))
            ;; Placement
            ;; (setq dirvish-use-header-line nil)     ; hide header line (show the classic dired header)
            ;; (setq dirvish-use-mode-line nil)       ; hide mode line
@@ -2591,10 +2371,10 @@ This function is based on work of David Wilson.
            (dirvish-mode-line-format . '(:left (sort file-time " " file-size symlink) :right (omit yank index)))
 
            (dirvish-quick-access-entries . ; It's a custom option, `setq' won't work
-				         '(("h" "~/"             "Home")
-				           ("d" "~/Downloads/"   "Downloads")
-				           ("m" "/mnt/"          "Drives")
-				           ("p" "~/projects/"    "Projects")))
+                                         '(("h" "~/"             "Home")
+                                           ("d" "~/Downloads/"   "Downloads")
+                                           ("m" "/mnt/"          "Drives")
+                                           ("p" "~/projects/"    "Projects")))
            (dired-listing-switches . "-l --almost-all --human-readable --group-directories-first --no-group")
 
            (dired-mouse-drag-files . t)                   ; added in Emacs 29
@@ -2602,27 +2382,28 @@ This function is based on work of David Wilson.
            (mouse-1-click-follows-link . nil)
            )
   :bind
-  (("C-c f" . dirvish-fd)
+  (
+   ;; ("C-c f" . dirvish-fd)
    (:dirvish-mode-map ("a" . dirvish-quick-access)
-	              ("f" . dirvish-file-info-menu)
-	              ("y" . dirvish-yank-menu)
-	              ("N" . dirvish-narrow)
-	              ("^"   . dirvish-history-last)
-	              ("h"   . dirvish-history-jump) ; remapped `describe-mode'
-	              ("s"   . dirvish-quicksort)    ; remapped `dired-sort-toggle-or-edit'
-	              ("v"   . dirvish-vc-menu)      ; remapped `dired-view-file'
-	              ("TAB" . dirvish-subtree-toggle)
-	              ("M-f" . dirvish-history-go-forward)
-	              ("M-b" . dirvish-history-go-backward)
-	              ("M-l" . dirvish-ls-switches-menu)
-	              ("M-m" . dirvish-mark-menu)
-	              ("M-t" . dirvish-layout-toggle)
-	              ("M-s" . dirvish-setup-menu)
-	              ("M-e" . dirvish-emerge-menu)
-	              ("M-j" . dirvish-fd-jump)
-	              ((kbd "<mouse-1>") . 'dirvish-subtree-toggle-or-open)
-	              ((kbd "<mouse-2>") . 'dired-mouse-find-file-other-window)
-	              ((kbd "<mouse-3>") . 'dired-mouse-find-file)))
+                      ("f" . dirvish-file-info-menu)
+                      ("y" . dirvish-yank-menu)
+                      ("N" . dirvish-narrow)
+                      ("^"   . dirvish-history-last)
+                      ("h"   . dirvish-history-jump) ; remapped `describe-mode'
+                      ("s"   . dirvish-quicksort)    ; remapped `dired-sort-toggle-or-edit'
+                      ("v"   . dirvish-vc-menu)      ; remapped `dired-view-file'
+                      ("TAB" . dirvish-subtree-toggle)
+                      ("M-f" . dirvish-history-go-forward)
+                      ("M-b" . dirvish-history-go-backward)
+                      ("M-l" . dirvish-ls-switches-menu)
+                      ("M-m" . dirvish-mark-menu)
+                      ("M-t" . dirvish-layout-toggle)
+                      ("M-s" . dirvish-setup-menu)
+                      ("M-e" . dirvish-emerge-menu)
+                      ("M-j" . dirvish-fd-jump)
+                      ((kbd "<mouse-1>") . 'dirvish-subtree-toggle-or-open)
+                      ((kbd "<mouse-2>") . 'dired-mouse-find-file-other-window)
+                      ((kbd "<mouse-3>") . 'dired-mouse-find-file)))
   :init
   (dirvish-override-dired-mode)
   :config
@@ -2636,7 +2417,7 @@ This function is based on work of David Wilson.
       :require ("exa") ; tell Dirvish to check if we have the executable
       (when (file-directory-p file) ; we only interest in directories here
         `(shell . ("exa" "-al" "--color=always" "--icons"
-	           "--group-directories-first" ,file))))
+                   "--group-directories-first" ,file))))
     (setopt dirvish-preview-dispatchers (add-to-list 'dirvish-preview-dispatchers 'exa))
     )
   )
@@ -2653,7 +2434,7 @@ This function is based on work of David Wilson.
   :added "2025-01-17"
   :emacs>= 27.1
   :ensure t
-  :after treemacs lsp-mode
+  :after lsp-mode
   :commands lsp-treemacs-errors-list)
 
 (leaf dap-mode
@@ -2669,35 +2450,36 @@ This function is based on work of David Wilson.
   :require 'dap-cpptools
   )
 
-;; (leaf ztree
-;;   :doc "Text mode directory tree"
-;;   :req "cl-lib-0"
-;;   :tag "tools" "files"
-;;   :url "https://github.com/fourier/ztree"
-;;   :added "2022-10-31"
-;;   :ensure t)
-
 (leaf which-key
   :doc "Display available keybindings in popup"
   :tag "builtin"
   :added "2025-01-16"
+  :blackout t
   ;; We configure it so that `which-key' is triggered by typing C-h
   ;; during a key sequence (the usual way to show bindings). See
   ;; <https://github.com/justbur/emacs-which-key#manual-activation>.
-  :custom ((which-key-idle-delay . 1)
-           (which-key-show-early-on-C-h . t)
-           (which-key-idle-delay . most-positive-fixnum)
-           (which-key-idle-secondary-delay . 1e-100))
-  :config
-  (add-to-list 'which-key-replacement-alist
-               '((nil . "\\`hydra-\\(.+\\)/body\\'") . (nil . "h/\\1")))
+  :custom (
+           (which-key-idle-delay . 2)
+           (which-key-idle-secondary-delay . 1e-100)
+           (which-key-max-display-columns . nil)
+           (which-key-show-docstrings . t)
+           ;; (which-key-show-early-on-C-h . t)
+           (which-key-sort-uppercase-first . nil)
+           (which-key-min-display-lines . 6)
+           (which-key-separator . " → ")
+           )
+  :custom
+  (which-key-sort-order . #'which-key-key-order-alpha)
 
-  (add-to-list 'which-key-replacement-alist
-               '((nil . "\\`hydra-\\(.+\\)/body\\'") . (nil . "h/\\1")))
-
-  (which-key-mode)
   :config
-  (leaf hercules
+  (message "**** Configure which-key")
+  (defun kb/add-hydra-which-key-replacement ()
+            (add-to-list 'which-key-replacement-alist
+                         '((nil . "\\`hydra-\\(.+\\)/body\\'") . (nil . "h/\\1"))))
+  :hook ((emacs-startup-hook . which-key-mode)
+         (which-key-mode-hook . kb/add-hydra-which-key-replacement)))
+
+(leaf hercules
     :doc "An auto-magical, which-key-based hydra banisher."
     :req "emacs-24.4" "which-key-3.3.2"
     :tag "convenience" "emacs>=24.4"
@@ -2707,17 +2489,22 @@ This function is based on work of David Wilson.
     :ensure t
     :after which-key)
 
-  (leaf which-key-posframe
-    :doc "Using posframe to show which-key"
-    :req "emacs-26.0" "posframe-1.4.0" "which-key-3.6.0"
-    :tag "tooltip" "bindings" "convenience" "emacs>=26.0"
-    :url "https://github.com/emacsorphanage/which-key-posframe"
-    :added "2025-01-16"
-    :emacs>= 26.0
-    :after posframe which-key
-    :ensure t
-    :custom (which-key-posframe-font . "Liberation Mono")
-    :config (which-key-posframe-mode)))
+(leaf which-key-posframe
+  :doc "Using posframe to show which-key"
+  :req "emacs-26.0" "posframe-1.4.0" "which-key-3.6.0"
+  :tag "tooltip" "bindings" "convenience" "emacs>=26.0"
+  :url "https://github.com/emacsorphanage/which-key-posframe"
+  :added "2025-01-16"
+  :emacs>= 26.0
+  :ensure t
+  :after which-key
+  :custom ((which-key-posframe-font . "Liberation Mono")
+           ;; (which-key-posframe-poshandler . #'posframe-poshandler-point-1)
+           (which-key-posframe-poshandler . #' posframe-poshandler-frame-top-center)
+           )
+  :config
+  (which-key-posframe-mode))
+
 (leaf ninja-mode
   :doc "Major mode for editing .ninja files."
   :req "emacs-24.3"
@@ -2774,10 +2561,10 @@ This function is based on work of David Wilson.
   :ensure t)
 
 (leaf protobuf-mode
+  :disabled t
   :doc "major mode for editing protocol buffers."
   :tag "languages" "protobuf" "google"
   :added "2022-10-31"
-  :disabled t
   :config
   (defconst kb/protobuf-style
     '("linux"
@@ -2785,47 +2572,8 @@ This function is based on work of David Wilson.
       (indent-tabs-mode . nil)))
   :hook (protobuf-mode-hook . (lambda () (c-add-style "kb/protobuf" kb/protobuf-style t)))
   )
-
-(leaf all-the-icons
-  :doc "A library for inserting Developer icons"
-  :req "emacs-24.3"
-  :tag "lisp" "convenient" "emacs>=24.3"
-  :url "https://github.com/domtronn/all-the-icons.el"
-  :added "2022-10-31"
-  :emacs>= 24.3
-  :ensure t
-  :config
-  (unless (file-exists-p (expand-file-name "~/.local/share/fonts/all-the-icons.ttf"))
-    (all-the-icons-install-fonts t))
-  (leaf all-the-icons-ibuffer
-    :doc "Display icons for all buffers in ibuffer"
-    :req "emacs-24.4" "all-the-icons-2.2.0"
-    :tag "ibuffer" "icons" "convenience" "emacs>=24.4"
-    :url "https://github.com/seagle0128/all-the-icons-ibuffer"
-    :added "2022-10-31"
-    :emacs>= 24.4
-    :ensure t
-    :hook ibuffer-mode-hook)
-  (leaf treemacs-all-the-icons
-    :doc "all-the-icons integration for treemacs"
-    :req "emacs-26.1" "all-the-icons-4.0.1" "treemacs-0.0"
-    :tag "emacs>=26.1"
-    :url "https://github.com/Alexander-Miller/treemacs"
-    :added "2022-10-31"
-    :emacs>= 26.1
-    :ensure t)
-  (leaf all-the-icons-completion
-    :doc "Add icons to completion candidates"
-    :req "emacs-26.1" "all-the-icons-5.0"
-    :tag "lisp" "convenient" "emacs>=26.1"
-    :url "https://github.com/iyefrat/all-the-icons-completion"
-    :added "2022-10-31"
-    :emacs>= 26.1
-    :ensure t
-    :hook (marginalia-mode-hook . all-the-icons-completion-marginalia-setup)
-    :init (all-the-icons-completion-mode))
-  )
 (leaf treemacs-icons-dired
+  :disabled t
   :doc "Treemacs icons for dired"
   :req "treemacs-0.0" "emacs-26.1"
   :tag "emacs>=26.1"
@@ -2833,7 +2581,8 @@ This function is based on work of David Wilson.
   :added "2022-10-31"
   :emacs>= 26.1
   :ensure t
-  :after treemacs)
+  :after treemacs
+  :hook (dired-mode-hook . treemacs-icons-dired-enable-once))
 
 (leaf hydra
   :doc "Make bindings that stick around."
@@ -2854,8 +2603,8 @@ This function is based on work of David Wilson.
 
   (defhydra hydra-switch-buffers
     (global-map "C-c s"
-	        :timeout 4
-	        :hint "Switch Buffers and windows")
+                :timeout 4
+                :hint "Switch Buffers and windows")
     "Buffers"
     ("n" next-multiframe-window "Next window" :group "HSB" :which-key "Next Window")
     ("p" previous-multiframe-window "Previous window" :group "HSB" :which-key "Prev Window")
@@ -2891,6 +2640,7 @@ This function is based on work of David Wilson.
          ("C-c k" . consult-kmacro)
          ("C-c m" . consult-man)
          ("C-c i" . consult-info)
+         ("C-c t" . consult-theme)
          ([remap Info-search] . consult-info)
          ;; C-x bindings in `ctl-x-map'
          ("C-x M-:" . consult-complex-command)     ;; orig. repeat-complex-command
@@ -2900,6 +2650,7 @@ This function is based on work of David Wilson.
          ("C-x t b" . consult-buffer-other-tab)    ;; orig. switch-to-buffer-other-tab
          ("C-x r b" . consult-bookmark)            ;; orig. bookmark-jump
          ("C-x p b" . consult-project-buffer)      ;; orig. project-switch-to-buffer
+         ("C-x p p" . consult-projectile)
          ;; Custom M-# bindings for fast register access
          ("M-#" . consult-register-load)
          ("M-'" . consult-register-store)          ;; orig. abbrev-prefix-mark (unrelated)
@@ -2945,7 +2696,7 @@ This function is based on work of David Wilson.
 
   ;; Enable automatic preview at point in the *Completions* buffer. This is
   ;; relevant when you use the default completion UI.
-  :hook (((completion-list-mode-hook embark-collect-mode-hook) . consult-preview-at-point-mode))
+  :hook ((completion-list-mode-hook . consult-preview-at-point-mode))
 
   :custom
   ;; Optionally configure the narrowing key.
@@ -2985,7 +2736,7 @@ This function is based on work of David Wilson.
    consult--source-recent-file consult--source-project-recent-file
    ;; :preview-key "M-."
    :preview-key '(:debounce 0.4 any))
-  )
+ )
 
 (leaf consult-projectile
   :doc "Consult integration for projectile"
@@ -2997,17 +2748,18 @@ This function is based on work of David Wilson.
   :ensure t
   :require t
   :after projectile
-  :bind (("C-c p p" . #'consult-projectile)
-         ([remap projectile-switch-project] . #'consult-projectile)
-         ([remap projectile-recentf] . #'consult-projectile-recentf)
-         ([remap projectile-find-file] . #'consult-projectile-find-file)
-         ([remap projectile-find-dir] . #'consult-projectile-find-dir)
-         ([remap projectile-switch-to-buffer] . #'consult-projectile-switch-to-buffer)
-         )
+  :hook (projectile-mode-hook . (lambda ()
+                                  (when projectile-mode
+                                    (define-key projectile-mode-map [remap projectile-switch-project] #'consult-projectile)
+                                    (define-key projectile-mode-map [remap projectile-recentf] #'consult-projectile-recentf)
+                                    (define-key projectile-mode-map [remap projectile-find-file] #'consult-projectile-find-file)
+                                    (define-key projectile-mode-map [remap projectile-find-dir] #'consult-projectile-find-dir)
+                                    (define-key projectile-mode-map [remap projectile-switch-to-buffer] #'consult-projectile-switch-to-buffer))))
   :config
   (setopt consult-projectile-sources
           (append '(consult-projectile--source-projectile-dir consult-projectile--source-projectile-recentf)
-                   consult-projectile-sources)))
+                  consult-projectile-sources)))
+
 (leaf consult-flycheck
   :doc "Provides the command `consult-flycheck'"
   :req "emacs-28.1" "consult-1.8" "flycheck-34"
@@ -3017,16 +2769,6 @@ This function is based on work of David Wilson.
   :emacs>= 28.1
   :ensure t
   :after consult flycheck)
-(leaf consult-company
-  :disabled t
-  :doc "Consult frontend for company"
-  :req "emacs-27.1" "company-0.9" "consult-0.9"
-  :tag "emacs>=27.1"
-  :url "https://github.com/mohkale/consult-company"
-  :added "2025-06-06"
-  :emacs>= 27.1
-  :ensure t
-  :after company consult)
 (leaf consult-dir
   :doc "Insert paths into the minibuffer prompt"
   :req "emacs-27.1" "consult-1.0"
@@ -3038,10 +2780,11 @@ This function is based on work of David Wilson.
   :after consult
   :bind (("C-x C-d" . #'consult-dir)
          (:minibuffer-local-completion-map ("C-x C-d" . #'consult-dir)
-				           ("C-x C-j" . #'consult-dir-jump-file))
+                                           ;; ("C-x C-j" . #'consult-dir-jump-file) ;; fails with (void-function consult--async-split-style)
+                                           )
          )
   :hook
-  ((projectile-mode-hook . (lambda (&rest _) (message "Run consult-dir hook") (setq consult-dir-project-list-function 'consult-dir-projectile-dirs)))))
+  ((projectile-mode-hook . (lambda (&rest _) (setq consult-dir-project-list-function 'consult-dir-projectile-dirs)))))
 (leaf consult-lsp
   :doc "LSP-mode Consult integration"
   :req "emacs-27.1" "lsp-mode-5.0" "consult-1.9" "f-0.20.0"
@@ -3075,7 +2818,6 @@ This function is based on work of David Wilson.
   :added "2025-06-10"
   :emacs>= 28.1
   :ensure t
-  :after compat
   :bind (:vertico-map
          ;; Option 1: Additional bindings
          ("?"        . #'minibuffer-completion-help)
@@ -3089,7 +2831,7 @@ This function is based on work of David Wilson.
          ;; Option 2: Replace `vertico-insert' to enable TAB prefix expansion.
          ;; (keymap-set vertico-map "TAB" #'minibuffer-complete)
          )
-  :hook after-init-hook
+  :hook emacs-startup-hook
   :custom ((vertico-cycle . t)
            (vertico-resize . t)
            (vertico-scroll-margin . 0)
@@ -3097,25 +2839,26 @@ This function is based on work of David Wilson.
 
 
   ;; do not consider case significant in completion (GNU Emacs default)
-  (setq completion-ignore-case t
-        read-file-name-completion-ignore-case t
-        read-buffer-completion-ignore-case t)
+  ;; (setq completion-ignore-case t
+  ;;       read-file-name-completion-ignore-case t
+  ;;       read-buffer-completion-ignore-case t)
   :config
-  (message "Configure vertico")
+  (message "**** Configure vertico")
   (vertico-mode)
   (vertico-mouse-mode +1)
-  (setq completion-in-region-function
-        (lambda (&rest args)
-          (apply (if vertico-mode
-#'consult-completion-in-region
-	           #'completion--in-region)
-	         args)))
+  ;; (setq completion-in-region-function
+  ;;       (lambda (&rest args)
+  ;;         (apply (if vertico-mode
+  ;;                    #'consult-completion-in-region
+  ;;                  #'completion--in-region)
+  ;;                args)))
 
   ;; Don't re-sort buffer candidates. The recency order is correct.
   ;; (vertico-multiform-mode +1)
-  (setq vertico-multiform-categories
-        '((buffer (vertico-sort-function . copy-sequence))))
+  ;; (setq vertico-multiform-categories
+  ;;       '((buffer (vertico-sort-function . copy-sequence))))
   )
+
 ;; Configure directory extension.
 (leaf vertico-directory
   :after vertico
@@ -3136,9 +2879,53 @@ This function is based on work of David Wilson.
   :added "2025-06-06"
   :emacs>= 26.0
   :ensure t
-  :after posframe vertico
+  :after vertico
   :config
-  (vertico-posframe-mode))
+  (message "**** Configure vertico-posframe")
+  (setq vertico-posframe-poshandler #'posframe-poshandler-point-top-left-corner)
+  (setq vertico-multiform-commands
+      '((consult-line
+         posframe
+         (vertico-posframe-poshandler . posframe-poshandler-frame-bottom-center)
+         (vertico-posframe-border-width . 5)
+         ;; NOTE: This is useful when emacs is used in both in X and
+         ;; terminal, for posframe do not work well in terminal, so
+         ;; vertico-buffer-mode will be used as fallback at the
+         ;; moment.
+         (vertico-posframe-fallback-mode . vertico-buffer-mode))
+        (consult-imenu
+         posframe
+         (vertico-posframe-poshandler . posframe-poshandler-frame-top-left-or-right-other-corner)
+         (vertico-posframe-border-width . 3)
+         (vertico-posframe-fallback-mode . vertico-buffer-mode))
+        (consult-buffer
+         posframe
+         (vertico-posframe-poshandler . posframe-poshandler-window-top-center)
+         (vertico-posframe-border-width . 1)
+         (vertico-posframe-fallback-mode . vertico-buffer-mode))
+        (consult-ripgrep
+         posframe
+         (vertico-posframe-poshandler . posframe-poshandler-window-top-center)
+         (vertico-posframe-border-width . 3)
+         (vertico-posframe-fallback-mode . vertico-buffer-mode))
+        (execute-extended-command
+         posframe
+         (vertico-posframe-poshandler . posframe-poshandler-frame-bottom-center)
+         (vertico-posframe-border-width . 7)
+         (vertico-posframe-fallback-mode . vertico-buffer-mode))
+        (lsp-find-references
+         posframe
+         (vertico-posframe-poshandler . posframe-poshandler-frame-top-right-corner)
+         (vertico-posframe-border-width . 4)
+         (vertico-posframe-fallback-mode . vertico-buffer-mode))
+        (t posframe)))
+  (setq vertico-posframe-parameters
+      '((left-fringe . 3)
+        (right-fringe . 3)))
+
+  (vertico-posframe-mode 1)
+  (vertico-multiform-mode 1)
+)
 
 (leaf orderless
   :doc "Completion style for matching regexps in any order"
@@ -3189,11 +2976,7 @@ This function is based on work of David Wilson.
           ("M-A" . marginalia-cycle)))
   ;; The :init configuration is always executed (Not lazy!)
   :custom (marginalia-align . 'right)
-  :init
-  ;; Must be in the :init section of use-package/leaf such that the
-  ;; mode gets enabled right away. Note that this forces loading the
-  ;; package
-  (marginalia-mode +1))
+  :hook emacs-startup-hook)
 
 (leaf embark
   :doc "Conveniently act on minibuffer completions"
@@ -3205,16 +2988,21 @@ This function is based on work of David Wilson.
   :ensure t
   :commands (embark-info-lookup-symbol embark-save-unicode-character)
   :after compat
-  :require t
   :bind (("C-." . embark-act)         ;; pick some comfortable binding
          ;; ("C-;" . embark-dwim)        ;; good alternative: M-.
          ("M-." . embark-dwim)        ;; good alternative: M-.
          ("C-h B" . embark-bindings)  ;; alternative for `describe-bindings'
          ("<f2> i" . #'embark-info-lookup-symbol)
-         ("<f2> u" . #'embark-save-unicode-character))
+         ("<f2> u" . #'embark-save-unicode-character)
+         )
   :custom
   ;; Optionally replace the key help with a completing-read interface
   (prefix-help-command . #'embark-prefix-help-command)
+  (embark-indicators
+   '(embark-highlight-indicator
+     embark-isearch-highlight-indicator
+     embark-minimal-indicator))
+  (embark-prompter . 'embark-completing-read-prompter)
 
   ;; Show the Embark target at point via Eldoc. You may adjust the
   ;; Eldoc strategy, if you want to see the documentation from
@@ -3229,11 +3017,22 @@ This function is based on work of David Wilson.
   (message "Configure embark")
   ;; Hide the mode line of the Embark live/completions buffers
   (add-to-list 'display-buffer-alist
-	       '("\\`\\*Embark Collect \\(Live\\|Completions\\)\\*"
-	         nil
-	         (window-parameters (mode-line-format . none)))))
+               '("\\`\\*Embark Collect \\(Live\\|Completions\\)\\*"
+                 nil
+                 (window-parameters (mode-line-format . none))))
+  (keymap-set minibuffer-local-map "M-." 'kb/embark-preview)
+  (defun kb/embark-preview ()
+    "Previews candidate in vertico buffer, unless it's a consult command
 
-;; Consult users will also want the embark-consult package.
+taken from: https://github.com/Gavinok/emacs.d.git"
+    (interactive)
+    (unless (bound-and-true-p consult--preview-function)
+      (save-selected-window
+        (let ((embark-quit-after-action nil))
+          (embark-dwim)))))
+  )
+
+
 (leaf embark-consult
   :doc "Consult integration for Embark"
   :req "emacs-28.1" "compat-30" "embark-1.1" "consult-1.8"
@@ -3241,9 +3040,19 @@ This function is based on work of David Wilson.
   :url "https://github.com/oantolin/embark"
   :added "2025-06-06"
   :emacs>= 28.1
-  :after compat embark consult
+  :after embark consult
   :ensure t ; only need to install it, embark loads it after consult if found
   :hook (embark-collect-mode-hook . consult-preview-at-point-mode))
+(leaf embark-vc
+  :doc "Embark actions for various version control integrations"
+  :req "emacs-27.1" "embark-0.21.1" "forge-0.3" "compat-29.1.3.0"
+  :tag "vc" "unix" "tools" "terminals" "matching" "convenience" "emacs>=27.1"
+  :url "https://github.com/elken/embark-vc"
+  :added "2025-06-22"
+  :emacs>= 27.1
+  :after embark
+  :ensure t
+  :require t)
 
 ;; (leaf completion-preview
 ;;   :doc "Preview completion with inline overlay"
@@ -3261,28 +3070,24 @@ This function is based on work of David Wilson.
   :emacs>= 25.1
   :ensure t
   :custom
-  (completion-preview-sort-function . #'prescient-completion-sort)
+  ((completion-preview-sort-function . #'prescient-completion-sort)
+   ;; The default settings seem a little forgetful to me. Let's try
+   ;; this out.
+   (prescient-history-length . 1000)
+   (prescient-sort-full-matches-first . t))
   :after prescient
   :config
-  (message "Enable prescient-persist-mode")
-  (prescient-persist-mode)
-  ;; The default settings seem a little forgetful to me. Let's try
-  ;; this out.
-  (setq prescient-history-length 1000)
-  ;; Common sense.
-  (setq prescient-sort-full-matches-first t))
+  (prescient-persist-mode))
 
 (leaf vertico-prescient
   :ensure t
   :after vertico
   :config
-  (message "Configure vertico-perscient")
   (vertico-prescient-mode))
 (leaf corfu-prescient
   :ensure t
   :after corfu
   :config
-  (message "Configure corfu-perscient")
   (corfu-prescient-mode))
 
 (leaf corfu
@@ -3306,7 +3111,7 @@ This function is based on work of David Wilson.
   (corfu-auto-prefix . 2)
   (corfu-auto-delay . 0.1)
   (corfu-echo-delay . 0.25)
-  (corfu-popupinfo-delay . '(0.5 . 0.2))
+
   ;; Enable Corfu only for certain modes. See also `global-corfu-modes'.
   ;; :hook ((prog-mode . corfu-mode)
   ;;        (shell-mode . corfu-mode)
@@ -3315,7 +3120,7 @@ This function is based on work of David Wilson.
                                               corfu-quit-no-match t
                                               corfu-auto nil)
                               (corfu-mode)))
-  :bind (:corfu-map
+  :bind ((:corfu-map
          ("M-SPC" . corfu-insert-separator)
          ("RET" . nil) ; Leave my enter alone!
          ("TAB" . corfu-next)
@@ -3323,7 +3128,7 @@ This function is based on work of David Wilson.
          ([backtab] . corfu-previous)
          ("M-RET" . corfu-insert)
          ("S-RET" . corfu-insert)
-         ("C-RET" . corfu-insert))
+         ("C-RET" . corfu-insert)))
   :init
   ;; Recommended: Enable Corfu globally.  Recommended since many modes provide
   ;; Capfs and Dabbrev can be used globally (M-/).  See also the customization
@@ -3332,8 +3137,31 @@ This function is based on work of David Wilson.
 
   ;; Enable optional extension modes:
   (corfu-history-mode)
-  (corfu-popupinfo-mode)
   (corfu-echo-mode -1))
+
+(leaf corfu-popupinfo
+  :after corfu
+  :hook (corfu-mode-hook . corfu-popupinfo-mode)
+  :custom
+  (corfu-popupinfo-delay . '(0.25 . 0.1))
+  (corfu-popupinfo-hide . nil)
+  :config
+  (corfu-popupinfo-mode)
+  )
+
+
+(leaf corfu-terminal
+  :doc "Corfu popup on terminal"
+  :req "emacs-26.1" "corfu-0.36" "popon-0.13"
+  :tag "convenience" "emacs>=26.1"
+  :url "https://codeberg.org/akib/emacs-corfu-terminal"
+  :added "2025-06-26"
+  :emacs>= 26.1
+  :unless (display-graphic-p)
+  :ensure t
+  :after corfu popon
+  :config
+  (corfu-terminal-mode))
 
 (leaf envrc
   :doc "Support for `direnv' that operates buffer-locally"
@@ -3348,7 +3176,6 @@ This function is based on work of David Wilson.
   (envrc-global-mode))
 
 (leaf cape
-  :disabled t
   :doc "Completion At Point Extensions"
   :req "emacs-28.1" "compat-30"
   :tag "text" "completion" "matching" "convenience" "abbrev" "emacs>=28.1"
@@ -3364,19 +3191,37 @@ This function is based on work of David Wilson.
   ;;   (add-hook 'completion-at-point-functions 'cape-history)
   ;;   (add-hook 'completion-at-point-functions 'pcomplete-completions-at-point))
   ;; (add-hook 'shell-mode-hook #'kb/add-shell-completion nil t)
+  :bind (("C-c a" . cape-prefix-map)
+         ("C-c f" . cape-file))
+  :init
+  (add-to-list 'completion-at-point-functions #'cape-dabbrev t)
+  (add-to-list 'completion-at-point-functions #'cape-file t)
 
   :config
-  (message "Configure cape")
-  ;; (add-hook 'completion-at-point-functions #'cape-dabbrev)
-  ;; (add-hook 'completion-at-point-functions #'cape-file)
-  (add-hook 'completion-at-point-functions #'cape-emoji)
+  ;; (add-hook 'completion-at-point-functions #'cape-dabbrev 50 t)
+  ;; (add-hook 'completion-at-point-functions #'cape-file 50 t)
+  ;; (add-hook 'completion-at-point-functions #'cape-emoji 50 t)
   ;; (add-hook 'completion-at-point-functions #'cape-elisp-block)
+
+  ;; (defun my-cape-dabbrev-accept-all ()
+  ;;   (cape-wrap-accept-all #'cape-dabbrev))
+  ;; (add-hook 'completion-at-point-functions #'my-cape-dabbrev-accept-all)
 
   ;; (add-to-list 'completion-at-point-functions #'cape-file t)
   ;; ;; Nice completion to have available everywhere
   ;; (add-to-list 'completion-at-point-functions #'cape-dabbrev t)
   ;; (add-to-list 'completion-at-point-functions #'cape-emoji t)
 
+  ;; Example 6: Define interactive Capf which can be bound to a key.  Here we wrap
+  ;; the `elisp-completion-at-point' such that we can complete Elisp code
+  ;; explicitly in arbitrary buffers.
+  (keymap-global-set "C-c a e" (cape-capf-interactive #'elisp-completion-at-point))
+
+  ;; (defun ignore-elisp-keywords (sym)
+  ;;   (not (keywordp sym)))
+  ;; (setq-local completion-at-point-functions
+  ;;             (list (cape-capf-predicate #'elisp-completion-at-point
+  ;;                                        #'ignore-elisp-keywords)))
   (when (< emacs-major-version 29)
     ;; Silence then pcomplete capf, no errors or messages!
     (advice-add 'pcomplete-completions-at-point :around #'cape-wrap-silent)
@@ -3483,36 +3328,6 @@ This function is based on work of David Wilson.
   :emacs>= 24.4
   :ensure t)
 
-(leaf windower
-  :disabled t
-  :ensure t
-  :bind (("<s-M-left>" . windower-move-border-left)
-         ("<s-M-right>" . windower-move-border-right)
-         ("<s-M-down>" . windower-move-border-below)
-         ("<s-M-up>" . windower-move-border-above)
-         ("<s-M-tab>" . windower-switch-to-last-buffer)
-         ("<s-S-o>" . windower-toggle-single)
-         ("s-\\" . windower-toggle-split)
-         ))
-
-(unless (executable-find "cargo") (warn "Cargo Rust package manager not found"))
-(leaf fuz
-  ;; not working with emacs from ubuntu/snap
-  :disabled t
-  :doc "Fast and precise fuzzy scoring/matching utils"
-  :req "emacs-25.1"
-  :tag "lisp" "emacs>=25.1"
-  :url "https://github.com/cireu/fuz.el"
-  :added "2025-01-17"
-  :emacs>= 25.1
-  :ensure t
-  :when (executable-find "cargo")
-  :require fuz
-  :config
-  (unless (require 'fuz-core nil t)
-    (fuz-build-and-load-dymod))
-  )
-
 (leaf smart-compile
   :doc "An interface to `compile'"
   :tag "unix" "tools"
@@ -3527,6 +3342,16 @@ This function is based on work of David Wilson.
   :added "2025-01-17"
   :ensure t
   :bind ("C-x 1" . zygospore-toggle-delete-other-windows))
+
+
+(leaf wgrep
+  :doc "Writable grep buffer."
+  :req "emacs-25.1"
+  :tag "extensions" "edit" "grep" "emacs>=25.1"
+  :url "http://github.com/mhayashi1120/Emacs-wgrep/raw/master/wgrep.el"
+  :added "2025-06-22"
+  :emacs>= 25.1
+  :ensure t)
 
 ;; Use silversearcher-ag if available.
 (unless (executable-find "ag") (warn "Command: silversearcher-ag not found"))
@@ -3669,8 +3494,8 @@ This function is based on work of David Wilson.
   :emacs>= 25.1
   :after lsp-mode python
   :hook (python-mode-hook . (lambda ()
-		              (require 'lsp-python-ms)
-		              (lsp)))
+                              (require 'lsp-python-ms)
+                              (lsp)))
   :custom ((lsp-python-ms-auto-install-server . t))
   )
 
@@ -3765,15 +3590,15 @@ This function is based on work of David Wilson.
   "Show git reflog in a new buffer with ANSI colors and custom keybindings."
   (interactive)
   (let* ((root (vc-root-dir))
-	 (buffer (get-buffer-create "*vc-git-reflog*")))
+         (buffer (get-buffer-create "*vc-git-reflog*")))
     (with-current-buffer buffer
       (setq-local vc-git-reflog-root root)
       (let ((inhibit-read-only t))
         (erase-buffer)
         (vc-git-command buffer nil nil
-			"reflog"
-			"--color=always"
-			"--pretty=format:%C(yellow)%h%Creset %C(auto)%d%Creset %Cgreen%gd%Creset %s %Cblue(%cr)%Creset")
+                        "reflog"
+                        "--color=always"
+                        "--pretty=format:%C(yellow)%h%Creset %C(auto)%d%Creset %Cgreen%gd%Creset %s %Cblue(%cr)%Creset")
         (goto-char (point-min))
         (ansi-color-apply-on-region (point-min) (point-max)))
 
@@ -3798,21 +3623,21 @@ If CURRENT-LINE is non-nil, point to the current branch, file, and line.
 Otherwise, open the repository's main page."
   (interactive "P")
   (let* ((remote-url (string-trim (vc-git--run-command-string nil "config" "--get" "remote.origin.url")))
-	 (branch (string-trim (vc-git--run-command-string nil "rev-parse" "--abbrev-ref" "HEAD")))
-	 (file (string-trim (file-relative-name (buffer-file-name) (vc-root-dir))))
-	 (line (line-number-at-pos)))
+         (branch (string-trim (vc-git--run-command-string nil "rev-parse" "--abbrev-ref" "HEAD")))
+         (file (string-trim (file-relative-name (buffer-file-name) (vc-root-dir))))
+         (line (line-number-at-pos)))
     (message "Opening remote on browser: %s" remote-url)
     (if (and remote-url (string-match "\\(?:git@\\|https://\\)\\([^:/]+\\)[:/]\\(.+?\\)\\(?:\\.git\\)?$" remote-url))
-	(let ((host (match-string 1 remote-url))
-	      (path (match-string 2 remote-url)))
-	  ;; Convert SSH URLs to HTTPS (e.g., git@github.com:user/repo.git -> https://github.com/user/repo)
-	  (when (string-prefix-p "git@" host)
-	    (setq host (replace-regexp-in-string "^git@" "" host)))
-	  ;; Construct the appropriate URL based on CURRENT-LINE
-	  (browse-url
-	   (if current-line
-	       (format "https://%s/%s/blob/%s/%s#L%d" host path branch file line)
-	     (format "https://%s/%s" host path))))
+        (let ((host (match-string 1 remote-url))
+              (path (match-string 2 remote-url)))
+          ;; Convert SSH URLs to HTTPS (e.g., git@github.com:user/repo.git -> https://github.com/user/repo)
+          (when (string-prefix-p "git@" host)
+            (setq host (replace-regexp-in-string "^git@" "" host)))
+          ;; Construct the appropriate URL based on CURRENT-LINE
+          (browse-url
+           (if current-line
+               (format "https://%s/%s/blob/%s/%s#L%d" host path branch file line)
+             (format "https://%s/%s" host path))))
       (message "Could not determine repository URL"))))
 
 (global-set-key (kbd "C-x v B") 'emacs-solo/vc-browse-remote)
@@ -3826,20 +3651,20 @@ Otherwise, open the repository's main page."
     (with-current-buffer "*vc-diff*"
       (goto-char (point-min))
       (let ((found-hunk nil))
-	(while (and (not found-hunk)
-		    (re-search-forward "^@@ -\\([0-9]+\\), *[0-9]+ \\+\\([0-9]+\\), *\\([0-9]+\\) @@" nil t))
-	  (let* ((start-line (string-to-number (match-string 2)))
-		 (line-count (string-to-number (match-string 3)))
-		 (end-line (+ start-line line-count)))
-	    (message "Found hunk: %d to %d" start-line end-line)
-	    (when (and (>= current-line start-line)
-		       (<= current-line end-line))
-	      (message "Current line %d is within hunk range %d to %d" current-line start-line end-line)
-	      (setq found-hunk t)
-	      (goto-char (match-beginning 0)))))
-	(unless found-hunk
-	  (message "Current line %d is not within any hunk range." current-line)
-	  (goto-char (point-min)))))))
+        (while (and (not found-hunk)
+                    (re-search-forward "^@@ -\\([0-9]+\\), *[0-9]+ \\+\\([0-9]+\\), *\\([0-9]+\\) @@" nil t))
+          (let* ((start-line (string-to-number (match-string 2)))
+                 (line-count (string-to-number (match-string 3)))
+                 (end-line (+ start-line line-count)))
+            (message "Found hunk: %d to %d" start-line end-line)
+            (when (and (>= current-line start-line)
+                       (<= current-line end-line))
+              (message "Current line %d is within hunk range %d to %d" current-line start-line end-line)
+              (setq found-hunk t)
+              (goto-char (match-beginning 0)))))
+        (unless found-hunk
+          (message "Current line %d is not within any hunk range." current-line)
+          (goto-char (point-min)))))))
 
 (global-set-key (kbd "C-x v =") 'emacs-solo/vc-diff-on-current-hunk)
 ;;=====================================================================
@@ -3877,11 +3702,29 @@ Otherwise, open the repository's main page."
   :added "2025-01-27"
   :emacs>= 25.1
   :ensure t
-  :after tsc
   :hook (tree-sitter-after-on-hook . tree-sitter-hl-mode)
+  :preface (defun kb/dd ()
+             (with-current-buffer tree-sitter-debug--tree-buffer
+               (highlight-indent-guides-mode 1)))
+  :advice (:after tree-sitter-debug--setup kb/dd )
+  :init
+  (setq tree-sitter-debug-jump-buttons  t
+        tree-sitter-debug-highlight-jump-region t)
+
   :config
   (global-tree-sitter-mode)
+  ;; (advice-add 'tree-sitter-debug--setup :after #'kb/dd)
   )
+
+(leaf tree-sitter-indent
+  :doc "Provide indentation with a Tree-sitter backend"
+  :req "emacs-26.1" "tree-sitter-0.12.1" "seq-2.20"
+  :tag "internal" "convenience" "emacs>=26.1"
+  :url "https://codeberg.org/FelipeLema/tree-sitter-indent.el"
+  :added "2025-06-22"
+  :emacs>= 26.1
+  :ensure t
+  :after tree-sitter)
 (leaf tree-sitter-langs
   :doc "Grammar bundle for tree-sitter"
   :req "emacs-25.1" "tree-sitter-0.15.0"
@@ -3890,8 +3733,8 @@ Otherwise, open the repository's main page."
   :added "2025-01-27"
   :emacs>= 25.1
   :ensure t
-  :after tree-sitter
-  :require t)
+  :hook (tree-sitter-after-on . tree-sitter-hl-mode)
+  )
 (leaf tree-sitter-ispell
   :doc "Run ispell on tree-sitter text nodes"
   :req "emacs-26.1" "tree-sitter-0.15.0"
@@ -3912,6 +3755,15 @@ Otherwise, open the repository's main page."
   :emacs>= 24.3
   :ensure t)
 
+(leaf git-link
+  :doc "Get the GitHub/Bitbucket/GitLab URL for a buffer location"
+  :req "emacs-24.3"
+  :tag "convenience" "azure" "aws" "sourcehut" "gitlab" "bitbucket" "github" "vc" "git" "emacs>=24.3"
+  :url "http://github.com/sshaw/git-link"
+  :added "2025-07-01"
+  :emacs>= 24.3
+  :ensure t)
+
 (leaf transient-posframe
   :doc "Using posframe to show transient"
   :req "emacs-26.0" "posframe-0.4.3" "transient-0.2.0"
@@ -3925,7 +3777,6 @@ Otherwise, open the repository's main page."
   ;; (customize-set-value 'transient-posframe-border-width 1 "customized by me")
   ;; (customize-set-value 'transient-posframe-min-height 100 "customized by me")
   ;; (customize-set-value 'transient-posframe-min-width 100 "customized by me")
-
   )
 
 ;; (leaf ghub
@@ -3959,6 +3810,7 @@ Otherwise, open the repository's main page."
 
 
 (leaf puni
+  :disabled t
   :doc "Parentheses Universalistic"
   :req "emacs-26.1"
   :tag "tools" "lisp" "convenience" "emacs>=26.1"
@@ -4178,25 +4030,6 @@ Simon Hawkin <cema@cs.umd.edu> 03/14/1998"
   (when (executable-find "xdot")
     (customize-set-variable 'graphviz-dot-view-command "xdot %s")))
 
-(leaf d2-mode
-  :disabled t
-  :doc "Major mode for working with d2 graphs"
-  :req "emacs-26.1"
-  :tag "processes" "tools" "graphs" "d2" "emacs>=26.1"
-  :url "https://github.com/andorsk/d2-mode"
-  :added "2022-12-13"
-  :when (executable-find "d2")
-  :emacs>= 26.1
-  :ensure t
-  :mode ("\\.d2\\'")
-
-  ;; ================ TALA rendering engine installation ===============
-  ;; With --dry-run the install script will print the commands it will use
-  ;; to install without actually installing so you know what it's going to do.
-  ;; curl -fsSL https://d2lang.com/install.sh | sh -s -- --tala --dry-run
-  ;; If things look good, install for real.
-  )
-
 (leaf yasnippet
   :doc "Yet another snippet extension for Emacs"
   :req "cl-lib-0.5"
@@ -4249,16 +4082,16 @@ Simon Hawkin <cema@cs.umd.edu> 03/14/1998"
 ;;  _e_xtra   _l_ist         _n_ew
 ;;   _a_ll
 ;;  "
-;;  	            ("d" yas-load-directory)
-;;  	            ("e" yas-activate-extra-mode)
-;;  	            ("i" yas-insert-snippet)
-;;  	            ("f" yas-visit-snippet-file :color blue)
-;;  	            ("n" yas-new-snippet)
-;;  	            ("t" yas-tryout-snippet)
-;;  	            ("l" yas-describe-tables)
-;;  	            ("g" yas/global-mode)
-;;  	            ("m" yas/minor-mode)
-;;  	            ("a" yas-reload-all))
+;;                  ("d" yas-load-directory)
+;;                  ("e" yas-activate-extra-mode)
+;;                  ("i" yas-insert-snippet)
+;;                  ("f" yas-visit-snippet-file :color blue)
+;;                  ("n" yas-new-snippet)
+;;                  ("t" yas-tryout-snippet)
+;;                  ("l" yas-describe-tables)
+;;                  ("g" yas/global-mode)
+;;                  ("m" yas/minor-mode)
+;;                  ("a" yas-reload-all))
 ;;    :config
   (leaf yasnippet-snippets
     :doc "Collection of yasnippet snippets"
@@ -4295,18 +4128,18 @@ Download and put appropriate file there."
   :custom ((plantuml-jar-path . kb/plantuml-jar-path)
            (plantuml-default-exec-mode . 'jar)
            (plantuml-indent-level . 4)
-           (org-plantuml-jar-path . kb/plantuml-jar-path)
-           )
+           (org-plantuml-jar-path . kb/plantuml-jar-path))
   :hook (plantuml-mode-hook . (lambda ()
-			        (set-fill-column 100)
-			        (display-fill-column-indicator-mode)
-			        ))
+                                (set-fill-column 100)
+                                (display-fill-column-indicator-mode)
+                                (add-to-list 'org-babel-load-languages '((plantuml . t)))
+                                (org-babel-do-load-languages 'org-babel-load-languages '((plantuml . t)))
+                                ))
   :bind (:plantuml-mode-map
          ("C-c C-p" . plantuml-preview-buffer))
   :config
+  (message "**** Configure plantuml-mode")
   (plantuml-set-output-type "svg")
-  (add-to-list 'org-babel-load-languages '((plantuml . t)))
-  (org-babel-do-load-languages 'org-babel-load-languages '((plantuml . t)))
   (if (not (file-exists-p kb/plantuml-jar-path))
       (warn (format "PlantUML JAR (%s) not found. Download by running '(plantuml-download-jar) function." kb/plantuml-jar-path))
     )
@@ -4324,6 +4157,21 @@ Download and put appropriate file there."
     )
   )
 
+(leaf json-snatcher
+  :doc "Grabs the path to JSON values in a JSON file"
+  :req "emacs-24"
+  :tag "emacs>=24"
+  :url "http://github.com/sterlingg/json-snatcher"
+  :added "2025-01-27"
+  :emacs>= 24
+  :ensure t
+  :config
+  (defun js-mode-bindings ()
+    "Sets a hotkey for using the json-snatcher plugin."
+    (when (string-match  "\\.json$" (buffer-name))
+      (local-set-key (kbd "C-c C-g") 'jsons-print-path)))
+  :hook
+  ((js-mode-hook js2-mode-hook) . js-mode-bindings))
 (leaf json-mode
   :doc "Major mode for editing JSON files."
   :req "json-snatcher-1.0.0" "emacs-24.4"
@@ -4333,23 +4181,8 @@ Download and put appropriate file there."
   :emacs>= 24.4
   :ensure t
   :after json-snatcher
-  :config
-  (leaf json-snatcher
-    :doc "Grabs the path to JSON values in a JSON file"
-    :req "emacs-24"
-    :tag "emacs>=24"
-    :url "http://github.com/sterlingg/json-snatcher"
-    :added "2025-01-27"
-    :emacs>= 24
-    :ensure t
-    :config
-    (defun js-mode-bindings ()
-      "Sets a hotkey for using the json-snatcher plugin."
-      (when (string-match  "\\.json$" (buffer-name))
-        (local-set-key (kbd "C-c C-g") 'jsons-print-path)))
-    :hook
-    ((js-mode-hook js2-mode-hook) . js-mode-bindings)
-    ))
+  ;; :config
+  )
 
 (defun kb/nxml-where ()
   "Display the hierarchy of XML elements the point is on as a path."
@@ -4370,8 +4203,6 @@ Download and put appropriate file there."
           (format "/%s" (mapconcat 'identity path "/")))))))
 
 (leaf nxml-mode
-  :disabled t
-  :ensure t
   :doc "a new XML mode"
   :tag "builtin" "xml" "languages" "hypermedia" "wp"
   :added "2023-08-30"
@@ -4380,7 +4211,7 @@ Download and put appropriate file there."
     (when (derived-mode-p 'nxml-mode)
       (which-function-mode t)
       (setq which-func-mode t)
-      (add-hook 'which-func-functions 'nxml-where t t)))
+      (add-hook 'which-func-functions 'kb/nxml-where t t)))
 
   (add-hook 'find-file-hook 'xml-find-file-hook t))
 
@@ -4447,10 +4278,9 @@ Download and put appropriate file there."
 
 (require 'auth-source)
 (setopt auth-sources '("~/.emacs.d/secrets/.authinfo.gpg" "~/.authinfo.gpg" "~/.authinfo" "~/.netrc"
-	               (:source
-		        (:secrets default))
-	               "secrets:session" "secrets:Login" default))
-
+                       (:source
+                        (:secrets default))
+                       "secrets:session" "secrets:Login" default))
 
 (leaf gptai
   :disabled t
@@ -4563,5 +4393,5 @@ Download and put appropriate file there."
   :emacs>= 24.3
   :ensure t)
 
-(message "Init finished")
+(message "** Init finished")
 ;;; init.el ends here

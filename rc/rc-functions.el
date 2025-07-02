@@ -1,4 +1,4 @@
-;;; rc-functions.el --- Useful functions
+;;; rc-functions.el --- Useful functions  -*- lexical-binding: t; -*-
 ;;; Commentary:
 ;;; Various useful function used during Emacs startup and runtime
 
@@ -62,8 +62,9 @@ If point reaches the beginning or end of the buffer, stop there."
 ;;      (list (line-beginning-position)
 ;;            (line-beginning-position 2)))))
 
-(defadvice kill-line (before check-position activate)
+(defun kb/check-position ()
   "Kill whole line.
+
 Include whitespace characters until next non-whiepsace character of next line."
   (if (member major-mode
               '(emacs-lisp-mode scheme-mode lisp-mode
@@ -73,6 +74,9 @@ Include whitespace characters until next non-whiepsace character of next line."
           (progn (forward-char 1)
                  (just-one-space 0)
                  (backward-char 1)))))
+
+;; (advice-add 'kill-line :before 'kb/check-position)
+;; (advice-remove 'kill-line 'kb/check-position)
 
 ;; ;; taken from prelude-editor.el
 ;; ;; automatically indenting yanked text if in programming-modes
@@ -198,8 +202,8 @@ Example: angle brackets.  Add the following to your .emacs file:
 You can set hot keys to perform matching with one keystroke.
 Example: f6 and Control-C 6.
 
-	(global-set-key \"\\C-c6\" 'match-parenthesis)
-	(global-set-key [f6] 'match-parenthesis)
+	(global-set-key \"\\C-c6\" #\='match-parenthesis)
+	(global-set-key [f6] #\='match-parenthesis)
 
 Simon Hawkin <cema@cs.umd.edu> 03/14/1998"
   (interactive "p")
@@ -281,35 +285,17 @@ line endings will be converted according to EOL-TYPE.
  surely saves the buffer with EOL-TYPE.  From a program, if you don't want
  to mark the buffer modified, use `coding-system-change-eol-conversion'
  directly [weikart]."
-  (interactive "SEOL type for visited file (unix, dos, or mac): ")
+  (interactive (list (completing-read "SEOL type for visited file (unix, dos, or mac): " '("unix" "dos" "mac"))))
   (setq buffer-file-coding-system (coding-system-change-eol-conversion
                                    buffer-file-coding-system eol-type))
   (set-buffer-modified-p t)
   (force-mode-line-update))
 
-(defun set-buffer-eol-unix ()
-  "Set current buffer EOL type to unix."
-  (interactive)
-  (set-buffer-file-eol-type 'unix)
-  )
-
-(defun set-buffer-eol-dos ()
-  "Set current buffer EOL type to DOS."
-  (interactive)
-  (set-buffer-file-eol-type 'dos)
-  )
-
-(defun set-buffer-eol-mac ()
-  "Set current buffer EOL type to MAC."
-  (interactive)
-  (set-buffer-file-eol-type 'mac)
-  )
-
 ;; Make the mode-line display the standard EOL-TYPE symbols (used above)...
-(setq eol-mnemonic-undecided "(?)" ;; unknown EOL type
-      eol-mnemonic-unix  "(unix)" ;; LF
-      eol-mnemonic-dos  "(dos)" ;; CRLF
-      eol-mnemonic-mac  "(mac)") ;; CR
+;; (setq eol-mnemonic-undecided "(?)" ;; unknown EOL type
+;;       eol-mnemonic-unix  "(unix)" ;; LF
+;;       eol-mnemonic-dos  "(dos)" ;; CRLF
+;;       eol-mnemonic-mac  "(mac)") ;; CR
 
 (when (not (fboundp 'kill-whole-line))
   (progn
@@ -377,4 +363,3 @@ See: URL `http://en.wikipedia.org/wiki/ISO_8601'"
 (provide 'rc-functions)
 
 ;;; rc-functions.el ends here
-

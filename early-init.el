@@ -48,5 +48,8 @@
 (setq-default custom-file (concat user-emacs-directory "custom.el"))
 (when (file-exists-p custom-file) (load custom-file))
 
+;; (setq package-enable-at-startup nil  ; To avoid initializing twice
+;;       package-check-signature nil)
+
 (provide 'early-init)
 ;;; early-init.el ends here

@@ -1,4 +1,4 @@
-;;; package --- kb-secrets
+;;; package --- kb-secrets  -*- lexical-binding: t; -*-
 ;;; Commentary:
 ;;; put secrets here and never commit
 ;;; (secrets-create-item "default" "SOME SECRET ID" "SECRET" :user "USER" :host "HOST")
