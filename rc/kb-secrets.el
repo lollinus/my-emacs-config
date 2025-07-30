@@ -22,7 +22,7 @@
 (defvar kb-secret-collection "default")
 
 ;; (defconst SECRET_NAME "MY_PRECIOUS")
-;; (kb-remove-secret-by-name "SECRET_NAME")
+;; (kb-remove-secret-by-name SECRET_NAME)
 ;; (defvar kb-secret-path (secrets-item-path kb-secret-collection SECRET_NAME))
 ;; (secrets-get-secret kb-secret-collection kb-secret-path)
 ;; (secrets-delete-item kb-secret-collection kb-secret-path)
