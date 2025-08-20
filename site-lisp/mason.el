@@ -158,9 +158,9 @@ PACKAGE should be a string containing the name of the package"
   ;; TODO ensure we exchange string to the proper type of a server later
   (cl-assert (list-of-strings-p extra-args) "%s is not a list of strings. The list should be a list of arguments passed to cargo")
   (cl-assert (stringp package) "%s is not a string corresponding to a registered server")
-  (if-let ((cargo (executable-find "cargo"))
-	   (proc-name (concat "mason-installing-" package))
-	   (buf-name (upcase (concat "*" proc-name "*"))))
+  (if-let* ((cargo (executable-find "cargo"))
+	    (proc-name (concat "mason-installing-" package))
+	    (buf-name (upcase (concat "*" proc-name "*"))))
       (progn
 	(unless (file-exists-p mason--cargo-dir)
 	  (make-directory mason--cargo-dir 'parents))
@@ -184,9 +184,9 @@ PACKAGE should be a string containing the name of the package"
 PACKAGE is expected to be a string containing the package being installed."
   ;; TODO ensure we exchange string to the proper type of a server later
   (cl-assert (stringp package) "%s is not a string corresponding to a registered server")
-  (if-let ((npm (executable-find "npm"))
-	   (proc-name (concat "mason-installing-" package))
-	   (buf-name (upcase (concat "*" proc-name "*"))))
+  (if-let* ((npm (executable-find "npm"))
+	    (proc-name (concat "mason-installing-" package))
+	    (buf-name (upcase (concat "*" proc-name "*"))))
       (progn
 	(unless (file-exists-p mason--npm-dir)
 	  (make-directory mason--npm-dir 'parents))
@@ -209,9 +209,9 @@ PACKAGE is expected to be a string containing the package being installed."
 
 PACKAGE is expected to be a string containing the package being installed."
   (cl-assert (stringp package) "%s is not a string corresponding to a registered server")
-  (if-let ((python (executable-find "python"))
-           (proc-name (concat "mason-installing-" package))
-           (buf-name (upcase (concat "*" proc-name "*"))))
+  (if-let* ((python (executable-find "python"))
+            (proc-name (concat "mason-installing-" package))
+            (buf-name (upcase (concat "*" proc-name "*"))))
       (progn
         (unless (file-exists-p mason--pip-dir)
           (make-directory mason--pip-dir 'parents))
@@ -252,9 +252,9 @@ BUF-NAME is the name of the buffer associated with this process"
 
 PACKAGE is expected to be a string containing the package being installed."
   (cl-assert (stringp package) "%s is not a string corresponding to a registered server")
-  (if-let ((go (executable-find "go"))
-           (proc-name (concat "mason-installing-" package))
-           (buf-name (upcase (concat "*" proc-name "*"))))
+  (if-let* ((go (executable-find "go"))
+            (proc-name (concat "mason-installing-" package))
+            (buf-name (upcase (concat "*" proc-name "*"))))
       (progn
         (unless (file-exists-p mason--go-dir)
           (make-directory mason--go-dir 'parents))

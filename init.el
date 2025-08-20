@@ -277,6 +277,12 @@ By default is subdirectory of `user-emacs-directory'.")
 (leaf delsel :hook (emacs-startup-hook .  delete-selection-mode))
 (leaf goto-addr :hook (emacs-startup-hook . global-goto-address-mode))
 (leaf mb-depth :hook (emacs-startup-hook . minibuffer-depth-indicate-mode))
+(leaf sqlite
+  :doc "Functions for interacting with sqlite3 databases"
+  :tag "builtin"
+  :added "2025-08-19"
+  :custom
+  (sql-sqlite-program . "sqlite3"))
 
 (leaf scroll-bar
   :doc "window system-independent scroll bar support"
@@ -511,15 +517,14 @@ By default is subdirectory of `user-emacs-directory'.")
   :config
   ;; Tell Emacs to prefer the treesitter mode
   ;; You'll want to run the command `M-x treesit-install-language-grammar' before editing.
-  (setq major-mode-remap-alist '((yaml-mode . yaml-ts-mode)
-                                 (bash-mode . bash-ts-mode)
-                                 (js2-mode . js-ts-mode)
-                                 (typescript-mode . typescript-ts-mode)
-                                 (json-mode . json-ts-mode)
-                                 (css-mode . css-ts-mode)
-                                 (python-mode . python-ts-mode)
-                                 (javascript-mode . js-ts-mode)))
-  )
+  (setq major-mode-remap-alist (append major-mode-remap-alist '((yaml-mode . yaml-ts-mode)
+                                                                (bash-mode . bash-ts-mode)
+                                                                (js2-mode . js-ts-mode)
+                                                                (typescript-mode . typescript-ts-mode)
+                                                                (json-mode . json-ts-mode)
+                                                                (css-mode . css-ts-mode)
+                                                                (python-mode . python-ts-mode)
+                                                                (javascript-mode . js-ts-mode)))))
 
 (leaf ffap
   :doc "find file (or url) at point"
@@ -1010,7 +1015,6 @@ should be imported.
   "My style used while editing C sources."
   (c-add-style "kb/c-style" kb/c-style t)
   (turn-on-auto-fill))
-(add-hook 'c-mode-hook 'kb/c-mode-hook)
 
 (defconst kb/c++-style
   '(
@@ -1046,39 +1050,60 @@ should be imported.
   (c-add-style "kb/c++-style" kb/c++-style t)
   (auto-fill-mode)
   (display-fill-column-indicator-mode)
-  (kb/c++-setup-symbol-compose)
+  (kb/c++-setup-symbol-compose))
+
+(leaf cc-mode
+  :doc "old c-mode and c++-mode config being replaced by c-ts-mode config below"
+  :disabled t
+  :tag "builtin"
+  :added "2025-08-20"
+  :config
+  :hook (c-mode-hook . 'kb/c-mode-hook)
+  :hook (c++-mode-hook . 'kb/c++-mode-hook)
+  :config
+  (defun kb/cc-compile-command-hook ()
+    "Compile C/C++ files with gcc if makefile doesn't exist."
+    (unless (or (file-exists-p "makefile")
+                (file-exists-p "Makefile"))
+      (set (make-local-variable 'compile-command)
+           (let ((file (file-name-nondirectory buffer-file-name)))
+             (format "%s -c -o %s.o %s %s %s"
+                     (or (getenv "CC") "g++")
+                     (file-name-sans-extension file)
+                     (or (getenv "CPPFLAGS") "-DDEBUG=9")
+                     (or (getenv "CFLAGS") "-ansi -pedantic -Wall -g")
+                     file)))))
+
+  ;; (add-hook 'c++-mode 'kb/cc-compile-command-hook)
+  ;; (font-lock-add-keywords 'c-mode '("\\<\\(and\\|or\\|not\\)\\>"))
   )
-(add-hook 'c++-mode-hook 'kb/c++-mode-hook)
+(leaf c-ts-mode
+  :doc "tree-sitter support for C and C++"
+  :tag "builtin"
+  :added "2025-08-20"
+  :custom ((c-ts-common-indent-offset . 4)
+           (c-ts-mode-enable-doxygen . t)
+           (c-ts-mode-indent-offset . 4))
+  :init
+  (add-to-list 'major-mode-remap-alist '(c-mode . c-ts-mode))
+  (add-to-list 'major-mode-remap-alist '(c++-mode . c++-ts-mode))
+  (add-to-list 'major-mode-remap-alist '(c-or-c++-mode . c-or-c++-ts-mode))
+  (add-to-list 'auto-mode-alist
+               '("\\(\\.ii\\|\\.\\(CC?\\|HH?\\)\\|\\.[ch]\\(pp\\|xx\\|\\+\\+\\)\\|\\.\\(cc\\|hh\\)\\)\\'"
+                 . c++-ts-mode))
 
-(defun kb/cc-compile-command-hook ()
-  "Compile C/C++ files with gcc if makefile doesn't exist."
-  (unless (or (file-exists-p "makefile")
-              (file-exists-p "Makefile"))
-    (set (make-local-variable 'compile-command)
-         (let ((file (file-name-nondirectory buffer-file-name)))
-           (format "%s -c -o %s.o %s %s %s"
-                   (or (getenv "CC") "g++")
-                   (file-name-sans-extension file)
-                   (or (getenv "CPPFLAGS") "-DDEBUG=9")
-                   (or (getenv "CFLAGS") "-ansi -pedantic -Wall -g")
-                   file)))))
-
-;; (add-hook 'c++-mode 'kb/cc-compile-command-hook)
-;; (font-lock-add-keywords 'c-mode '("\\<\\(and\\|or\\|not\\)\\>"))
-
-;; (leaf cc-mode
-;;   :doc "major mode for editing C and similar languages"
-;;   :tag "builtin"
-;;   :added "2025-07-02"
-;;   :config
-;;   (add-to-list 'major-mode-remap-alist '(c-mode . c-ts-mode))
-;;   (add-to-list 'major-mode-remap-alist '(c++-mode . c++-ts-mode))
-;;   (add-to-list 'major-mode-remap-alist '(c-or-c++-mode . c-or-c++-ts-mode))
-;;   (add-to-list 'auto-mode-alist
-;;                '("\\(\\.ii\\|\\.\\(CC?\\|HH?\\)\\|\\.[ch]\\(pp\\|xx\\|\\+\\+\\)\\|\\.\\(cc\\|hh\\)\\)\\'"
-;;                  . c++-ts-mode))
-;;   (load "c-ts-mode")
-;;   )
+  :config
+  (c-ts-mode-set-global-style 'linux)
+  (defun kb/c++-ts-mode-hook ()
+    "My style used while editing C++ sources."
+    (setopt fill-column 120)
+    ;; (tab-width . 4)
+    (indent-tabs-mode . nil)
+    (display-fill-column-indicator-mode)
+    (kb/c++-setup-symbol-compose)
+    )
+  :hook ((c-ts-mode-hook c++-ts-mode-hook) . kb/c++-ts-mode-hook)
+)
 
 (leaf hl-todo
   :doc "Highlight TODO and similar keywords"
@@ -1294,6 +1319,7 @@ should be imported.
                                                      (filename . ".properties")
                                                      (filename . ".gradle")
                                                      (filename . ".am")
+                                                     (mode . yaml-ts-mode)
                                                      (mode . yaml-mode)
                                                      (mode . yang-mode)
                                                      (mode . protobuf-mode))
@@ -1447,20 +1473,11 @@ Based on config described in https://www.rahuljuliato.com/posts/emacs-docker-pod
            docker-compose-command "podman-compose"
            docker-container-tramp-method "podman"))))
 
-(leaf dockerfile-mode
-  :doc "Major mode for editing Docker's Dockerfiles"
-  :req "emacs-24"
-  :tag "tools" "processes" "languages" "docker" "emacs>=24"
-  :url "https://github.com/spotify/dockerfile-mode"
-  :added "2025-01-25"
-  :emacs>= 24
-  :ensure t
-  :config
-  (pcase kb/docker-executable
-    ('docker
-     (setq dockerfile-mode-command "docker"))
-    ('podman
-     (setq dockerfile-docker-command "podman"))))
+(leaf dockerfile-ts-mode
+  :doc "tree-sitter support for Dockerfiles"
+  :tag "builtin"
+  :added "2025-08-20"
+  :mode "Dockerfile\\'")
 
 (leaf posframe
   :doc "Pop a posframe (just a frame) at point"
@@ -2101,6 +2118,31 @@ This function is based on work of David Wilson.
   :after org
   :hook org-mode-hook)
 
+(leaf org-link-beautify
+  :doc "Beautify Org Links"
+  :req "emacs-29.1" "nerd-icons-0.0.1" "qrencode-1.3"
+  :tag "hypermedia" "emacs>=29.1"
+  :url "https://repo.or.cz/org-link-beautify.git"
+  :added "2025-08-19"
+  :emacs>= 29.1
+  :ensure t
+  :after nerd-icons qrencode)
+
+(leaf polish-holidays
+  :doc "Polish holidays"
+  :req "emacs-24.1"
+  :tag "calendar" "emacs>=24.1"
+  :url "https://github.com/przemarbor/polish-holidays"
+  :added "2025-08-19"
+  :emacs>= 24.1
+  :ensure t
+  ;; :after holidays
+  :hook (calendar-mode-hook . polish-holidays-set)
+  :custom
+  (polish-holidays-use-all-p . t)
+  :config
+  (polish-holidays-set))
+
 (leaf htmlize
   :disabled t
   :doc "Convert buffer text and decorations to HTML."
@@ -2264,18 +2306,13 @@ This function is based on work of David Wilson.
   :hook (markdown-mode-hook . flymake-markdownlint-setup))
 
 (leaf highlight-doxygen
+  :disabled t
   :doc "Highlight Doxygen comments"
   :tag "faces"
   :url "https://github.com/Lindydancer/highlight-doxygen"
   :added "2022-10-31"
   :ensure t
   :hook c-mode-common-hook)
-
-;; (leaf pabbrev
-;;   :doc "Predictive abbreviation expansion"
-;;   :added "2022-10-31"
-;;   :ensure t
-;;   :config (global-pabbrev-mode))
 
 (leaf abbrev
   :blackout abbrev-mode
@@ -2359,7 +2396,6 @@ This function is based on work of David Wilson.
   :url "https://github.com/emacsmirror/clang-format"
   :added "2022-10-31"
   :ensure t
-  :after cc-mode
   :when (executable-find "clang-format")
   ;; :bind ((:c-mode-base-map
   ;;         ("C-M-'" . #'clang-format-region))
@@ -2368,16 +2404,34 @@ This function is based on work of David Wilson.
   ;;        (:c-mode-map
   ;;         ("C-M-'" . #'clang-format-region)))
   :preface
-  (defun kb/bind-clang-format ()
+  (defun kb/c++-bind-clang-format ()
     "Hook used to bind clang-format on moded activation."
     ;; (interactive)
     ;; (define-key c-mode-base-map (kbd "C-M-'") 'clang-format-region)
-    (keymap-set c-mode-base-map "C-M-'" #'clang-format-region)
-    )
-  :hook (c-mode-common-hook . kb/bind-clang-format)
+    (keymap-set c++-mode-map "C-M-'" #'clang-format-region))
+  (defun kb/c-bind-clang-format ()
+    "Hook used to bind clang-format on moded activation."
+    ;; (interactive)
+    ;; (define-key c-mode-base-map (kbd "C-M-'") 'clang-format-region)
+    (keymap-set c-mode-map "C-M-'" #'clang-format-region))
+  (defun kb/c++-ts-bind-clang-format ()
+    "Hook used to bind clang-format on moded activation."
+    ;; (interactive)
+    ;; (define-key c-mode-base-map (kbd "C-M-'") 'clang-format-region)
+    (keymap-set c++-ts-mode-map "C-M-'" #'clang-format-region))
+  (defun kb/c-ts-bind-clang-format ()
+    "Hook used to bind clang-format on moded activation."
+    ;; (interactive)
+    ;; (define-key c-mode-base-map (kbd "C-M-'") 'clang-format-region)
+    (keymap-set c-ts-mode-map "C-M-'" #'clang-format-region))
+  :hook (c-mode-hook . kb/c-bind-clang-format )
+  :hook (c++-mode-hook . kb/c++-bind-clang-format)
+  :hook (c-ts-mode-hook . kb/c-ts-bind-clang-format)
+  :hook (c++-ts-mode-hook . kb/c++-ts-bind-clang-format)
   )
 
 (leaf clang-format+
+  :disabled t
   :doc "Minor mode for automatic clang-format application"
   :req "emacs-25.1" "clang-format-20180406.1514"
   :tag "clang-format" "c++" "c" "emacs>=25.1"
@@ -2387,7 +2441,7 @@ This function is based on work of David Wilson.
   :after clang-format
   :ensure t
   :custom (clang-format+-context . 'modification)
-  :hook (c-mode-common-hook . clang-format+-mode)
+  :hook ((c-mode-common-hook c-ts-base-mode-hook) . clang-format+-mode)
   )
 
 (leaf hideshow
@@ -2395,25 +2449,47 @@ This function is based on work of David Wilson.
   :tag "builtin"
   :added "2025-07-04")
 
+(leaf mason
+  :doc "Install all the programming tools easy"
+  :tag "out-of-MELPA"
+  :added "2025-08-01"
+  :after eglot
+  :require 'mason
+  :hook (eglot-managed-mode-hook . kb/setup-mason-paths)
+  :config (message "**** Loading mason")
+  (defun kb/setup-mason-paths (&rest _)
+    (message "***** Setting up mason server paths")
+    (mason-setup-paths))
+  (advice-add 'eglot-ensure :before 'kb/setup-mason-paths)
+  (advice-add 'eglot :before 'kb/setup-mason-paths)
+  )
+
 (leaf eglot
   :doc "The Emacs Client for LSP servers"
   :tag "builtin"
   :added "2025-07-02"
-  :hook
-  ((python-mode-hook ruby-mode-hook elixir-mode-hook) . eglot)
+  :hook ((python-mode-hook ruby-mode-hook elixir-mode-hook) . eglot-ensure)
   :custom
   ((eglot-send-changes-idle-time . 0.1)
    (eglot-extend-to-xref . t)              ; activate Eglot in referenced non-project files
    )
 
   :config
+  (message "**** Loading eglot")
+  ;; (defun kb/eglot-ensure-with-servers-path ()
+  ;;   "Initialize mason installes server paths to be used by eglot."
+  ;;   (require 'mason)
+  ;;   (mason-setup-paths)
+  ;;   (eglot-ensure))
+  :config
+  (require 'mason)
   (fset #'jsonrpc--log-event #'ignore)  ; massive perf boost---don't log every event
   (when (executable-find "haskell-language-server-wrapper")
     (message "**** found haskell-language-server-wrapper")
     (add-to-list 'eglot-server-programs
                  '(haskell-mode . ("haskell-language-server-wrapper" "--lsp")))
     )
-  :hook ((c-mode-common-hook . eglot-ensure))
+  :hook (((c-mode-common-hook c-ts-base-mode-hook) . eglot-ensure))
 
   :config
   ;; Setup eldoc the way I like it for emacs
@@ -2604,7 +2680,6 @@ This function is based on work of David Wilson.
   :mode ("CMakeLists\\.txt\\'" "\\.cmake\\'")
   :init
   (defun kb/cmake-mode-setup ()
-    (lambda ()
       (message "***** cmakemode custom")
       (setq fill-column 80)
       (auto-fill-mode)
@@ -2613,11 +2688,10 @@ This function is based on work of David Wilson.
       ;; NOTE: default eglot-server-programs contains following setting for cmake-mode and cmake-ts-mode.
       ;; ,(eglot-alternatives '((("neocmakelsp" "--stdio") "cmake-language-server")))
       ;; This is causing problems as ("neocmakelsp" "--stdio") is improperly passed to (eglot--find-executable)
-      ;; To override this set it explicit 
+      ;; To override this set it explicit
       (add-to-list 'eglot-server-programs
                    '(cmake-mode . ("neocmakelsp" "--stdio")))
-      (eglot-ensure)
-      ))
+      (eglot-ensure))
   :hook (cmake-mode-hook . kb/cmake-mode-setup))
 
 (leaf cmake-font-lock
@@ -2859,10 +2933,10 @@ This function is based on work of David Wilson.
   :added "2022-10-31"
   :emacs>= 24.1
   :ensure t
-  :mode
-  ("\\.yaml\\'" "\\.yml\\'")
-  :custom-face
-  (font-lock-variable-name-face . '((t (:foreground "#cba6f7"))))
+  :mode ("\\.yaml\\'" "\\.yml\\'")
+  :hook ((yaml-mode-hook yaml-ts-mode-hook) . eglot-ensure)
+  :custom-face (font-lock-variable-name-face . '((t (:foreground "#cba6f7"))))
+  :config (message "**** Loading yaml-mode")
   )
 ;; (leaf yaml-imenu
 ;;   :doc "Enhancement of the imenu support in yaml-mode"
@@ -3636,7 +3710,7 @@ taken from: https://github.com/Gavinok/emacs.d.git"
   ;; Make capfs composable
   (advice-add #'eglot-completion-at-point :around #'cape-wrap-nonexclusive)
   (advice-add #'comint-completion-at-point :around #'cape-wrap-nonexclusive)
-  
+
   ;; (add-hook 'completion-at-point-functions #'cape-dabbrev 50 t)
   ;; (add-hook 'completion-at-point-functions #'cape-file 50 t)
   ;; (add-hook 'completion-at-point-functions #'cape-emoji 50 t)
@@ -3979,11 +4053,13 @@ taken from: https://github.com/Gavinok/emacs.d.git"
          ;; ("C-c g" . magit-file-dispatch)
          ("C-x g" . magit-status-quick)
          ("C-x M-g" . magit-dispatch)
-         (:projectile-keymap-prefix
-          ("m" . project-magit)
-         ))
+         ;; (:projectile-keymap-prefix
+         ;;  ("m" . project-magit)
+         ;; )
+         )
   :config
   (put 'magit-clean 'disabled nil))
+
 (leaf treemacs-magit
   :doc "Magit integration for treemacs"
   :req "emacs-26.1" "treemacs-0.0" "pfuture-1.3" "magit-2.90.0"
@@ -4100,7 +4176,7 @@ Otherwise, open the repository's main page."
   :doc "tree-sitter utilities"
   :tag "builtin" "languages" "tree-sitter" "treesit"
   :added "2025-07-23"
-  :custom 
+  :custom
   (treesit-language-source-alist . '((bash "https://github.com/tree-sitter/tree-sitter-bash")
                                      (cmake "https://github.com/uyha/tree-sitter-cmake")
                                      (css "https://github.com/tree-sitter/tree-sitter-css")
@@ -4108,6 +4184,7 @@ Otherwise, open the repository's main page."
                                      (go "https://github.com/tree-sitter/tree-sitter-go")
                                      (html "https://github.com/tree-sitter/tree-sitter-html")
                                      (javascript "https://github.com/tree-sitter/tree-sitter-javascript" "master" "src")
+                                     (dockerfile "https://github.com/camdencheek/tree-sitter-dockerfile")
                                      (json "https://github.com/tree-sitter/tree-sitter-json")
                                      (make "https://github.com/alemuller/tree-sitter-make")
                                      (markdown "https://github.com/ikatyang/tree-sitter-markdown")
@@ -4116,7 +4193,15 @@ Otherwise, open the repository's main page."
                                      (tsx "https://github.com/tree-sitter/tree-sitter-typescript" "master" "tsx/src")
                                      (typescript "https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src")
                                      (yaml "https://github.com/ikatyang/tree-sitter-yaml")
-                                     (javascript "https://github.com/tree-sitter/tree-sitter-javascript" "v0.23.1"))))
+                                     (javascript "https://github.com/tree-sitter/tree-sitter-javascript" "v0.23.1")
+
+                                     (haskell "https://github.com/tree-sitter/tree-sitter-haskell")
+                                     (ruby "https://github.com/tree-sitter/tree-sitter-ruby")
+                                     (rust "https://github.com/tree-sitter/tree-sitter-rust")
+                                     (cpp "https://github.com/tree-sitter/tree-sitter-cpp")
+                                     (c "https://github.com/tree-sitter/tree-sitter-c")
+                                     (doxygen "https://github.com/tree-sitter-grammars/tree-sitter-doxygen")))
+  (treesit-font-lock-level . 4))
 
 (leaf tsc
   :doc "Core Tree-sitter APIs"
@@ -4677,7 +4762,7 @@ Download and put appropriate file there."
          ("\\.tsx\\'" . web-mode)
          ("\\.jsx\\'" . web-mode))
   :custom
-  ((web-mode-markup-indent-offset             . 2)               
+  ((web-mode-markup-indent-offset             . 2)
    (web-mode-css-indent-offset                . 2)
    (web-mode-code-indent-offset               . 2)
    (web-mode-block-padding                    . 2)
@@ -4787,12 +4872,12 @@ Download and put appropriate file there."
   :after pdd
   :custom ((gt-langs . '(en de ja ko pt pl fr zh)))
   :config
-  (setq (gt-default-translator 
+  (setq (gt-default-translator
          (gt-translator
           :taker (gt-taker :text 'buffer :pick 'paragraph :langs '(en de ja ko pt pl fr zh))
           :engines (list (gt-google-engine) (gt-bing-engine) (gt-deepl-engine))
           :render (gt-buffer-renderer))))
-  
+
   (setq gt-preset-translators
       `((ts-quick-de-en . ,(gt-translator
                   :taker (gt-taker :langs '(de en) :text 'word)
@@ -4801,7 +4886,7 @@ Download and put appropriate file there."
         (ts-quick-en-pl . ,(gt-translator
                             :taker (gt-taker :langs '(en pl) :text 'word)
                             :engines (gt-deepl-engine)
-                            :render (gt-overlay-render)))        
+                            :render (gt-overlay-render)))
         (ts-quick-ja-en . ,(gt-translator
                             :taker (gt-taker :langs '(ja en) :text 'word)
                             :engines (gt-bing-engine)
@@ -4956,11 +5041,11 @@ Download and put appropriate file there."
 ;;   :added "2025-07-25"
 ;;   :emacs>= 24.1
 ;;   :ensure t
-;;   :config 
+;;   :config
 ;;   ;; set standard configurations
 ;;   (setopt gptai-model "gpt-3.5-turbo")
 ;;   (setopt gptai-api-key (secrets-get-secret "default" "ChatGPT"))
-  
+
 ;;   ;; set keybindings optionally
 ;;   (global-set-key (kbd "C-c o") 'gptai-send-query))
 
@@ -4982,7 +5067,7 @@ Download and put appropriate file there."
 ;;    (claudia-organization-id (secrets-get-attribute "default" "ClaudAI" :organization)))
 ;;   ;; Anthropic API session key
 ;;   ;; (claudia-anthropic-api-key "sk-ant-api03-...")
-  
+
 ;;   ;; Ignore most buffers not containing code
 ;;   (claudia-ignore-buffers-regexps '("\\*.*\\*" "magit.*"))
 ;;   (claudia-ignore-buffers-major-mode-regexps '("dired-mode" "pdf-view-mode"))
