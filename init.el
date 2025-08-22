@@ -4003,6 +4003,15 @@ taken from: https://github.com/Gavinok/emacs.d.git"
   :ensure t
   :after projectile treemacs)
 
+(leaf disproject
+  :doc "Dispatch project commands with Transient"
+  :req "emacs-29.4" "transient-0.9.2"
+  :tag "vc" "files" "convenience" "emacs>=29.4"
+  :url "https://github.com/aurtzy/disproject"
+  :added "2025-08-22"
+  :emacs>= 29.4
+  :ensure t)
+
 (leaf python
   :doc "Python's flying circus support for Emacs"
   :tag "builtin"
