@@ -2671,6 +2671,7 @@ This function is based on work of David Wilson.
   (add-to-list 'sideline-backends-left 'sideline-flycheck))
 
 (leaf cmake-mode
+  :disabled t
   :doc "Major-mode for editing CMake sources"
   :req "emacs-24.1"
   :tag "emacs>=24.1"
@@ -2693,6 +2694,25 @@ This function is based on work of David Wilson.
                    '(cmake-mode . ("neocmakelsp" "--stdio")))
       (eglot-ensure))
   :hook (cmake-mode-hook . kb/cmake-mode-setup))
+
+(leaf cmake-ts-mode
+  :doc "tree-sitter support for CMake"
+  :tag "builtin"
+  :added "2025-08-20"
+  (defun kb/cmake-mode-setup ()
+      (message "***** cmake-ts-mode custom")
+      (setq fill-column 80)
+      ;; (auto-fill-mode)
+      ;; (setq cmake-tab-width 4)
+      ;; (setq indent-tabs-mode nil)
+      ;; NOTE: default eglot-server-programs contains following setting for cmake-mode and cmake-ts-mode.
+      ;; ,(eglot-alternatives '((("neocmakelsp" "--stdio") "cmake-language-server")))
+      ;; This is causing problems as ("neocmakelsp" "--stdio") is improperly passed to (eglot--find-executable)
+      ;; To override this set it explicit
+      (add-to-list 'eglot-server-programs
+                   '(cmake-mode . ("neocmakelsp" "--stdio")))
+      (eglot-ensure))
+  :hook (cmake-ts-mode-hook . kb/cmake-mode-setup))
 
 (leaf cmake-font-lock
   :doc "Advanced, type aware, highlight support for CMake"
