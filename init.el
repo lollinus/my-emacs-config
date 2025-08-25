@@ -39,12 +39,6 @@
 ;; quickly self-correct.
 (setq fast-but-imprecise-scrolling t)
 
-;; Resizing the Emacs frame can be a terribly expensive part of changing the
-;; font. By inhibiting this, we halve startup times, particularly when we use
-;; fonts that are larger than the system default (which would resize the frame).
-(setq frame-inhibit-implied-resize t
-      frame-resize-pixelwise t)
-
 ;; Emacs "updates" its ui more often than it needs to, so slow it down slightly
 (if (version< emacs-version "30.1")
     (setopt idle-update-delay 1.0)  ; default is 0.5
@@ -66,7 +60,6 @@
       inhibit-startup-echo-area-message user-login-name
       inhibit-default-init t
       inhibit-startup-screen t)
-(setq user-mail-address "karol.barski@cognizant.com")
 (setq line-spacing 0)
 
 (setopt sentence-end-double-space nil)
@@ -100,7 +93,6 @@ By default is subdirectory of `user-emacs-directory'.")
 ;; Increase how much is read from processes in a single chunk (default is 4kb).
 ;; This is further increased elsewhere, where needed (like our LSP module).
 (setq read-process-output-max (* 3 1024 1024)) ; 3MB
-(setq tab-width 4)                       ; default to 4 visible spaces to display a tab
 (setq indicate-empty-lines t)
 
 ;; blink screen on bell
@@ -135,8 +127,7 @@ By default is subdirectory of `user-emacs-directory'.")
                                       (concat (abbreviate-file-name (buffer-file-name)) " %+%+ ")
                                     "%b %+%+ %f"))))
 (setq scroll-margin 10
-      scroll-conservatively 100000
-      scroll-preserve-screen-position 'always)
+)
 
 
 ;; =========================== leaf bootstrap ==========================
@@ -172,8 +163,7 @@ By default is subdirectory of `user-emacs-directory'.")
   (leaf leaf-keywords
     :ensure t
     :init
-    ;; optional packages if you want to use :hydra, :el-get, :blackout,,,
-    (leaf hydra :ensure t)
+    ;; optional packages if you want to use :el-get, :blackout,,,
     (leaf blackout :ensure t)
 
     :config
@@ -264,17 +254,53 @@ By default is subdirectory of `user-emacs-directory'.")
 (leaf cus-start
   :doc "define customization properties of builtins"
   :tag "builtin" "internal"
+  :preface
+  (defun kb/redraw-frame nil
+    (interactive)
+    (redraw-frame))
+  ;; :bind (("M-ESC ESC" . c/redraw-frame))
   :custom ((user-full-name . "Karol Barski")
-           ;; (user-login-name . "karolbarski")
+           (user-mail-address . "karol.barski@cognizant.com")
+           (user-login-name . "karolbarski")
+           (create-lockfiles . nil)
+           (init-file-debug . t)
            (truncate-lines . t)
+           (tab-width . 4)                       ; default to 4 visible spaces to display a tab
            (menu-bar-mode . nil)
            (tool-bar-mode . nil)
+
+           ;; Resizing the Emacs frame can be a terribly expensive part of changing the
+           ;; font. By inhibiting this, we halve startup times, particularly when we use
+           ;; fonts that are larger than the system default (which would resize the frame).
+           (frame-inhibit-implied-resize . t)
+           (frame-resize-pixelwise . t)
+           ;; Support opening new minibuffers from inside existing minibuffers.
+           (enable-recursive-minibuffers . t)
+           (history-length . 1000)
+           (history-delete-duplicates . t)
+           (scroll-preserve-screen-position . t) ;; 'always
+           (scroll-conservatively . 100)
+           (mouse-wheel-scroll-amount . '(1 ((control) . 5)))
+           ;; (ring-bell-function . 'ignore)
+           (text-quoting-style . 'straight)
+
+           (use-dialog-box . nil)
+           (use-file-dialog . nil)
            )
   ;; :config
   ;; (tool-bar-mode -1)
+  ;; (keyboard-translate ?\C-h ?\C-?)
   )
 
-(leaf delsel :hook (emacs-startup-hook .  delete-selection-mode))
+(leaf delsel
+  :doc "delete selection if you insert"
+  :global-minor-mode delete-selection-mode)
+
+(leaf savehist
+  :doc "Save minibuffer history"
+  :custom `((savehist-file . ,(locate-user-emacs-file "savehist")))
+  :global-minor-mode t)
+
 (leaf goto-addr :hook (emacs-startup-hook . global-goto-address-mode))
 (leaf mb-depth :hook (emacs-startup-hook . minibuffer-depth-indicate-mode))
 (leaf sqlite
@@ -309,9 +335,6 @@ By default is subdirectory of `user-emacs-directory'.")
   ;; Enable context menu. `vertico-multiform-mode' adds a menu in the minibuffer
   ;; to switch display modes.
   (context-menu-mode . t)
-
-  ;; Support opening new minibuffers from inside existing minibuffers.
-  (enable-recursive-minibuffers . t)
 
   ;; TAB cycle if there are only few candidates
   ;; (completion-cycle-threshold . 3)
@@ -466,12 +489,15 @@ By default is subdirectory of `user-emacs-directory'.")
   :doc "basic editing commands for Emacs"
   :tag "builtin" "internal"
   :added "2022-11-01"
-  :custom ((global-mark-ring-max . 5000)         ; increase mark ring to contains 5000 entries
+  :custom ((kill-read-only-ok . t)
+           (global-mark-ring-max . 5000)         ; increase mark ring to contains 5000 entries
            (mark-ring-max . 5000)                ; increase kill ring to contains 5000 entries
            (kill-ring-max . 5000) ; increase kill-ring capacity
            (kill-whole-line . t)
            (transient-mark-mode . t)
            (indent-tabs-mode . nil)
+           (eval-expression-print-length . nil)
+           (eval-expression-print-level . nil)
            )
   :bind (("C-;" . kill-whole-line)
          ("C-j" . kb/join-line))
@@ -490,10 +516,20 @@ By default is subdirectory of `user-emacs-directory'.")
   (size-indication-mode t)
   (put 'set-goal-column 'disabled nil)
   )
-;; remap C-H to backspace
-;; (normal-erase-is-backspace-mode t)
-;; remap C-H to backspace
-(add-hook 'terminal-init-xterm-hook (lambda () (normal-erase-is-backspace-mode t)))
+
+(leaf xterm
+  :preface
+  (defun kb/terminal-init-xterm-hook ()
+    "remap C-H to backspace.
+
+ (normal-erase-is-backspace-mode t)
+ remap C-H to backspace."
+    (normal-erase-is-backspace-mode t))
+  :hook (terminal-init-xterm-hook . kb/terminal-init-xterm-hook)
+  :config
+  (message "**** Configure xterm")
+  ;; (add-hook 'tty-setup-hook (lambda () (message "**** TTY setup hook")))
+  )
 
 (leaf window
   :doc "GNU Emacs window commands aside from those written in C"
@@ -507,9 +543,16 @@ By default is subdirectory of `user-emacs-directory'.")
   :doc "file input and output commands for Emacs"
   :tag "builtin"
   :added "2022-11-01"
+  :global-minor-mode auto-save-visited-mode
   ;; ;; According to the POSIX, a line is defined as "a sequence of zero or
   ;; ;; more non-newline characters followed by a terminating newline".
   ;; (require-final-newline . t)
+  :custom `((auto-save-file-name-transforms . '((".*" ,(locate-user-emacs-file "backup/") t)))
+            (backup-directory-alist . '((".*" . ,(locate-user-emacs-file "backup"))
+                                        (,tramp-file-name-regexp . nil)))
+            (version-control . t)
+            (delete-old-versions . t)
+            (auto-save-visited-interval . 1))
   :custom ((large-file-warning-threshold . 100000000)
            (mode-require-final-newline . t)      ; add a newline to end of file)
            (make-backup-files . nil)
@@ -978,6 +1021,7 @@ should be imported.
   )
 
 (leaf treemacs-nerd-icons
+  :disabled t
   :doc "Emacs Nerd Font Icons theme for treemacs"
   :req "emacs-24.3" "nerd-icons-0.0.1" "treemacs-0.0"
   :tag "lisp" "emacs>=24.3"
@@ -1305,9 +1349,9 @@ should be imported.
                                           ("Org" (or (mode . org-mode)
                                                      (filename . "OrgMode")))
                                           ("Magit" (name . "magit"))
-                                          ("Help" (or (name . "\*Help\*")
-                                                      (name . "\*Apropos\*")
-                                                      (name . "\*info\*")))
+                                          ("Help" (or (name . "*Help*")
+                                                      (name . "*Apropos*")
+                                                      (name . "*info*")))
                                           ("Dired" (mode . dired-mode))
                                           ;; Dev has groups for all languages you program in
                                           ("Dev" (or (mode . cc-mode)
@@ -1322,7 +1366,10 @@ should be imported.
                                                      (mode . yaml-ts-mode)
                                                      (mode . yaml-mode)
                                                      (mode . yang-mode)
-                                                     (mode . protobuf-mode))
+                                                     (mode . protobuf-mode)
+                                                     (mode . prog-mode)
+                                                     (mode . c-ts-mode)
+                                                     )
                                            )
                                           ("Text" (or (filename . ".csv")
                                                       (filename . ".tsv")
@@ -1339,7 +1386,14 @@ should be imported.
                                                       (mode . gnus-summary-mode)
                                                       (mode . gnus-article-mode)
                                                       (name . "^\\.bbdb$")
-                                                      (name . "^\\.newsrc-dribble")))))))
+                                                      (name . "^\\.newsrc-dribble"))))))
+  (ibuffer-formats . '((mark modified read-only " "
+                             (name 40 40 :left :elide)
+                             " "
+                             (mode 16 16 :left :elide)
+                             " "
+                             filename-and-process)))
+  :hook (ibuffer-mode-hook . (lambda () (ibuffer-switch-to-saved-filter-groups "default"))))
 
 (leaf ibuffer-projectile
   :doc "Group ibuffer's list by projectile root"
@@ -1485,21 +1539,11 @@ Based on config described in https://www.rahuljuliato.com/posts/emacs-docker-pod
   :tag "tooltip" "convenience" "emacs>=26.1"
   :url "https://github.com/tumashu/posframe"
   :added "2025-01-20"
-  :emacs>= 26.1
-  :ensure t)
-
-(leaf stillness-mode
-  :disabled t
-  :doc "Prevent windows from jumping on minibuffer activation"
-  :req "emacs-26.1" "dash-2.18.0"
-  :tag "convenience" "emacs>=26.1"
-  :url "https://github.com/neeasade/stillness-mode.el"
-  :added "2025-02-03"
-  :emacs>= 26.1
-  :ensure t)
+  :ensure t
+  :config
+  (message "**** Configure posframe"))
 
 (leaf flycheck
-  :disabled t
   :doc "On-the-fly syntax checking"
   :blackout t
   :req "emacs-26.1"
@@ -1513,6 +1557,7 @@ Based on config described in https://www.rahuljuliato.com/posts/emacs-docker-pod
            (flycheck-check-syntax-automatically . '(save mode-enabled))
            (flycheck-checker-error-threshold . 10000))
   :config
+  (message "**** Configure flycheck")
   (when (fboundp 'define-fringe-bitmap)
     (define-fringe-bitmap 'flycheck-fringe-bitmap-double-arrow
       [0 0 0 0 0 4 12 28 60 124 252 124 60 28 12 4 0 0 0 0]
@@ -1532,10 +1577,13 @@ Based on config described in https://www.rahuljuliato.com/posts/emacs-docker-pod
          ;;  ("n" . scan-buf-next-region)
          ;;  ("M-p" . scan-buf-previous-region)
          ;;  ("M-n" . scan-buf-next-region))
-         (:flymake-diagnostics-buffer-mode-map
+         (flymake-diagnostics-buffer-mode-map
           ("?" . flymake-show-diagnostic-here))
-         (:flymake-project-diagnostics-mode-map
+         (flymake-project-diagnostics-mode-map
           ("?" . flymake-show-diagnostic-here))
+         (prog-mode-map
+          ("M-n" . flymake-goto-next-error)
+          ("M-p" . flymake-goto-prev-error))
          )
   :hook (prog-mode . flymake-mode)
   :config
@@ -1561,6 +1609,8 @@ Used to see multiline flymake errors"
   :ensure t
   :after flymake
   :hook (flymake-mode-hook . flyover-mode)
+  :custom
+  (flyover-checkers . '(flycheck flymake))
   ;; :custom ((flyover-levels . '(error warning info))
   ;;          (flyover-use-theme-colors . t)
   ;;          (flyover-background-lightness . 45)
@@ -1600,7 +1650,8 @@ Used to see multiline flymake errors"
      ((t :background "#374243"
          :foreground "#a8e3a9"
          :height 0.9
-         :weight normal)))))
+         :weight normal))))
+  )
 
 (leaf flymake-shell
   :doc "A flymake syntax-checker for shell scripts"
@@ -1625,76 +1676,6 @@ Used to see multiline flymake errors"
   (setopt flycheck-disabled-checkers '(python-mypy haskell-ghc haskell-hlint python-pycompile))
   :hook (flymake-mode-hook . flymake-flycheck-auto))
 
-(leaf pretty-hydra
-  :disabled t
-  :doc "A macro for creating nice-looking hydras"
-  :req "hydra-0.15.0" "s-1.12.0" "dash-2.18.0" "emacs-24" "compat-29.1.4.1"
-  :tag "emacs>=24"
-  :url "https://github.com/jerrypnz/major-mode-hydra.el"
-  :added "2025-03-11"
-  :emacs>= 24
-  :ensure t
-  :after hydra compat)
-(leaf major-mode-hydra
-  :disabled t
-  :doc "Major mode keybindings managed by Hydra"
-  :req "dash-2.18.0" "pretty-hydra-0.2.2" "emacs-25"
-  :tag "emacs>=25"
-  :url "https://github.com/jerrypnz/major-mode-hydra.el"
-  :added "2025-03-11"
-  :emacs>= 25
-  :ensure t
-  :after pretty-hydra
-  :bind (("C-'" . #'major-mode-hydra))
-  :config
-  (major-mode-hydra-define emacs-lisp-mode nil
-    ("Eval"
-     (("b" eval-buffer "buffer")
-      ("e" eval-defun "defun")
-      ("r" eval-region "region"))
-     "REPL"
-     (("I" ielm "ielm"))
-     "Test"
-     (("t" ert "prompt")
-      ("T" (ert t) "all")
-      ("F" (ert :failed) "failed"))
-     "Doc"
-     (
-      ;; ("d" describe-foo-at-point "thing-at-pt")
-      ("f" describe-function "function")
-      ("v" describe-variable "variable")
-      ("i" info-lookup-symbol "info lookup")))))
-
-(leaf flycheck-hydra
-  :disabled t
-  :when (package-installed-p 'flycheck)
-  :after flycheck hydra
-  :config
-  (pretty-hydra-define hydra-flycheck-pretty (global-map "C-c ! j"
-                                                         :pre (flycheck-list-errors)
-                                                         :post (quit-windows-on "*Flycheck errors*")
-                                                         :hint nil)
-    ("Errors"
-     (("f" flycheck-error-list-set-filter "Filter")
-      ("j" flycheck-next-error "Next")
-      ("k" flycheck-previous-error "Previous")
-      ("gg" flycheck-first-error "First")
-      ("G" (progn (goto-char (point-max)) (flycheck-previous-error)) "Last")
-      ("q" nil)
-      )))
-  ;; (defhydra hydra-flycheck
-  ;;   (global-map "C-c ! j"
-  ;;               :pre (flycheck-list-errors)
-  ;;               :post (quit-windows-on "*Flycheck errors*")
-  ;;               :hint nil)
-  ;;   "Errors"
-  ;;   ("f" flycheck-error-list-set-filter "Filter")
-  ;;   ("j" flycheck-next-error "Next")
-  ;;   ("k" flycheck-previous-error "Previous")
-  ;;   ("gg" flycheck-first-error "First")
-  ;;   ("G" (progn (goto-char (point-max)) (flycheck-previous-error)) "Last")
-  ;;   ("q" nil))
-  )
 (leaf flycheck-clang-analyzer
   :when (package-installed-p 'flycheck)
   :ensure t
@@ -1709,8 +1690,9 @@ Used to see multiline flymake errors"
   :url "https://github.com/ch1bo/flycheck-clang-tidy"
   :added "2025-05-26"
   :ensure t
-  :after flycheck projectile
+  :after flycheck
   :hook (flycheck-mode-hook . flycheck-clang-tidy-setup))
+
 (leaf flycheck-projectile
   :when (package-installed-p 'flycheck)
   :doc "Project-wide errors"
@@ -2517,6 +2499,11 @@ This function is based on work of David Wilson.
   (eglot-inlay-hints-mode)
   )
 
+;; (leaf eglot-booster
+;;   :when (executable-find "emacs-lsp-booster")
+;;   :vc ( :url "https://github.com/jdtsmith/eglot-booster")
+;;   :global-minor-mode t)
+
 (leaf flycheck-eglot
   :when (package-installed-p 'flycheck)
   :doc "Flycheck support for eglot"
@@ -2733,6 +2720,7 @@ This function is based on work of David Wilson.
   :after avy)
 
 (leaf treemacs
+  :disabled t
   :doc "A tree style file explorer package."
   :req "emacs-26.1" "cl-lib-0.5" "dash-2.11.0" "s-1.12.0" "ace-window-0.9.0" "pfuture-1.7" "hydra-0.13.2" "ht-2.2" "cfrs-1.3.2"
   :tag "emacs>=26.1"
@@ -2884,6 +2872,7 @@ This function is based on work of David Wilson.
   :hook ((text-mode-hook . adaptive-wrap-prefix-mode)))
 
 (leaf which-key
+  :disabled t
   :doc "Display available keybindings in popup"
   :tag "builtin"
   :added "2025-01-16"
@@ -2912,6 +2901,7 @@ This function is based on work of David Wilson.
 )
 
 (leaf hercules
+  :disabled t
   :doc "An auto-magical, which-key-based hydra banisher."
   :req "emacs-24.4" "which-key-3.3.2"
   :tag "convenience" "emacs>=24.4"
@@ -2922,12 +2912,12 @@ This function is based on work of David Wilson.
   :after which-key)
 
 (leaf which-key-posframe
+  :disabled t
   :doc "Using posframe to show which-key"
   :req "emacs-26.0" "posframe-1.4.0" "which-key-3.6.0"
   :tag "tooltip" "bindings" "convenience" "emacs>=26.0"
   :url "https://github.com/emacsorphanage/which-key-posframe"
   :added "2025-01-16"
-  :emacs>= 26.0
   :ensure t
   :after which-key
   :custom ((which-key-posframe-font . "Liberation Mono")
@@ -2935,7 +2925,10 @@ This function is based on work of David Wilson.
            (which-key-posframe-poshandler . #' posframe-poshandler-frame-top-center)
            )
   :config
-  (which-key-posframe-mode))
+  (message "**** Configure which-key-posframe-mode")
+  ;; (which-key-posframe-mode)
+  :global-minor-mode t
+  )
 
 (leaf ninja-mode
   :doc "Major mode for editing .ninja files."
@@ -2945,6 +2938,7 @@ This function is based on work of David Wilson.
   :added "2025-01-16"
   :emacs>= 24.3
   :ensure t)
+
 (leaf yaml-mode
   :doc "Major mode for editing YAML files"
   :req "emacs-24.1"
@@ -3077,7 +3071,18 @@ This function is based on work of David Wilson.
   :added "2025-06-06"
   :emacs>= 28.1
   :ensure t
+  :defun consult-line
   :after compat
+  :preface
+  (defun kb/consult-line (&optional at-point)
+    "Consult-line uses things-at-point if set C-u prefix."
+    (interactive "P")
+    (if at-point
+        (consult-line (thing-at-point 'symbol))
+      (consult-line)))
+  :custom ((xref-show-xrefs-function . #'consult-xref)  ;; Use Consult to select xref locations with preview
+           (xref-show-definitions-function . #'consult-xref)
+           (consult-line-start-from-top . nil))
   ;; Replace bindings. Lazily loaded by `use-package'.
 
   ;;        ("C-c j" . counsel-git-grep)
@@ -3100,12 +3105,12 @@ This function is based on work of David Wilson.
          ([remap Info-search] . consult-info)
          ;; C-x bindings in `ctl-x-map'
          ("C-x M-:" . consult-complex-command)     ;; orig. repeat-complex-command
-         ("C-x b" . consult-buffer)                ;; orig. switch-to-buffer
+         ([remap switch-to-buffer] . consult-buffer) ;; C-x b - orig. switch-to-buffer
          ("C-x 4 b" . consult-buffer-other-window) ;; orig. switch-to-buffer-other-window
          ("C-x 5 b" . consult-buffer-other-frame)  ;; orig. switch-to-buffer-other-frame
          ("C-x t b" . consult-buffer-other-tab)    ;; orig. switch-to-buffer-other-tab
          ("C-x r b" . consult-bookmark)            ;; orig. bookmark-jump
-         ("C-x p b" . consult-project-buffer)      ;; orig. project-switch-to-buffer
+         ([remap project-switch-to-buffer] . consult-project-buffer) ;; "C-x p b" orig. project-switch-to-buffer
          ("C-x p p" . consult-projectile)
          ;; Custom M-# bindings for fast register access
          ("M-#" . consult-register-load)
@@ -3118,12 +3123,12 @@ This function is based on work of David Wilson.
          ;; M-g bindings in `goto-map'
          ("M-g e" . consult-compile-error)
          ("M-g f" . consult-flymake)               ;; Alternative: consult-flymake
-         ("M-g g" . consult-goto-line)             ;; orig. goto-line
-         ("M-g M-g" . consult-goto-line)           ;; orig. goto-line
+         ([remap goto-line] . consult-goto-line)  ;; "M-g g" orig. goto-line
+         ;; ("M-g M-g" . consult-goto-line)           ;; orig. goto-line
          ("M-g o" . consult-outline)               ;; Alternative: consult-org-heading
          ("M-g m" . consult-mark)
          ("M-g k" . consult-global-mark)
-         ("M-g i" . consult-imenu)
+         ([remap imenu] . consult-imenu) ;; "M-g i"
          ("M-g I" . consult-imenu-multi)
          ;; M-s bindings in `search-map'
          ("M-s d" . consult-fd)                  ;; Alternative: consult-find
@@ -3133,12 +3138,17 @@ This function is based on work of David Wilson.
          ;; ("C-c j" . consult-git-grep)
          ("M-s r" . consult-ripgrep)
          ("M-s l" . consult-line)
+         ("C-s" . kb/consult-line) ;; "C-s" Isearch
+         ("C-M-s" . nil)                ; isearch-forward-regexp
+         ("C-M-s s" . isearch-forward)
+         ("C-M-s C-s" . isearch-forward-regexp)
+         ("C-M-s r" . consult-ripgrep)
          ("M-s L" . consult-line-multi)
          ("M-s k" . consult-keep-lines)
          ("M-s u" . consult-focus-lines)
          ;; Isearch integration
          ("M-s e" . consult-isearch-history)
-         (:isearch-mode-map
+         (isearch-mode-map
           ("M-e" . consult-isearch-history)         ;; orig. isearch-edit-string
           ("M-s e" . consult-isearch-history)       ;; orig. isearch-edit-string
           ("M-s l" . consult-line)                  ;; needed by consult-line to detect isearch
@@ -3146,13 +3156,14 @@ This function is based on work of David Wilson.
           )
          (
           ;; Minibuffer history
-          :minibuffer-local-map
-          ("M-s" . consult-history)                 ;; orig. next-matching-history-element
-          ("M-r" . consult-history)))                ;; orig. previous-matching-history-element
+          minibuffer-local-map
+          :package emacs
+          ("C-s" . consult-history)                 ;; orig. next-matching-history-element
+          ("C-r" . consult-history)))                ;; orig. previous-matching-history-element
 
   ;; Enable automatic preview at point in the *Completions* buffer. This is
   ;; relevant when you use the default completion UI.
-  :hook ((completion-list-mode-hook . consult-preview-at-point-mode))
+  :hook (completion-list-mode-hook . consult-preview-at-point-mode)
 
   :custom
   ;; Optionally configure the narrowing key.
@@ -3168,10 +3179,6 @@ This function is based on work of David Wilson.
   ;; the window mode line.
   (advice-add #'register-preview :override #'consult-register-window)
   (setq register-preview-delay 0.5)
-
-  ;; Use Consult to select xref locations with preview
-  (setq xref-show-xrefs-function #'consult-xref
-        xref-show-definitions-function #'consult-xref)
 
   ;; Configure other variables and modes in the :config section,
   ;; after lazily loading the package.
@@ -3202,8 +3209,9 @@ This function is based on work of David Wilson.
   :added "2025-07-02"
   :emacs>= 27.1
   :ensure t
-  :after eglot consult
-  :bind ("M-s s" . #'consult-eglot-symbols))
+  :bind ("M-s s" . #'consult-eglot-symbols)
+  :config
+  (message "**** Consult Eglot configure"))
 
 (leaf consult-eglot-embark
   :doc "Embark integration for `consult-eglot'"
@@ -3211,11 +3219,8 @@ This function is based on work of David Wilson.
   :tag "lsp" "completion" "tools" "emacs>=27.1"
   :url "https://github.com/mohkale/consult-eglot"
   :added "2025-07-02"
-  :emacs>= 27.1
   :ensure t
-  :after consult-eglot embark-consult
-  :config
-  (consult-eglot-embark-mode))
+  :global-minor-mode t)
 
 (leaf consult-projectile
   :doc "Consult integration for projectile"
@@ -3223,10 +3228,7 @@ This function is based on work of David Wilson.
   :tag "convenience" "emacs>=25.1"
   :url "https://gitlab.com/OlMon/consult-projectile"
   :added "2025-06-06"
-  :emacs>= 25.1
   :ensure t
-  :require t
-  :after projectile
   :hook (projectile-mode-hook . (lambda ()
                                   (when projectile-mode
                                     (define-key projectile-mode-map [remap projectile-switch-project] #'consult-projectile)
@@ -3235,6 +3237,7 @@ This function is based on work of David Wilson.
                                     (define-key projectile-mode-map [remap projectile-find-dir] #'consult-projectile-find-dir)
                                     (define-key projectile-mode-map [remap projectile-switch-to-buffer] #'consult-projectile-switch-to-buffer))))
   :config
+  (message "**** Configure consult-projectile")
   (setopt consult-projectile-sources
           (append '(consult-projectile--source-projectile-dir consult-projectile--source-projectile-recentf)
                   consult-projectile-sources)))
@@ -3259,13 +3262,17 @@ This function is based on work of David Wilson.
   :emacs>= 27.1
   :ensure t
   :after consult
+  :defun consult-dir-projectile-dirs
   :bind (("C-x C-d" . #'consult-dir)
-         (:minibuffer-local-completion-map ("C-x C-d" . #'consult-dir)
-                                           ;; ("C-x C-j" . #'consult-dir-jump-file) ;; fails with (void-function consult--async-split-style)
-                                           )
+         (minibuffer-local-completion-map ("C-x C-d" . #'consult-dir)
+                                          ;; ("C-x C-j" . #'consult-dir-jump-file) ;; fails with (void-function consult--async-split-style)
+                                          )
          )
+  :preface
+  (defun kb/consult-dir-project-dirs (&rest _)
+    (setq consult-dir-project-list-function 'consult-dir-projectile-dirs))
   :hook
-  ((projectile-mode-hook . (lambda (&rest _) (setq consult-dir-project-list-function 'consult-dir-projectile-dirs)))))
+  ((projectile-mode-hook . kb/consult-dir-project-dirs)))
 
 (leaf consult-ls-git
   :doc "Consult integration for git"
@@ -3277,8 +3284,7 @@ This function is based on work of David Wilson.
   :ensure t
   :after consult
   :bind
-  (("C-c g f" . #'consult-ls-git)
-   ("C-c g F" . #'consult-ls-git-other-window)))
+  (("C-c g f" . #'consult-ls-git)))
 
 (unless (executable-find "gh") (message "**** Github cli command `gh` not found"))
 (leaf consult-gh
@@ -3305,6 +3311,7 @@ This function is based on work of David Wilson.
            (consult-gh-large-file-warning-threshold . 2500000)
            (consult-gh-prioritize-local-folder . 'suggest))
   :config
+  (message "**** Configure consult-gh")
   ;; Remember visited orgs and repos across sessions
   (add-to-list 'savehist-additional-variables 'consult-gh--known-orgs-list)
   (add-to-list 'savehist-additional-variables 'consult-gh--known-repos-list)
@@ -3317,12 +3324,10 @@ This function is based on work of David Wilson.
   :tag "completion" "forges" "repositories" "git" "matching" "emacs>=29.4"
   :url "https://github.com/armindarvish/consult-gh"
   :added "2025-07-15"
-  :emacs>= 29.4
   :ensure t
-  :after consult consult-gh embark-consult
+  :after consult-gh
   :blackout t
-  :config
-  (consult-gh-embark-mode +1))
+  :global-minor-mode t)
 
 (leaf consult-gh-forge
   :doc "Magit/Forge Integration for consult-gh"
@@ -3335,7 +3340,7 @@ This function is based on work of David Wilson.
   :after consult forge consult-gh
   :blackout t
   :custom (consult-gh-forge-timeout-seconds . 20)
-  :config (consult-gh-forge-mode +1))
+  :global-minor-mode t)
 
 (leaf consult-flyspell
   :doc "Consult integration for flyspell"
@@ -3359,9 +3364,9 @@ This function is based on work of David Wilson.
   :tag "completion" "matching" "files" "convenience" "emacs>=28.1"
   :url "https://github.com/minad/vertico"
   :added "2025-06-10"
-  :emacs>= 28.1
   :ensure t
-  :bind (:vertico-map
+  ;; :global-minor-mode t
+  :bind (vertico-map
          ;; Option 1: Additional bindings
          ("?"        . #'minibuffer-completion-help)
          ("M-RET"    . #'minibuffer-force-complete-and-exit)
@@ -3374,20 +3379,20 @@ This function is based on work of David Wilson.
          ;; Option 2: Replace `vertico-insert' to enable TAB prefix expansion.
          ;; (keymap-set vertico-map "TAB" #'minibuffer-complete)
          )
-  :hook emacs-startup-hook
   :custom ((vertico-cycle . t)
            (vertico-resize . t)
            (vertico-scroll-margin . 0)
-           (vertico-preselect . 'first))
+           (vertico-preselect . 'first)
+           )
 
 
   ;; do not consider case significant in completion (GNU Emacs default)
   ;; (setq completion-ignore-case t
   ;;       read-file-name-completion-ignore-case t
   ;;       read-buffer-completion-ignore-case t)
+  :hook emacs-startup-hook
   :config
   (message "**** Configure vertico")
-  (vertico-mode)
   (vertico-mouse-mode +1)
   ;; (setq completion-in-region-function
   ;;       (lambda (&rest args)
@@ -3420,15 +3425,23 @@ This function is based on work of David Wilson.
   :tag "vertico" "matching" "convenience" "abbrev" "emacs>=26.0"
   :url "https://github.com/tumashu/vertico-posframe"
   :added "2025-06-06"
-  :emacs>= 26.0
   :ensure t
-  :after vertico
   :hook (vertico-mode-hook . vertico-posframe-mode)
   :config
   (message "**** Configure vertico-posframe")
-  (setq vertico-posframe-poshandler #'posframe-poshandler-point-top-left-corner)
+  ;; (vertico-multiform-posframe)
+  (setq vertico-posframe-poshandler #'posframe-poshandler-frame-bottom-left-corner)
   (setq vertico-multiform-commands
-        '((consult-line
+        '((kb/consult-line
+           posframe
+           (vertico-posframe-poshandler . posframe-poshandler-frame-bottom-center)
+           (vertico-posframe-border-width . 5)
+           ;; NOTE: This is useful when emacs is used in both in X and
+           ;; terminal, for posframe do not work well in terminal, so
+           ;; vertico-buffer-mode will be used as fallback at the
+           ;; moment.
+           (vertico-posframe-fallback-mode . vertico-buffer-mode))
+          (consult-line
            posframe
            (vertico-posframe-poshandler . posframe-poshandler-frame-bottom-center)
            (vertico-posframe-border-width . 5)
@@ -3479,8 +3492,8 @@ This function is based on work of David Wilson.
            (vertico-posframe-fallback-mode . vertico-buffer-mode))
           (t posframe)))
   (setq vertico-posframe-parameters
-        '((left-fringe . 3)
-          (right-fringe . 3)))
+        '((left-fringe . 8)
+          (right-fringe . 8)))
   )
 
 (leaf vertico-multiform
@@ -3521,7 +3534,7 @@ This function is based on work of David Wilson.
   :bind (("C-." . embark-act)         ;; pick some comfortable binding
          ;; ("C-;" . embark-dwim)        ;; good alternative: M-.
          ("M-." . embark-dwim)        ;; good alternative: M-.
-         ("C-h B" . embark-bindings)  ;; alternative for `describe-bindings'
+         ([remap describe-bindings] . embark-bindings)  ;; "C-h B" alternative for `describe-bindings'
          ("<f2> i" . #'embark-info-lookup-symbol)
          ("<f2> u" . #'embark-save-unicode-character)
          )
@@ -3572,7 +3585,11 @@ taken from: https://github.com/Gavinok/emacs.d.git"
   :emacs>= 28.1
   :after embark consult
   :ensure t ; only need to install it, embark loads it after consult if found
-  :hook (embark-collect-mode-hook . consult-preview-at-point-mode))
+  :hook (embark-collect-mode-hook . consult-preview-at-point-mode)
+  :bind ((minibuffer-mode-map
+         :package emacs
+         ("M-." . embark-dwim)
+         ("C-." . embark-act))))
 (leaf embark-vc
   :doc "Embark actions for various version control integrations"
   :req "emacs-27.1" "embark-0.21.1" "forge-0.3" "compat-29.1.3.0"
@@ -3585,11 +3602,13 @@ taken from: https://github.com/Gavinok/emacs.d.git"
   :require t)
 
 ;; (leaf completion-preview
-;;   :doc "Preview completion with inline overlay"
-;;   :tag "builtin"
-;;   :added "2025-06-12"
-;;   :config
-;;   (global-completion-preview-mode))
+;;   :hook (prog-mode-hook . completion-preview-mode)
+;;   :bind (completion-preview-active-mode-map
+;;          ("C-i" . completion-preview-insert)
+;;          ("M-n" . completion-preview-insert-word)
+;;          ("M-p" . completion-preview-prev-candidate))
+;;   :custom
+;;   (completion-preview-minimum-symbol-length . 1))
 
 (leaf prescient
   :doc "Better sorting and filtering"
@@ -3824,10 +3843,6 @@ taken from: https://github.com/Gavinok/emacs.d.git"
   (add-to-list 'dabbrev-ignored-buffer-modes 'pdf-view-mode)
   (add-to-list 'dabbrev-ignored-buffer-modes 'tags-table-mode))
 
-(leaf savehist
-  :config
-  (savehist-mode))
-
 (leaf helpful
   :doc "A better *help* buffer"
   :req "emacs-25" "dash-2.18.0" "s-1.11.0" "f-0.20.0" "elisp-refs-1.2"
@@ -3876,8 +3891,10 @@ taken from: https://github.com/Gavinok/emacs.d.git"
   :tag "extensions" "edit" "grep" "emacs>=25.1"
   :url "http://github.com/mhayashi1120/Emacs-wgrep/raw/master/wgrep.el"
   :added "2025-06-22"
-  :emacs>= 25.1
-  :ensure t)
+  :ensure t
+  :after embark
+  :bind (grep-mode-map
+         ("C-x C-q" . wgrep-change-to-wgrep-mode)))
 
 ;; Use silversearcher-ag if available.
 (unless (executable-find "ag") (warn "Command: silversearcher-ag not found"))
@@ -3994,6 +4011,7 @@ taken from: https://github.com/Gavinok/emacs.d.git"
   (projectile-mode))
 
 (leaf treemacs-projectile
+  :disabled t
   :doc "Projectile integration for treemacs"
   :req "emacs-26.1" "projectile-0.14.0" "treemacs-0.0"
   :tag "emacs>=26.1"
@@ -4003,6 +4021,56 @@ taken from: https://github.com/Gavinok/emacs.d.git"
   :ensure t
   :after projectile treemacs)
 
+(leaf project
+  :disabled t
+  :doc "Operations on the current project"
+  :tag "builtin"
+  :added "2025-08-22"
+  :bind (("M-s M-s" . project-find-file)
+         (:project-prefix-map
+          ("m" . project-magit)
+          ("d" . project-dired)
+          ("M-s" . project-find-file)))
+  :init
+  (setopt project-switch-commands
+          '((project-find-file "Find file")
+            (project-dired "Dired")
+            (project-magit "Magit")
+            (project-compile "Compile")
+            (project-find-regexp "Find Regex")
+            (eat-project "Terminal"))
+          project-compilation-buffer-name-function 'project-prefixed-buffer-name)
+  :config
+  (when (>= emacs-major-version 30)
+    (setopt project-mode-line t))
+  ;; Optionally configure a function which returns the project root directory.
+  ;; There are multiple reasonable alternatives to chose from.
+  ;; 1. project.el (project-roots)
+  (setq consult-project-function
+        (lambda (may-prompt)
+          (when-let* ((project (project-current))
+                      (project-root (car (project-roots (project-current))))
+                      (is-not-home
+                       (not (string= "/home/karolbarski/" (car (project-roots
+                                                                (project-current)))))))
+            project-root)))
+
+  ;; Added in emacs 29
+  (setopt project-vc-extra-root-markers
+          '("*.cabal" "pyproject.toml"
+             "CMakeList.txt"
+            "package.json"
+            "Project.toml" ".project"
+            "Cargo.toml""mix.exs" "qlfile" ".git"))
+  (setopt project-vc-ignores (append project-vc-ignores
+                                     '(".idea" ".vscode" ".ensime_cache" ".eunit" ".git"
+                                       ".hg" ".fslockout" "_FOSSIL_" ".bzr" "_darcs" ".tox"
+                                       ".svn" ".stack-work" ".ccls-cache" ".cache" ".clangd")
+                                     '(".log" ".vs" "node_modules")
+                                     ))
+
+  )
+
 (leaf disproject
   :doc "Dispatch project commands with Transient"
   :req "emacs-29.4" "transient-0.9.2"
@@ -4010,7 +4078,9 @@ taken from: https://github.com/Gavinok/emacs.d.git"
   :url "https://github.com/aurtzy/disproject"
   :added "2025-08-22"
   :emacs>= 29.4
-  :ensure t)
+  :ensure t
+  :bind (:ctl-x-map
+         ("j" . disproject-dispatch)))
 
 (leaf python
   :doc "Python's flying circus support for Emacs"
@@ -4070,7 +4140,7 @@ taken from: https://github.com/Gavinok/emacs.d.git"
   :emacs>= 27.1
   :ensure t
   :after compat magit-section with-editor
-  :commands magit-list-repos magit-status-quick
+  :commands magit-list-repos magit-status-quick ;;  project-magit
   ;; :commands magit-status
   ;; :bind (:map global-map
   ;;          ("C-c n". magit-list-repos))
@@ -4085,11 +4155,21 @@ taken from: https://github.com/Gavinok/emacs.d.git"
          ;; (:projectile-keymap-prefix
          ;;  ("m" . project-magit)
          ;; )
+         ;; (:project-prefix-map
+         ;;  ("m" . project-magit))
          )
   :config
-  (put 'magit-clean 'disabled nil))
+  (put 'magit-clean 'disabled nil)
+  ;; (add-to-list 'project-switch-commands
+  ;;              '(project-magit "Magit" m))
+  ;; (defun project-magit  ()
+  ;;   (interactive)
+  ;;   (let ((dir (project-root (project-current t))))
+  ;;     (magit-status dir)))
+  )
 
 (leaf treemacs-magit
+  :disabled t
   :doc "Magit integration for treemacs"
   :req "emacs-26.1" "treemacs-0.0" "pfuture-1.3" "magit-2.90.0"
   :tag "emacs>=26.1"
@@ -4362,10 +4442,9 @@ Otherwise, open the repository's main page."
                  (show-paren-when-point-inside-paren . t)
                  (show-paren-when-point-in-periphery . t)
                  )
-        :config
-        (show-paren-mode 1)))
+        :global-minor-mode show-paren-mode)
+      )
   )
-
 
 (leaf puni
   :disabled t
@@ -4376,7 +4455,7 @@ Otherwise, open the repository's main page."
   :added "2025-06-12"
   :emacs>= 26.1
   :ensure t
-  :require t
+  :global-minor-mode puni-global-mode
   :config
   ;; The autoloads of Puni are set up so you can enable `puni-mode` or
   ;; `puni-global-mode` before `puni` is actually loaded. Only after you press
@@ -4384,56 +4463,26 @@ Otherwise, open the repository's main page."
   (puni-global-mode)
   (add-hook 'term-mode-hook #'puni-disable-puni-mode)
 
- ;;  :bind (("%" . kb/puni-match-parenthesis))
-
- ;;  :config
- ;;  (defun kb/puni-match-parenthesis (arg)
- ;;    "Match the current character according to the syntax table.
-
- ;; Based on the freely available match-paren.el by Kayvan Sylvan.
- ;; I merged code from goto-matching-paren-or-insert and match-it.
-
- ;; When ARG does not belong to matching pair then insert it at point.
-
- ;; You can define new \"parentheses\" (matching pairs).
- ;; Example: angle brackets.  Add the following to your .emacs file:
-
- ;; (modify-syntax-entry ?< \"(>\" )
- ;; (modify-syntax-entry ?> \")<\" )
-
- ;; You can set hot keys to perform matching with one keystroke.
- ;; Example: f6 and Control-C 6.
-
- ;; (global-set-key \"\\C-c6\" 'match-parenthesis)
- ;; (global-set-key [f6] 'match-parenthesis)
-
- ;; Simon Hawkin <cema@cs.umd.edu> 03/14/1998"
- ;;    (interactive "p")
- ;;    (let
- ;;        ((syntax (puni--syntax-char-after)))
- ;;      (cond
- ;;       ((= syntax ?\()
- ;;        ;; (puni-end-of-list-around-point)
- ;;        ;; (puni-up-list)
- ;;        ;; (146259 . 146289)
- ;;        ;; (goto-char (puni-end-pos-of-list-around-point))
- ;;        ;; (puni-strict-forward-sexp)
- ;;        ;; (puni-bounds-of-sexp-at-point)
- ;;        ;; (puni-forward-sexp-or-up-list)
- ;;        (puni--forward-same-char)
- ;;        (puni--forward-same-syntax (puni-end-pos-of-list-around-point))
- ;;        ;; (puni-beginning-of-list-around-point)
- ;;        )
- ;;       ((= syntax ?\))
- ;;        ;; (goto-char (puni-beginning-pos-of-list-around-point))
- ;;        ;; (puni-beginning-of-list-around-point)
- ;;        ;; (puni-end-of-list-around-point)
- ;;        ;; (puni-backward-sexp-or-up-list)
- ;;        ;; (puni-strict-backward-sexp)
- ;;        (puni-backward-sexp-or-up-list)
- ;;        (puni--backward-same-syntax)
- ;;        )
- ;;       (t (self-insert-command (or arg 1))) ) )
+  :bind (puni-mode-map
+         ;; default mapping
+         ;; ("C-M-f" . puni-forward-sexp)
+         ;; ("C-M-b" . puni-backward-sexp)
+         ;; ("C-M-a" . puni-beginning-of-sexp)
+         ;; ("C-M-e" . puni-end-of-sexp)
+         ;; ("M-)" . puni-syntactic-forward-punct)
+         ;; ("C-M-u" . backward-up-list)
+         ;; ("C-M-d" . backward-down-list)
+         ("C-)" . puni-slurp-forward)
+         ("C-}" . puni-barf-forward)
+         ("M-(" . puni-wrap-round)
+         ("M-s" . puni-splice)
+         ("M-r" . puni-raise)
+         ("M-U" . puni-splice-killing-backward)
+         ("M-z" . puni-squeeze))
+  :config
+  (leaf elec-pair
+    :doc "Automatic parenthesis pairing"
+    :global-minor-mode electric-pair-mode)
 )
 
 (leaf smartparens
