@@ -20,16 +20,8 @@
 ;; https://github.com/alexmurray/dot_emacs.d/blob/master/init.el
 ;; https://github.com:jcs-emacs/jcs-emacs.git
 
-(message "* Check emacs build: %S" emacs-build-number)
-(message "* Check emacs version: %S" emacs-version)
-
 (when (version< emacs-version "27.1")
   (error "This requires Emacs 27.1 and above!"))
-
-;; Emacs "updates" its ui more often than it needs to, so slow it down slightly
-(if (version< emacs-version "30.1")
-    (setopt idle-update-delay 1.0)  ; default is 0.5
-  (setopt which-func-update-delay 1.0))
 
 (defgroup kb-config nil
   "Custom options for KB config."
@@ -511,6 +503,7 @@ By default is subdirectory of `user-emacs-directory'.")
   ;; mode. Vertico and Corfu commands are hidden, since they are not used
   ;; via M-x. This setting is useful beyond Corfu and Vertico.
   (read-extended-command-predicate . #'command-completion-default-include-p)
+
   :bind (("C-;" . kill-whole-line)
          ("C-j" . kb/join-line))
   :config
@@ -527,6 +520,11 @@ By default is subdirectory of `user-emacs-directory'.")
   (line-number-mode +1)
   (size-indication-mode t)
   (put 'set-goal-column 'disabled nil)
+
+  ;; Emacs "updates" its ui more often than it needs to, so slow it down slightly
+  (if (version< emacs-version "30.1")
+      (setopt idle-update-delay 1.0)  ; default is 0.5
+    (setopt which-func-update-delay 1.0))
   )
 
 (leaf xterm
