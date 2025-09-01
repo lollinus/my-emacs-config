@@ -6,7 +6,7 @@
 
 ;; useful for quickly debugging Emacs
 (setq debug-on-error t)
-(setenv "LSP_USE_PLISTS" "true")
+;; (setenv "LSP_USE_PLISTS" "true")
 ;;; Startup
 (add-hook 'emacs-startup-hook
           (lambda ()
@@ -14,56 +14,27 @@
                      (emacs-init-time "%.2f")
                      gcs-done)))
 
-;;
-(setq user-full-name "Karol Barski")
 
 ;; TODO:
 ;;  Check this init
 ;; https://github.com/alexmurray/dot_emacs.d/blob/master/init.el
 ;; https://github.com:jcs-emacs/jcs-emacs.git
 
+(message "* Check emacs build: %S" emacs-build-number)
+(message "* Check emacs version: %S" emacs-version)
+
 (when (version< emacs-version "27.1")
   (error "This requires Emacs 27.1 and above!"))
-
-(defgroup kb-config nil
-  "Custom options for KB config."
-  :group 'convenience
-  :link '(url-link :tag "Github" "https://github.com/lollinus/my-emacs-config"))
-
-;; A second, case-insensitive pass over `auto-mode-alist' is time wasted, and
-;; indicates misconfiguration (don't rely on case insensitivity for file names).
-(setq auto-mode-case-fold nil)
-
-;; More performant rapid scrolling over unfontified regions. May cause brief
-;; spells of inaccurate syntax highlighting right after scrolling, which should
-;; quickly self-correct.
-(setq fast-but-imprecise-scrolling t)
 
 ;; Emacs "updates" its ui more often than it needs to, so slow it down slightly
 (if (version< emacs-version "30.1")
     (setopt idle-update-delay 1.0)  ; default is 0.5
   (setopt which-func-update-delay 1.0))
 
-;; Font compacting can be terribly expensive, especially for rendering icon
-;; fonts on Windows. Whether disabling it has a notable affect on Linux and Mac
-;; hasn't been determined, but do it there anyway, just in case. This increases
-;; memory usage, however!
-(setq inhibit-compacting-font-caches t)
-
-;; Introduced in Emacs HEAD (b2f8c9f), this inhibits fontification while
-;; receiving input, which should help a little with scrolling performance.
-(setq redisplay-skip-fontification-on-input t)
-
-;; Reduce *Message* noise at startup. An empty scratch buffer (or the dashboard)
-;; is more than enough.
-(setq inhibit-startup-message t
-      inhibit-startup-echo-area-message user-login-name
-      inhibit-default-init t
-      inhibit-startup-screen t)
-(setq line-spacing 0)
-
-(setopt sentence-end-double-space nil)
-
+(defgroup kb-config nil
+  "Custom options for KB config."
+  :group 'convenience
+  :link '(url-link :tag "Github" "https://github.com/lollinus/my-emacs-config"))
 
 ;;; Code:
 ;; don't let Customize mess with my .emacs
@@ -89,45 +60,6 @@ By default is subdirectory of `user-emacs-directory'.")
 (add-to-list 'load-path (expand-file-name "rc" user-emacs-directory))
 (require 'rc-functions (expand-file-name "rc-functions.el" rc-directory) t)
 (require 'kb-secrets (expand-file-name "kb-secrets.el" rc-directory) t)
-
-;; Increase how much is read from processes in a single chunk (default is 4kb).
-;; This is further increased elsewhere, where needed (like our LSP module).
-(setq read-process-output-max (* 3 1024 1024)) ; 3MB
-(setq indicate-empty-lines t)
-
-;; blink screen on bell
-(setq visible-bell t)
-;;(setq debug-on-error nil)
-
-;; dim the ignored part of the file name
-;;(file-name-shadow-mode 1)
-
-;; minibuffer window expands vertically as necessary to hold the text that
-;; you put in the minibuffer
-(setq resize-mini-windows t)
-
-(setq mouse-highlight 10)
-(setq make-pointer-invisible t)
-
-
-;;--------------------------------------------------------------------------------
-;; My customized emacs
-;;--------------------------------------------------------------------------------
-;; fancy streching cursor
-(setq x-stretch-cursor nil)
-
-;; use inactive face for mode-line in non-selected windows
-(setq mode-line-in-non-selected-windows t)
-
-;; Set the frame's title. %b is the name of the buffer. %+ indicates
-;; the state of the buffer: * if modified, % if read only, or -
-;; otherwise. Two of them to emulate the mode line. %f for the file
-;; name. Incredibly useful!
-(setq frame-title-format '((:eval (if (buffer-file-name)
-                                      (concat (abbreviate-file-name (buffer-file-name)) " %+%+ ")
-                                    "%b %+%+ %f"))))
-(setq scroll-margin 10
-)
 
 
 ;; =========================== leaf bootstrap ==========================
@@ -174,6 +106,159 @@ By default is subdirectory of `user-emacs-directory'.")
 ;; =========================== leaf bootstrap ==========================
 
 (leaf leaf-convert :ensure t)
+
+;; a few more useful configurations...
+(leaf emacs
+  :bind
+  (("M-c" . capitalize-dwim)
+   ("M-u" . upcase-dwim)
+   ("M-l" . downcase-dwim)
+   ("M-z" . zap-up-to-char)
+   )
+  :custom
+  ;; Set the frame's title. %b is the name of the buffer. %+ indicates
+  ;; the state of the buffer: * if modified, % if read only, or -
+  ;; otherwise. Two of them to emulate the mode line. %f for the file
+  ;; name. Incredibly useful!
+  (frame-title-format . '((:eval (if (buffer-file-name)
+                                     (concat (abbreviate-file-name (buffer-file-name)) " %+%+ ")
+                                   "%b %+%+ %f"))))
+
+  :custom
+  ;; fancy streching cursor
+  (x-stretch-cursor . nil)
+
+  ;; use inactive face for mode-line in non-selected windows
+  (mode-line-in-non-selected-windows . t)
+
+  (scroll-margin . 10)
+
+  ;; Increase how much is read from processes in a single chunk (default is 4kb).
+  ;; This is further increased elsewhere, where needed (like our LSP module).
+  `(read-process-output-max . ,(* 3 1024 1024)) ; 3MB
+
+  ;; blink screen on bell
+  (visible-bell . t)
+  ;;(setq debug-on-error nil)
+
+  ;; minibuffer window expands vertically as necessary to hold the text that
+  ;; you put in the minibuffer
+  (resize-mini-windows . t)
+
+  (mouse-highlight . 10)
+  (make-pointer-invisible . t)
+
+  (indicate-empty-lines . t)
+  (line-spacing . 0)
+
+  ;; More performant rapid scrolling over unfontified regions. May cause brief
+  ;; spells of inaccurate syntax highlighting right after scrolling, which should
+  ;; quickly self-correct.
+  (fast-but-imprecise-scrolling . t)
+
+  ;; Font compacting can be terribly expensive, especially for rendering icon
+  ;; fonts on Windows. Whether disabling it has a notable affect on Linux and Mac
+  ;; hasn't been determined, but do it there anyway, just in case. This increases
+  ;; memory usage, however!
+  (inhibit-compacting-font-caches . t)
+
+  ;; TAB cycle if there are only few candidates
+  ;; (completion-cycle-threshold . 3)
+
+  ;; Emacs 30 and newer: Disable Ispell completion function.
+  ;; Try `cape-dict' as an alternative.
+  (text-mode-ispell-word-completion . nil)
+
+  ;; Do not allow the cursor in the minibuffer prompt
+  (minibuffer-prompt-properties . '(read-only t cursor-intangible t face minibuffer-prompt))
+
+  ;; Introduced in Emacs HEAD (b2f8c9f), this inhibits fontification while
+  ;; receiving input, which should help a little with scrolling performance.
+  (redisplay-skip-fontification-on-input . t)
+
+  :config
+  (message "**** Configure emacs fringe")
+  ;; change truncation indicators
+  (define-fringe-bitmap 'right-curly-arrow
+    [#b10000000 #b10000000 #b01000000
+     #b01000000 #b00100000 #b00100000
+     #b00010000 #b00010000 #b00001000
+     #b00001000 #b00000100 #b00000100])
+  (define-fringe-bitmap 'left-curly-arrow
+    [#b00000100 #b00000100 #b00001000
+     #b00001000 #b00010000 #b00010000
+     #b00100000 #b00100000 #b01000000
+     #b01000000 #b10000000 #b10000000])
+  )
+
+(point-at-bol 2)
+
+(leaf startup
+  :doc "process Emacs shell arguments"
+  :tag "builtin" "internal"
+  :added "2025-09-01"
+  :custom
+  ;; Reduce *Message* noise at startup. An empty scratch buffer (or the dashboard)
+  ;; is more than enough.
+  `((inhibit-startup-echo-area-message . ,user-login-name)
+    (inhibit-default-init . t)
+    (inhibit-startup-screen . t))
+  )
+
+(leaf rfn-eshadow
+  :doc "Highlight `shadowed' part of read-file-name input text"
+  :tag "builtin" "minibuffer" "convenience"
+  :added "2025-09-01"
+  :global-minor-mode file-name-shadow-mode)
+
+(leaf frame
+  ;;--------------------------------------------------------------------------------
+  ;; Default frame parameters
+  ;;--------------------------------------------------------------------------------
+  :doc "multi-frame management independent of window systems"
+  :tag "builtin" "internal"
+  :added "2022-11-01"
+  ;;   :pre-setq
+  ;;   (kb/frame-config . '(;; (top . 1)
+  ;;                        ;; (left . 1)
+  ;;                        ;; (fullscreen . maximized)
+  ;;                        (menu-bar-lines . 0)       ; turn menus off
+  ;;                        (tool-bar-lines . 0)       ; disable toolbar
+  ;;                        (scroll-bar-width . 10)
+  ;;                        (vertical-scroll-bars . 'right)
+  ;;                        ;; (background-mode . dark)
+  ;;                        (font . "Hack")))
+  ;;   :setq ((default-frame-alist . kb/frame-config)
+  ;;          ;; (initial-frame-alist . kb/frame-config)
+  ;;          )
+  ;;   :custom (
+  ;;            (blink-cursor-mode . nil)
+  ;;            ;; turn off blinking cursor
+  ;;            (blink-cursor-blinks . 3)
+  ;;            (blink-cursor-delay . 1)
+  ;;            )
+  :push ((default-frame-alist . '(font . "Hack")))
+  :config
+  (blink-cursor-mode -1)
+  ;;   ;; (mapc 'frame-set-background-mode (frame-list))
+  ;;   ;; (fullscreen-restore . fullheight)
+  ;;   ;; (fullscreen . fullboth)
+  )
+
+(leaf paragraphs
+  :doc "paragraph and sentence parsing"
+  :tag "builtin" "text"
+  :added "2025-09-01"
+  :custom (sentence-end-double-space . nil))
+
+(leaf mouse
+  :doc "window system-independent mouse support"
+  :tag "builtin" "mouse" "hardware"
+  :added "2025-09-01"
+  :custom
+  ;; Enable context menu. `vertico-multiform-mode' adds a menu in the minibuffer
+  ;; to switch display modes.
+  (context-menu-mode . t))
 
 (leaf dashboard
   :doc "A startup screen extracted from Spacemacs"
@@ -322,84 +407,6 @@ By default is subdirectory of `user-emacs-directory'.")
   ;; (scroll-bar-mode -1)
   )
 
-;; a few more useful configurations...
-(leaf emacs
-  :bind
-  (("M-c" . capitalize-dwim)
-   ("M-u" . upcase-dwim)
-   ("M-l" . downcase-dwim)
-   ("M-z" . zap-up-to-char)
-   )
-  :custom
-  (kill-region-dwim . 'emacs-word)
-  ;; Enable context menu. `vertico-multiform-mode' adds a menu in the minibuffer
-  ;; to switch display modes.
-  (context-menu-mode . t)
-
-  ;; TAB cycle if there are only few candidates
-  ;; (completion-cycle-threshold . 3)
-
-  ;; Emacs 30 and newer: Disable Ispell completion function.
-  ;; Try `cape-dict' as an alternative.
-  (text-mode-ispell-word-completion . nil)
-
-  ;; Hide commands in M-x which do not apply to the current
-  ;; mode. Vertico and Corfu commands are hidden, since they are not used
-  ;; via M-x. This setting is useful beyond Corfu and Vertico.
-  (read-extended-command-predicate . #'command-completion-default-include-p)
-
-  ;; Do not allow the cursor in the minibuffer prompt
-  (minibuffer-prompt-properties . '(read-only t cursor-intangible t face minibuffer-prompt))
-
-  :config
-  (message "Configure emacs fringe")
-  ;; change truncation indicators
-  (define-fringe-bitmap 'right-curly-arrow
-    [#b10000000 #b10000000 #b01000000
-     #b01000000 #b00100000 #b00100000
-     #b00010000 #b00010000 #b00001000
-     #b00001000 #b00000100 #b00000100])
-  (define-fringe-bitmap 'left-curly-arrow
-    [#b00000100 #b00000100 #b00001000
-     #b00001000 #b00010000 #b00010000
-     #b00100000 #b00100000 #b01000000
-     #b01000000 #b10000000 #b10000000])
-  )
-
-(leaf frame
-  ;;--------------------------------------------------------------------------------
-  ;; Default frame parameters
-  ;;--------------------------------------------------------------------------------
-  :doc "multi-frame management independent of window systems"
-  :tag "builtin" "internal"
-  :added "2022-11-01"
-  ;;   :pre-setq
-  ;;   (kb/frame-config . '(;; (top . 1)
-  ;;                        ;; (left . 1)
-  ;;                        ;; (fullscreen . maximized)
-  ;;                        (menu-bar-lines . 0)       ; turn menus off
-  ;;                        (tool-bar-lines . 0)       ; disable toolbar
-  ;;                        (scroll-bar-width . 10)
-  ;;                        (vertical-scroll-bars . 'right)
-  ;;                        ;; (background-mode . dark)
-  ;;                        (font . "Hack")))
-  ;;   :setq ((default-frame-alist . kb/frame-config)
-  ;;          ;; (initial-frame-alist . kb/frame-config)
-  ;;          )
-  ;;   :custom (
-  ;;            (blink-cursor-mode . nil)
-  ;;            ;; turn off blinking cursor
-  ;;            (blink-cursor-blinks . 3)
-  ;;            (blink-cursor-delay . 1)
-  ;;            )
-  :push ((default-frame-alist . '(font . "Hack")))
-  :config
-  (blink-cursor-mode -1)
-  ;;   ;; (mapc 'frame-set-background-mode (frame-list))
-  ;;   ;; (fullscreen-restore . fullheight)
-  ;;   ;; (fullscreen . fullboth)
-  )
-
 ;; (leaf emacs-gc-stats
 ;;   :doc "Collect Emacs GC statistics"
 ;;   :req "emacs-25.1"
@@ -497,8 +504,13 @@ By default is subdirectory of `user-emacs-directory'.")
            (transient-mark-mode . t)
            (indent-tabs-mode . nil)
            (eval-expression-print-length . nil)
-           (eval-expression-print-level . nil)
-           )
+           (eval-expression-print-level . nil))
+
+  :custom
+  ;; Hide commands in M-x which do not apply to the current
+  ;; mode. Vertico and Corfu commands are hidden, since they are not used
+  ;; via M-x. This setting is useful beyond Corfu and Vertico.
+  (read-extended-command-predicate . #'command-completion-default-include-p)
   :bind (("C-;" . kill-whole-line)
          ("C-j" . kb/join-line))
   :config
@@ -552,11 +564,13 @@ By default is subdirectory of `user-emacs-directory'.")
                                         (,tramp-file-name-regexp . nil)))
             (version-control . t)
             (delete-old-versions . t)
-            (auto-save-visited-interval . 1))
+            (auto-save-visited-interval . 1)
+            ;; A second, case-insensitive pass over `auto-mode-alist' is time wasted, and
+            ;; indicates misconfiguration (don't rely on case insensitivity for file names).
+            (auto-mode-case-fold . nil))
   :custom ((large-file-warning-threshold . 100000000)
            (mode-require-final-newline . t)      ; add a newline to end of file)
-           (make-backup-files . nil)
-           )
+           (make-backup-files . nil))
   :config
   ;; Tell Emacs to prefer the treesitter mode
   ;; You'll want to run the command `M-x treesit-install-language-grammar' before editing.
