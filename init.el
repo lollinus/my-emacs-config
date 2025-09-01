@@ -1140,7 +1140,7 @@ should be imported.
   (c-ts-mode-set-global-style 'linux)
   (defun kb/c++-ts-mode-hook ()
     "My style used while editing C++ sources."
-    (setopt fill-column 120)
+    (setq-local fill-column 120)
     ;; (tab-width . 4)
     (indent-tabs-mode . nil)
     (display-fill-column-indicator-mode)
@@ -2448,7 +2448,9 @@ This function is based on work of David Wilson.
 
 (leaf eglot
   :doc "The Emacs Client for LSP servers"
-  :tag "builtin"
+  :ensure t
+  :package eglot
+  ;; :tag "builtin"
   :added "2025-07-02"
   :hook ((python-mode-hook ruby-mode-hook elixir-mode-hook) . eglot-ensure)
   :custom
@@ -2465,7 +2467,7 @@ This function is based on work of David Wilson.
   ;;   (eglot-ensure))
   :config
   (require 'mason)
-  (fset #'jsonrpc--log-event #'ignore)  ; massive perf boost---don't log every event
+  ;; (fset #'jsonrpc--log-event #'ignore)  ; massive perf boost---don't log every event
   (when (executable-find "haskell-language-server-wrapper")
     (message "**** found haskell-language-server-wrapper")
     (add-to-list 'eglot-server-programs
@@ -2669,10 +2671,10 @@ This function is based on work of David Wilson.
   :init
   (defun kb/cmake-mode-setup ()
       (message "***** cmakemode custom")
-      (setq fill-column 80)
+      (setq-local fill-column 80)
       (auto-fill-mode)
       (setq cmake-tab-width 4)
-      (setq indent-tabs-mode nil)
+      (indent-tabs-mode nil)
       ;; NOTE: default eglot-server-programs contains following setting for cmake-mode and cmake-ts-mode.
       ;; ,(eglot-alternatives '((("neocmakelsp" "--stdio") "cmake-language-server")))
       ;; This is causing problems as ("neocmakelsp" "--stdio") is improperly passed to (eglot--find-executable)
@@ -2688,7 +2690,7 @@ This function is based on work of David Wilson.
   :added "2025-08-20"
   (defun kb/cmake-mode-setup ()
       (message "***** cmake-ts-mode custom")
-      (setq fill-column 80)
+      (setq-local fill-column 80)
       ;; (auto-fill-mode)
       ;; (setq cmake-tab-width 4)
       ;; (setq indent-tabs-mode nil)
@@ -3229,13 +3231,16 @@ This function is based on work of David Wilson.
   :url "https://gitlab.com/OlMon/consult-projectile"
   :added "2025-06-06"
   :ensure t
-  :hook (projectile-mode-hook . (lambda ()
-                                  (when projectile-mode
-                                    (define-key projectile-mode-map [remap projectile-switch-project] #'consult-projectile)
-                                    (define-key projectile-mode-map [remap projectile-recentf] #'consult-projectile-recentf)
-                                    (define-key projectile-mode-map [remap projectile-find-file] #'consult-projectile-find-file)
-                                    (define-key projectile-mode-map [remap projectile-find-dir] #'consult-projectile-find-dir)
-                                    (define-key projectile-mode-map [remap projectile-switch-to-buffer] #'consult-projectile-switch-to-buffer))))
+  :preface
+  (defun kb/register-consult-projectile-keys ()
+    "Function registers consult-projectile for projectile when projectile mode is active."
+    (when projectile-mode
+      (define-key projectile-mode-map [remap projectile-switch-project] #'consult-projectile)
+      (define-key projectile-mode-map [remap projectile-recentf] #'consult-projectile-recentf)
+      (define-key projectile-mode-map [remap projectile-find-file] #'consult-projectile-find-file)
+      (define-key projectile-mode-map [remap projectile-find-dir] #'consult-projectile-find-dir)
+      (define-key projectile-mode-map [remap projectile-switch-to-buffer] #'consult-projectile-switch-to-buffer)))
+  :hook (projectile-mode-hook . kb/register-consult-projectile-keys)
   :config
   (message "**** Configure consult-projectile")
   (setopt consult-projectile-sources
@@ -4763,7 +4768,7 @@ Download and put appropriate file there."
            (plantuml-indent-level . 4)
            (org-plantuml-jar-path . kb/plantuml-jar-path))
   :hook (plantuml-mode-hook . (lambda ()
-                                (set-fill-column 100)
+                                (setq-local fill-column 100)
                                 (display-fill-column-indicator-mode)
                                 (add-to-list 'org-babel-load-languages '((plantuml . t)))
                                 (org-babel-do-load-languages 'org-babel-load-languages '((plantuml . t)))
