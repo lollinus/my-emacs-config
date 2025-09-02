@@ -23,17 +23,6 @@
 (when (version< emacs-version "27.1")
   (error "This requires Emacs 27.1 and above!"))
 
-;; Faster to disable these here (before they've been initialized)
-(setq default-frame-alist
-      (append
-       '((menu-bar-lines . 0)
-         (tool-bar-lines . 0)
-         (vertical-scroll-bars)
-         (fullscreen . maximized))
-       (when (featurep 'ns)
-         '((ns-transparent-titlebar . t)))
-       default-frame-alist))
-
 (defgroup kb-config nil
   "Custom options for KB config."
   :group 'convenience
@@ -45,8 +34,8 @@
 (eval-and-compile
   (customize-set-variable
    'package-archives '(("org" . "https://orgmode.org/elpa/")
-		       ("melpa" . "https://melpa.org/packages/")
-		       ("gnu" . "https://elpa.gnu.org/packages/")))
+                       ("melpa" . "https://melpa.org/packages/")
+                       ("gnu" . "https://elpa.gnu.org/packages/")))
   (package-initialize)
   (unless (package-installed-p 'leaf)
     (package-refresh-contents)
@@ -79,14 +68,14 @@
   :doc "GNU Emacs window commands aside from those written in C"
   :tag "builtin" "internal"
   :added "2025-09-01"
-  :bind (("M-o" . other-window))
-;;  :init (put 'other-window 'repeat-map nil)
-  )
+  :bind (("M-o" . other-window)))
 
 (leaf frame
   :doc "multi-frame management independent of window systems"
   :tag "builtin" "internal"
-  :added "2025-09-01")
+  :added "2025-09-01"
+  :config
+  (blink-cursor-mode -1))
 
 (leaf simple
   :doc "basic editing commands for Emacs"
@@ -101,7 +90,7 @@
            (indent-tabs-mode . nil)
            ;; (eval-expression-print-length . nil)
            ;; (eval-expression-print-level . nil)
-	   )
+           )
   :custom
   ;; Hide commands in M-x which do not apply to the current
   ;; mode. Vertico and Corfu commands are hidden, since they are not used
@@ -119,7 +108,7 @@
     (interactive)
     (join-line 'forward-line))
 
-  :global-minor-mode (column-number-mode line-number-mode size-indication-mode)
+  :global-minor-mode ((column-number-mode line-number-mode size-indication-mode) . simple)
   :config
   (put 'set-goal-column 'disabled nil)
 
@@ -149,8 +138,7 @@
            (frame-resize-pixelwise . t)
            ;; Support opening new minibuffers from inside existing minibuffers.
            (enable-recursive-minibuffers . t)
-           (history-length . 1000)
-  ))
+           (history-length . 1000)))
 
 (leaf time
   :doc "display time, load and mail indicator in mode line of Emacs"
@@ -173,6 +161,15 @@
   ;; Don't ping things that look like domain names.
   (setq ffap-machine-p-known 'reject))
 
+(leaf indent
+  :doc "indentation commands for Emacs"
+  :tag "builtin"
+  :added "2025-09-02"
+  :custom
+  ;; Enable indentation+completion using the TAB key.
+  ;; `completion-at-point' is often bound to M-TAB.
+  (tab-always-indent . 'complete))
+
 (leaf vertico
   :doc "VERTical Interactive COmpletion"
   :req "emacs-28.1" "compat-30"
@@ -185,10 +182,10 @@
   :bind (vertico-map
          ;; Option 1: Additional bindings
          ("?"        . #'minibuffer-completion-help)
-;;         ("M-RET"    . #'minibuffer-force-complete-and-exit)
-;;         ("M-TAB"    . #'minibuffer-complete)
-;;         ("\177"     . vertico-directory-delete-char)
-;;         ("<return>" . vertico-directory-enter)
+         ;;         ("M-RET"    . #'minibuffer-force-complete-and-exit)
+         ;;         ("M-TAB"    . #'minibuffer-complete)
+         ;;         ("\177"     . vertico-directory-delete-char)
+         ;;         ("<return>" . vertico-directory-enter)
          ;; ("/"        . jcs-vertico-/)
          ;; (":"        . jcs-vertico-:)
 
@@ -196,7 +193,7 @@
          ;; (keymap-set vertico-map "TAB" #'minibuffer-complete)
          )
   ;; :custom (
-  ;; 	   (vertico-cycle . t)
+  ;;       (vertico-cycle . t)
   ;;          (vertico-resize . t)
   ;;          (vertico-scroll-margin . 0)
   ;;          (vertico-preselect . 'first)
@@ -227,7 +224,13 @@
    ([remap project-switch-to-buffer] . consult-project-buffer) ;; "C-x p b" orig. project-switch-to-buffer
    ("M-s l" . consult-line)
    ("C-s" . kb/consult-line) ;; "C-s" Isearch
+   ;; GOTO
    ([remap imenu] . consult-imenu) ;; "M-g i"
+   ("M-g e" . consult-compile-error)
+   ("M-g f" . consult-flymake)               ;; Alternative: consult-flymake
+   ([remap goto-line] . consult-goto-line)  ;; "M-g g" orig. goto-line
+   ;; ("M-g M-g" . consult-goto-line)           ;; orig. goto-line
+   ("M-g o" . consult-outline)               ;; Alternative: consult-org-heading
    )
   ;; Enable automatic preview at point in the *Completions* buffer. This is
   ;; relevant when you use the default completion UI.
@@ -284,7 +287,7 @@
   :global-minor-mode prescient-persist-mode
   ;; :config
   ;; (prescient-persist-mode)
-)
+  )
 
 (leaf vertico-prescient
   :doc "Prescient.el + Vertico"
@@ -313,11 +316,55 @@
   :url "https://github.com/oantolin/embark"
   :added "2025-09-01"
   :emacs>= 28.1
+  :ensure t
   :bind ((minibuffer-mode-map
-         :package emacs
-         ("M-." . embark-dwim)
-         ("C-." . embark-act)))
-)
+          :package emacs
+          ("M-." . embark-dwim)
+          ("C-." . embark-act)))
+  )
+
+(leaf corfu
+  :doc "COmpletion in Region FUnction"
+  :req "emacs-28.1" "compat-30"
+  :tag "text" "completion" "matching" "convenience" "abbrev" "emacs>=28.1"
+  :url "https://github.com/minad/corfu"
+  :added "2025-09-01"
+  :emacs>= 28.1
+  :ensure t
+  ;; Optional customizations
+  :custom
+  (corfu-cycle . t)                ;; Enable cycling for `corfu-next/previous'
+  (corfu-quit-at-boundary . nil)   ;; Never quit at completion boundary
+  (corfu-quit-no-match . nil)      ;; Never quit, even if there is no match
+  (corfu-preview-current . nil)    ;; Disable current candidate preview
+  (corfu-preselect . 'prompt)      ;; Preselect the prompt
+  (corfu-on-exact-match . nil)     ;; Configure handling of exact matches
+  (corfu-auto . t)
+  (corfu-auto-prefix . 2)
+  (corfu-auto-delay . 0.1)
+  (corfu-echo-delay . 0.25)
+  (corfu-popupinfo-delay . '(0.25 . 0.1))
+  (corfu-popupinfo-hide . nil)
+
+  :hook (eshell-mode-hook . (lambda () (setq-local corfu-quit-at-boundary t
+                                              corfu-quit-no-match t
+                                              corfu-auto nil)
+                              (corfu-mode)))
+  :bind ((:corfu-map
+          ("M-SPC" . corfu-insert-separator)
+          ("RET" . nil) ; Leave my enter alone!
+          ("TAB" . corfu-next)
+          ("S-TAB" . corfu-previous)
+          ([backtab] . corfu-previous)
+          ("M-RET" . corfu-insert)
+          ("S-RET" . corfu-insert)
+          ("C-RET" . corfu-insert)))
+  ;; Recommended: Enable Corfu globally.  Recommended since many modes provide
+  ;; Capfs and Dabbrev can be used globally (M-/).  See also the customization
+  ;; variable `global-corfu-modes' to exclude certain modes.
+  ;; Enable optional extension modes:
+  :global-minor-mode (global-corfu-mode corfu-history-mode corfu-popupinfo-mode)
+  )
 
 (leaf cape
   :doc "Completion At Point Extensions"
@@ -347,6 +394,22 @@
     ;; pure `completion-at-point-function'.
     (advice-add 'pcomplete-completions-at-point :around #'cape-wrap-purify))
   )
+
+(leaf marginalia
+  :doc "Enrich existing commands with completion annotations"
+  :req "emacs-28.1" "compat-30"
+  :tag "completion" "matching" "help" "docs" "emacs>=28.1"
+  :url "https://github.com/minad/marginalia"
+  :added "2025-09-02"
+  :emacs>= 28.1
+  :ensure t
+  ;; Either bind `marginalia-cycle` globally or only in the minibuffer
+  :bind (("M-A" . marginalia-cycle)
+         (:minibuffer-local-map
+          ("M-A" . marginalia-cycle)))
+  ;; The :init configuration is always executed (Not lazy!)
+  :custom (marginalia-align . 'right)
+  :global-minor-mode t)
 
 ;; Development
 
@@ -401,6 +464,24 @@
   :url "https://github.com/magit/magit"
   :added "2025-09-01"
   :emacs>= 28.1
+  :ensure t)
+
+(leaf git-timemachine
+  :doc "Walk through git revisions of a file"
+  :req "emacs-24.3" "transient-0.1.0"
+  :tag "vc" "emacs>=24.3"
+  :url "https://codeberg.org/pidu/git-timemachine"
+  :added "2025-09-01"
+  :emacs>= 24.3
+  :ensure t)
+
+(leaf git-link
+  :doc "Get the GitHub/Bitbucket/GitLab URL for a buffer location"
+  :req "emacs-24.3"
+  :tag "convenience" "azure" "aws" "sourcehut" "gitlab" "bitbucket" "github" "vc" "git" "emacs>=24.3"
+  :url "http://github.com/sshaw/git-link"
+  :added "2025-09-01"
+  :emacs>= 24.3
   :ensure t)
 
 (leaf project
@@ -464,11 +545,24 @@
   ([remap project-find-file] . consult-project-extra-find)
   )
 
+(leaf breadcrumb
+  :doc "Project and imenu-based breadcrumb paths"
+  :req "emacs-28.1" "project-0.9.8"
+  :tag "emacs>=28.1"
+  :url "https://github.com/joaotavora/breadcrumb"
+  :added "2025-09-01"
+  :emacs>= 28.1
+  :ensure t
+  :global-minor-mode t
+  )
+
 (leaf eglot
   :doc "The Emacs Client for LSP servers"
   :tag "builtin"
   :added "2025-09-01"
-  :hook (((c-mode-common-hook c-ts-base-mode-hook) . eglot-ensure))
+  :hook (((c-mode-common-hook c-ts-base-mode-hook) . eglot-ensure)
+         (eglot-mode-hook . eglot-inlay-hints-mode)
+         )
   :custom ((eglot-send-changes-idle-time . 0.1)
            (eglot-extend-to-xref . t)              ; activate Eglot in referenced non-project files
            )
@@ -485,6 +579,63 @@
   ;; (eglot-inlay-hints-mode)
   )
 
+(leaf clang-format
+  :doc "Format code using clang-format."
+  :req "cl-lib-0.3"
+  :tag "c" "tools"
+  :url "https://github.com/emacsmirror/clang-format"
+  :added "2022-10-31"
+  :ensure t
+  :when (executable-find "clang-format")
+  ;; :bind ((:c-mode-base-map
+  ;;         ("C-M-'" . #'clang-format-region))
+  ;;        (:c++-mode-map
+  ;;         ("C-M-'" . #'clang-format-region))
+  ;;        (:c-mode-map
+  ;;         ("C-M-'" . #'clang-format-region)))
+  :preface
+  (defun kb/c++-bind-clang-format ()
+    "Hook used to bind clang-format on moded activation."
+    ;; (interactive)
+    ;; (define-key c-mode-base-map (kbd "C-M-'") 'clang-format-region)
+    (keymap-set c++-mode-map "C-M-'" #'clang-format-region))
+  (defun kb/c-bind-clang-format ()
+    "Hook used to bind clang-format on moded activation."
+    ;; (interactive)
+    ;; (define-key c-mode-base-map (kbd "C-M-'") 'clang-format-region)
+    (keymap-set c-mode-map "C-M-'" #'clang-format-region))
+  (defun kb/c++-ts-bind-clang-format ()
+    "Hook used to bind clang-format on moded activation."
+    ;; (interactive)
+    ;; (define-key c-mode-base-map (kbd "C-M-'") 'clang-format-region)
+    (keymap-set c++-ts-mode-map "C-M-'" #'clang-format-region))
+  (defun kb/c-ts-bind-clang-format ()
+    "Hook used to bind clang-format on moded activation."
+    ;; (interactive)
+    ;; (define-key c-mode-base-map (kbd "C-M-'") 'clang-format-region)
+    (keymap-set c-ts-mode-map "C-M-'" #'clang-format-region))
+  :hook (c-mode-hook . kb/c-bind-clang-format )
+  :hook (c++-mode-hook . kb/c++-bind-clang-format)
+  :hook (c-ts-mode-hook . kb/c-ts-bind-clang-format)
+  :hook (c++-ts-mode-hook . kb/c++-ts-bind-clang-format)
+  )
+
+(leaf verb
+  :doc "Organize and send HTTP requests"
+  :req "emacs-26.3"
+  :tag "tools" "emacs>=26.3"
+  :url "https://github.com/federicotdn/verb"
+  :added "2025-09-01"
+  :emacs>= 26.3
+  :ensure t
+  :after org
+  ;; :bind-keymap (:org-mode-map ("C-c C-1" . verb-command-map))
+  :config
+  (add-to-list 'org-babel-load-languages '((verb . t)))
+  ;; (org-babel-do-load-languages 'org-babel-load-languages '((plantuml . t)))
+  ;; (define-key org-mode-map (kbd "C-c C-0") verb-command-map)
+  (keymap-set org-mode-map "C-c C-0" verb-command-map)
+  )
 
 ;; Other
 (leaf comment-dwim-2
@@ -531,31 +682,3 @@
 
 (message "** Init finished")
 ;;; init.el ends here
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(safe-local-variable-values
-   '((projectile-project-test-cmd
-      . "docker run --rm --user 1001:1002 -v /home/karolbarski/.hmi-build-home/:/home/karolbarski -w /home/karolbarski/projects/ID8/ --mount type=bind,source=/home/karolbarski/projects/ID8/,target=/home/karolbarski/projects/ID8/ hmi-user-builder ./build/x64_linux64_hmi8mgu22_debug/install/bin/speech_speechdevices_gtest")
-     (projectile-project-test-dir
-      . "./build/x64_linux64_hmi8mgu22_debug/install/bin")
-     (projectile-project-compilation-cmd
-      . "docker run --rm --user 1001:1002 -v /home/karolbarski/.hmi-build-home/:/home/karolbarski -w /home/karolbarski/projects/ID8/ --mount type=bind,source=/home/karolbarski/projects/ID8/,target=/home/karolbarski/projects/ID8/ hmi-user-builder ./build/x64_linux64_hmi8mgu22_debug/run_build.sh -j8")
-     (projectile-project-configure-cmd
-      . "docker run --rm --user 1001:1002 -v /home/karolbarski/.hmi-build-home/:/home/karolbarski -w /home/karolbarski/projects/ID8/ --mount type=bind,source=/home/karolbarski/projects/ID8/,target=/home/karolbarski/projects/ID8/ --env MAKETHREADCOUNT=8 hmi-user-builder ./build_linux64mgu22.sh")
-     (projectile-project-compilation-dir . "../")
-     (projectile-project-name . "HMI/speech")
-     (projectile-project-configure-cmd
-      . "docker run --rm --user 1001:1002 -v /home/karolbarski/.hmi-build-home/:/home/karolbarski -w /home/karolbarski/projects/ID8/ --mount type=bind,source=/home/karolbarski/projects/ID8/,target=/home/karolbarski/projects/ID8/ --env MAKETHREADCOUNT=8 MGU22/hmi-user-builder:0.1-dev ./build_linux64mgu22.sh")
-     (projectile-project-name . "ID8")
-     (projectile-project-compilation-cmd
-      . "docker run --rm --user 1001:1002 -v /home/karolbarski/.hmi-build-home/:/home/karolbarski -w /home/karolbarski/projects/ID8/ --mount type=bind,source=/home/karolbarski/projects/ID8/,target=/home/karolbarski/projects/ID8/ --env MAKETHREADCOUNT=8 MGU22/hmi-user-builder:0.1-dev ./build/x64_linux64_hmi8mgu22_debug/run_build.sh -j10")
-     (projectile-project-compilation-dir . "./"))))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
