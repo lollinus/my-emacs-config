@@ -582,6 +582,16 @@
   ;; (eglot-inlay-hints-mode)
   )
 
+(leaf consult-eglot
+  :doc "A consulting-read interface for eglot"
+  :req "emacs-27.1" "eglot-1.16" "consult-0.31" "project-0.3.0"
+  :tag "lsp" "completion" "tools" "emacs>=27.1"
+  :url "https://github.com/mohkale/consult-eglot"
+  :added "2025-09-04"
+  :emacs>= 27.1
+  :ensure t
+  :bind ("M-s s" . #'consult-eglot-symbols))
+
 (leaf clang-format
   :doc "Format code using clang-format."
   :req "cl-lib-0.3"
