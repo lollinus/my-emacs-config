@@ -166,6 +166,17 @@
   ;; `completion-at-point' is often bound to M-TAB.
   (tab-always-indent . 'complete))
 
+(leaf display-line-numbers
+  :doc "interface for display-line-numbers"
+  :tag "builtin"
+  :added "2025-09-04"
+  :custom (display-line-numbers-width-start . t)
+  :hook ((emacs-lisp-mode-hook
+          lisp-mode-hook
+          c-mode-common-hook
+          c-ts-base-mode-hook
+          prog-mode-hook) . display-line-numbers-mode))
+
 (leaf vertico
   :doc "VERTical Interactive COmpletion"
   :req "emacs-28.1" "compat-30"
