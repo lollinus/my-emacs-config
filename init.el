@@ -301,7 +301,16 @@
   :added "2025-09-01"
   :emacs>= 28.1
   :ensure t
-  :after compat)
+  :after compat
+  :bind (("C-." . embark-act)         ;; pick some comfortable binding
+         ;; ("C-;" . embark-dwim)        ;; good alternative: M-.
+         ("M-." . embark-dwim)        ;; good alternative: M-.
+         ([remap describe-bindings] . embark-bindings)  ;; "C-h B" alternative for `describe-bindings'
+         ("<f2> i" . #'embark-info-lookup-symbol)
+         ("<f2> u" . #'embark-save-unicode-character))
+  :custom
+  (prefix-help-command . #'embark-prefix-help-command)
+  )
 
 (leaf embark-consult
   :doc "Consult integration for Embark"
