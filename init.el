@@ -729,6 +729,14 @@
   :ensure t
   :bind ("M-;" . comment-dwim-2))
 
+(leaf iedit
+  :doc "Edit multiple regions in the same way simultaneously"
+  :tag "refactoring" "simultaneous" "region" "occurrence"
+  :url "https://github.com/victorhge/iedit"
+  :added "2025-09-03"
+  :ensure t
+  :bind ("C-c ;" . iedit-mode))
+
 (leaf zerodark-theme
   :doc "A dark, medium contrast theme for Emacs"
   :req "all-the-icons-2.0.0"
