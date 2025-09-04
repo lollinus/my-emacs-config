@@ -592,6 +592,17 @@
   :ensure t
   :bind ("M-s s" . #'consult-eglot-symbols))
 
+(leaf consult-eglot-embark
+  :doc "Embark integration for `consult-eglot'"
+  :req "emacs-27.1" "consult-eglot-0.3" "embark-consult-1.0"
+  :tag "lsp" "completion" "tools" "emacs>=27.1"
+  :url "https://github.com/mohkale/consult-eglot"
+  :added "2025-09-04"
+  :emacs>= 27.1
+  :ensure t
+  :after consult-eglot
+  :global-minor-mode t)
+
 (leaf clang-format
   :doc "Format code using clang-format."
   :req "cl-lib-0.3"
