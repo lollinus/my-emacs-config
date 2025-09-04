@@ -784,5 +784,16 @@
                         ("21:30" . leuven-dark)))
   )
 
+(leaf kill-file-path
+  :doc "Copy file name into kill ring"
+  :req "emacs-26"
+  :tag "files" "emacs>=26"
+  :url "https://github.com/chyla/kill-file-path/kill-file-path.el"
+  :added "2025-09-02"
+  :emacs>= 26
+  :ensure t
+  ;; :bind ("C-c f" . kill-file-path)
+  )
+
 (message "** Init finished")
 ;;; init.el ends here
