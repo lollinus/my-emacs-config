@@ -9,11 +9,10 @@
 ;; (setenv "LSP_USE_PLISTS" "true")
 ;;; Startup
 (add-hook 'emacs-startup-hook
-          (lambda ()
-            (message "*** Emacs loaded in %s seconds with %d garbage collections."
-                     (emacs-init-time "%.2f")
-                     gcs-done)))
+          (lambda () (message "*** Emacs loaded in %s seconds with %d garbage collections." (emacs-init-time "%.2f") gcs-done)))
 
+(add-to-list 'load-path (expand-file-name "rc" user-emacs-directory))
+(require 'kb-secrets (expand-file-name "rc/kb-secrets.el" user-emacs-directory) t)
 
 ;; TODO:
 ;;  Check this init
@@ -57,8 +56,6 @@
 ;; (leaf leaf-tree :ensure t)
 (leaf leaf-convert :ensure t)
 
-(message "load path %S" load-path)
-
 ;; Contrary to what many Emacs users have in their configs, you don't need
 ;; more than this to make UTF-8 the default coding system:
 (set-language-environment "UTF-8")
@@ -100,7 +97,6 @@
   :bind (("C-;" . kill-whole-line)
          ("C-j" . kb/join-line))
   :preface
-  ;; Join lines as in Vim
   (defun kb/join-line()
     "Join current and next line.
 
@@ -285,8 +281,6 @@
   :emacs>= 25.1
   :ensure t
   :global-minor-mode prescient-persist-mode
-  ;; :config
-  ;; (prescient-persist-mode)
   )
 
 (leaf vertico-prescient
@@ -636,6 +630,99 @@
   ;; (define-key org-mode-map (kbd "C-c C-0") verb-command-map)
   (keymap-set org-mode-map "C-c C-0" verb-command-map)
   )
+
+;; Documents
+
+(leaf org
+  :doc "Outline-based notes management and organizer"
+  :tag "builtin"
+  :added "2025-09-02"
+  :ensure t
+  :custom ((org-startup-indented . t)
+           (org-startup-with-inline-images . t)
+           (org-pretty-entities . t)
+           (org-use-sub-superscripts . "{}")
+           (org-hide-emphasis-markers . t)
+           (org-hide-block-startup . t)
+           (org-image-actual-width . '(300))
+
+           (org-ellipsis . " ▾")
+           (org-hide-leading-stars . t)
+           (org-agenda-start-with-log-mode . t)
+           (org-log-done . 'time)
+           (org-log-into-drawer . t)
+           (org-src-fontify-natively . t)
+           (org-list-allow-alphabetical . t)
+
+           (org-export-default-language . "en")
+           (org-export-with-fixed-width . nil)
+           (org-export-preserve-breaks . t)
+           (org-export-with-properties . t)
+           (org-export-with-section-numbers . nil)
+           (org-export-with-smart-quotes . t)
+           (org-export-with-drawers . nil)
+           (org-export-with-todo-keywords . nil)
+           (org-export-with-broken-links . t)
+           (org-export-with-toc . nil)
+           (org-export-with-smart-quotes . t)
+           (org-export-date-timestamp-format . "%d %B %Y")
+           (org-export-with-sub-superscripts . '{})
+           (org-export-copy-to-kill-ring . 'if-interactive)
+           (org-export-show-temporary-export-buffer . nil)
+
+           (org-html-table-default-attributes . '(:border "1" :rules "border" :frame "all"))
+           (org-html-metadata-timestamp-format . "%A, %B %d, %Y")
+           (org-html-postamble . nil)
+           (org-todo-keywords . '((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d!)")
+                                  (sequence "BACKLOG(b)" "PLAN(p)" "READY(r)" "ACTIVE(a)" "REVIEW(v)" "WAIT(w@/!)" "HOLD(h)" "|" "COMPLETED(c)" "CANC(k@)")))
+           )
+
+  :preface
+  (defun kb/org-mode-setup ()
+    (org-indent-mode 1)
+    ;;(variable-pitch-mode 1)
+    (visual-line-mode 1)
+    (org-babel-do-load-languages
+     'org-babel-load-languages
+     '((emacs-lisp . t)
+       (python . t)
+       (eshell . t)
+       (screen . t)
+       (shell . t)
+       (dot . t)
+       (gnuplot . t)
+       )))
+  :hook ((org-mode-hook . kb/org-mode-setup))
+  )
+
+(leaf ox-jira
+  :doc "JIRA Backend for Org Export Engine"
+  :req "org-8.3"
+  :tag "wp" "hypermedia" "outlines"
+  :url "https://github.com/stig/ox-jira.el"
+  :added "2025-09-02"
+  :ensure t
+  :after ox
+  :require t)
+
+(leaf org-jira
+  :doc "Syncing between Jira and Org-mode"
+  :req "emacs-24.5" "cl-lib-0.5" "request-0.2.0" "dash-2.14.1"
+  :tag "tracker" "bug" "org" "jira" "ahungry" "emacs>=24.5"
+  :url "https://github.com/ahungry/org-jira"
+  :added "2025-09-02"
+  :emacs>= 24.5
+  :ensure t
+  :after org
+  :config
+  (when (not (file-exists-p "~/.org-jira"))
+    (make-directory "~/.org-jira"))
+  (setopt jiralib-use-restapi t)
+  (setopt jiralib-url (concat "https://" (secrets-get-attribute "default" "CC-JIRA" :host)))
+  (setopt jiralib-host (secrets-get-attribute "default" "CC-JIRA" :host))
+  (setopt jiralib-user (secrets-get-attribute "default" "CC-JIRA" :user))
+  (setopt jiralib-use-PAT t)
+  (setopt jiralib-token (cons "Authorization" (concat "Bearer " (secrets-get-secret "default" "CC-JIRA")))))
 
 ;; Other
 (leaf comment-dwim-2
