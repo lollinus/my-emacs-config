@@ -833,6 +833,24 @@
                   :render (gt-overlay-render :type 'help-echo)))))
   :bind (("<f5>" . #'gt-translate)))
 
+(leaf hl-todo
+  :doc "Highlight TODO and similar keywords"
+  :req "emacs-26.1" "compat-30.1"
+  :tag "convenience" "emacs>=26.1"
+  :url "https://github.com/tarsius/hl-todo"
+  :added "2025-09-09"
+  :emacs>= 26.1
+  :ensure t
+  ;; :bind ((:hl-todo-mode-map
+  ;;         ("C-c t p" . #'hl-todo-previous)
+  ;;         ("C-c t n" . #'hl-todo-next)
+  ;;         ("C-c t o" . #'hl-todo-occur)
+  ;;         ("C-c t i" . #'hl-todo-insert)))
+  ;; :hook prog-mode-hook
+  :config
+  (add-to-list 'hl-todo-keyword-faces '("NOCOMMIT" . "#ff00ff"))
+  :global-minor-mode global-hl-todo-mode)
+
 ;; Other
 (leaf comment-dwim-2
   :ensure t
