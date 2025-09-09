@@ -793,6 +793,45 @@
     `(setopt jiralib-token ,(cons "Authorization" (concat "Bearer " password))))
   (setopt jiralib-use-PAT t))
 
+(leaf gt
+  :doc "Translation framework, configurable and scalable"
+  :req "emacs-28.1" "pdd-0.2.3"
+  :tag "convenience" "emacs>=28.1"
+  :url "https://github.com/lorniu/gt.el"
+  :added "2025-09-04"
+  :emacs>= 28.1
+  :ensure t
+  :custom ((gt-langs . '(en de ja ko pt pl fr zh)))
+  :config
+  (setq gt-default-translator
+         (gt-translator
+          :taker (gt-taker :text 'buffer :pick 'paragraph :langs '(en de ja ko pt pl fr zh))
+          :engines (list (gt-google-engine) (gt-bing-engine) (gt-deepl-engine))
+          :render (gt-buffer-renderer)))
+
+  (setq gt-preset-translators
+      `((ts-quick-de-en . ,(gt-translator
+                  :taker (gt-taker :langs '(de en) :text 'word)
+                  :engines (gt-bing-engine)
+                  :render (gt-overlay-render)))
+        (ts-quick-en-pl . ,(gt-translator
+                            :taker (gt-taker :langs '(en pl) :text 'word)
+                            :engines (gt-deepl-engine)
+                            :render (gt-overlay-render)))
+        (ts-quick-ja-en . ,(gt-translator
+                            :taker (gt-taker :langs '(ja en) :text 'word)
+                            :engines (gt-bing-engine)
+                            :render (gt-overlay-render)))
+        (ts-in-place . ,(gt-translator
+                         :taker (gt-taker :langs '(en de ja ko) :text 'sentence)
+                         :engines (gt-google-engine)
+                         :render (gt-insert-render)))
+        (ts-3 . ,(gt-translator
+                  :taker (gt-taker :langs '(en de) :text 'buffer
+                                   :pick 'word :pick-pred (lambda (w) (length> w 6)))
+                  :engines (gt-google-engine)
+                  :render (gt-overlay-render :type 'help-echo)))))
+  :bind (("<f5>" . #'gt-translate)))
 
 ;; Other
 (leaf comment-dwim-2
