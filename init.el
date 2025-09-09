@@ -678,6 +678,14 @@
   (keymap-set org-mode-map "C-c C-0" verb-command-map)
   )
 
+(leaf highlight-doxygen
+  :doc "Highlight Doxygen comments"
+  :tag "faces"
+  :url "https://github.com/Lindydancer/highlight-doxygen"
+  :added "2025-09-05"
+  :ensure t
+  :hook (c-mode-common-hook c-ts-base-mode-hook))
+
 ;; Documents
 
 (leaf org
