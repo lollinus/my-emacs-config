@@ -11,9 +11,6 @@
 (add-hook 'emacs-startup-hook
           (lambda () (message "*** Emacs loaded in %s seconds with %d garbage collections." (emacs-init-time "%.2f") gcs-done)))
 
-(add-to-list 'load-path (expand-file-name "rc" user-emacs-directory))
-(require 'kb-secrets (expand-file-name "rc/kb-secrets.el" user-emacs-directory) t)
-
 ;; TODO:
 ;;  Check this init
 ;; https://github.com/alexmurray/dot_emacs.d/blob/master/init.el
@@ -614,6 +611,15 @@
   :after consult-eglot
   :global-minor-mode t)
 
+;; Put credentials in ~/.authinfo.gpg enctyped file and set them for packages needing below snippet
+;; (require 'auth-source)
+;; (let* ((auth (car (auth-source-search
+;; 	       :host "jira.cc.bmwgroup.net"
+;; 	       :requires '(:user :secret))))
+;;    (password (funcall (plist-get auth :secret)))
+;;    (username (plist-get auth :user)))
+;;   (message "creds %S USR: %S AUTH: %S" `(:username ,(plist-get auth :user) :password ,password) username auth))
+
 (leaf clang-format
   :doc "Format code using clang-format."
   :req "cl-lib-0.3"
@@ -746,6 +752,14 @@
   :after ox
   :require t)
 
+;; (require 'auth-source)
+;; (let* ((auth (car (auth-source-search
+;; 	       :host "jira.cc.bmwgroup.net"
+;; 	       :requires '(:user :secret))))
+;;    (password (funcall (plist-get auth :secret)))
+;;    (username (plist-get auth :user)))
+;;   (message "creds %S USR: %S AUTH: %S" `(:username ,(plist-get auth :user) :password ,password) username auth))
+
 (leaf org-jira
   :doc "Syncing between Jira and Org-mode"
   :req "emacs-24.5" "cl-lib-0.5" "request-0.2.0" "dash-2.14.1"
@@ -759,11 +773,18 @@
   (when (not (file-exists-p "~/.org-jira"))
     (make-directory "~/.org-jira"))
   (setopt jiralib-use-restapi t)
-  (setopt jiralib-url (concat "https://" (secrets-get-attribute "default" "CC-JIRA" :host)))
-  (setopt jiralib-host (secrets-get-attribute "default" "CC-JIRA" :host))
-  (setopt jiralib-user (secrets-get-attribute "default" "CC-JIRA" :user))
-  (setopt jiralib-use-PAT t)
-  (setopt jiralib-token (cons "Authorization" (concat "Bearer " (secrets-get-secret "default" "CC-JIRA")))))
+  (setopt jiralib-url (concat "https://jira.cc.bmwgroup.net"))
+  (let* ((auth (car (auth-source-search
+ 	       :host "jira.cc.bmwgroup.net"
+ 	       :requires '(:user :secret))))
+    (password (funcall (plist-get auth :secret)))
+    (username (plist-get auth :user))
+    (jira-host (plist-get auth :host)))
+    (setopt jiralib-host jira-host)
+    (setopt jiralib-user username)
+    `(setopt jiralib-token ,(cons "Authorization" (concat "Bearer " password))))
+  (setopt jiralib-use-PAT t))
+
 
 ;; Other
 (leaf comment-dwim-2
