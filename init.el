@@ -871,7 +871,7 @@
   (when (not (file-exists-p "~/.org-jira"))
     (make-directory "~/.org-jira"))
   (setopt jiralib-use-restapi t)
-  (setopt jiralib-url (concat "https://jira.cc.bmwgroup.net"))
+  (setopt jiralib-url "https://jira.cc.bmwgroup.net")
   (let* ((auth (car (auth-source-search
  	       :host "jira.cc.bmwgroup.net"
  	       :requires '(:user :secret))))
@@ -880,7 +880,7 @@
     (jira-host (plist-get auth :host)))
     (setopt jiralib-host jira-host)
     (setopt jiralib-user username)
-    `(setopt jiralib-token ,(cons "Authorization" (concat "Bearer " password))))
+    (setopt jiralib-token `("Authorization" . ,(concat "Bearer " password))))
   (setopt jiralib-use-PAT t))
 
 (leaf gt
