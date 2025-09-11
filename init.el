@@ -171,8 +171,75 @@
   :hook ((emacs-lisp-mode-hook
           lisp-mode-hook
           c-mode-common-hook
-          c-ts-base-mode-hook
-          prog-mode-hook) . display-line-numbers-mode))
+          c-ts-base-mode-hook prog-mode-hook)
+         . display-line-numbers-mode))
+
+
+;;--------------------------------------------------------------------------------
+;; iBuffer
+;;--------------------------------------------------------------------------------
+(leaf ibuffer
+  :doc "operate on buffers like dired"
+  :tag "builtin"
+  :added "2025-09-11"
+  :bind (("C-x C-b" . ibuffer))
+  :custom ((ibuffer-saved-filter-groups .
+                                        '(("default"
+                                           ("Emacs Configuration" (or (filename . ".emacs.d")
+                                                                      (filename . "init.el")
+                                                                      (filename . "package.el")
+                                                                      (filename . "private.el")
+                                                                      (filename . "emacs.d")))
+                                           ("Org" (or (mode . org-mode)
+                                                      (filename . "OrgMode")))
+                                           ("Magit" (name . "magit"))
+                                           ("Help" (or (name . "*Help*")
+                                                       (name . "*Apropos*")
+                                                       (name . "*info*")))
+                                           ("Dired" (mode . dired-mode))
+                                           ;; Dev has groups for all languages you program in
+                                           ("Dev" (or (mode . cc-mode)
+                                                      (filename . ".c")
+                                                      (filename . ".h")
+                                                      (filename . ".cpp")
+                                                      (filename . ".hpp")
+                                                      (filename . ".java")
+                                                      (filename . ".properties")
+                                                      (filename . ".gradle")
+                                                      (filename . ".am")
+                                                      (mode . yaml-ts-mode)
+                                                      (mode . yaml-mode)
+                                                      (mode . yang-mode)
+                                                      (mode . protobuf-mode)
+                                                      (mode . prog-mode)
+                                                      (mode . c-ts-mode)
+                                                      )
+                                            )
+                                           ("Text" (or (filename . ".csv")
+                                                       (filename . ".tsv")
+                                                       (filename . ".txt")
+                                                       (filename . ".log")
+                                                       (filename . ".json")
+                                                       (filename . ".md")))
+                                           ("Emacs" (or (name . "^\\*scratch\\*$")
+                                                        (name . "^\\*Messages\\*$")))
+                                           ("Gnus" (or (mode . message-mode)
+                                                       (mode . bbdb-mode)
+                                                       (mode . mail-mode)
+                                                       (mode . gnus-group-mode)
+                                                       (mode . gnus-summary-mode)
+                                                       (mode . gnus-article-mode)
+                                                       (name . "^\\.bbdb$")
+                                                       (name . "^\\.newsrc-dribble"))))))
+           (ibuffer-formats . '((mark modified read-only " "
+                                      (name 40 40 :left :elide)
+                                      " "
+                                      (mode 16 16 :left :elide)
+                                      " "
+                                      filename-and-process))))
+  :preface
+  (defun kb/ibuffer-switch-to-filter () (ibuffer-switch-to-saved-filter-groups "default"))
+  :hook (ibuffer-mode-hook . kb/ibuffer-switch-to-filter))
 
 (leaf vertico
   :doc "VERTical Interactive COmpletion"
