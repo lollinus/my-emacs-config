@@ -850,6 +850,15 @@
   :after ox
   :require t)
 
+(leaf ox-gfm
+  :doc "Github Flavored Markdown Back-End for Org Export Engine"
+  :tag "github" "markdown" "wp" "org"
+  :url "https://github.com/larstvei/ox-gfm"
+  :added "2025-09-11"
+  :ensure t
+  :after ox
+  :require t)
+
 ;; (require 'auth-source)
 ;; (let* ((auth (car (auth-source-search
 ;; 	       :host "jira.cc.bmwgroup.net"
