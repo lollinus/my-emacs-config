@@ -753,6 +753,29 @@
   :ensure t
   :hook (c-mode-common-hook c-ts-base-mode-hook))
 
+(leaf diff-hl
+  :doc "Highlight uncommitted changes using VC"
+  :req "cl-lib-0.2" "emacs-26.1"
+  :tag "diff" "vc" "emacs>=26.1"
+  :url "https://github.com/dgutov/diff-hl"
+  :added "2025-09-11"
+  :emacs>= 26.1
+  :ensure t
+  :global-minor-mode global-diff-hl-mode global-diff-hl-amend-mode
+  :hook ((dired-mode-hook . diff-hl-dired-mode-unless-remote)
+         (magit-post-refresh-hook . diff-hl-magit-post-refresh))
+  :custom ((diff-hl-draw-borders . t)
+           ;; PERF: Slightly more conservative delay before updating the diff
+           (diff-hl-flydiff-delay . 0.5)  ; default: 0.3
+           ;; PERF: don't block Emacs when updating vc gutter
+           ;;
+           ;; NOTE: Async feature is buggy for now.
+           (diff-hl-update-async . nil)
+           ;; UX: get realtime feedback in diffs after staging/unstaging hunks
+           ;; (diff-hl-show-staged-changes . nil)
+           )
+  )
+
 ;; Documents
 
 (leaf org
