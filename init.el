@@ -644,13 +644,13 @@
   :custom ((eglot-send-changes-idle-time . 0.1)
            (eglot-extend-to-xref . t)              ; activate Eglot in referenced non-project files
            )
-  ;; :bind ((:eglot-diagnostics-map
-  ;;         ("M-RET" . eglot-code-actions))
-  ;;        (:eglot-mode-map ("C-c e r" . 'eglot-rename)
-  ;;                         ("C-c e o" . 'eglot-code-action-organize-imports)
-  ;;                         ("C-c e h" . 'eldoc)
-  ;;                         ("<f6>" . 'xref-find-definitions)
-  ;;                         ("C-c e a" . 'eglot-code-actions)))
+  :bind ((:eglot-diagnostics-map
+          ("M-RET" . eglot-code-actions))
+           (:eglot-mode-map ("C-c e r" . 'eglot-rename)
+                            ("C-c e o" . 'eglot-code-action-organize-imports)
+                            ("C-c e h" . 'eldoc)
+                            ("<f6>" . 'xref-find-definitions)
+                            ("C-c e a" . 'eglot-code-actions)))
   ;; ;; :init
   ;; ;; (eval-after-load 'eglot
   ;; ;;   (define-key global-map (kbd "C-c e") 'eglot-mode-map))
