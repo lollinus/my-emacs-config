@@ -542,7 +542,19 @@
   :url "https://github.com/magit/magit"
   :added "2025-09-01"
   :emacs>= 28.1
-  :ensure t)
+  :ensure t
+  :commands (project-magit)
+  :bind (project-prefix-map
+         :package project
+         ("m" . project-magit))
+  :preface
+  (defun project-magit ()
+   (interactive)
+   (let ((dir (project-root (project-current t))))
+     (magit-status dir)))
+  (with-eval-after-load 'project
+    (add-to-list 'project-switch-commands
+                 '(project-magit "Magit" m))))
 
 (leaf git-timemachine
   :doc "Walk through git revisions of a file"
@@ -567,15 +579,13 @@
   :tag "builtin"
   :added "2025-09-01"
   :bind (("M-s M-s" . project-find-file)
-         (:project-prefix-map
-          ("m" . project-magit)
+         (project-prefix-map
           ("d" . project-dired)
           ("M-s" . project-find-file)))
   :init
   (setopt project-switch-commands
           '((project-find-file "Find file")
             (project-dired "Dired")
-            (project-magit "Magit")
             (project-compile "Compile")
             (project-find-regexp "Find Regex")
             (eat-project "Terminal"))
