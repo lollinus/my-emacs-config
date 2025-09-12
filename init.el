@@ -802,6 +802,26 @@
         highlight-indent-guides-responsive 'top
         highlight-indent-guides-suppress-auto-error t))
 
+(leaf so-long
+  :doc "Say farewell to performance problems with minified code."
+  :tag "builtin"
+  :added "2025-07-18"
+  :custom
+  (so-long-threshold . 5000)
+  :config
+  (nconc so-long-minor-modes
+         '( eldoc-mode
+            highlight-numbers-mode
+            highlight-indent-guides-mode
+            hl-fill-column-mode
+            line-reminder-mode
+            page-break-lines-mode
+            tree-sitter-mode
+            ts-fold-mode ts-fold-indicators-mode
+            lsp-mode eglot--managed-mode
+            whitespace-cleanup-mode))
+  :global-minor-mode global-so-long-mode)
+
 ;; Documents
 
 (leaf org
