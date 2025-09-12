@@ -786,6 +786,22 @@
            )
   )
 
+(leaf highlight-indent-guides
+  :doc "Minor mode to highlight indentation"
+  :req "emacs-26.1"
+  :tag "convenience" "emacs>=26.1"
+  :url "https://github.com/DarthFennec/highlight-indent-guides"
+  :added "2025-09-12"
+  :emacs>= 26.1
+  :ensure t
+  :global-minor-mode t
+  :init
+  (setq highlight-indent-guides-method 'character
+        ;; highlight-indent-guides-character (elenv-choose-char ?\┊ ?\|)
+        highlight-indent-guides-character ?\┊
+        highlight-indent-guides-responsive 'top
+        highlight-indent-guides-suppress-auto-error t))
+
 ;; Documents
 
 (leaf org
