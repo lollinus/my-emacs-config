@@ -1073,5 +1073,44 @@
   ;; :bind ("C-c f" . kill-file-path)
   )
 
+;; Visuals
+
+(leaf nerd-icons
+  :doc "Emacs Nerd Font Icons Library"
+  :req "emacs-24.3"
+  :tag "lisp" "emacs>=24.3"
+  :url "https://github.com/rainstormstudio/nerd-icons.el"
+  :added "2025-09-16"
+  :emacs>= 24.3
+  ;; :ensure t
+  :after nerd-icons
+  :config
+  (setq nerd-icons-fonts-subdirectory (expand-file-name (concat user-emacs-directory "fonts/")))
+  (unless (file-exists-p (expand-file-name (concat nerd-icons-fonts-subdirectory (car nerd-icons-font-names))))
+    (nerd-icons-install-fonts t)))
+
+(leaf nerd-icons-corfu
+  :doc "Icons for Corfu via nerd-icons"
+  :req "emacs-27.1" "nerd-icons-0.1.0"
+  :tag "icons" "files" "convenience" "emacs>=27.1"
+  :url "https://github.com/LuigiPiucco/nerd-icons-corfu"
+  :added "2025-09-16"
+  :emacs>= 27.1
+  :ensure t
+  :after corfu
+  :config
+  (add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter))
+
+(leaf nerd-icons-completion
+  :doc "Add icons to completion candidates"
+  :req "emacs-25.1" "nerd-icons-0.0.1" "compat-30"
+  :tag "lisp" "emacs>=25.1"
+  :url "https://github.com/rainstormstudio/nerd-icons-completion"
+  :added "2025-07-01"
+  :emacs>= 25.1
+  :ensure t
+  :hook (marginalia-mode-hook . nerd-icons-completion-marginalia-setup)
+  :global-minor-mode t)
+
 (message "** Init finished")
 ;;; init.el ends here
