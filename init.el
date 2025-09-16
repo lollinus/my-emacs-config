@@ -734,13 +734,9 @@
   :emacs>= 26.3
   :ensure t
   :after org
-  ;; :bind-keymap (:org-mode-map ("C-c C-1" . verb-command-map))
+  :bind-keymap (org-mode-map ("C-c C-0" . verb-command-map))
   :config
-  (add-to-list 'org-babel-load-languages '((verb . t)))
-  ;; (org-babel-do-load-languages 'org-babel-load-languages '((plantuml . t)))
-  ;; (define-key org-mode-map (kbd "C-c C-0") verb-command-map)
-  (keymap-set org-mode-map "C-c C-0" verb-command-map)
-  )
+  (org-babel-do-load-languages 'org-babel-load-languages '((verb . t))))
 
 (leaf highlight-doxygen
   :doc "Highlight Doxygen comments"
