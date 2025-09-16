@@ -809,6 +809,25 @@
             whitespace-cleanup-mode))
   :global-minor-mode global-so-long-mode)
 
+(leaf helpful
+  :doc "A better *help* buffer"
+  :req "emacs-25" "dash-2.18.0" "s-1.11.0" "f-0.20.0" "elisp-refs-1.2"
+  :tag "lisp" "help" "emacs>=25"
+  :url "https://github.com/Wilfred/helpful"
+  :added "2025-09-16"
+  :emacs>= 25
+  :ensure t
+  :after elisp-refs
+  :bind
+  (([remap describe-function] . #'helpful-callable)
+   ([remap describe-command] . #'helpful-command)
+   ([remap describe-variable] . #'helpful-variable)
+   ([remap describe-key] . #'helpful-key)
+   (emacs-lisp-mode-map
+    ;; for this in lisp modes.
+    ("C-c C-d" . #'helpful-at-point)
+    ("C-h F" . #'helpful-function))))
+
 ;; Documents
 
 (leaf org
