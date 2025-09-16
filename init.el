@@ -593,17 +593,6 @@
   :config
   (when (>= emacs-major-version 30)
     (setopt project-mode-line t))
-  ;; Optionally configure a function which returns the project root directory.
-  ;; There are multiple reasonable alternatives to chose from.
-  ;; 1. project.el (project-roots)
-  (setq consult-project-function
-        (lambda (may-prompt)
-          (when-let* ((project (project-current))
-                      (project-root (car (project-roots (project-current))))
-                      (is-not-home
-                       (not (string= "/home/karolbarski/" (car (project-roots
-                                                                (project-current)))))))
-            project-root)))
 
   ;; Added in emacs 29
   (setopt project-vc-extra-root-markers
@@ -617,9 +606,7 @@
                                        ".hg" ".fslockout" "_FOSSIL_" ".bzr" "_darcs" ".tox"
                                        ".svn" ".stack-work" ".ccls-cache" ".cache" ".clangd")
                                      '(".log" ".vs" "node_modules")
-                                     ))
-
-  )
+                                     )))
 
 (leaf consult-project-extra
   :doc "Consult integration for project.el"
@@ -629,9 +616,9 @@
   :added "2025-09-01"
   :emacs>= 27.1
   :ensure t
+  :custom (consult-project-function . #'consult-project-extra-project-fn)
   :bind
-  ([remap project-find-file] . consult-project-extra-find)
-  )
+  ([remap project-find-file] . consult-project-extra-find))
 
 (leaf breadcrumb
   :doc "Project and imenu-based breadcrumb paths"
