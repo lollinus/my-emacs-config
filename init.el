@@ -684,6 +684,20 @@
 ;;    (username (plist-get auth :user)))
 ;;   (message "creds %S USR: %S AUTH: %S" `(:username ,(plist-get auth :user) :password ,password) username auth))
 
+
+(leaf python
+  :doc "Python's flying circus support for Emacs"
+  :tag "builtin"
+  :added "2025-09-16"
+  :config
+  (add-to-list 'eglot-server-programs '(python-ts-mode . ("pylsp")))
+  (add-to-list 'eglot-server-programs '(python-mode . ("pylsp")))
+  (setq-default eglot-workspace-configuration
+                '((:pylsp . (:configurationSources ["flake8"] :plugins (:pycodestyle (:enabled nil) :mccabe (:enabled nil) :flake8 (:enabled t))))))
+
+  :hook
+  ((python-mode . eglot-ensure)))
+
 (leaf clang-format
   :doc "Format code using clang-format."
   :req "cl-lib-0.3"
