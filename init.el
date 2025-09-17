@@ -648,11 +648,12 @@
                             ("C-c e h" . 'eldoc)
                             ("<f6>" . 'xref-find-definitions)
                             ("C-c e a" . 'eglot-code-actions)))
-  ;; ;; :init
-  ;; ;; (eval-after-load 'eglot
-  ;; ;;   (define-key global-map (kbd "C-c e") 'eglot-mode-map))
-  ;; (eglot-inlay-hints-mode)
-  )
+  :preface
+  ;; https://www.masteringemacs.org/article/seamlessly-merge-multiple-documentation-sources-eldoc
+  (defun kb/eglot-eldoc ()
+    (setq eldoc-documentation-strategy
+            'eldoc-documentation-compose-eagerly))
+  :hook ((eglot-managed-mode . kb/eglot-eldoc)))
 
 (leaf consult-eglot
   :doc "A consulting-read interface for eglot"
