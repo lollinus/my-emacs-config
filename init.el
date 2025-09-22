@@ -163,6 +163,32 @@
   ;; `completion-at-point' is often bound to M-TAB.
   (tab-always-indent . 'complete))
 
+(leaf whitespace
+  :doc "minor mode to visualize TAB, (HARD) SPACE, NEWLINE"
+  :tag "builtin"
+  :added "2025-09-22"
+  :custom (
+           ;; (setq whitespace-style '(face trailing lines-tail newline empty indentation big-indent space-before-tab))
+           (whitespace-style . '(newline-mark newline))
+           (whitespace-line-column . nil)
+           (whitespace-display-mappings . '((space-mark 32 [183] [46])
+                                            (newline-mark 10 [9166 10])
+                                            (tab-mark 9 [9654 9] [92 9]))))
+  :bind (("C-c w w" . whitespace-mode))
+  :custom-face
+  (whitespace-space . '((t (:inherit whitespace-space :foreground "DimGrey" :background nil))))
+  (whitespace-newline . '((t (:inherit whitespace-newline :foreground "DimGrey" :background nil))))
+  (whitespace-indentation . '((t (:inherit whitespace-indentation :foreground "DimGrey" :background nil))))
+
+  :global-minor-mode (global-whitespace-mode)
+  )
+
+(leaf subword
+  :doc "Handling capitalized subwords in a nomenclature"
+  :tag "builtin"
+  :added "2025-09-22"
+  :hook c-mode-common-hook c-ts-base-mode-hook)
+
 (leaf display-line-numbers
   :doc "interface for display-line-numbers"
   :tag "builtin"
