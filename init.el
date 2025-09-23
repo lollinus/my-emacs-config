@@ -1238,5 +1238,17 @@
   :hook (marginalia-mode-hook . nerd-icons-completion-marginalia-setup)
   :global-minor-mode t)
 
+(leaf sideline
+  :doc "Show information on the side"
+  :req "emacs-28.1" "ht-2.4"
+  :tag "convenience" "emacs>=28.1"
+  :url "https://github.com/emacs-sideline/sideline"
+  :added "2025-09-17"
+  :emacs>= 28.1
+  :ensure t
+  :blackout t
+  :hook ((flycheck-mode-hook . sideline-mode)
+         (eglot-managed-mode-hook . sideline-mode)))
+
 (message "** Init finished")
 ;;; init.el ends here
