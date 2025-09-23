@@ -154,6 +154,38 @@
   ;; Don't ping things that look like domain names.
   (setq ffap-machine-p-known 'reject))
 
+(leaf files
+  :doc "file input and output commands"
+  :tag "builtin"
+  :added "2025-09-17"
+  :global-minor-mode auto-save-visited-mode
+  ;; ;; According to the POSIX, a line is defined as "a sequence of zero or
+  ;; ;; more non-newline characters followed by a terminating newline".
+  ;; (require-final-newline . t)
+  :custom `(
+            ;; (auto-save-file-name-transforms . '((".*" ,(locate-user-emacs-file "backup/") t)))
+            ;; (backup-directory-alist . '((".*" . ,(locate-user-emacs-file "backup")) (,tramp-file-name-regexp . nil)))
+            (version-control . t)
+            (delete-old-versions . t)
+            (auto-save-visited-interval . 1)
+            ;; A second, case-insensitive pass over `auto-mode-alist' is time wasted, and
+            ;; indicates misconfiguration (don't rely on case insensitivity for file names).
+            (auto-mode-case-fold . nil))
+  :custom ((large-file-warning-threshold . 100000000)
+           (mode-require-final-newline . t)      ; add a newline to end of file)
+           (make-backup-files . nil))
+  :config
+  ;; Tell Emacs to prefer the treesitter mode
+  ;; You'll want to run the command `M-x treesit-install-language-grammar' before editing.
+  (setq major-mode-remap-alist (append major-mode-remap-alist '((yaml-mode . yaml-ts-mode)
+                                                                (bash-mode . bash-ts-mode)
+                                                                (js2-mode . js-ts-mode)
+                                                                (typescript-mode . typescript-ts-mode)
+                                                                (json-mode . json-ts-mode)
+                                                                (css-mode . css-ts-mode)
+                                                                (python-mode . python-ts-mode)
+                                                                (javascript-mode . js-ts-mode)))))
+
 (leaf indent
   :doc "indentation commands for Emacs"
   :tag "builtin"
