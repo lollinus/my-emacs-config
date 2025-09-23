@@ -984,6 +984,16 @@
   :hook eglot-ensure
   :custom-face (font-lock-variable-name-face . '((t (:foreground "#cba6f7")))))
 
+;; Tools
+(leaf vterm
+  :doc "Fully-featured terminal emulator"
+  :req "emacs-25.1"
+  :tag "terminals" "emacs>=25.1"
+  :url "https://github.com/akermu/emacs-libvterm"
+  :added "2025-09-23"
+  :emacs>= 25.1
+  :ensure t)
+
 ;; Documents
 
 (leaf org
