@@ -936,6 +936,20 @@
     ("C-c C-d" . #'helpful-at-point)
     ("C-h F" . #'helpful-function))))
 
+(leaf eldoc
+  :doc "Show function arglist or variable docstring in echo area"
+  :tag "builtin"
+  :added "2025-09-17"
+  ;; :custom (eldoc-echo-area-use-multiline-p . nil)
+  :config
+  (eldoc-add-command
+   'mouse-set-point
+   'previous-line 'next-line
+   'jcs-py-indent-up 'jcs-py-indent-down
+   'left-char 'right-char
+   'jcs-backward-word-capital 'jcs-forward-word-capital
+   'beginning-of-line 'end-of-line))
+
 ;; Documents
 
 (leaf org
