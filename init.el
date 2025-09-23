@@ -556,6 +556,36 @@
   :added "2022-11-01"
   :global-minor-mode global-prettify-symbols-mode)
 
+(leaf treesit
+  :doc "tree-sitter utilities"
+  :tag "builtin" "languages" "tree-sitter" "treesit"
+  :added "2025-09-17"
+  :custom
+  (treesit-language-source-alist . '((bash "https://github.com/tree-sitter/tree-sitter-bash")
+                                     (cmake "https://github.com/uyha/tree-sitter-cmake")
+                                     (css "https://github.com/tree-sitter/tree-sitter-css")
+                                     (elisp "https://github.com/Wilfred/tree-sitter-elisp")
+                                     (go "https://github.com/tree-sitter/tree-sitter-go")
+                                     (html "https://github.com/tree-sitter/tree-sitter-html")
+                                     (javascript "https://github.com/tree-sitter/tree-sitter-javascript" "master" "src")
+                                     (dockerfile "https://github.com/camdencheek/tree-sitter-dockerfile")
+                                     (json "https://github.com/tree-sitter/tree-sitter-json")
+                                     (make "https://github.com/alemuller/tree-sitter-make")
+                                     (markdown "https://github.com/ikatyang/tree-sitter-markdown")
+                                     (python "https://github.com/tree-sitter/tree-sitter-python")
+                                     (toml "https://github.com/tree-sitter/tree-sitter-toml")
+                                     (tsx "https://github.com/tree-sitter/tree-sitter-typescript" "master" "tsx/src")
+                                     (typescript "https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src")
+                                     (yaml "https://github.com/ikatyang/tree-sitter-yaml")
+                                     (javascript "https://github.com/tree-sitter/tree-sitter-javascript" "v0.23.1")
+
+                                     (haskell "https://github.com/tree-sitter/tree-sitter-haskell")
+                                     (ruby "https://github.com/tree-sitter/tree-sitter-ruby")
+                                     (rust "https://github.com/tree-sitter/tree-sitter-rust")
+                                     (cpp "https://github.com/tree-sitter/tree-sitter-cpp")
+                                     (c "https://github.com/tree-sitter/tree-sitter-c")
+                                     (doxygen "https://github.com/tree-sitter-grammars/tree-sitter-doxygen"))))
+
 (leaf c-ts-mode
   :doc "tree-sitter support for C and C++"
   :tag "builtin"
