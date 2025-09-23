@@ -58,6 +58,15 @@
 (set-language-environment "UTF-8")
 
 ;; Basics
+(leaf emacs-basic-settings
+  :doc "Basic startup setting for emacs"
+  :config
+  (put 'downcase-region 'disabled nil)
+  (put 'narrow-to-page 'disabled nil)
+  (put 'narrow-to-region 'disabled nil)
+  (put 'upcase-region 'disabled nil)
+  )
+
 (leaf window
   :doc "GNU Emacs window commands aside from those written in C"
   :tag "builtin" "internal"
