@@ -950,6 +950,32 @@
    'jcs-backward-word-capital 'jcs-forward-word-capital
    'beginning-of-line 'end-of-line))
 
+(leaf json-snatcher
+  :doc "Grabs the path to JSON values in a JSON file"
+  :req "emacs-24"
+  :tag "emacs>=24"
+  :url "http://github.com/sterlingg/json-snatcher"
+  :added "2025-09-17"
+  :emacs>= 24
+  :ensure t
+  :config
+  (defun js-mode-bindings ()
+    "Sets a hotkey for using the json-snatcher plugin."
+    (when (string-match  "\\.json$" (buffer-name))
+      (local-set-key (kbd "C-c C-g") 'jsons-print-path)))
+  :hook
+  ((js-mode-hook js2-mode-hook js-ts-mode-hook) . js-mode-bindings))
+
+(leaf json-mode
+  :doc "Major mode for editing JSON files"
+  :req "json-snatcher-1.0.0" "emacs-24.4"
+  :tag "emacs>=24.4"
+  :url "https://github.com/joshwnj/json-mode"
+  :added "2025-09-17"
+  :emacs>= 24.4
+  :ensure t
+  :after json-snatcher)
+
 ;; Documents
 
 (leaf org
