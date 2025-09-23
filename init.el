@@ -984,6 +984,36 @@
   :hook eglot-ensure
   :custom-face (font-lock-variable-name-face . '((t (:foreground "#cba6f7")))))
 
+(leaf cmake-ts-mode
+  :doc "tree-sitter support for CMake"
+  :tag "builtin"
+  :added "2025-09-23"
+  :preface
+  (defun kb/cmake-mode-setup ()
+      (message "***** cmake-ts-mode custom")
+      (setq-local fill-column 80)
+      ;; (auto-fill-mode)
+      ;; (setq cmake-tab-width 4)
+      ;; (setq indent-tabs-mode nil)
+      ;; NOTE: default eglot-server-programs contains following setting for cmake-mode and cmake-ts-mode.
+      ;; ,(eglot-alternatives '((("neocmakelsp" "--stdio") "cmake-language-server")))
+      ;; This is causing problems as ("neocmakelsp" "--stdio") is improperly passed to (eglot--find-executable)
+      ;; To override this set it explicit
+      (add-to-list 'eglot-server-programs
+                   '(cmake-mode . ("neocmakelsp" "--stdio")))
+      (eglot-ensure))
+  :hook (cmake-ts-mode-hook . kb/cmake-mode-setup))
+
+(leaf cmake-font-lock
+  :doc "Advanced, type aware, highlight support for CMake"
+  :req "cmake-mode-0.0"
+  :tag "languages" "faces"
+  :url "https://github.com/Lindydancer/cmake-font-lock"
+  :added "2025-09-23"
+  :ensure t
+  :config
+  (add-to-list 'cmake-font-lock-modes 'cmake-ts-mode))
+
 ;; Tools
 (leaf vterm
   :doc "Fully-featured terminal emulator"
