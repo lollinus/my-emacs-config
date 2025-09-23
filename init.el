@@ -976,6 +976,14 @@
   :ensure t
   :after json-snatcher)
 
+(leaf yaml-ts-mode
+  :doc "tree-sitter support for YAML"
+  :tag "builtin"
+  :added "2025-09-22"
+  :mode ("\\.yaml\\'" "\\.yml\\'")
+  :hook eglot-ensure
+  :custom-face (font-lock-variable-name-face . '((t (:foreground "#cba6f7")))))
+
 ;; Documents
 
 (leaf org
