@@ -1016,6 +1016,39 @@
   :config
   (add-to-list 'cmake-font-lock-modes 'cmake-ts-mode))
 
+(leaf nxml-mode
+  :doc "a new XML mode"
+  :tag "builtin" "xml" "languages" "hypermedia" "text"
+  :added "2025-10-03"
+  :preface
+  (defun kb/nxml-where ()
+    "Display the hierarchy of XML elements the point is on as a path."
+    (interactive)
+    (let ((path nil))
+      (save-excursion
+        (save-restriction
+          (widen)
+          (while (and (< (point-min) (point)) ;; Doesn')t error if point is at beginning of buffer
+                      (condition-case nil
+                          (progn
+                            (nxml-backward-up-element) ; always returns nil
+                            t)
+                        (error nil)))
+            (setq path (cons (xmltok-start-tag-local-name) path)))
+          (if (called-interactively-p t)
+              (message "/%s" (mapconcat 'identity path "/"))
+            (format "/%s" (mapconcat 'identity path "/")))))))
+  :config
+  (defun xml-find-file-hook ()
+    (when (derived-mode-p 'nxml-mode)
+      (which-function-mode t)
+      (setq which-func-mode t)
+      (add-hook 'which-func-functions 'kb/nxml-where t t)))
+
+  (add-hook 'find-file-hook 'xml-find-file-hook t))
+
+
+
 ;; Tools
 (leaf vterm
   :doc "Fully-featured terminal emulator"
