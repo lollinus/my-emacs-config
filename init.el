@@ -785,6 +785,19 @@
   :after consult-eglot
   :global-minor-mode t)
 
+(leaf symbols-outline
+  :doc "Display symbols (functions, variables, etc) in outline view"
+  :req "emacs-27.1"
+  :tag "outlines" "emacs>=27.1"
+  :url "https://github.com/liushihao456/symbols-outline.el"
+  :added "2025-10-06"
+  :emacs>= 27.1
+  :ensure t
+  :bind ("C-c i" . #'symbols-outline-show)
+  :custom ((symbols-outline-fetch-fn . #'symbols-outline-lsp-fetch)
+           (symbols-outline-window-position . 'left))
+  :global-minor-mode symbols-outline-follow-mode)
+
 ;; Put credentials in ~/.authinfo.gpg enctyped file and set them for packages needing below snippet
 ;; (require 'auth-source)
 ;; (let* ((auth (car (auth-source-search
