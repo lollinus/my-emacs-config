@@ -813,8 +813,9 @@
   :tag "builtin"
   :added "2025-09-16"
   :config
-  (add-to-list 'eglot-server-programs '(python-ts-mode . ("pylsp")))
-  (add-to-list 'eglot-server-programs '(python-mode . ("pylsp")))
+  (with-eval-after-load 'eglot
+    (add-to-list 'eglot-server-programs '(python-ts-mode . ("pylsp")))
+    (add-to-list 'eglot-server-programs '(python-mode . ("pylsp"))))
   (setq-default eglot-workspace-configuration
                 '((:pylsp . (:configurationSources ["flake8"] :plugins (:pycodestyle (:enabled nil) :mccabe (:enabled nil) :flake8 (:enabled t))))))
 
