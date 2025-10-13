@@ -7,6 +7,7 @@
 ;; useful for quickly debugging Emacs
 (setq debug-on-error t)
 ;; (setenv "LSP_USE_PLISTS" "true")
+
 ;;; Startup
 (add-hook 'emacs-startup-hook
           (lambda () (message "*** Emacs loaded in %s seconds with %d garbage collections." (emacs-init-time "%.2f") gcs-done)))
@@ -57,7 +58,8 @@
 ;; more than this to make UTF-8 the default coding system:
 (set-language-environment "UTF-8")
 
-;; Basics
+
+;;; Basics
 (leaf emacs-basic-settings
   :doc "Basic startup setting for emacs"
   :config
@@ -556,7 +558,15 @@
   :custom (marginalia-align . 'right)
   :global-minor-mode t)
 
-;; Development
+(leaf editorconfig
+  :doc "EditorConfig Plugin"
+  :tag "builtin"
+  :added "2025-10-06"
+  :custom (editorconfig-trim-whitespaces-mode . t)
+  :global-minor-mode editorconfig-mode)
+
+
+;;; Development
 
 ;; Show symbols as composed characters (e.g. lambda -> λ)
 (leaf prog-mode
