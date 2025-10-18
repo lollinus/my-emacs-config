@@ -1015,6 +1015,18 @@
    'jcs-backward-word-capital 'jcs-forward-word-capital
    'beginning-of-line 'end-of-line))
 
+(leaf eldoc-box
+  :doc "Display documentation in childframe"
+  :req "emacs-27.1"
+  :tag "emacs>=27.1"
+  :url "https://github.com/casouri/eldoc-box"
+  :added "2025-10-06"
+  :emacs>= 27.1
+  :ensure t
+  :hook (eglot-managed-mode-hook . eldoc-box-hover-mode)
+  :config
+  (add-to-list 'eglot-ignored-server-capabilites :hoverProvider))
+
 (leaf json-snatcher
   :doc "Grabs the path to JSON values in a JSON file"
   :req "emacs-24"
