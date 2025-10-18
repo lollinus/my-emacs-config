@@ -633,13 +633,53 @@
   (c-ts-mode-set-global-style 'linux)
   (defun kb/c++-ts-mode-hook ()
     "My style used while editing C++ sources."
+    (kb/c++-setup-symbol-compose)
     (setq-local fill-column 120)
     ;; (tab-width . 4)
     (indent-tabs-mode . nil)
     (display-fill-column-indicator-mode)
-    (kb/c++-setup-symbol-compose)
     )
   :hook ((c-ts-mode-hook c++-ts-mode-hook) . kb/c++-ts-mode-hook)
+  )
+
+(leaf haskell-mode
+  :doc "A Haskell editing mode"
+  :req "emacs-25.1"
+  :tag "languages" "repl" "ghc" "cabal" "haskell" "emacs>=25.1"
+  :url "https://github.com/haskell/haskell-mode"
+  :added "2025-10-14"
+  :emacs>= 25.1
+  :ensure t
+  :mode "\\.hs\\'"
+  :bind (:haskell-mode-map
+         ("C-," . #'haskell-move-nested-left)
+         ("C-." . #'haskell-move-nested-right)
+         ("<f7>" . #'haskell-navigate-imports)
+         ("C-c C-g" . #'haskell-interactive-bring)
+         ("C-c C-l" . #'haskell-process-load-or-reload)
+         ("C-c C-t" . #'haskell-process-do-type)
+         ("C-c C-i" . #'haskell-process-do-info)
+         ("C-c C-c" . #'haskell-process-cabal-build)
+         ("C-c C-k" . #'haskell-interactive-mode-clear)
+         ("C-c c" . #'haskell-process-cabal)
+         ("M-n" . haskell-goto-next-error)
+         ("M-p" . haskell-goto-prev-error)
+         ;; ("<SPC>" . #'haskell-mode-contextual-space)
+         )
+  :custom ((haskell-stylish-on-save . t)
+           (haskell-process-type . 'cabal-repl)
+           (haskell-process-suggest-remove-import-lines . t)
+           (haskell-process-auto-import-loaded-modules . t)
+           (haskell-process-log . t)
+           )
+  :hook ((haskell-mode . interactive-haskell-mode)
+         (haskell-mode . turn-on-haskell-doc-mode)
+         (haskell-mode . haskell-indent-mode)
+         (haskell-mode . kb/haskell-setup-outline-mode))
+  :config
+  (defun kb/haskell-setup-outline-mode ()
+    (make-local-variable 'outline-regexp)
+    (setq outline-regexp "\\`\\|\\s-+\\S-"))
   )
 
 (leaf magit
@@ -951,7 +991,6 @@
   :added "2025-09-16"
   :emacs>= 25
   :ensure t
-  :after elisp-refs
   :bind
   (([remap describe-function] . #'helpful-callable)
    ([remap describe-command] . #'helpful-command)
