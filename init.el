@@ -646,7 +646,26 @@
     (indent-tabs-mode . nil)
     (display-fill-column-indicator-mode)
     )
+  (defun kb/whitespace-progmode-setup ()
+    "Enable whitespace mode for programming modes."
+    (setq-local whitespace-style
+                '(face
+                  trailing
+                  lines-tail
+                  newline
+                  empty
+                  indentation
+                  space-after-tab::tab
+                  ;; space-after-tab
+                  ;; big-indent
+                  space-before-tab::tab
+                  ;; space-before-tab
+                  tab-mark
+                  newline-mark
+                  ))
+    )
   :hook ((c-ts-mode-hook c++-ts-mode-hook) . kb/c++-ts-mode-hook)
+  ((c-ts-mode-hook c++-ts-mode-hook) . kb/whitespace-progmode-setup)
   )
 
 (leaf haskell-mode
