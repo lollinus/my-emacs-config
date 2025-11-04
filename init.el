@@ -197,6 +197,13 @@
                                                                 (python-mode . python-ts-mode)
                                                                 (javascript-mode . js-ts-mode)))))
 
+(leaf battery
+  :doc "display battery status information"
+  :tag "builtin"
+  :added "2023-02-02"
+  :config
+  (display-battery-mode))
+
 (leaf indent
   :doc "indentation commands for Emacs"
   :tag "builtin"
