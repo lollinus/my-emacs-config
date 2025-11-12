@@ -1369,6 +1369,39 @@ Used to see multiline flymake errors"
     (setopt jiralib-token `("Authorization" . ,(concat "Bearer " password))))
   (setopt jiralib-use-PAT t))
 
+(leaf doxymacs
+  :doc "Emacs integration with Doxygen."
+  :req "emacs-24.4" "compat-28.1"
+  :tag "tools" "convenience" "c" "emacs>=24.4"
+  :url "https://pniedzielski.github.io/doxymacs/"
+  :added "2025-10-06"
+  :emacs>= 24.4
+  :ensure t
+  :after compat
+  :hook ((c-ts-mode-hook c++-ts-mode-hook) . doxymacs-mode)
+  :bind
+  (:c-ts-base-mode-map
+   ;; Lookup documentation for the symbol at point.
+   ("C-c d ?" . doxymacs-lookup)
+   ;; Rescan your Doxygen tags file.
+   ("C-c d r" . doxymacs-rescan-tags)
+   ;; Prompt you for a Doxygen command to enter, and its
+   ;; arguments.
+   ("C-c d RET" . doxymacs-insert-command)
+   ;; Insert a Doxygen comment for the next function.
+   ("C-c d f" . doxymacs-insert-function-comment)
+   ;; Insert a Doxygen comment for the current file.
+   ("C-c d i" . doxymacs-insert-file-comment)
+   ;; Insert a Doxygen comment for the current member.
+   ("C-c d ;" . doxymacs-insert-member-comment)
+   ;; Insert a blank multi-line Doxygen comment.
+   ("C-c d m" . doxymacs-insert-blank-multiline-comment)
+   ;; Insert a blank single-line Doxygen comment.
+   ("C-c d s" . doxymacs-insert-blank-singleline-comment)
+   ;; Insert a grouping comments around the current region.
+   ("C-c d @" . doxymacs-insert-grouping-comments)
+   ))
+
 (leaf gt
   :doc "Translation framework, configurable and scalable"
   :req "emacs-28.1" "pdd-0.2.3"
