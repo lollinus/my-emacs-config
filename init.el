@@ -879,6 +879,41 @@
            (symbols-outline-window-position . 'left))
   :global-minor-mode symbols-outline-follow-mode)
 
+(leaf flymake
+  :doc "A universal on-the-fly syntax checker"
+  :tag "builtin"
+  :added "2025-10-06"
+  :bind (("M-g d"   . flymake-show-buffer-diagnostics)
+         ("M-g M-d" . flymake-show-project-diagnostics)
+         ("M-g M-n" . scan-buf-next-region)
+         ("M-g M-p" . scan-buf-previous-region)
+         ;; (:flymake-repeatmap
+         ;;  ("p" . scan-buf-previous-region)
+         ;;  ("n" . scan-buf-next-region)
+         ;;  ("M-p" . scan-buf-previous-region)
+         ;;  ("M-n" . scan-buf-next-region))
+         (flymake-diagnostics-buffer-mode-map
+          ("?" . kb/flymake-show-diagnostic-here))
+         (flymake-project-diagnostics-mode-map
+          ("?" . kb/flymake-show-diagnostic-here))
+         (prog-mode-map
+          ("M-n" . flymake-goto-next-error)
+          ("M-p" . flymake-goto-prev-error))
+         )
+  :hook (prog-mode . flymake-mode)
+  :preface
+  (defun kb/flymake-show-diagnostic-here (pos &optional other-window)
+    "Show the full diagnostic of this error.
+
+Used to see multiline flymake errors"
+    (interactive (list (point) t))
+    (let* ((id (or (tabulated-list-get-id pos)
+                   (user-error "Nothing at point")))
+           (text (flymake-diagnostic-text (plist-get id :diagnostic))))
+      (message text)))
+  (remove-hook 'flymake-diagnostic-functions #'flymake-proc-legacy-flymake)
+  )
+
 ;; Put credentials in ~/.authinfo.gpg enctyped file and set them for packages needing below snippet
 ;; (require 'auth-source)
 ;; (let* ((auth (car (auth-source-search
