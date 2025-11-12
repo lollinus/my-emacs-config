@@ -1230,6 +1230,16 @@ Used to see multiline flymake errors"
   :emacs>= 25.1
   :ensure t)
 
+(leaf emamux
+  :doc "Interact with tmux"
+  :req "emacs-24.3"
+  :tag "emacs>=24.3"
+  :url "https://github.com/syohex/emacs-emamux"
+  :added "2025-10-10"
+  :emacs>= 24.3
+  :ensure t)
+
+
 ;; Documents
 
 (leaf org
