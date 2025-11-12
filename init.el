@@ -580,6 +580,7 @@
   :global-minor-mode t)
 
 (leaf editorconfig
+  :disabled t
   :doc "EditorConfig Plugin"
   :tag "builtin"
   :added "2025-10-06"
