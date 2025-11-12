@@ -1621,5 +1621,16 @@ Used to see multiline flymake errors"
   :hook ((flycheck-mode-hook . sideline-mode)
          (eglot-managed-mode-hook . sideline-mode)))
 
+(leaf page-break-lines
+  :doc "Display ^L page breaks as tidy horizontal lines"
+  :req "emacs-25.1"
+  :tag "faces" "convenience" "emacs>=25.1"
+  :url "https://github.com/purcell/page-break-lines"
+  :added "2025-10-06"
+  :emacs>= 25.1
+  :ensure t
+  :blackout t
+  :global-minor-mode global-page-break-lines-mode)
+
 (message "** Init finished")
 ;;; init.el ends here
