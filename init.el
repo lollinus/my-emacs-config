@@ -1145,6 +1145,7 @@ Used to see multiline flymake errors"
   (defun kb/cmake-mode-setup ()
       (message "***** cmake-ts-mode custom")
       (setq-local fill-column 80)
+      (indent-tabs-mode . nil)
       ;; (auto-fill-mode)
       ;; (setq cmake-tab-width 4)
       ;; (setq indent-tabs-mode nil)
