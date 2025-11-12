@@ -1486,6 +1486,41 @@ Used to see multiline flymake errors"
   :ensure t
   :bind ("C-c ;" . iedit-mode))
 
+(leaf separedit
+  :doc "Edit comment/string/docstring/code block in separate buffer"
+  :req "emacs-25.1" "dash-2.18" "edit-indirect-0.1.11"
+  :tag "docs" "languages" "tools" "emacs>=25.1"
+  :url "https://github.com/twlz0ne/separedit.el"
+  :added "2025-10-06"
+  :emacs>= 25.1
+  :ensure t
+  :after edit-indirect
+  :custom
+  (separedit-default-mode . 'markdown-ts-mode)
+  (separedit-preserve-string-indentation . t)
+  (separedit-continue-fill-column . t)
+  (separedit-write-file-when-execute-save . t)
+  (separedit-remove-trailing-spaces-in-comment . t)
+  :init
+  (defun kb/bind-separedit () (keymap-set prog-mode-map "C-c '" #'separedit))
+  :hook (prog-mode-hook . kb/bind-separedit)
+  :bind
+  ((:prog-mode-map
+    ((kbd "C-c '") . #'separedit))
+   (:minibuffer-local-map
+    ((kbd "C-c '") . #'separedit))
+   (:help-mode-map
+    ((kbd "C-c '") . #'separedit))
+   ;; (:helpful-mode-map
+   ;;  ((kbd "C-c '") . #'separedit))
+   )
+  ;; :init
+  ;; (require 'separedit)
+  ;; (define-key prog-mode-map "C-c '" 'separedit)
+  ;; (define-key c-mode-map "C-c '" 'separedit)
+  ;; (define-key c++-mode-map "C-c '" 'separedit)
+  )
+
 (leaf zerodark-theme
   :doc "A dark, medium contrast theme for Emacs"
   :req "all-the-icons-2.0.0"
