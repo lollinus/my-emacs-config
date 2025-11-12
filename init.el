@@ -1189,6 +1189,15 @@ Used to see multiline flymake errors"
   :config
   (add-to-list 'cmake-font-lock-modes 'cmake-ts-mode))
 
+(leaf bazel
+  :doc "Bazel support for Emacs."
+  :req "emacs-28.1"
+  :tag "languages" "build tools" "emacs>=28.1"
+  :url "https://github.com/bazelbuild/emacs-bazel-mode"
+  :added "2025-11-12"
+  :emacs>= 28.1
+  :ensure t)
+
 (leaf nxml-mode
   :doc "a new XML mode"
   :tag "builtin" "xml" "languages" "hypermedia" "text"
