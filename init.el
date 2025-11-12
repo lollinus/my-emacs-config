@@ -1600,11 +1600,11 @@ Used to see multiline flymake errors"
   :added "2025-09-16"
   :emacs>= 24.3
   ;; :ensure t
-  :after nerd-icons
-  :config
-  (setq nerd-icons-fonts-subdirectory (expand-file-name (concat user-emacs-directory "fonts/")))
-  (unless (file-exists-p (expand-file-name (concat nerd-icons-fonts-subdirectory (car nerd-icons-font-names))))
-    (nerd-icons-install-fonts t)))
+  ;; :after nerd-icons
+  ;; :config
+  ;; (setq nerd-icons-fonts-subdirectory (expand-file-name (concat user-emacs-directory "fonts/")))
+  ;; (unless (file-exists-p (expand-file-name (concat nerd-icons-fonts-subdirectory (car nerd-icons-font-names)))) (nerd-icons-install-fonts t))
+  )
 
 (leaf nerd-icons-corfu
   :doc "Icons for Corfu via nerd-icons"
