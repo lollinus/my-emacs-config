@@ -423,6 +423,20 @@
    :preview-key '(:debounce 0.4 any))
   )
 
+(leaf consult-dir
+  :doc "Insert paths into the minibuffer prompt"
+  :req "emacs-26.1" "project-0.3.0" "consult-2.0"
+  :tag "convenience" "emacs>=26.1"
+ :url "https://github.com/karthink/consult-dir"
+  :added "2025-10-20"
+  :emacs>= 26.1
+  :ensure t
+  :after consult
+  :bind
+  (global-map ("C-x C-d" . consult-dir))
+  (minibuffer-local-completion-map ("C-x C-d" . cnosult-dir)
+                                   ("C-x C-j" . consult-dir-jump-file)))
+
 (leaf prescient
   :doc "Better sorting and filtering"
   :req "emacs-25.1"
