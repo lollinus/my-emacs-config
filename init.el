@@ -1218,9 +1218,25 @@ Used to see multiline flymake errors"
 
   (add-hook 'find-file-hook 'xml-find-file-hook t))
 
+
+;;; AI Tools
+(leaf gptel
+  :doc "Interact with ChatGPT or other LLMs"
+  :req "emacs-27.1" "transient-0.7.4" "compat-30.1.0.0"
+  :tag "tools" "convenience" "emacs>=27.1"
+  :url "https://github.com/karthink/gptel"
+  :added "2025-10-09"
+  :emacs>= 27.1
+  :ensure t
+  :after compat
+  :custom
+  ;; OPTIONAL configuration
+  (gptel-model . 'claude-3.7-sonnet)
+  (gptel-backend . `,(gptel-make-gh-copilot "Copilot"))
+  (gptel-expert-commands . t))
 
-
-;; Tools
+
+;;; Tools
 (leaf vterm
   :doc "Fully-featured terminal emulator"
   :req "emacs-25.1"
