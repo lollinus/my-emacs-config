@@ -1155,7 +1155,27 @@ Used to see multiline flymake errors"
       (add-to-list 'eglot-server-programs
                    '(cmake-mode . ("neocmakelsp" "--stdio")))
       (eglot-ensure))
-  :hook (cmake-ts-mode-hook . kb/cmake-mode-setup))
+  (defun kb/whitespace-progmode-setup ()
+    "Enable whitespace mode for programming modes."
+    (setq-local whitespace-style
+                '(face
+                  trailing
+                  lines-tail
+                  newline
+                  empty
+                  indentation
+                  space-after-tab::tab
+                  ;; space-after-tab
+                  ;; big-indent
+                  space-before-tab::tab
+                  ;; space-before-tab
+                  tab-mark
+                  newline-mark
+                  ))
+    )
+  :hook (cmake-ts-mode-hook . kb/cmake-mode-setup)
+  (cmake-ts-mode-hook . kb/whitespace-progmode-setup)
+)
 
 (leaf cmake-font-lock
   :doc "Advanced, type aware, highlight support for CMake"
