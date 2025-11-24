@@ -1521,6 +1521,14 @@ Used to see multiline flymake errors"
   (add-to-list 'hl-todo-keyword-faces '("NOCOMMIT" . "#ff00ff"))
   :global-minor-mode global-hl-todo-mode)
 
+(leaf rainbow-mode
+  :doc "Colorize color names in buffers"
+  :tag "faces"
+  :url "https://elpa.gnu.org/packages/rainbow-mode.html"
+  :added "2025-11-24"
+  :ensure t
+  :global-minor-mode t)
+
 
 ;; Other
 (leaf comment-dwim-2
