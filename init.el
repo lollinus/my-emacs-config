@@ -1092,6 +1092,7 @@ Used to see multiline flymake errors"
    'beginning-of-line 'end-of-line))
 
 (leaf eldoc-box
+  :disabled t
   :doc "Display documentation in childframe"
   :req "emacs-27.1"
   :tag "emacs>=27.1"
@@ -1490,6 +1491,7 @@ Used to see multiline flymake errors"
   (add-to-list 'hl-todo-keyword-faces '("NOCOMMIT" . "#ff00ff"))
   :global-minor-mode global-hl-todo-mode)
 
+
 ;; Other
 (leaf comment-dwim-2
   :ensure t
@@ -1587,6 +1589,7 @@ Used to see multiline flymake errors"
   ;; :bind ("C-c f" . kill-file-path)
   )
 
+
 ;; Visuals
 
 (leaf nerd-icons
