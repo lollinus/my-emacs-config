@@ -127,8 +127,8 @@
   :tag "builtin" "internal"
   :added "2025-09-01"
   :custom ((user-full-name . "Karol Barski")
-           (user-mail-address . "karol.barski@cognizant.com")
-           (user-login-name . "karolbarski")
+           (user-mail-address . "karol.barski@partner.bmwgroup.com")
+           (user-login-name . "qxz2st8")
            (create-lockfiles . nil)
            (init-file-debug . t)
            (truncate-lines . t)
