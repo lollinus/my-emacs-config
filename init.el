@@ -936,6 +936,22 @@ Used to see multiline flymake errors"
   (remove-hook 'flymake-diagnostic-functions #'flymake-proc-legacy-flymake)
   )
 
+(leaf flymake-codespell
+  :doc "Flymake backend for codespell"
+  :req "emacs-26.1" "compat-29.1.4.2"
+  :tag "extensions" "emacs>=26.1"
+  :url "https://www.github.com/skangas/flymake-codespell"
+  :added "2025-11-24"
+  :emacs>= 26.1
+  :ensure t
+  :when (executable-find "codespell")
+  :after compat
+  :preface
+  (when (not (executable-find "codespell"))
+    (message "**** Configure flymake-codespell 'codespell' not found"))
+  :hook
+  ((prog-mode-hook text-mode-hook) . flymake-codespell-setup-backend))
+
 ;; Put credentials in ~/.authinfo.gpg enctyped file and set them for packages needing below snippet
 ;; (require 'auth-source)
 ;; (let* ((auth (car (auth-source-search
