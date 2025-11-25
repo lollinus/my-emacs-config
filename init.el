@@ -936,6 +936,7 @@ Used to see multiline flymake errors"
   (remove-hook 'flymake-diagnostic-functions #'flymake-proc-legacy-flymake)
   )
 
+
 (leaf flymake-codespell
   :doc "Flymake backend for codespell"
   :req "emacs-26.1" "compat-29.1.4.2"
@@ -960,7 +961,6 @@ Used to see multiline flymake errors"
 ;;    (password (funcall (plist-get auth :secret)))
 ;;    (username (plist-get auth :user)))
 ;;   (message "creds %S USR: %S AUTH: %S" `(:username ,(plist-get auth :user) :password ,password) username auth))
-
 
 (leaf python
   :doc "Python's flying circus support for Emacs"
@@ -1458,6 +1458,16 @@ Used to see multiline flymake errors"
   (add-to-list 'treesit-language-source-alist '(markdown "https://github.com/tree-sitter-grammars/tree-sitter-markdown" "split_parser" "tree-sitter-markdown/src"))
   (add-to-list 'treesit-language-source-alist '(markdown-inline "https://github.com/tree-sitter-grammars/tree-sitter-markdown" "split_parser" "tree-sitter-markdown-inline/src")))
 
+(leaf markdown-mode
+  :disabled t
+  :doc "Major mode for Markdown-formatted text"
+  :req "emacs-28.1"
+  :tag "itex" "github flavored markdown" "markdown" "emacs>=28.1"
+  :url "https://jblevins.org/projects/markdown-mode/"
+  :added "2025-11-18"
+  :emacs>= 28.1
+  :ensure t)
+
 (leaf doxymacs
   :doc "Emacs integration with Doxygen."
   :req "emacs-24.4" "compat-28.1"
@@ -1581,7 +1591,7 @@ Used to see multiline flymake errors"
   :ensure t
   :after edit-indirect
   :custom
-  (separedit-default-mode . 'markdown-ts-mode)
+  ;; (separedit-default-mode . 'markdown-mode)
   (separedit-preserve-string-indentation . t)
   (separedit-continue-fill-column . t)
   (separedit-write-file-when-execute-save . t)
