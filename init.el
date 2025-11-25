@@ -1022,6 +1022,15 @@ Used to see multiline flymake errors"
   :ensure t
   :hook (c-mode-common-hook c-ts-base-mode-hook))
 
+(leaf doxymin
+  :doc "Create doxygen style docs the easy way"
+  :req "emacs-28.1"
+  :tag "docs)" "convenience" "(abbref" "emacs>=28.1"
+  :url "https://gitlab.com/L0ren2/doxymin"
+  :added "2025-11-24"
+  :emacs>= 28.1
+  :ensure t)
+
 (leaf diff-hl
   :doc "Highlight uncommitted changes using VC"
   :req "cl-lib-0.2" "emacs-26.1"
