@@ -715,10 +715,10 @@
            (haskell-process-auto-import-loaded-modules . t)
            (haskell-process-log . t)
            )
-  :hook ((haskell-mode . interactive-haskell-mode)
-         (haskell-mode . turn-on-haskell-doc-mode)
-         (haskell-mode . haskell-indent-mode)
-         (haskell-mode . kb/haskell-setup-outline-mode))
+  :hook ((haskell-mode-hook . interactive-haskell-mode)
+         (haskell-mode-hook . turn-on-haskell-doc-mode)
+         (haskell-mode-hook . haskell-indent-mode)
+         (haskell-mode-hook . kb/haskell-setup-outline-mode))
   :config
   (defun kb/haskell-setup-outline-mode ()
     (make-local-variable 'outline-regexp)
@@ -865,7 +865,7 @@
   (defun kb/eglot-eldoc ()
     (setq eldoc-documentation-strategy
             'eldoc-documentation-compose-eagerly))
-  :hook ((eglot-managed-mode . kb/eglot-eldoc)))
+  :hook ((eglot-managed-mode-hook . kb/eglot-eldoc)))
 
 (leaf consult-eglot
   :doc "A consulting-read interface for eglot"
@@ -922,7 +922,7 @@
           ("M-n" . flymake-goto-next-error)
           ("M-p" . flymake-goto-prev-error))
          )
-  :hook (prog-mode . flymake-mode)
+  :hook (prog-mode-hook . flymake-mode)
   :preface
   (defun kb/flymake-show-diagnostic-here (pos &optional other-window)
     "Show the full diagnostic of this error.
@@ -958,7 +958,7 @@ Used to see multiline flymake errors"
                 '((:pylsp . (:configurationSources ["flake8"] :plugins (:pycodestyle (:enabled nil) :mccabe (:enabled nil) :flake8 (:enabled t))))))
 
   :hook
-  ((python-mode . eglot-ensure)))
+  ((python-mode-hook . eglot-ensure)))
 
 (leaf clang-format
   :doc "Format code using clang-format."
@@ -995,7 +995,7 @@ Used to see multiline flymake errors"
     ;; (interactive)
     ;; (define-key c-mode-base-map (kbd "C-M-'") 'clang-format-region)
     (keymap-set c-ts-mode-map "C-M-'" #'clang-format-region))
-  :hook (c-mode-hook . kb/c-bind-clang-format )
+  :hook (c-mode-hook . kb/c-bind-clang-format)
   :hook (c++-mode-hook . kb/c++-bind-clang-format)
   :hook (c-ts-mode-hook . kb/c-ts-bind-clang-format)
   :hook (c++-ts-mode-hook . kb/c++-ts-bind-clang-format)
@@ -1157,8 +1157,9 @@ Used to see multiline flymake errors"
   :tag "builtin"
   :added "2025-09-22"
   :mode ("\\.yaml\\'" "\\.yml\\'")
-  :hook eglot-ensure
-  :custom-face (font-lock-variable-name-face . '((t (:foreground "#cba6f7")))))
+  :hook (yaml-ts-mode-hook . eglot-ensure)
+  :custom-face (font-lock-variable-name-face . '((t (:foreground "#cba6f7"))))
+  )
 
 (leaf cmake-ts-mode
   :doc "tree-sitter support for CMake"
@@ -1197,7 +1198,8 @@ Used to see multiline flymake errors"
                   newline-mark
                   ))
     )
-  :hook (cmake-ts-mode-hook . kb/cmake-mode-setup)
+  :hook
+  (cmake-ts-mode-hook . kb/cmake-mode-setup)
   (cmake-ts-mode-hook . kb/whitespace-progmode-setup)
 )
 
