@@ -766,26 +766,6 @@
   :emacs>= 24.3
   :ensure t)
 
-(leaf blamer
-  :doc "Show git blame info about current line"
-  :req "emacs-27.1" "posframe-1.1.7" "async-1.9.8"
-  :tag "emacs>=27.1"
-  :url "https://github.com/artawower/blamer.el"
-  :added "2025-11-24"
-  :emacs>= 27.1
-  :ensure t
-  :after posframe
-  :bind (("s-i" . blamer-show-commit-info)
-         ("C-c i" . blamer-show-posframe-commit-info))
-  :custom
-  (blamer-idle-time . 0.5)
-  (blamer-min-offset . 70)
-  (blamer-type . 'both)
-  :custom-face
-  (blamer-face . '((t (:foreground "#CBAABC" :italic t))))
-  :global-minor-mode t
-  )
-
 (leaf project
   :doc "Operations on the current project"
   :tag "builtin"
