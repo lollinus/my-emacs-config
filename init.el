@@ -1641,6 +1641,18 @@ Used to see multiline flymake errors"
   :hook ((flycheck-mode-hook . sideline-mode)
          (eglot-managed-mode-hook . sideline-mode)))
 
+(leaf sideline-blame
+  :doc "Show blame messages with sideline."
+  :req "emacs-28.1" "sideline-0.1.0" "vc-msg-1.1.1"
+  :tag "blame" "convenience" "emacs>=28.1"
+  :url "https://github.com/emacs-sideline/sideline-blame"
+  :added "2025-11-24"
+  :emacs>= 28.1
+  :ensure t
+  :after sideline vc-msg
+  :config
+  (setq sideline-backends-right '((sideline-blame . down))))
+
 (leaf page-break-lines
   :doc "Display ^L page breaks as tidy horizontal lines"
   :req "emacs-25.1"
