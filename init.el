@@ -1715,6 +1715,23 @@ Used to see multiline flymake errors"
   :config
   (setq sideline-backends-right '((sideline-blame . down))))
 
+(leaf visible-mark
+  :doc "Make marks visible"
+  :req "emacs-28.1"
+  :tag "faces" "color" "marking" "emacs>=28.1"
+  :url "https://codeberg.org/ideasman42/emacs-visible-mark"
+  :added "2025-11-26"
+  :emacs>= 28.1
+  :ensure t
+  :init
+  (defface visible-mark-active ;; put this before (require 'visible-mark)
+    '((((type tty) (class mono)))
+      (t (:background "magenta"))) "")
+  :custom
+  (visible-mark-max . 2)
+  (visible-mark-faces . `(visible-mark-face1 visible-mark-face2))
+  :global-minor-mode t)
+
 (leaf page-break-lines
   :doc "Display ^L page breaks as tidy horizontal lines"
   :req "emacs-25.1"
