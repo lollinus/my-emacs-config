@@ -1016,6 +1016,14 @@ Used to see multiline flymake errors"
   :ensure t
   :hook (c-mode-common-hook c-ts-base-mode-hook))
 
+(leaf ttl-mode
+  :doc "Mode for Turtle (and Notation 3)"
+  :url "https://github.com/nxg/ttl-mode"
+  :added "2025-11-27"
+  :ensure t
+  :hook turn-on-font-lock
+  :mode ("\\.n3" "\\.ttl"))
+
 (leaf doxymin
   :doc "Create doxygen style docs the easy way"
   :req "emacs-28.1"
