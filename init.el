@@ -1705,7 +1705,7 @@ Used to see multiline flymake errors"
   :added "2025-11-24"
   :emacs>= 28.1
   :ensure t
-  :after sideline vc-msg
+  :after sideline
   :config
   (setq sideline-backends-right '((sideline-blame . down))))
 
