@@ -628,6 +628,17 @@
                                      (c "https://github.com/tree-sitter/tree-sitter-c")
                                      (doxygen "https://github.com/tree-sitter-grammars/tree-sitter-doxygen"))))
 
+(leaf mason
+  :doc "Package managers for LSP, DAP, linters, and more"
+  :req "emacs-30.1" "s-1.13.0"
+  :tag "installer" "lsp" "tools" "emacs>=30.1"
+  :url "https://github.com/deirn/mason.el"
+  :added "2025-10-13"
+  :emacs>= 30.1
+  :ensure t
+  :config
+  (mason-ensure))
+
 (leaf c-ts-mode
   :doc "tree-sitter support for C and C++"
   :tag "builtin"
