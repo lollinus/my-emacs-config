@@ -1275,6 +1275,17 @@ Used to see multiline flymake errors"
 
   (add-hook 'find-file-hook 'xml-find-file-hook t))
 
+(leaf sparql-mode
+  :doc "Edit and interactively evaluate SPARQL queries"
+  :req "cl-lib-0.5" "emacs-24.3"
+  :tag "emacs>=24.3"
+  :url "https://github.com/ljos/sparql-mode"
+  :added "2025-12-10"
+  :defun (url-http-parse-response . url-http)
+  :emacs>= 24.3
+  :ensure t
+  :mode ("\\.sparql$" "\\.rq$"))
+
 
 ;;; AI Tools
 (leaf gptel
