@@ -162,8 +162,18 @@
   :init
   (ffap-bindings)
   :config
+  :custom
   ;; Don't ping things that look like domain names.
-  (setq ffap-machine-p-known 'reject))
+  (ffap-machine-p-known . 'reject)
+)
+
+(leaf recentf
+  :doc "keep track of recently opened files"
+  :tag "builtin"
+  :added "2025-12-29"
+  :global-minor-mode t)
+
+
 
 (leaf files
   :doc "file input and output commands"
