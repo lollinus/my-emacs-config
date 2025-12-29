@@ -1341,7 +1341,11 @@ Used to see multiline flymake errors"
   :url "https://github.com/syohex/emacs-emamux"
   :added "2025-10-10"
   :emacs>= 24.3
-  :ensure t)
+  :ensure t
+  :custom
+  ;; for tmux version 2+ following settings need to be applied
+  (emamux:get-buffers-regexp . "^\\(buffer[0-9]+\\): +\\([0-9]+\\) +\\(bytes\\): +[\"]\\(.*\\)[\"]")
+  (emamux:show-buffers-with-index . t))
 
 
 ;; Documents
