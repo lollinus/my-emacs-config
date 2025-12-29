@@ -389,9 +389,6 @@
    ;; ("M-g M-g" . consult-goto-line)           ;; orig. goto-line
    ("M-g o" . consult-outline)               ;; Alternative: consult-org-heading
    )
-  ;; Enable automatic preview at point in the *Completions* buffer. This is
-  ;; relevant when you use the default completion UI.
-  :hook (completion-list-mode-hook . consult-preview-at-point-mode)
   :preface
   (defun kb/consult-line (&optional at-point)
     "Consult-line uses things-at-point if set C-u prefix."
@@ -400,6 +397,19 @@
         (consult-line (thing-at-point 'symbol))
       (consult-line)))
   :custom
+  ;; One column view with annotations
+  (completions-format . 'one-column)
+  (completions-detailed . t)
+  (completions-group . t)
+  ;; Allow navigating from the minibuffer
+  (minibuffer-visible-completions . t)
+  ;; Show completions eagerly and update automatically
+  (completion-eager-update . t)
+  (completion-eager-display . t)
+  ;; Disable noise (inline help also blocks input)
+  (completion-show-help . nil)
+  (completion-show-inline-help . nil)
+
   ;; Optionally configure the narrowing key.
   ;; Both < and C-+ work reasonably well.
   (consult-narrow-key . "C-+") ;; "<"
