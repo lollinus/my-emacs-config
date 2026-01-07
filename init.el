@@ -1759,7 +1759,22 @@ Used to see multiline flymake errors"
   :ensure t
   :after sideline
   :config
-  (setq sideline-backends-right '((sideline-blame . down))))
+  (add-to-list 'sideline-backends-right '((sideline-blame . down)))
+)
+
+(leaf sideline-eglot
+  :doc "Show eglot information with sideline."
+  :req "emacs-29.1" "eglot-1.12.29" "sideline-0.1.0" "ht-2.4"
+  :tag "eglot" "convenience" "emacs>=29.1"
+  :url "https://github.com/emacs-sideline/sideline-eglot"
+  :added "2026-01-07"
+  :emacs>= 29.1
+  :ensure t
+  :after eglot sideline
+  :config
+  ;; (setq sideline-backends-left nil)
+  (add-to-list 'sideline-backends-left '(sideline-eglot . up))
+  )
 
 (leaf visible-mark
   :doc "Make marks visible"
