@@ -1554,6 +1554,19 @@ Used to see multiline flymake errors"
    ("C-c d @" . doxymacs-insert-grouping-comments)
    ))
 
+(leaf gnuplot
+  :doc "Major-mode and interactive frontend for gnuplot"
+  :req "emacs-28.1" "compat-30"
+  :tag "plotting" "gnuplot" "data" "emacs>=28.1"
+  :url "https://github.com/emacs-gnuplot/gnuplot"
+  :added "2026-01-02"
+  :emacs>= 28.1
+  :ensure t
+  :after compat
+  ;; :config
+  ;; (setq read-extended-command-predicate #'command-completion-default-include-p)
+)
+
 (leaf gt
   :doc "Translation framework, configurable and scalable"
   :req "emacs-28.1" "pdd-0.2.3"
