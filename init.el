@@ -1776,6 +1776,20 @@ Used to see multiline flymake errors"
   (add-to-list 'sideline-backends-left '(sideline-eglot . up))
   )
 
+(leaf sideline-flymake
+  :doc "Show flymake errors with sideline"
+  :req "emacs-28.1" "sideline-0.1.0"
+  :tag "flymake" "convenience" "emacs>=28.1"
+  :url "https://github.com/emacs-sideline/sideline-flymake"
+  :added "2026-01-07"
+  :emacs>= 28.1
+  :ensure t
+  :after sideline
+  :config
+  (setq sideline-flymake-show-backend-name t)
+  (add-to-list 'sideline-backends-left '(sideline-flymake . down))
+)
+
 (leaf visible-mark
   :doc "Make marks visible"
   :req "emacs-28.1"
