@@ -1327,6 +1327,22 @@ Used to see multiline flymake errors"
   :ensure t
   :mode ("\\.sparql$" "\\.rq$"))
 
+(leaf uuidgen
+  :doc "Provides various UUID generating functions."
+  :tag "tools" "lisp" "extensions"
+  :url "https://github.com/kanru/uuidgen-el"
+  :added "2026-01-08"
+  :ensure t)
+
+(leaf time-uuid-mode
+  :doc "Minor mode for previewing time uuids as an overlay."
+  :req "emacs-24.3"
+  :tag "tools" "data" "convenience" "extensions" "emacs>=24.3"
+  :url "https://github.com/RobertPlant/time-uuid-mode"
+  :added "2026-01-08"
+  :emacs>= 24.3
+  :ensure t)
+
 
 ;;; AI Tools
 (leaf gptel
