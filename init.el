@@ -1793,7 +1793,7 @@ Used to see multiline flymake errors"
   :ensure t
   :after sideline
   :config
-  (add-to-list 'sideline-backends-right '((sideline-blame . down)))
+  (add-to-list 'sideline-backends-right '(sideline-blame . down))
 )
 
 (leaf sideline-eglot
