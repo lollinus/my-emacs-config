@@ -1367,7 +1367,7 @@ Used to see multiline flymake errors"
   :custom
   ;; OPTIONAL configuration
   (gptel-model . 'claude-3.7-sonnet)
-  (gptel-backend . `,(gptel-make-gh-copilot "Copilot"))
+  (gptel-backend . `,(gptel-make-gh-copilot "Copilot" :host "bmw.ghe.com"))
   (gptel-expert-commands . t))
 
 (leaf copilot
