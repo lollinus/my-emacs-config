@@ -1343,6 +1343,16 @@ Used to see multiline flymake errors"
   :emacs>= 24.3
   :ensure t)
 
+(leaf docker
+  :doc "Interface to Docker."
+  :req "aio-1.0" "dash-2.19.1" "emacs-28.1" "s-1.13.0" "tablist-1.1" "transient-0.4.3"
+  :tag "convenience" "filename" "emacs>=28.1"
+  :url "https://github.com/Silex/docker.el"
+  :added "2026-01-08"
+  :emacs>= 28.1
+  :ensure t
+  :after aio tablist)
+
 
 ;;; AI Tools
 (leaf gptel
