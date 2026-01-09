@@ -1370,6 +1370,26 @@ Used to see multiline flymake errors"
   (gptel-backend . `,(gptel-make-gh-copilot "Copilot"))
   (gptel-expert-commands . t))
 
+(leaf copilot
+  :doc "An unofficial Copilot plugin"
+  :req "emacs-27.2" "editorconfig-0.8.2" "jsonrpc-1.0.14" "f-0.20.0" "track-changes-1.4"
+  :tag "copilot" "convenience" "emacs>=27.2"
+  :url "https://github.com/copilot-emacs/copilot.el"
+  :added "2026-01-08"
+  :emacs>= 27.2
+  :ensure t
+  :config
+  (setq copilot-lsp-settings
+   '(:github-enterprise (:uri "https://bmw.ghe.com")))
+  :hook
+  ;; Optional: Enable in programming modes
+  (prog-mode-hook . copilot-mode)
+
+  ;; Keybindings
+  :bind (:copilot-completion-map
+         ("<tab>" . 'copilot-accept-completion))
+  )
+
 
 ;;; Tools
 (leaf vterm
