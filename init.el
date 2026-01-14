@@ -2,6 +2,8 @@
 ;;; Commentary:
 ;; Load all configuration parts
 
+;;; Code:
+
 (message "** Init entered")
 
 ;; useful for quickly debugging Emacs
@@ -206,6 +208,17 @@
                                                                 (css-mode . css-ts-mode)
                                                                 (python-mode . python-ts-mode)
                                                                 (javascript-mode . js-ts-mode)))))
+(leaf auth-source
+  :doc "authentication sources for Gnus and Emacs"
+  :tag "builtin"
+  :added "2026-01-12"
+  :custom
+  ;; (store . `,(plstore-open (expand-file-name "~/.emacs.d/auth.plist")))
+  ;; (auth-source-debug . t)
+  ;; (auth-source-do-cache . t)
+  ;; (auth-source-save-behavior . 'ask)
+  (auth-sources . '("~/.authinfo" "~/.authinfo.gpg" "~/.netrc" "~/.auth.json.gpg" "~/.emacs.d/auth.plist"))
+)
 
 (leaf battery
   :doc "display battery status information"
