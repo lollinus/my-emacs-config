@@ -794,20 +794,10 @@
   :added "2025-09-01"
   :emacs>= 28.1
   :ensure t
-  :commands (project-magit)
-  :bind (project-prefix-map
-         :package project
-         ("m" . project-magit))
-  :preface
-  (defun project-magit ()
-   (interactive)
-   (let ((dir (project-root (project-current t))))
-     (magit-status dir)))
-  (with-eval-after-load 'project
-    (add-to-list 'project-switch-commands
-                 '(project-magit "Magit" m)))
-  :config
-  (add-to-list 'magit-process-find-password-functions 'magit-process-password-auth-source))
+  :setq (magit-define-global-key-bindings . 'recommended)
+  :defer-config
+  (add-to-list 'magit-process-find-password-functions 'magit-process-password-auth-source)
+  )
 
 (leaf git-timemachine
   :doc "Walk through git revisions of a file"
