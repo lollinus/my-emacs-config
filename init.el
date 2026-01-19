@@ -1152,6 +1152,16 @@ Used to see multiline flymake errors"
   :hook
   (prog-mode-hook . indent-bars-mode))
 
+(leaf outline-indent
+  :doc "Folding text based on indentation (origami alternative)."
+  :req "emacs-26.1"
+  :tag "outlines" "emacs>=26.1"
+  :url "https://github.com/jamescherti/outline-indent.el"
+  :added "2026-01-13"
+  :emacs>= 26.1
+  :ensure t
+  :custom (outline-indent-ellipsis . " ⤵ "))
+
 (leaf so-long
   :doc "Say farewell to performance problems with minified code."
   :tag "builtin"
