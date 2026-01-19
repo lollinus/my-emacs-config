@@ -1906,7 +1906,8 @@ Used to see multiline flymake errors"
   :ensure t
   :blackout t
   :hook ((flycheck-mode-hook . sideline-mode)
-         (eglot-managed-mode-hook . sideline-mode)))
+         (eglot-managed-mode-hook . sideline-mode)
+         (prog-mode-hook . sideline-mode)))
 
 (leaf sideline-blame
   :doc "Show blame messages with sideline."
