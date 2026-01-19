@@ -1706,7 +1706,7 @@ Used to see multiline flymake errors"
          (gt-translator
           :taker (gt-taker :text 'buffer :pick 'paragraph :langs '(en de ja ko pt pl fr zh))
           :engines (list (gt-google-engine) (gt-bing-engine) (gt-deepl-engine))
-          :render (gt-buffer-renderer)))
+          :render (gt-buffer-render)))
 
   (setq gt-preset-translators
       `((ts-quick-de-en . ,(gt-translator
