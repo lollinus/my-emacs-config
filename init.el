@@ -825,18 +825,11 @@
          (project-prefix-map
           ("d" . project-dired)
           ("M-s" . project-find-file)))
-  :init
-  (setopt project-switch-commands
-          '((project-find-file "Find file")
-            (project-dired "Dired")
-            (project-compile "Compile")
-            (project-find-regexp "Find Regex")
-            (eat-project "Terminal"))
-          project-compilation-buffer-name-function 'project-prefixed-buffer-name)
-  :config
-  (when (>= emacs-major-version 30)
-    (setopt project-mode-line t))
+  :custom
+  (project-compilation-buffer-name-function . 'project-prefixed-buffer-name)
+  (project-mode-line . `,(>= emacs-major-version 30))
 
+  :config
   ;; Added in emacs 29
   (setopt project-vc-extra-root-markers
           '("*.cabal" "pyproject.toml"
