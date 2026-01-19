@@ -1429,6 +1429,7 @@ Used to see multiline flymake errors"
 
 ;;; AI Tools
 (leaf gptel
+  :disabled t
   :doc "Interact with ChatGPT or other LLMs"
   :req "emacs-27.1" "transient-0.7.4" "compat-30.1.0.0"
   :tag "tools" "convenience" "emacs>=27.1"
@@ -1439,9 +1440,12 @@ Used to see multiline flymake errors"
   :after compat
   :custom
   ;; OPTIONAL configuration
-  (gptel-model . 'claude-3.7-sonnet)
-  (gptel-backend . `,(gptel-make-gh-copilot "Copilot" :host "bmw.ghe.com"))
-  (gptel-expert-commands . t))
+  (gptel-model . 'gpt-4o) ; default: 'gpt-3.5-turbo 'claude-3.7-sonnet
+
+  (gptel-expert-commands . t)
+  :defer-config
+  (message "**** defer config ")
+  )
 
 (leaf copilot
   :doc "An unofficial Copilot plugin"
