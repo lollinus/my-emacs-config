@@ -847,6 +847,7 @@
 (leaf consult-project-extra
   :doc "Consult integration for project.el"
   :req "emacs-27.1" "consult-0.17" "project-0.8.1"
+  :package all-the-icons-completion ;; ensure that all-the-icons-completion is installed first
   :tag "management" "project" "convenience" "emacs>=27.1"
   :url "https://github.com/Qkessler/consult-project-extra"
   :added "2025-09-01"
