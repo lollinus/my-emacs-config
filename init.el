@@ -1051,9 +1051,12 @@ Used to see multiline flymake errors"
   :emacs>= 26.3
   :ensure t
   :after org
-  :bind-keymap (org-mode-map ("C-c C-0" . verb-command-map))
   :config
-  (org-babel-do-load-languages 'org-babel-load-languages '((verb . t))))
+  (org-babel-do-load-languages 'org-babel-load-languages '((verb . t)))
+  :defer-config
+  ;; :bind-keymap does fails with error no such command veb-mode-map
+  (keymap-set org-mode-map "C-c C-0" verb-command-map)
+)
 
 (leaf highlight-doxygen
   :doc "Highlight Doxygen comments"
