@@ -1119,6 +1119,39 @@ Used to see multiline flymake errors"
         highlight-indent-guides-responsive 'top
         highlight-indent-guides-suppress-auto-error t))
 
+(leaf indent-bars
+  :doc "Highlight indentation with bars"
+  :req "emacs-27.1" "compat-30"
+  :tag "convenience" "emacs>=27.1"
+  :url "https://github.com/jdtsmith/indent-bars"
+  :added "2026-01-13"
+  :emacs>= 27.1
+  :ensure t
+  :after compat
+  :commands indent-bars-mode
+  :custom
+  ;; Setting this to nil is not reliable enough
+  ;; https://github.com/jdtsmith/indent-bars?tab=readme-ov-file#stipples
+  (indent-bars-prefer-character . nil)
+
+  ;; When `indent-bars-prefer-character' is set to t, displaying indent bars on
+  ;; blank lines causes cursor movement issues when moving downward, resulting
+  ;; in abrupt shifts of the window start or cursor position.
+  (indent-bars-display-on-blank-lines . t)
+  (indent-bars-pattern . ".")
+  (indent-bars-width-frac . 0.1)
+  (indent-bars-pad-frac . 0.1)
+  (indent-bars-zigzag . nil)
+  ( indent-bars-highlight-current-depth . '(:blend 0.6 :width 0.2 :pad 0.1 :pattern "..!!..!!..!!" :zigzag 0.1 ))
+
+  (indent-bars-color . '(highlight :face-bg t :blend 0.8))
+  (indent-bars-color-by-depth . '(:regexp "outline-\\([0-9]+\\)" :blend 0.8))
+  (indent-bars-ts-highlight-current-depth . '(no-inherit)) ; equivalent to nil
+  (indent-bars-ts-color-by-depth . '(no-inherit))
+  (indent-bars-ts-color . '(inherit fringe :face-bg t :blend 0.2))
+  :hook
+  (prog-mode-hook . indent-bars-mode))
+
 (leaf so-long
   :doc "Say farewell to performance problems with minified code."
   :tag "builtin"
