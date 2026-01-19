@@ -1455,9 +1455,11 @@ Used to see multiline flymake errors"
   :added "2026-01-08"
   :emacs>= 27.2
   :ensure t
-  :config
-  (setq copilot-lsp-settings
-   '(:github-enterprise (:uri "https://bmw.ghe.com")))
+  :custom
+  (copilot-max-char . 20000)  ; default is 10000
+  (copilot-max-char-warning-disable . t)
+  (copilot-lsp-settings . '(:github-enterprise (:uri "https://bmw.ghe.com")))
+  (copilot-indent-offset-warning-disable . t)
   :hook
   ;; Optional: Enable in programming modes
   (prog-mode-hook . copilot-mode)
