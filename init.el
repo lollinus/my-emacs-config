@@ -1162,6 +1162,41 @@ Used to see multiline flymake errors"
   :ensure t
   :custom (outline-indent-ellipsis . " ⤵ "))
 
+(leaf treesit-fold
+  :tag "out-of-MELPA"
+  :added "2026-01-13"
+  :vc (treesit-fold
+       :url "https://github.com/emacs-tree-sitter/treesit-fold"
+       :vc-backend Git
+       :branch "main")
+  :require t
+  :after tree-sitter-mode
+  :global-minor-mode (global-treesit-fold-mode global-treesit-fold-indicators-mode treesit-fold-line-comment-mode)
+  treesit-fold-line-comment-mode
+  :custom
+  (treesit-fold-indicators-fringe . 'left-fringe)
+  (treesit-fold-indicators-priority . 30)
+  (treesit-fold-line-count-show . t)  ; Show line count in folded regions
+  :config
+  (message "**** Configuring treesit-fold")
+  ;; (setq treesit-fold-indicators-face-function
+  ;;     (lambda (pos &rest _)
+  ;;       ;; Return the face of it's function.
+  ;;       (line-reminder--get-face (line-number-at-pos pos t))))
+
+  ;; (setq line-reminder-add-line-function
+  ;;     (lambda (&rest _)
+  ;;       (null (treesit-fold--overlays-in treesit-fold-indicators-window (selected-window)
+  ;;                                   (line-beginning-position) (line-end-position)))))
+  ;; (setq treesit-fold-summary-show nil)
+  ;; (setq treesit-fold-summary-exceeded-string "...")
+  ;; (setq treesit-fold-summary-format " <S> %s ")
+  :bind (:treesit-fold-mode-map
+         ("C-c t f" . treesit-fold-toggle)
+         ("C-c t a" . treesit-fold-close-all)
+         ("C-c t o" . treesit-fold-open-all)
+         ("C-c t u" . treesit-fold-open-recursively)))
+
 (leaf so-long
   :doc "Say farewell to performance problems with minified code."
   :tag "builtin"
