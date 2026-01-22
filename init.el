@@ -1479,6 +1479,19 @@ Used to see multiline flymake errors"
   :after shell-maker acp
 )
 
+(leaf ai-code
+  :doc "Unified interface for AI coding CLI such as Codex, Copilot CLI, Opencode, Grok CLI, etc."
+  :req "emacs-28.1" "transient-0.8.0" "magit-2.1.0"
+  :tag "emacs>=28.1"
+  :url "https://github.com/tninja/ai-code-interface.el"
+  :added "2026-01-22"
+  :emacs>= 28.1
+  :ensure t
+  :after magit
+  :bind ("C-c a" . 'ai-code-menu)
+  :config
+  (ai-code-set-backend 'github-copilot-cli))
+
 (leaf copilot
   :doc "An unofficial Copilot plugin"
   :req "emacs-27.2" "editorconfig-0.8.2" "jsonrpc-1.0.14" "f-0.20.0" "track-changes-1.4"
