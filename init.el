@@ -1468,6 +1468,17 @@ Used to see multiline flymake errors"
   (message "**** defer config ")
   )
 
+(leaf agent-shell
+  :doc "Native agentic integrations for Claude Code, Gemini CLI, etc"
+  :req "emacs-29.1" "shell-maker-0.84.8" "acp-0.8.3"
+  :tag "emacs>=29.1"
+  :url "https://github.com/xenodium/agent-shell"
+  :added "2026-01-20"
+  :emacs>= 29.1
+  :ensure t
+  :after shell-maker acp
+)
+
 (leaf copilot
   :doc "An unofficial Copilot plugin"
   :req "emacs-27.2" "editorconfig-0.8.2" "jsonrpc-1.0.14" "f-0.20.0" "track-changes-1.4"
