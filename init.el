@@ -271,6 +271,24 @@
           c-ts-base-mode-hook prog-mode-hook)
          . display-line-numbers-mode))
 
+(leaf info-nav
+  :doc "Browse info docs with a 2 pane layout"
+  :req "emacs-29.1"
+  :tag "hypermedia" "docs" "emacs>=29.1"
+  :url "https://codeberg.org/ggxx/info-nav"
+  :added "2026-01-22"
+  :emacs>= 29.1
+  :ensure t
+  :bind ([remap info] . info-nav))
+
+(leaf info-colors
+  :doc "Extra colors for Info-mode"
+  :req "emacs-24" "cl-lib-0.5"
+  :tag "faces" "emacs>=24"
+  :url "https://github.com/ubolonton/info-colors"
+  :added "2026-01-22"
+  :emacs>= 24
+  :ensure t)
 
 ;;--------------------------------------------------------------------------------
 ;; iBuffer
