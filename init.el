@@ -217,6 +217,17 @@
   (auth-sources . '("~/.authinfo" "~/.authinfo.gpg" "~/.netrc" "~/.auth.json.gpg" "~/.emacs.d/auth.plist"))
 )
 
+(leaf password-menu
+  :doc "Password Menu for auth-source secrets."
+  :req "emacs-29.1"
+  :tag "news" "emacs>=29.1"
+  :url "https://github.com/rnadler/password-menu"
+  :added "2026-01-21"
+  :emacs>= 29.1
+  :ensure t
+  :bind (("C-x j" . 'password-menu-transient)
+         ("C-x J" . 'password-menu-completing-read)))
+
 (leaf battery
   :doc "display battery status information"
   :tag "builtin"
