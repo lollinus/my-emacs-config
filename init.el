@@ -1615,7 +1615,18 @@ Used to see multiline flymake errors"
       (insert (format "[[file:%s]]" filename))
       (org-redisplay-inline-images)))
   :bind (org-mode-map ("C-<print>" . ews-org-insert-screenshot))
- )
+  )
+
+(leaf org-make-toc
+  :doc "Automatic tables of contents for Org files"
+  :req "emacs-26.1" "dash-2.12" "s-1.10.0" "org-9.3" "compat-29.1"
+  :tag "convenience" "org" "emacs>=26.1"
+  :url "http://github.com/alphapapa/org-make-toc"
+  :added "2026-01-28"
+  :emacs>= 26.1
+  :ensure t
+  :after org compat
+  :hook (org-mode-hook . org-make-toc-mode))
 
 (leaf ox-jira
   :doc "JIRA Backend for Org Export Engine"
