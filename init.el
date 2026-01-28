@@ -1486,8 +1486,8 @@ Used to see multiline flymake errors"
   :url "https://github.com/tninja/ai-code-interface.el"
   :added "2026-01-22"
   :emacs>= 28.1
+  :defvar ai-code-use-prompt-suffix
   :ensure t
-  :after magit
   :bind ("C-c a" . 'ai-code-menu)
   :config
   (ai-code-set-backend 'github-copilot-cli))
