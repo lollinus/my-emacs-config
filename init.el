@@ -1271,7 +1271,6 @@ Used to see multiline flymake errors"
    'beginning-of-line 'end-of-line))
 
 (leaf eldoc-box
-  :disabled t
   :doc "Display documentation in childframe"
   :req "emacs-27.1"
   :tag "emacs>=27.1"
