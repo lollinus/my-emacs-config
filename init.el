@@ -1499,19 +1499,20 @@ Used to see multiline flymake errors"
   :url "https://github.com/copilot-emacs/copilot.el"
   :added "2026-01-08"
   :emacs>= 27.2
+  :defun copilot--start-server
   :ensure t
-  :custom
-  (copilot-max-char . 20000)  ; default is 10000
-  (copilot-max-char-warning-disable . t)
-  (copilot-lsp-settings . '(:github-enterprise (:uri "https://bmw.ghe.com")))
-  (copilot-indent-offset-warning-disable . t)
   :hook
   ;; Optional: Enable in programming modes
-  (prog-mode-hook . copilot-mode)
+  ((prog-mode-hook . copilot-mode))
 
   ;; Keybindings
   :bind (:copilot-completion-map
          ("<tab>" . 'copilot-accept-completion))
+  :config
+  (setq copilot-lsp-settings '(:github-enterprise (:uri "https://bmw.ghe.com")))
+  (setq copilot-max-char 20000)  ; default is 10000
+  (setq copilot-max-char-warning-disable t)
+  (setq copilot-indent-offset-warning-disable t)
   )
 
 
