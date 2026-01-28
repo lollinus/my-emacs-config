@@ -1647,6 +1647,24 @@ Used to see multiline flymake errors"
   :after ox
   :require t)
 
+(leaf ox-latex
+  :doc "LaTeX Backend for Org Export Engine"
+  :tag "builtin" "text" "calendar" "hypermedia" "outlines"
+  :added "2026-01-23"
+  :custom
+  ;; Multiple LaTeX passes for bibliographies
+  (org-latex-pdf-process .
+                         '("pdflatex -interaction nonstopmode -output-directory %o %f"
+                           "bibtex %b"
+                           "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
+                           "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"))
+  ;; Clean temporary files after export
+  (org-latex-logfiles-extensions .
+                                 (quote ("lof" "lot" "tex~" "aux" "idx" "log" "out"
+                                         "toc" "nav" "snm" "vrb" "dvi" "fdb_latexmk"
+                                         "blg" "brf" "fls" "entoc" "ps" "spl" "bbl"
+                                        "tex" "bcf"))))
+
 ;; (require 'auth-source)
 ;; (let* ((auth (car (auth-source-search
 ;; 	       :host "jira.cc.bmwgroup.net"
