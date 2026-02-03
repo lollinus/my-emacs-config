@@ -198,8 +198,7 @@
   :config
   ;; Tell Emacs to prefer the treesitter mode
   ;; You'll want to run the command `M-x treesit-install-language-grammar' before editing.
-  (setq major-mode-remap-alist (append major-mode-remap-alist '((yaml-mode . yaml-ts-mode)
-                                                                (bash-mode . bash-ts-mode)
+  (setq major-mode-remap-alist (append major-mode-remap-alist '((bash-mode . bash-ts-mode)
                                                                 (js2-mode . js-ts-mode)
                                                                 (typescript-mode . typescript-ts-mode)
                                                                 (json-mode . json-ts-mode)
@@ -1315,7 +1314,7 @@ Used to see multiline flymake errors"
   :mode ("\\.yaml\\'" "\\.yml\\'")
   :hook (yaml-ts-mode-hook . eglot-ensure)
   :custom-face (font-lock-variable-name-face . '((t (:foreground "#cba6f7"))))
-  )
+  :init (add-to-list 'major-mode-remap-alist '(yaml-mode . yaml-ts-mode)))
 
 (leaf cmake-ts-mode
   :doc "tree-sitter support for CMake"
