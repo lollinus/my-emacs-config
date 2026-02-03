@@ -1316,6 +1316,16 @@ Used to see multiline flymake errors"
   :custom-face (font-lock-variable-name-face . '((t (:foreground "#cba6f7"))))
   :init (add-to-list 'major-mode-remap-alist '(yaml-mode . yaml-ts-mode)))
 
+(leaf csv-mode
+    :doc "Major mode for editing comma/char separated values"
+    :req "emacs-27.1" "cl-lib-0.5"
+    :tag "convenience" "emacs>=27.1"
+    :url "https://elpa.gnu.org/packages/csv-mode.html"
+    :added "2026-02-03"
+    :emacs>= 27.1
+    :ensure t
+    :hook (csv-mode-hook . csv-guess-set-separator))
+
 (leaf cmake-ts-mode
   :doc "tree-sitter support for CMake"
   :tag "builtin"
