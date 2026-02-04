@@ -1045,6 +1045,18 @@ Used to see multiline flymake errors"
   (setq-default eglot-workspace-configuration
                 '((:pylsp . (:configurationSources ["flake8"] :plugins (:pycodestyle (:enabled nil) :mccabe (:enabled nil) :flake8 (:enabled t))))))
 
+  :defer-config
+  ;; install python treesitter grammar on demand
+  (when (not (treesit-ready-p 'python t))
+    (message "**** Installing python grammar for treesitter")
+    (treesit-install-language-grammar 'python)
+    )
+  ;; install python language server on demand
+  (when (not (executable-find "pylsp"))
+    (message "*** Installing phtno-lsp-server")
+    (when (not (mason-installed-p "python-lsp-server"))
+        (mason-install "python-lsp-server" nil nil (lambda (success) (message "**** python-lsp-server install %S" success)))
+        ))
   :hook
   ((python-mode-hook . eglot-ensure)))
 
