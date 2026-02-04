@@ -1000,8 +1000,16 @@ Used to see multiline flymake errors"
   (remove-hook 'flymake-diagnostic-functions #'flymake-proc-legacy-flymake)
   )
 
+(leaf flyspell
+  :doc "On-the-fly spell checker"
+  :tag "builtin"
+  :added "2026-02-04"
+  :hook (prog-mode-hook  . flyspell-prog-mode)
+  :custom
+  (flyspell-auto-correct-binding . `,(kbd "C-=")))
 
 (leaf flymake-codespell
+  :disabled t
   :doc "Flymake backend for codespell"
   :req "emacs-26.1" "compat-29.1.4.2"
   :tag "extensions" "emacs>=26.1"
