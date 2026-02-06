@@ -1071,6 +1071,7 @@ Used to see multiline flymake errors"
   :doc "Python's flying circus support for Emacs"
   :tag "builtin"
   :added "2025-09-16"
+  :defun (treesit-ready-p . treesit)
   :config
   (with-eval-after-load 'eglot
     (add-to-list 'eglot-server-programs '(python-ts-mode . ("pylsp")))
