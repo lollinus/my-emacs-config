@@ -1101,6 +1101,17 @@ Used to see multiline flymake errors"
   :hook
   ((python-mode-hook . eglot-ensure)))
 
+(leaf js-ts-defs
+  :doc "Find JavaScript variable definitions using tree-sitter"
+  :req "emacs-29.1"
+  :tag "tree-sitter" "javascript" "languages" "emacs>=29.1"
+  :url "https://github.com/jacksonrayhamilton/js-ts-defs"
+  :added "2026-02-02"
+  :emacs>= 29.1
+  :ensure t
+  :config
+  :bind (:js-ts-mode-map ("M-." . #'js-ts-defs-jump-to-definition))
+)
 
 (leaf clang-format
   :doc "Format code using clang-format."
