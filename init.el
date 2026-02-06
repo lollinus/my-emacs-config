@@ -717,7 +717,7 @@
   :emacs>= 30.1
   :ensure t
   :config
-  (mason-ensure))
+  (mason-setup))
 
 (leaf c-ts-mode
   :doc "tree-sitter support for C and C++"
@@ -871,6 +871,17 @@
                                        ".svn" ".stack-work" ".ccls-cache" ".cache" ".clangd")
                                      '(".log" ".vs" "node_modules")
                                      )))
+
+(leaf disproject
+  :doc "Dispatch project commands with Transient"
+  :req "emacs-29.4" "transient-0.9.2"
+  :tag "vc" "files" "convenience" "emacs>=29.4"
+  :url "https://github.com/aurtzy/disproject"
+  :added "2026-02-06"
+  :emacs>= 29.4
+  :ensure t
+  ;; Replace `project-prefix-map' with `disproject-dispatch'.
+  :bind (ctl-x-map ("p" . disproject-dispatch)))
 
 (leaf consult-project-extra
   :doc "Consult integration for project.el"
@@ -1466,6 +1477,14 @@ Used to see multiline flymake errors"
   :ensure t
   :after aio tablist)
 
+(leaf devcontainer
+  :doc "Support for devcontainer"
+  :req "emacs-29.1"
+  :tag "emacs>=29.1"
+  :url "https://github.com/johannes-mueller/devcontainer.el"
+  :added "2026-01-28"
+  :emacs>= 29.1
+  :ensure t)
 
 ;;; AI Tools
 (leaf gptel
@@ -1512,6 +1531,9 @@ Used to see multiline flymake errors"
   (ai-code-set-backend 'github-copilot-cli))
 
 (leaf copilot
+  ;; TODO recognize that copilot credentials and copilot-language-server are available
+  ;; :disabled `,(not (executable-find "copilot-language-server")) 
+  :disabled t
   :doc "An unofficial Copilot plugin"
   :req "emacs-27.2" "editorconfig-0.8.2" "jsonrpc-1.0.14" "f-0.20.0" "track-changes-1.4"
   :tag "copilot" "convenience" "emacs>=27.2"
@@ -1533,6 +1555,10 @@ Used to see multiline flymake errors"
   (setq copilot-max-char-warning-disable t)
   (setq copilot-indent-offset-warning-disable t)
   )
+  (when (not (executable-find "copilot-language-server"))
+    (message "**** copilot-language-server not found")
+    (copilot-install-server)
+  ))
 
 
 ;;; Tools
@@ -2060,6 +2086,26 @@ Used to see multiline flymake errors"
   (visible-mark-max . 2)
   (visible-mark-faces . `(visible-mark-face1 visible-mark-face2))
   :global-minor-mode t)
+
+(leaf spell-fu
+  :doc "Fast & light spelling highlighter"
+  :req "emacs-29.1"
+  :tag "convenience" "emacs>=29.1"
+  :url "https://codeberg.org/ideasman42/emacs-spell-fu"
+  :added "2025-11-26"
+  :emacs>= 29.1
+  :ensure t
+  :hook emacs-lisp-mode-hook
+  :init
+  (defun kb/setup-spell-fu ()
+    (spell-fu-dictionary-add (spell-fu-get-ispell-dictionary "en"))
+    (spell-fu-dictionary-add (spell-fu-get-ispell-dictionary "pl"))
+    ;; (spell-fu-dictionary-add
+    ;;   (spell-fu-get-personal-dictionary "pl-personal" "/home/user/.aspell.de.pws"))
+    ;; (spell-fu-dictionary-add
+    ;;   (spell-fu-get-personal-dictionary "en-personal" "/home/user/.aspell.fr.pws"))
+    )
+  :hook (spell-fu-mode-hook . kb/setup-spell-fu))
 
 (leaf page-break-lines
   :doc "Display ^L page breaks as tidy horizontal lines"
