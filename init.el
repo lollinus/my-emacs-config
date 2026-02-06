@@ -1053,12 +1053,20 @@ Used to see multiline flymake errors"
     )
   ;; install python language server on demand
   (when (not (executable-find "pylsp"))
-    (message "*** Installing phtno-lsp-server")
+    (message "*** Installing python-lsp-server")
     (when (not (mason-installed-p "python-lsp-server"))
         (mason-install "python-lsp-server" nil nil (lambda (success) (message "**** python-lsp-server install %S" success)))
         ))
+  (when (not (executable-find "flake8"))
+    (message "*** Installing flake8")
+    (when (not (mason-installed-p "flake8"))
+      (mason-install "flake8" nil nil (lambda (success)
+                                        (message "**** flake8 install %S" success)
+                                        (if success (setopt python-flymake-command '("flake8" "-")))))
+        ))
   :hook
   ((python-mode-hook . eglot-ensure)))
+
 
 (leaf clang-format
   :doc "Format code using clang-format."
