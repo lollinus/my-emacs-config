@@ -1807,6 +1807,16 @@ Used to see multiline flymake errors"
     (setopt jiralib-token `("Authorization" . ,(concat "Bearer " password))))
   (setopt jiralib-use-PAT t))
 
+(leaf doing
+  :doc "Frictionless activity log and time tracking"
+  :req "emacs-27.1" "org-9.0"
+  :tag "time-tracking" "org" "convenience" "emacs>=27.1"
+  :url "https://github.com/xiaoxinghu/doing.el"
+  :added "2026-02-09"
+  :emacs>= 27.1
+  :ensure t
+  :after org)
+
 (leaf markdown-ts-mode
   :doc "Major mode for Markdown using Treesitter"
   :req "emacs-29.1"
