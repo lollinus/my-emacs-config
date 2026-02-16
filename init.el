@@ -2117,6 +2117,7 @@ Used to see multiline flymake errors"
 )
 
 (leaf sideline-eglot
+  :disabled t ;; NOTE: disabled to avoid Debugger entered--Lisp error: (void-function eglot--diag-data)
   :doc "Show eglot information with sideline."
   :req "emacs-29.1" "eglot-1.12.29" "sideline-0.1.0" "ht-2.4"
   :tag "eglot" "convenience" "emacs>=29.1"
@@ -2127,8 +2128,7 @@ Used to see multiline flymake errors"
   :after eglot sideline
   :config
   ;; (setq sideline-backends-left nil)
-  (add-to-list 'sideline-backends-left '(sideline-eglot . up))
-  )
+  (add-to-list 'sideline-backends-left '(sideline-eglot . up)))
 
 (leaf sideline-flymake
   :doc "Show flymake errors with sideline"
