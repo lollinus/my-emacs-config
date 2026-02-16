@@ -209,7 +209,8 @@
                                                                 (json-mode . json-ts-mode)
                                                                 (css-mode . css-ts-mode)
                                                                 (python-mode . python-ts-mode)
-                                                                (javascript-mode . js-ts-mode)))))
+                                                                (javascript-mode . js-ts-mode)
+                                                                (html-mode . html-ts-mode)))))
 (leaf auth-source
   :doc "authentication sources for Gnus and Emacs"
   :tag "builtin"
