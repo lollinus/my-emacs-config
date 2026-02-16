@@ -841,6 +841,16 @@
   (add-to-list 'magit-process-find-password-functions 'magit-process-password-auth-source)
   )
 
+(leaf magit-gh
+  :doc "GitHub CLI integration for Magit"
+  :req "emacs-29.1" "magit-4.0.0" "transient-0.5.0"
+  :tag "github" "vc" "tools" "git" "emacs>=29.1"
+  :url "https://github.com/jonathanchu/magit-gh"
+  :added "2026-02-09"
+  :emacs>= 29.1
+  :ensure t
+  :after magit)
+
 (leaf git-timemachine
   :doc "Walk through git revisions of a file"
   :req "emacs-24.3" "transient-0.1.0"
