@@ -71,11 +71,16 @@
   (put 'upcase-region 'disabled nil)
   )
 
-(leaf window
-  :doc "GNU Emacs window commands aside from those written in C"
-  :tag "builtin" "internal"
-  :added "2025-09-01"
-  :bind (("M-o" . other-window)))
+(leaf spatial-window
+  :doc "Jump to windows using keyboard spatial mapping"
+  :req "emacs-28.1" "posframe-1.0.0"
+  :tag "windows" "convenience" "emacs>=28.1"
+  :url "https://github.com/lewang/spatial-window"
+  :added "2026-02-16"
+  :emacs>= 28.1
+  :ensure t
+  :after posframe
+  :bind ("M-o" . #'spatial-window-select))
 
 (leaf frame
   :doc "multi-frame management independent of window systems"
