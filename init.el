@@ -1635,9 +1635,9 @@ Used to see multiline flymake errors"
          ("<tab>" . 'copilot-accept-completion))
 
   :config
-  (when (not (executable-find "copilot-language-server"))
+  (when (not (mason-installed-p "copilot-language-server"))
     (message "**** copilot-language-server not found")
-    (copilot-install-server))
+    (mason-install "copilot-language-server"  nil nil (lambda (success) (message "**** copilot-language-server install %S" success))))
 
   (setq copilot-lsp-settings '(:github-enterprise (:uri "https://bmw.ghe.com")))
   (setq copilot-max-char 20000)  ; default is 10000
