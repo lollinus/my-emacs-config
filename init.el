@@ -287,6 +287,15 @@
           c-ts-base-mode-hook prog-mode-hook)
          . display-line-numbers-mode))
 
+(leaf fancy-fill-paragraph
+  :doc "Fancy paragraph fill"
+  :req "emacs-29.1"
+  :tag "convenience" "emacs>=29.1"
+  :url "https://codeberg.org/ideasman42/emacs-fancy-fill-paragraph"
+  :added "2026-02-16"
+  :emacs>= 29.1
+  :ensure t)
+
 (leaf info-nav
   :doc "Browse info docs with a 2 pane layout"
   :req "emacs-29.1"
