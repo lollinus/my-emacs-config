@@ -1596,7 +1596,7 @@ Used to see multiline flymake errors"
 (leaf copilot
   ;; TODO recognize that copilot credentials and copilot-language-server are available
   ;; :disabled `,(not (executable-find "copilot-language-server")) 
-  :disabled t
+  ;; :disabled t
   :doc "An unofficial Copilot plugin"
   :req "emacs-27.2" "editorconfig-0.8.2" "jsonrpc-1.0.14" "f-0.20.0" "track-changes-1.4"
   :tag "copilot" "convenience" "emacs>=27.2"
@@ -1612,16 +1612,17 @@ Used to see multiline flymake errors"
   ;; Keybindings
   :bind (:copilot-completion-map
          ("<tab>" . 'copilot-accept-completion))
+
   :config
+  (when (not (executable-find "copilot-language-server"))
+    (message "**** copilot-language-server not found")
+    (copilot-install-server))
+
   (setq copilot-lsp-settings '(:github-enterprise (:uri "https://bmw.ghe.com")))
   (setq copilot-max-char 20000)  ; default is 10000
   (setq copilot-max-char-warning-disable t)
   (setq copilot-indent-offset-warning-disable t)
   )
-  (when (not (executable-find "copilot-language-server"))
-    (message "**** copilot-language-server not found")
-    (copilot-install-server)
-  ))
 
 
 ;;; Tools
