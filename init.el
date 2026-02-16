@@ -1492,6 +1492,17 @@ Used to see multiline flymake errors"
 
   (add-hook 'find-file-hook 'xml-find-file-hook t))
 
+(leaf template-literals-ts-mode
+  :doc "Tree-sitter support for HTML/CSS in JS/TS template literals"
+  :req "emacs-30.1"
+  :tag "tree-sitter" "typescript" "javascript" "languages" "emacs>=30.1"
+  :url "https://github.com/ispringle/template-literals-ts-mode"
+  :added "2026-02-16"
+  :emacs>= 30.1
+  :ensure t
+  :hook ((js-ts-mode-hook . template-literals-ts-mode)
+         (typescript-ts-mode-hook . template-literals-ts-mode)))
+
 (leaf sparql-mode
   :doc "Edit and interactively evaluate SPARQL queries"
   :req "cl-lib-0.5" "emacs-24.3"
