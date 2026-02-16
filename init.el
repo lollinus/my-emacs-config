@@ -433,6 +433,8 @@
    ([remap goto-line] . consult-goto-line)  ;; "M-g g" orig. goto-line
    ;; ("M-g M-g" . consult-goto-line)           ;; orig. goto-line
    ("M-g o" . consult-outline)               ;; Alternative: consult-org-heading
+   ;; Unbind `minibuffer-complete-word'
+   (:minibuffer-local-completion-map ("SPC" . nil))
    )
   :preface
   (defun kb/consult-line (&optional at-point)
@@ -446,11 +448,14 @@
   (completions-format . 'one-column)
   (completions-detailed . t)
   (completions-group . t)
+  ;; Sort candidates by history position
+  (completions-sort . 'historical)
   ;; Allow navigating from the minibuffer
-  (minibuffer-visible-completions . t)
+  (minibuffer-visible-completions . 'up-down)
   ;; Show completions eagerly and update automatically
   (completion-eager-update . t)
   (completion-eager-display . t)
+  (completion-auto-help . 'always)
   ;; Disable noise (inline help also blocks input)
   (completion-show-help . nil)
   (completion-show-inline-help . nil)
@@ -458,6 +463,7 @@
   ;; Optionally configure the narrowing key.
   ;; Both < and C-+ work reasonably well.
   (consult-narrow-key . "C-+") ;; "<"
+
 
   ;; The :init configuration is always executed (Not lazy)
   :init
@@ -486,6 +492,9 @@
    consult-source-recent-file consult-source-project-recent-file
    ;; :preview-key "M-."
    :preview-key '(:debounce 0.4 "M-t"))
+
+  ;; Unbind `minibuffer-complete-word'
+  ;; (keymap-unset minibuffer-local-completion-map "SPC")
   )
 
 (leaf consult-dir
