@@ -747,17 +747,8 @@
     (push '("<=" . ?≤) prettify-symbols-alist)
     (push '(">=" . ?≥) prettify-symbols-alist)
     (push '("->" . ?→) prettify-symbols-alist)
-    (push '("!=" . ?≠) prettify-symbols-alist)
-    )
+    (push '("!=" . ?≠) prettify-symbols-alist))
 
-  :init
-  (add-to-list 'major-mode-remap-alist '(c-mode . c-ts-mode))
-  (add-to-list 'major-mode-remap-alist '(c++-mode . c++-ts-mode))
-  (add-to-list 'major-mode-remap-alist '(c-or-c++-mode . c-or-c++-ts-mode))
-  :mode ("\\(\\.ii\\|\\.\\(CC?\\|HH?\\)\\|\\.[ch]\\(pp\\|xx\\|\\+\\+\\)\\|\\.\\(cc\\|hh\\)\\)\\'" . c++-ts-mode)
-
-  :config
-  (c-ts-mode-set-global-style 'linux)
   (defun kb/c++-ts-mode-hook ()
     "My style used while editing C++ sources."
     (message "**** kb/c++-ts-mode-hook")
@@ -767,6 +758,7 @@
     (indent-tabs-mode -1)
     (display-fill-column-indicator-mode)
     )
+
   (defun kb/whitespace-progmode-setup ()
     "Enable whitespace mode for programming modes."
     (setq-local whitespace-style
@@ -783,10 +775,17 @@
                   ;; space-before-tab
                   tab-mark
                   newline-mark
-                  ))
-    )
-  :hook ((c-ts-mode-hook c++-ts-mode-hook) . kb/c++-ts-mode-hook)
-  ((c-ts-mode-hook c++-ts-mode-hook) . kb/whitespace-progmode-setup)
+                  )))
+
+  :init
+  (add-to-list 'major-mode-remap-alist '(c-mode . c-ts-mode))
+  (add-to-list 'major-mode-remap-alist '(c++-mode . c++-ts-mode))
+  (add-to-list 'major-mode-remap-alist '(c-or-c++-mode . c-or-c++-ts-mode))
+  :mode ("\\(\\.ii\\|\\.\\(CC?\\|HH?\\)\\|\\.[ch]\\(pp\\|xx\\|\\+\\+\\)\\|\\.\\(cc\\|hh\\)\\)\\'" . c++-ts-mode)
+  :hook (((c-ts-mode-hook c++-ts-mode-hook) . kb/c++-ts-mode-hook)
+         ((c-ts-mode-hook c++-ts-mode-hook) . kb/whitespace-progmode-setup))
+  :config
+  (c-ts-mode-set-global-style 'linux)
   )
 
 (leaf haskell-mode
