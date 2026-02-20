@@ -1402,6 +1402,13 @@ Used to see multiline flymake errors"
   :ensure t
   :after json-snatcher)
 
+(leaf json-pretty-print-array
+  :doc "Pretty print each element in a JSON array"
+  :load-path "~/.emacs.d/site-lisp"
+  :bind (:json-mode-map
+         ("C-c C-p" . json-pretty-print-array-elements)
+         ("C-c C-m" . json-pretty-print-array-elements-minimize)))
+
 (leaf yaml-ts-mode
   :doc "tree-sitter support for YAML"
   :tag "builtin"
