@@ -133,17 +133,27 @@ Returns a string (possibly multi-line).
   "Preprocess TEXT from a JSON-alike document to produce valid JSON.
 
 Handles, in order:
-1. Double-outer-quoted strings: \"\"TEXT\"\" → \"TEXT\"
-2. Key/value split across lines (colon at end of line): join onto one line.
-3. Extra whitespace between a key's closing quote and the colon.
-4. Multiple spaces after a colon collapsed to a single space."
-  ;; 1. ""TEXT"" → "TEXT"
+1. Single-quoted strings: \\='TEXT\\=' → \"TEXT\"
+2. Unquoted identifier keys: { key: → { \"key\":
+3. Double-outer-quoted strings: \"\"TEXT\"\" → \"TEXT\"
+4. Key/value split across lines (colon at end of line): join onto one line.
+5. Extra whitespace between a key's closing quote and the colon.
+6. Multiple spaces after a colon collapsed to a single space."
+  ;; 1. 'TEXT' → "TEXT"  (single-quoted strings to double-quoted)
+  (setq text (replace-regexp-in-string "'\\([^']*\\)'" "\"\\1\"" text))
+  ;; 2. { identifierKey: → { "identifierKey":
+  ;;    Match a word identifier preceded by {, comma, or whitespace and
+  ;;    followed by optional whitespace + colon.  Skip already-quoted keys.
+  (setq text (replace-regexp-in-string
+              "\\([{,[:space:]]\\)\\([a-zA-Z_][a-zA-Z0-9_]*\\)\\([ \t]*:\\)"
+              "\\1\"\\2\"\\3" text))
+  ;; 3. ""TEXT"" → "TEXT"
   (setq text (replace-regexp-in-string "\"\"\\([^\"]*\\)\"\"" "\"\\1\"" text))
-  ;; 2. colon at end-of-line, value on next line → join
+  ;; 4. colon at end-of-line, value on next line → join
   (setq text (replace-regexp-in-string ":\\s-*\n\\s-*" ": " text))
-  ;; 3. "key"   : → "key":
+  ;; 5. "key"   : → "key":
   (setq text (replace-regexp-in-string "\"[ \t]+:" "\":" text))
-  ;; 4. :   value → : value  (two or more spaces collapsed to one)
+  ;; 6. :   value → : value  (two or more spaces collapsed to one)
   (setq text (replace-regexp-in-string ":[ \t][ \t]+" ": " text))
   text)
 
@@ -196,6 +206,8 @@ With a numeric prefix argument, use it as DEPTH.  Otherwise prompt."
   "Clean up a JSON-alike document at point and reformat it.
 
 Fixes common formatting issues before parsing:
+- Single-quoted strings: \\='TEXT\\=' → \"TEXT\"
+- Unquoted identifier keys: { key: → { \"key\":
 - Double-outer-quoted strings: \"\"TEXT\"\" → \"TEXT\"
 - Key and value split across lines (colon at end of line)
 - Extra whitespace before and after colons
