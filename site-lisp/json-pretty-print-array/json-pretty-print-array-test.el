@@ -211,3 +211,40 @@ expanded, but each element's member values are minified."
 
 (provide 'json-pretty-print-array-test)
 ;;; json-pretty-print-array-test.el ends here
+
+;;; json-cleanup-at-point
+
+(ert-deftest json-cleanup-extra-spaces-around-colon ()
+  "Extra whitespace around colons is normalized."
+  (should (equal
+           (with-json-buffer "{\"a\"    :    \"b\"}"
+             (json-cleanup-at-point))
+           "{\n  \"a\": \"b\"\n}")))
+
+(ert-deftest json-cleanup-key-value-split-across-lines ()
+  "Colon at end-of-line with value on next line is joined."
+  (should (equal
+           (with-json-buffer "{\"a\"    :\n    \"b\"}"
+             (json-cleanup-at-point))
+           "{\n  \"a\": \"b\"\n}")))
+
+(ert-deftest json-cleanup-double-outer-quotes ()
+  "Double-outer-quoted strings \"\"TEXT\"\" are unwrapped to \"TEXT\"."
+  (should (equal
+           (with-json-buffer "{\"name\"    :    \"\"SPEECH\"\"}"
+             (json-cleanup-at-point))
+           "{\n  \"name\": \"SPEECH\"\n}")))
+
+(ert-deftest json-cleanup-full-sample ()
+  "Full JSON-alike sample with all three issues is cleaned and reformatted."
+  (let ((input "{
+    \"speech\"    :
+    {
+        \"name\"    :    \"\"SPEECH\"\",
+        \"enabled\"    :    \"1\"
+    }
+}"))
+    (should (equal
+             (with-json-buffer input
+               (json-cleanup-at-point))
+             "{\n  \"speech\": {\n    \"name\": \"SPEECH\",\n    \"enabled\": \"1\"\n  }\n}"))))

@@ -1,7 +1,7 @@
 ;;; json-pretty-print-array.el --- Pretty print members of a JSON collection  -*- lexical-binding: t; -*-
 
 ;; Author: qxz2st8
-;; Version: 0.4.0
+;; Version: 0.5.0
 ;; Package-Requires: ((emacs "27.1"))
 ;; Keywords: json, tools
 ;; URL: https://github.com/qxz2st8/.emacs.d
@@ -15,6 +15,10 @@
 ;;                                each element's content to a single line.
 ;; `json-format-to-depth'       - Expand collections to a given depth; anything
 ;;                                deeper is minified to a single line.
+;; `json-cleanup-at-point'      - Fix common issues in JSON-alike documents:
+;;                                extra whitespace around colons, key and value
+;;                                split across lines, double-outer-quoted strings
+;;                                like ""TEXT"", then reformat the result.
 ;;
 ;; All commands derive indentation from the column of the opening bracket, so
 ;; nested collections are formatted correctly regardless of their position in
@@ -123,6 +127,26 @@ Returns a string (possibly multi-line).
     (goto-char beg)
     (insert formatted)))
 
+;;; Internal helpers — JSON-alike cleanup
+
+(defun json-ppa--cleanup-text (text)
+  "Preprocess TEXT from a JSON-alike document to produce valid JSON.
+
+Handles, in order:
+1. Double-outer-quoted strings: \"\"TEXT\"\" → \"TEXT\"
+2. Key/value split across lines (colon at end of line): join onto one line.
+3. Extra whitespace between a key's closing quote and the colon.
+4. Multiple spaces after a colon collapsed to a single space."
+  ;; 1. ""TEXT"" → "TEXT"
+  (setq text (replace-regexp-in-string "\"\"\\([^\"]*\\)\"\"" "\"\\1\"" text))
+  ;; 2. colon at end-of-line, value on next line → join
+  (setq text (replace-regexp-in-string ":\\s-*\n\\s-*" ": " text))
+  ;; 3. "key"   : → "key":
+  (setq text (replace-regexp-in-string "\"[ \t]+:" "\":" text))
+  ;; 4. :   value → : value  (two or more spaces collapsed to one)
+  (setq text (replace-regexp-in-string ":[ \t][ \t]+" ": " text))
+  text)
+
 ;;; Commands
 
 ;;;###autoload
@@ -166,6 +190,34 @@ With a numeric prefix argument, use it as DEPTH.  Otherwise prompt."
            (base-col   (save-excursion (goto-char beg) (current-column)))
            (collection (json-ppa--read-collection-at beg end)))
       (json-ppa--apply beg end base-col collection depth))))
+
+;;;###autoload
+(defun json-cleanup-at-point ()
+  "Clean up a JSON-alike document at point and reformat it.
+
+Fixes common formatting issues before parsing:
+- Double-outer-quoted strings: \"\"TEXT\"\" → \"TEXT\"
+- Key and value split across lines (colon at end of line)
+- Extra whitespace before and after colons
+
+After cleanup the result is parsed and fully pretty-printed."
+  (interactive)
+  (let ((bounds (json-ppa--collection-bounds)))
+    (unless bounds (user-error "No JSON collection found at point"))
+    (let* ((beg     (car bounds))
+           (end     (cdr bounds))
+           (base-col (save-excursion (goto-char beg) (current-column)))
+           (cleaned (json-ppa--cleanup-text
+                     (buffer-substring-no-properties beg end)))
+           (collection
+            (condition-case err
+                (let ((json-array-type  'list)
+                      (json-object-type 'alist)
+                      (json-null        :json-null))
+                  (json-read-from-string cleaned))
+              (json-error
+               (user-error "JSON parse error after cleanup: %s" (cadr err))))))
+      (json-ppa--apply beg end base-col collection most-positive-fixnum))))
 
 (provide 'json-pretty-print-array)
 ;;; json-pretty-print-array.el ends here
