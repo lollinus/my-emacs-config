@@ -79,8 +79,9 @@
   :added "2026-02-16"
   :emacs>= 28.1
   :ensure t
-  :after posframe
-  :bind ("M-o" . #'spatial-window-select))
+  :bind ("M-o" . #'spatial-window-select)
+  :config
+  (message "**** Configure spatial-window"))
 
 (leaf frame
   :doc "multi-frame management independent of window systems"
