@@ -1,5 +1,11 @@
 ;;; json-pretty-print-array.el --- Pretty print each element in a JSON array  -*- lexical-binding: t; -*-
 
+;; Author: qxz2st8
+;; Version: 0.1.0
+;; Package-Requires: ((emacs "27.1"))
+;; Keywords: json, tools
+;; URL: https://github.com/qxz2st8/.emacs.d
+
 ;;; Commentary:
 
 ;; Provides two commands for reformatting a JSON array in the current buffer:
