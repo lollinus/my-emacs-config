@@ -1689,9 +1689,10 @@ Used to see multiline flymake errors"
            (org-pretty-entities . t)
            (org-use-sub-superscripts . "{}")
            (org-hide-emphasis-markers . t)
+           (org-hide-drawer-startup . t)
            (org-hide-block-startup . t)
            (org-image-actual-width . '(300))
-
+           (org-src-tab-acts-natively . t)
            (org-ellipsis . " ▾")
            (org-hide-leading-stars . t)
            (org-agenda-start-with-log-mode . t)
