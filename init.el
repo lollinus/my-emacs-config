@@ -1404,7 +1404,7 @@ Used to see multiline flymake errors"
 
 (leaf json-pretty-print-array
   :doc "Pretty print each element in a JSON array"
-  :load-path "~/.emacs.d/site-lisp"
+  :load-path "~/.emacs.d/site-lisp/json-pretty-print-array"
   :bind (:json-mode-map
          ("C-c C-p" . json-pretty-print-array-elements)
          ("C-c C-m" . json-pretty-print-array-elements-minimize)))
