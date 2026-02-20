@@ -6,7 +6,7 @@
 ;; `json-pretty-print-array-elements-minimize'.
 ;;
 ;; Run from the command line:
-;;   emacs --batch -Q -L ~/.emacs.d/site-lisp \
+;;   emacs --batch -Q -L ~/.emacs.d/site-lisp/json-pretty-print-array \
 ;;         -l json-pretty-print-array-test.el \
 ;;         -f ert-run-tests-batch-and-exit
 
@@ -26,7 +26,7 @@
      ,@body
      (buffer-string)))
 
-;;; Tests for `json-pretty-print-array-elements-minimize'
+;;; Tests for `json-pretty-print-array-elements-minimize' — arrays
 
 (ert-deftest json-ppa-minimize-single-element ()
   "Single-element array is minified with element on its own indented line."
@@ -46,19 +46,18 @@
     (should (string-match-p "  {\"key\":\"B\"}" result))))
 
 (ert-deftest json-ppa-minimize-pretty-input ()
-  "Pretty-printed input: each element collapsed to one indented line."
+  "Pretty-printed array input: each element collapsed to one indented line."
   (let* ((input "[  {\n    \"key\": \"WAKEUP_WORD\",\n    \"value\": true\n  },\n  {\n    \"key\": \"WEATHER\",\n    \"value\": false\n  }\n]")
          (result (with-json-buffer input
                    (json-pretty-print-array-elements-minimize)))
          (lines (split-string result "\n" t)))
     (should (string= (car lines) "["))
     (should (string= (car (last lines)) "]"))
-    ;; Each inner line must be a single minified element (no nested newlines)
     (dolist (line (butlast (cdr lines)))
       (should (string-prefix-p "  " line)))))
 
 (ert-deftest json-ppa-minimize-preserves-element-count ()
-  "Minified output contains the same number of elements as the input."
+  "Minified array output contains the same number of elements as the input."
   (let* ((input "[{\"a\":1},{\"b\":2},{\"c\":3}]")
          (result (with-json-buffer input
                    (json-pretty-print-array-elements-minimize)))
@@ -72,21 +71,20 @@
     (should (string= result "[\n\n]"))))
 
 (ert-deftest json-ppa-minimize-nested-objects ()
-  "Nested objects are minified to a single indented line."
+  "Nested objects inside array are minified to a single indented line."
   (let* ((input "[{\"key\":\"K\",\"value\":{\"name\":\"K\",\"enabled\":true}}]")
          (result (with-json-buffer input
                    (json-pretty-print-array-elements-minimize)))
          (inner (cadr (split-string result "\n"))))
     (should (string-prefix-p "  " inner))
     (should (string-match-p "\"enabled\":true" inner))
-    ;; The inner line itself must not contain newlines
     (should (not (string-match-p "\n" inner)))))
 
 (ert-deftest json-ppa-minimize-point-inside-array ()
-  "Function operates on array when point is inside it, not at its start."
+  "Function operates on array when point is between its elements."
   (let ((result (with-temp-buffer
                   (insert "[{\"a\":1},{\"b\":2}]")
-                  (goto-char 5)               ; point inside the array
+                  (goto-char 9)               ; point at ',' between elements
                   (json-pretty-print-array-elements-minimize)
                   (buffer-string))))
     (should (string-prefix-p "[\n" result))
@@ -98,7 +96,7 @@
   "Only the array at point is replaced; surrounding text is untouched."
   (let ((result (with-temp-buffer
                   (insert "before\n[{\"a\":1}]\nafter")
-                  (goto-char (+ (length "before\n") 1)) ; point inside array
+                  (goto-char (+ (length "before\n") 1))
                   (json-pretty-print-array-elements-minimize)
                   (buffer-string))))
     (should (string-prefix-p "before\n" result))
@@ -106,24 +104,60 @@
     (should (string-match-p "\\[" result))
     (should (string-match-p "\"a\":1" result))))
 
-(ert-deftest json-ppa-minimize-no-array-signals-error ()
-  "Signals `user-error' when point is not inside a JSON array."
-  (with-temp-buffer
-    (insert "{\"key\":\"value\"}")
-    (goto-char (point-min))
-    (should-error (json-pretty-print-array-elements-minimize)
-                  :type 'user-error)))
+;;; Tests for `json-pretty-print-array-elements-minimize' — objects
 
-;;; Tests for `json-pretty-print-array-elements'
+(ert-deftest json-ppa-minimize-object-scalar-values ()
+  "Object with scalar values: each member on one indented line."
+  (let* ((result (with-json-buffer "{\"a\":1,\"b\":true}"
+                   (json-pretty-print-array-elements-minimize)))
+         (lines (split-string result "\n")))
+    (should (string= (car lines) "{"))
+    (should (string= (car (last lines)) "}"))
+    (should (seq-some (lambda (l) (string-match-p "\"a\": *1" l)) lines))
+    (should (seq-some (lambda (l) (string-match-p "\"b\": *true" l)) lines))))
+
+(ert-deftest json-ppa-minimize-object-nested-value ()
+  "Object with nested object value: inner value minified to one line."
+  (let* ((input "{\"cfg\":{\"x\":1,\"y\":2},\"name\":\"test\"}")
+         (result (with-json-buffer input
+                   (json-pretty-print-array-elements-minimize)))
+         (lines (split-string result "\n" t)))
+    ;; cfg member line should contain the minified nested object
+    (should (seq-some (lambda (l) (string-match-p "\"cfg\".*{\"x" l)) lines))
+    ;; that line must not itself contain newlines
+    (let ((cfg-line (seq-find (lambda (l) (string-match-p "\"cfg\"" l)) lines)))
+      (should cfg-line)
+      (should (not (string-match-p "\n" cfg-line))))))
+
+(ert-deftest json-ppa-minimize-object-preserves-member-count ()
+  "Minimized object output has same number of members as input."
+  (let* ((input "{\"a\":1,\"b\":2,\"c\":3}")
+         (result (with-json-buffer input
+                   (json-pretty-print-array-elements-minimize)))
+         (parsed (let ((json-object-type 'alist))
+                   (json-read-from-string result))))
+    (should (= (length parsed) 3))))
+
+(ert-deftest json-ppa-minimize-object-roundtrip-values ()
+  "Values are preserved after object minimize."
+  (let* ((input "{\"enabled\":true,\"count\":42}")
+         (result (with-json-buffer input
+                   (json-pretty-print-array-elements-minimize)))
+         (parsed (let ((json-object-type 'alist))
+                   (json-read-from-string result))))
+    (should (eq (alist-get 'enabled parsed) t))
+    (should (= (alist-get 'count parsed) 42))))
+
+;;; Tests for `json-pretty-print-array-elements' — arrays
 
 (ert-deftest json-ppa-pretty-output-starts-with-bracket ()
-  "Pretty output starts with '[\\n'."
+  "Pretty array output starts with '[\\n'."
   (let ((result (with-json-buffer "[{\"key\":\"A\"}]"
                   (json-pretty-print-array-elements))))
     (should (string-prefix-p "[\n" result))))
 
 (ert-deftest json-ppa-pretty-output-ends-with-bracket ()
-  "Pretty output ends with '\\n]'."
+  "Pretty array output ends with '\\n]'."
   (let ((result (with-json-buffer "[{\"key\":\"A\"}]"
                   (json-pretty-print-array-elements))))
     (should (string-suffix-p "\n]" result))))
@@ -137,14 +171,14 @@
         (should (string-prefix-p "  " line))))))
 
 (ert-deftest json-ppa-pretty-two-elements-separated-by-comma ()
-  "Two elements in pretty output are separated by a comma."
+  "Two array elements in pretty output are separated by a comma."
   (let* ((result (with-json-buffer "[{\"a\":1},{\"b\":2}]"
                    (json-pretty-print-array-elements)))
          (lines (split-string result "\n")))
     (should (seq-some (lambda (l) (string-suffix-p "," l)) lines))))
 
 (ert-deftest json-ppa-pretty-preserves-element-count ()
-  "Re-parsing pretty output yields the same number of elements."
+  "Re-parsing pretty array output yields the same number of elements."
   (let* ((input "[{\"a\":1},{\"b\":2},{\"c\":3}]")
          (result (with-json-buffer input
                    (json-pretty-print-array-elements)))
@@ -152,7 +186,7 @@
     (should (= (length parsed) 3))))
 
 (ert-deftest json-ppa-pretty-roundtrip-values ()
-  "Values are preserved after pretty-printing."
+  "Array values are preserved after pretty-printing."
   (let* ((input "[{\"key\":\"WAKEUP_WORD\",\"enabled\":true},{\"key\":\"WEATHER\",\"enabled\":false}]")
          (result (with-json-buffer input
                    (json-pretty-print-array-elements)))
@@ -172,10 +206,56 @@
     (should (string-prefix-p "before\n" result))
     (should (string-suffix-p "\nafter" result))))
 
-(ert-deftest json-ppa-pretty-no-array-signals-error ()
-  "Signals `user-error' when point is not inside a JSON array."
+;;; Tests for `json-pretty-print-array-elements' — objects
+
+(ert-deftest json-ppa-pretty-object-output-braces ()
+  "Pretty object output starts with '{\\n' and ends with '\\n}'."
+  (let ((result (with-json-buffer "{\"key\":\"A\"}"
+                  (json-pretty-print-array-elements))))
+    (should (string-prefix-p "{\n" result))
+    (should (string-suffix-p "\n}" result))))
+
+(ert-deftest json-ppa-pretty-object-members-indented ()
+  "Each object member line is indented by at least 2 spaces."
+  (let ((result (with-json-buffer "{\"a\":1,\"b\":2}"
+                  (json-pretty-print-array-elements))))
+    (dolist (line (split-string result "\n" t))
+      (unless (member line '("{" "}"))
+        (should (string-prefix-p "  " line))))))
+
+(ert-deftest json-ppa-pretty-object-nested-value-multiline ()
+  "Nested object value is pretty-printed across multiple lines."
+  (let* ((input "{\"cfg\":{\"x\":1,\"y\":2}}")
+         (result (with-json-buffer input
+                   (json-pretty-print-array-elements))))
+    ;; The result should have more lines than a single-line render
+    (should (> (length (split-string result "\n")) 3))))
+
+(ert-deftest json-ppa-pretty-object-roundtrip-values ()
+  "Values are preserved after object pretty-print."
+  (let* ((input "{\"enabled\":true,\"count\":42,\"name\":\"test\"}")
+         (result (with-json-buffer input
+                   (json-pretty-print-array-elements)))
+         (parsed (let ((json-object-type 'alist))
+                   (json-read-from-string result))))
+    (should (eq (alist-get 'enabled parsed) t))
+    (should (= (alist-get 'count parsed) 42))
+    (should (string= (alist-get 'name parsed) "test"))))
+
+;;; Error cases
+
+(ert-deftest json-ppa-minimize-no-collection-signals-error ()
+  "Signals `user-error' when point is not inside any JSON collection."
   (with-temp-buffer
-    (insert "{\"key\":\"value\"}")
+    (insert "plain text, no JSON here")
+    (goto-char (point-min))
+    (should-error (json-pretty-print-array-elements-minimize)
+                  :type 'user-error)))
+
+(ert-deftest json-ppa-pretty-no-collection-signals-error ()
+  "Signals `user-error' when point is not inside any JSON collection."
+  (with-temp-buffer
+    (insert "plain text, no JSON here")
     (goto-char (point-min))
     (should-error (json-pretty-print-array-elements)
                   :type 'user-error)))
