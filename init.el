@@ -2056,6 +2056,7 @@ Used to see multiline flymake errors"
                                             (set-default 'cursor-type 'box)
                                             (set-cursor-color "#F52503"))))
   :custom
+  (circadian-verbose . t)
   (calendar-latitude . 53.51)
   (calendar-longitude . 14.57)
   (circadian-themes . '((:sunrise . deeper-blue)
