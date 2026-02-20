@@ -1409,7 +1409,8 @@ Used to see multiline flymake errors"
   :bind (:json-mode-map
          ("C-c C-p" . json-pretty-print-members)
          ("C-c C-m" . json-minimize-members)
-         ("C-c C-d" . json-format-to-depth)))
+         ("C-c C-d" . json-format-to-depth)
+         ("C-c C-k" . json-cleanup-at-point)))
 ;; (load "~/.emacs.d/site-lisp/json-pretty-print-members/json-pretty-print-members.el")
 
 (leaf yaml-ts-mode
