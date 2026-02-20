@@ -1,30 +1,30 @@
 ;;; json-pretty-print-array.el --- Pretty print members of a JSON collection  -*- lexical-binding: t; -*-
 
 ;; Author: qxz2st8
-;; Version: 0.3.0
+;; Version: 0.4.0
 ;; Package-Requires: ((emacs "27.1"))
 ;; Keywords: json, tools
 ;; URL: https://github.com/qxz2st8/.emacs.d
 
 ;;; Commentary:
 
-;; Provides two commands for reformatting a JSON array or object at point:
+;; Provides three commands for reformatting a JSON array or object at point:
 ;;
-;; `json-pretty-print-members' - Pretty prints each element (array) or member
-;; value (object) with full indentation.
+;; `json-pretty-print-members'  - Fully expand every nested collection.
+;; `json-minimize-members'      - Keep one element/member per line but minify
+;;                                each element's content to a single line.
+;; `json-format-to-depth'       - Expand collections to a given depth; anything
+;;                                deeper is minified to a single line.
 ;;
-;; `json-minimize-members' - Formats the collection with each element/member
-;; value collapsed to a compact single-line string.
-;;
-;; Both commands detect whether point is inside an array or an object,
-;; replace only that region, and derive indentation from the column of the
-;; opening bracket so that nested collections are formatted correctly.
+;; All commands derive indentation from the column of the opening bracket, so
+;; nested collections are formatted correctly regardless of their position in
+;; the buffer.
 
 ;;; Code:
 
 (require 'json)
 
-;;; Internal helpers
+;;; Internal helpers — bounds & parsing
 
 (defun json-ppa--collection-bounds ()
   "Return (BEG . END) of the innermost JSON array or object around point, or nil."
@@ -42,118 +42,130 @@
 
 (defun json-ppa--read-collection-at (beg end)
   "Parse the JSON array or object between BEG and END.
-Returns a list for arrays and an alist for objects."
-  (let ((json-array-type 'list)
-        (json-object-type 'alist))
+Uses a sentinel for null so that nil unambiguously means empty collection."
+  (let ((json-array-type  'list)
+        (json-object-type 'alist)
+        (json-null        :json-null))
     (json-read-from-string (buffer-substring-no-properties beg end))))
 
-(defun json-ppa--array-p (beg)
-  "Return non-nil if the JSON collection starting at BEG is an array."
-  (save-excursion
+;;; Internal helpers — recursive depth-aware formatting
+
+(defun json-ppa--object-p (value)
+  "Return non-nil if parsed VALUE is a JSON object (alist with symbol keys).
+Distinguishes objects from arrays whose elements happen to be alists."
+  (and (consp value)
+       (consp (car value))
+       (symbolp (caar value))))
+
+(defun json-ppa--encode (value)
+  "Minify VALUE to a single-line JSON string."
+  (let ((json-null :json-null))
+    (json-encode value)))
+
+(defun json-ppa--format-value-at-depth (value depth base-col)
+  "Format VALUE, expanding collections up to DEPTH levels deep.
+BASE-COL is the column of the enclosing opening bracket.
+Returns a string (possibly multi-line).
+
+- Scalars are always minified.
+- When DEPTH <= 0, a collection is also minified.
+- When DEPTH > 0, a collection is expanded one level and recursed at DEPTH-1."
+  (cond
+   ((not (listp value))  (json-ppa--encode value))
+   ((<= depth 0)         (json-ppa--encode value))
+   ((null value) "[]")
+   (t
+    (let* ((is-object     (json-ppa--object-p value))
+           (close-indent  (make-string base-col ?\s))
+           formatted-members)
+      (if is-object
+          (dolist (pair value)
+            (push (json-ppa--format-member-at-depth
+                   (car pair) (cdr pair) (1- depth) base-col)
+                  formatted-members))
+        (dolist (element value)
+          (push (json-ppa--format-element-at-depth
+                 element (1- depth) base-col)
+                formatted-members)))
+      (concat (if is-object "{" "[") "\n"
+              (mapconcat #'identity (nreverse formatted-members) ",\n")
+              "\n" close-indent (if is-object "}" "]"))))))
+
+(defun json-ppa--format-element-at-depth (element depth base-col)
+  "Format an array ELEMENT at DEPTH, indented relative to BASE-COL."
+  (let* ((member-indent (make-string (+ base-col 2) ?\s))
+         (val-str   (json-ppa--format-value-at-depth element depth (+ base-col 2)))
+         (val-lines (split-string val-str "\n")))
+    (if (= (length val-lines) 1)
+        (concat member-indent val-str)
+      (mapconcat #'identity
+                 (cons (concat member-indent (string-trim-left (car val-lines)))
+                       (cdr val-lines))
+                 "\n"))))
+
+(defun json-ppa--format-member-at-depth (key value depth base-col)
+  "Format object member KEY: VALUE at DEPTH, indented relative to BASE-COL."
+  (let* ((member-indent (make-string (+ base-col 2) ?\s))
+         (key-str   (format "%s%s: " member-indent (json-ppa--encode (symbol-name key))))
+         (val-str   (json-ppa--format-value-at-depth value depth (+ base-col 2)))
+         (val-lines (split-string val-str "\n")))
+    (if (= (length val-lines) 1)
+        (concat key-str val-str)
+      (mapconcat #'identity
+                 (cons (concat key-str (string-trim-left (car val-lines)))
+                       (cdr val-lines))
+                 "\n"))))
+
+(defun json-ppa--apply (beg end base-col collection depth)
+  "Replace region BEG..END with COLLECTION formatted at DEPTH from BASE-COL."
+  (let ((formatted (json-ppa--format-value-at-depth collection depth base-col)))
+    (delete-region beg end)
     (goto-char beg)
-    (looking-at "\\[")))
-
-(defun json-ppa--indent-value (value member-indent)
-  "Return VALUE encoded and pretty-printed, using MEMBER-INDENT as base.
-Returns a cons (FIRST-LINE . REST-LINES).  Leading whitespace is stripped
-from FIRST-LINE so callers can place it inline after a key or bracket."
-  (let* ((raw (with-temp-buffer
-                (insert (json-encode value))
-                (goto-char (point-min))
-                (json-pretty-print-buffer)
-                (goto-char (point-min))
-                (while (not (eobp))
-                  (insert member-indent)
-                  (forward-line 1))
-                (string-trim-right
-                 (buffer-substring-no-properties (point-min) (point-max)))))
-         (lines (split-string raw "\n")))
-    (cons (string-trim-left (car lines)) (cdr lines))))
-
-(defun json-ppa--format-pretty-member (key value member-indent)
-  "Format object member KEY: VALUE with VALUE fully pretty-printed.
-MEMBER-INDENT is prepended to each line of the member."
-  (let* ((key-str (format "%s%s: " member-indent (json-encode (symbol-name key))))
-         (val-parts (json-ppa--indent-value value member-indent)))
-    (mapconcat #'identity
-               (cons (concat key-str (car val-parts))
-                     (cdr val-parts))
-               "\n")))
-
-(defun json-ppa--format-minimize-member (key value member-indent)
-  "Format object member KEY: VALUE with VALUE minified to one line.
-MEMBER-INDENT is prepended to the member line."
-  (format "%s%s: %s"
-          member-indent
-          (json-encode (symbol-name key))
-          (json-encode value)))
+    (insert formatted)))
 
 ;;; Commands
 
 ;;;###autoload
 (defun json-pretty-print-members ()
-  "Pretty print each element of the JSON array or object at point.
-For arrays, each element is formatted with full indentation.
-For objects, each member value is fully pretty-printed.
-Indentation is derived from the column of the opening bracket."
+  "Fully pretty print the JSON array or object at point.
+All nested collections are expanded with indentation derived from the
+column of the opening bracket."
   (interactive)
   (let ((bounds (json-ppa--collection-bounds)))
-    (unless bounds
-      (user-error "No JSON array or object found at point"))
-    (let* ((beg (car bounds))
-           (end (cdr bounds))
-           (base-col (save-excursion (goto-char beg) (current-column)))
-           (member-indent (make-string (+ base-col 2) ?\s))
-           (close-indent  (make-string base-col ?\s))
-           (collection (json-ppa--read-collection-at beg end))
-           (arrayp (json-ppa--array-p beg))
-           formatted-members)
-      (if arrayp
-          (dolist (element collection)
-            (let ((val-parts (json-ppa--indent-value element member-indent)))
-              (push (mapconcat #'identity
-                               (cons (concat member-indent (car val-parts))
-                                     (cdr val-parts))
-                               "\n")
-                    formatted-members)))
-        (dolist (pair collection)
-          (push (json-ppa--format-pretty-member (car pair) (cdr pair) member-indent)
-                formatted-members)))
-      (delete-region beg end)
-      (goto-char beg)
-      (insert (if arrayp "[\n" "{\n"))
-      (insert (mapconcat #'identity (nreverse formatted-members) ",\n"))
-      (insert (concat "\n" close-indent (if arrayp "]" "}"))))))
+    (unless bounds (user-error "No JSON array or object found at point"))
+    (let* ((beg (car bounds)) (end (cdr bounds))
+           (base-col   (save-excursion (goto-char beg) (current-column)))
+           (collection (json-ppa--read-collection-at beg end)))
+      (json-ppa--apply beg end base-col collection most-positive-fixnum))))
 
 ;;;###autoload
 (defun json-minimize-members ()
-  "Format the JSON array or object at point with each element/value minified.
-The outer brackets span multiple lines, but each element (array) or member
-value (object) is collapsed to a compact single-line representation.
-Indentation is derived from the column of the opening bracket."
+  "Format the JSON collection at point: one element/member per line, minified.
+Each element (array) or member value (object) is collapsed to a single line."
   (interactive)
   (let ((bounds (json-ppa--collection-bounds)))
-    (unless bounds
-      (user-error "No JSON array or object found at point"))
-    (let* ((beg (car bounds))
-           (end (cdr bounds))
-           (base-col (save-excursion (goto-char beg) (current-column)))
-           (member-indent (make-string (+ base-col 2) ?\s))
-           (close-indent  (make-string base-col ?\s))
-           (collection (json-ppa--read-collection-at beg end))
-           (arrayp (json-ppa--array-p beg))
-           formatted-members)
-      (if arrayp
-          (dolist (element collection)
-            (push (concat member-indent (json-encode element)) formatted-members))
-        (dolist (pair collection)
-          (push (json-ppa--format-minimize-member (car pair) (cdr pair) member-indent)
-                formatted-members)))
-      (delete-region beg end)
-      (goto-char beg)
-      (insert (if arrayp "[\n" "{\n"))
-      (insert (mapconcat #'identity (nreverse formatted-members) ",\n"))
-      (insert (concat "\n" close-indent (if arrayp "]" "}"))))))
+    (unless bounds (user-error "No JSON array or object found at point"))
+    (let* ((beg (car bounds)) (end (cdr bounds))
+           (base-col   (save-excursion (goto-char beg) (current-column)))
+           (collection (json-ppa--read-collection-at beg end)))
+      (json-ppa--apply beg end base-col collection 1))))
+
+;;;###autoload
+(defun json-format-to-depth (depth)
+  "Format the JSON collection at point, expanding to DEPTH levels.
+Collections shallower than DEPTH are fully expanded; those at or beyond
+DEPTH are minified to a single line.
+With a numeric prefix argument, use it as DEPTH.  Otherwise prompt."
+  (interactive
+   (list (if current-prefix-arg
+             (prefix-numeric-value current-prefix-arg)
+           (read-number "Format to depth: " 2))))
+  (let ((bounds (json-ppa--collection-bounds)))
+    (unless bounds (user-error "No JSON array or object found at point"))
+    (let* ((beg (car bounds)) (end (cdr bounds))
+           (base-col   (save-excursion (goto-char beg) (current-column)))
+           (collection (json-ppa--read-collection-at beg end)))
+      (json-ppa--apply beg end base-col collection depth))))
 
 (provide 'json-pretty-print-array)
 ;;; json-pretty-print-array.el ends here
