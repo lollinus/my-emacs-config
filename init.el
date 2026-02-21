@@ -885,7 +885,7 @@
   :added "2025-09-01"
   :bind (("M-s M-s" . project-find-file)
          (project-prefix-map
-          ("d" . project-dired)
+          ;; ("D" . project-dired)
           ("M-s" . project-find-file)))
   :custom
   (project-compilation-buffer-name-function . 'project-prefixed-buffer-name)
@@ -1612,7 +1612,14 @@ Used to see multiline flymake errors"
   :emacs>= 29.1
   :ensure t
   :after shell-maker acp
-)
+
+  :config
+  (setq agent-shell-anthropic-claude-environment
+        (agent-shell-make-environment-variables
+         "ANTHROPIC_API_KEY"
+         (auth-source-pick-first-password
+          :host "api.anthropic.com"
+          :user "apikey"))))
 
 (leaf ai-code
   :doc "Unified interface for AI coding CLI such as Codex, Copilot CLI, Opencode, Grok CLI, etc."
