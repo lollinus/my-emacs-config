@@ -133,27 +133,31 @@ Returns a string (possibly multi-line).
   "Preprocess TEXT from a JSON-alike document to produce valid JSON.
 
 Handles, in order:
-1. Single-quoted strings: \\='TEXT\\=' → \"TEXT\"
-2. Unquoted identifier keys: { key: → { \"key\":
-3. Double-outer-quoted strings: \"\"TEXT\"\" → \"TEXT\"
-4. Key/value split across lines (colon at end of line): join onto one line.
-5. Extra whitespace between a key's closing quote and the colon.
-6. Multiple spaces after a colon collapsed to a single space."
-  ;; 1. 'TEXT' → "TEXT"  (single-quoted strings to double-quoted)
+1. Control characters U+0000-U+001F (except \\t \\n \\r) are removed — JSON
+   forbids them unescaped inside strings.
+2. Single-quoted strings: \\='TEXT\\=' → \"TEXT\"
+3. Unquoted identifier keys: { key: → { \"key\":
+4. Double-outer-quoted strings: \"\"TEXT\"\" → \"TEXT\"
+5. Key/value split across lines (colon at end of line): join onto one line.
+6. Extra whitespace between a key's closing quote and the colon.
+7. Multiple spaces after a colon collapsed to a single space."
+  ;; 1. Remove bare control characters (U+0000–U+0008, U+000B–U+000C, U+000E–U+001F)
+  (setq text (replace-regexp-in-string "[\x00-\x08\x0b\x0c\x0e-\x1f]" "" text))
+  ;; 2. 'TEXT' → "TEXT"  (single-quoted strings to double-quoted)
   (setq text (replace-regexp-in-string "'\\([^']*\\)'" "\"\\1\"" text))
-  ;; 2. { identifierKey: → { "identifierKey":
+  ;; 3. { identifierKey: → { "identifierKey":
   ;;    Match a word identifier preceded by {, comma, or whitespace and
   ;;    followed by optional whitespace + colon.  Skip already-quoted keys.
   (setq text (replace-regexp-in-string
               "\\([{,[:space:]]\\)\\([a-zA-Z_][a-zA-Z0-9_]*\\)\\([ \t]*:\\)"
               "\\1\"\\2\"\\3" text))
-  ;; 3. ""TEXT"" → "TEXT"
+  ;; 4. ""TEXT"" → "TEXT"
   (setq text (replace-regexp-in-string "\"\"\\([^\"]*\\)\"\"" "\"\\1\"" text))
-  ;; 4. colon at end-of-line, value on next line → join
+  ;; 5. colon at end-of-line, value on next line → join
   (setq text (replace-regexp-in-string ":\\s-*\n\\s-*" ": " text))
-  ;; 5. "key"   : → "key":
+  ;; 6. "key"   : → "key":
   (setq text (replace-regexp-in-string "\"[ \t]+:" "\":" text))
-  ;; 6. :   value → : value  (two or more spaces collapsed to one)
+  ;; 7. :   value → : value  (two or more spaces collapsed to one)
   (setq text (replace-regexp-in-string ":[ \t][ \t]+" ": " text))
   text)
 
@@ -206,13 +210,15 @@ With a numeric prefix argument, use it as DEPTH.  Otherwise prompt."
   "Clean up a JSON-alike document at point and reformat it.
 
 Fixes common formatting issues before parsing:
+- Control characters (U+0000–U+001F) stripped from string content
 - Single-quoted strings: \\='TEXT\\=' → \"TEXT\"
 - Unquoted identifier keys: { key: → { \"key\":
 - Double-outer-quoted strings: \"\"TEXT\"\" → \"TEXT\"
 - Key and value split across lines (colon at end of line)
 - Extra whitespace before and after colons
 
-After cleanup the result is parsed and fully pretty-printed."
+After cleanup the result is parsed and fully pretty-printed.
+On parse failure the cleaned text is written to *Messages* for inspection."
   (interactive)
   (let ((bounds (json-ppa--collection-bounds)))
     (unless bounds (user-error "No JSON collection found at point"))
@@ -227,8 +233,10 @@ After cleanup the result is parsed and fully pretty-printed."
                       (json-object-type 'alist)
                       (json-null        :json-null))
                   (json-read-from-string cleaned))
-              (json-error
-               (user-error "JSON parse error after cleanup: %s" (cadr err))))))
+              (error
+               (message "json-cleanup: cleaned text was:\n%s" cleaned)
+               (user-error "JSON parse error after cleanup: %s"
+                           (error-message-string err))))))
       (json-ppa--apply beg end base-col collection most-positive-fixnum))))
 
 (provide 'json-pretty-print-array)
