@@ -135,29 +135,42 @@ Returns a string (possibly multi-line).
 Handles, in order:
 1. Control characters U+0000-U+001F (except \\t \\n \\r) are removed — JSON
    forbids them unescaped inside strings.
-2. Single-quoted strings: \\='TEXT\\=' → \"TEXT\"
-3. Unquoted identifier keys: { key: → { \"key\":
-4. Double-outer-quoted strings: \"\"TEXT\"\" → \"TEXT\"
-5. Key/value split across lines (colon at end of line): join onto one line.
-6. Extra whitespace between a key's closing quote and the colon.
-7. Multiple spaces after a colon collapsed to a single space."
+2. Spaced-out uppercase identifiers are collapsed: \"A L W A Y S\" → \"ALWAYS\".
+   Matches sequences of uppercase letters, digits, and underscores each
+   separated by exactly one space.
+3. Single-quoted strings: \\='TEXT\\=' → \"TEXT\"
+4. Unquoted identifier keys: { key: → { \"key\":
+5. Double-outer-quoted strings: \"\"TEXT\"\" → \"TEXT\", trimming any
+   surrounding whitespace left by steps 1-2.
+6. Key/value split across lines (colon at end of line): join onto one line.
+7. Extra whitespace between a key's closing quote and the colon.
+8. Multiple spaces after a colon collapsed to a single space."
   ;; 1. Remove bare control characters (U+0000–U+0008, U+000B–U+000C, U+000E–U+001F)
   (setq text (replace-regexp-in-string "[\x00-\x08\x0b\x0c\x0e-\x1f]" "" text))
-  ;; 2. 'TEXT' → "TEXT"  (single-quoted strings to double-quoted)
+  ;; 2. Collapse spaced-out identifiers: "A L W A Y S _ L I S T E N I N G" → "ALWAYS_LISTENING"
+  (setq text (replace-regexp-in-string
+              "[A-Z0-9_]\\(?: [A-Z0-9_]\\)+"
+              (lambda (m) (replace-regexp-in-string " " "" m))
+              text))
+  ;; 3. 'TEXT' → "TEXT"  (single-quoted strings to double-quoted)
   (setq text (replace-regexp-in-string "'\\([^']*\\)'" "\"\\1\"" text))
-  ;; 3. { identifierKey: → { "identifierKey":
+  ;; 4. { identifierKey: → { "identifierKey":
   ;;    Match a word identifier preceded by {, comma, or whitespace and
   ;;    followed by optional whitespace + colon.  Skip already-quoted keys.
   (setq text (replace-regexp-in-string
               "\\([{,[:space:]]\\)\\([a-zA-Z_][a-zA-Z0-9_]*\\)\\([ \t]*:\\)"
               "\\1\"\\2\"\\3" text))
-  ;; 4. ""TEXT"" → "TEXT"
-  (setq text (replace-regexp-in-string "\"\"\\([^\"]*\\)\"\"" "\"\\1\"" text))
-  ;; 5. colon at end-of-line, value on next line → join
+  ;; 5. ""TEXT"" → "TEXT", trimming whitespace at the edges of the content
+  ;;    (the leading space left by step 1 when a control char preceded the text)
+  (setq text (replace-regexp-in-string
+              "\"\"\\([^\"]*\\)\"\""
+              (lambda (m) (concat "\"" (string-trim (match-string 1 m)) "\""))
+              text))
+  ;; 6. colon at end-of-line, value on next line → join
   (setq text (replace-regexp-in-string ":\\s-*\n\\s-*" ": " text))
-  ;; 6. "key"   : → "key":
+  ;; 7. "key"   : → "key":
   (setq text (replace-regexp-in-string "\"[ \t]+:" "\":" text))
-  ;; 7. :   value → : value  (two or more spaces collapsed to one)
+  ;; 8. :   value → : value  (two or more spaces collapsed to one)
   (setq text (replace-regexp-in-string ":[ \t][ \t]+" ": " text))
   text)
 
