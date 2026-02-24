@@ -141,12 +141,16 @@ Handles, in order:
    and U+FFFD (Unicode replacement character) are removed — JSON forbids
    unescaped control characters, and the latter two are encoding artefacts.
 2. Spaced-out uppercase identifiers are collapsed: \"A L W A Y S\" → \"ALWAYS\".
-   Matches sequences of uppercase letters, digits, and underscores each
-   separated by exactly one space.
+   Matches sequences of at least 3 uppercase letters, digits, or underscores
+   each separated by exactly one space (minimum 3 chars prevents false
+   positives on natural-language text like \"MGU Navigation\").
 3. Single-quoted strings: \\='TEXT\\=' → \"TEXT\"
 4. Unquoted identifier keys: { key: → { \"key\":
 5. Double-outer-quoted strings: \"\"TEXT\"\" → \"TEXT\", trimming any
    surrounding whitespace left by steps 1-2.
+5a. Embedded JSON objects/arrays wrapped with double-outer-quotes:
+   \"key\":\"\"{ ... }\"\"  →  \"key\":{ ... }.  (Step 5 cannot handle these
+   because the inner JSON contains quotes that stop the [^\"]* match.)
 6. Key/value split across lines (colon at end of line): join onto one line.
 7. Extra whitespace between a key's closing quote and the colon.
 8. Multiple spaces after a colon collapsed to a single space."
@@ -161,8 +165,10 @@ Handles, in order:
   (setq text (replace-regexp-in-string
               "[\x00-\x08\x0b\x0c\x0e-\x1f\ufeff\ufffd]" "" text))
   ;; 2. Collapse spaced-out identifiers: "A L W A Y S _ L I S T E N I N G" → "ALWAYS_LISTENING"
+  ;;    Require at least 3 single chars (two repetitions of the group) to avoid false positives
+  ;;    on natural-language text such as "MGU Navigation" (only "U N" = 2 chars, no match).
   (setq text (replace-regexp-in-string
-              "[A-Z0-9_]\\(?: [A-Z0-9_]\\)+"
+              "[A-Z0-9_]\\(?: [A-Z0-9_]\\)\\{2,\\}"
               (lambda (m) (replace-regexp-in-string " " "" m))
               text))
   ;; 3. 'TEXT' → "TEXT"  (single-quoted strings to double-quoted)
@@ -179,6 +185,14 @@ Handles, in order:
               "\"\"\\([^\"]*\\)\"\""
               (lambda (m) (concat "\"" (string-trim (match-string 1 m)) "\""))
               text))
+  ;; 5a. Remove double-outer-quote delimiters wrapping embedded JSON objects/arrays.
+  ;;     Some serialisers produce  "key":""{ ... }""  where the value is a
+  ;;     JSON-encoded string containing another JSON document.  Step 5 above
+  ;;     can't handle this because [^"]* stops at the first inner quote.
+  ;;     Strip the opening ""  when immediately followed by { or [,
+  ;;     and the closing ""  when immediately preceded by } or ].
+  (setq text (replace-regexp-in-string ":\"\"\\([{[]\\)" ":\\1" text))
+  (setq text (replace-regexp-in-string "\\([]}]\\)\"\"" "\\1" text))
   ;; 6. colon at end-of-line, value on next line → join (no-op after 0b)
   (setq text (replace-regexp-in-string ":\\s-*\n\\s-*" ": " text))
   ;; 7. "key"   : → "key":
