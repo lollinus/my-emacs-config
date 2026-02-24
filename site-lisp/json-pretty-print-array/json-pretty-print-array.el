@@ -133,6 +133,10 @@ Returns a string (possibly multi-line).
   "Preprocess TEXT from a JSON-alike document to produce valid JSON.
 
 Handles, in order:
+0a. Mid-token line wraps are joined without a space: \"conf\\nirmed\" → \"confirmed\".
+    Matches a word character at end of line followed by a word character or
+    quote at the start of the next line.
+0b. All remaining newlines (soft-wrap between tokens) are collapsed to a space.
 1. Control characters U+0000-U+001F (except \\t \\n \\r), U+FEFF (UTF-8 BOM),
    and U+FFFD (Unicode replacement character) are removed — JSON forbids
    unescaped control characters, and the latter two are encoding artefacts.
@@ -146,9 +150,14 @@ Handles, in order:
 6. Key/value split across lines (colon at end of line): join onto one line.
 7. Extra whitespace between a key's closing quote and the colon.
 8. Multiple spaces after a colon collapsed to a single space."
-  ;; 1. Remove bare control characters (U+0000–U+0008, U+000B–U+000C, U+000E–U+001F)
-  ;;    and common encoding artefacts: U+FEFF (UTF-8 BOM / zero-width no-break space)
-  ;;    and U+FFFD (Unicode replacement character for undecodable bytes).
+  ;; 0a. Join mid-token line wraps without a space
+  ;;     "conf\nirmed" → "confirmed",  av\n"ailable" → av"ailable"
+  (setq text (replace-regexp-in-string
+              "\\([[:alnum:]_]\\)\n\\([[:alnum:]_\"]\\)"
+              "\\1\\2" text))
+  ;; 0b. Collapse remaining newlines (between-token soft wraps) to a space
+  (setq text (replace-regexp-in-string "\n[ \t]*" " " text))
+  ;; 1. Remove control chars, BOM (U+FEFF), and replacement char (U+FFFD)
   (setq text (replace-regexp-in-string
               "[\x00-\x08\x0b\x0c\x0e-\x1f\ufeff\ufffd]" "" text))
   ;; 2. Collapse spaced-out identifiers: "A L W A Y S _ L I S T E N I N G" → "ALWAYS_LISTENING"
@@ -170,7 +179,7 @@ Handles, in order:
               "\"\"\\([^\"]*\\)\"\""
               (lambda (m) (concat "\"" (string-trim (match-string 1 m)) "\""))
               text))
-  ;; 6. colon at end-of-line, value on next line → join
+  ;; 6. colon at end-of-line, value on next line → join (no-op after 0b)
   (setq text (replace-regexp-in-string ":\\s-*\n\\s-*" ": " text))
   ;; 7. "key"   : → "key":
   (setq text (replace-regexp-in-string "\"[ \t]+:" "\":" text))
