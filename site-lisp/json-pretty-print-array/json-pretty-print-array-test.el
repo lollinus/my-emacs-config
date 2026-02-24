@@ -106,56 +106,56 @@ Point is placed at the beginning of the buffer."
              (json-pretty-print-members))
            "  {\n    \"a\": 1\n  }")))
 
-;;; json-minimize-members — arrays
+;;; json-compact-members — arrays
 
-(ert-deftest json-minimize-members-simple ()
+(ert-deftest json-compact-members-simple ()
   (should (equal
            (with-json-buffer "[{\"a\":1},{\"b\":2}]"
-             (json-minimize-members))
+             (json-compact-members))
            "[\n  {\"a\":1},\n  {\"b\":2}\n]")))
 
-(ert-deftest json-minimize-members-nested-objects ()
+(ert-deftest json-compact-members-nested-objects ()
   "Each top-level element (an object with a nested object) becomes one line."
   (should (equal
            (with-json-buffer "[{\"k\":\"A\",\"v\":{\"x\":1}},{\"k\":\"B\",\"v\":{\"x\":2}}]"
-             (json-minimize-members))
+             (json-compact-members))
            "[\n  {\"k\":\"A\",\"v\":{\"x\":1}},\n  {\"k\":\"B\",\"v\":{\"x\":2}}\n]")))
 
-(ert-deftest json-minimize-members-single-element ()
+(ert-deftest json-compact-members-single-element ()
   (should (equal
            (with-json-buffer "[{\"a\":1}]"
-             (json-minimize-members))
+             (json-compact-members))
            "[\n  {\"a\":1}\n]")))
 
-(ert-deftest json-minimize-members-scalars ()
+(ert-deftest json-compact-members-scalars ()
   (should (equal
            (with-json-buffer "[1,2,3]"
-             (json-minimize-members))
+             (json-compact-members))
            "[\n  1,\n  2,\n  3\n]")))
 
-;;; json-minimize-members — objects
+;;; json-compact-members — objects
 
-(ert-deftest json-minimize-members-object ()
+(ert-deftest json-compact-members-object ()
   "Object members: each value is minified."
   (should (equal
            (with-json-buffer "{\"a\":{\"x\":1},\"b\":{\"y\":2}}"
-             (json-minimize-members))
+             (json-compact-members))
            "{\n  \"a\": {\"x\":1},\n  \"b\": {\"y\":2}\n}")))
 
-;;; json-minimize-members — at point
+;;; json-compact-members — at point
 
-(ert-deftest json-minimize-members-at-point ()
+(ert-deftest json-compact-members-at-point ()
   "Cursor inside inner array at column 1; indentation relative to that column."
   (should (equal
            (with-json-buffer "[[1,2],[3,4]]"
              (goto-char 2)
-             (json-minimize-members))
+             (json-compact-members))
            "[[\n   1,\n   2\n ],[3,4]]")))
 
 ;;; json-format-to-depth
 
 (ert-deftest json-format-to-depth-1-equals-minimize ()
-  "depth=1 is equivalent to json-minimize-members."
+  "depth=1 is equivalent to json-compact-members."
   (should (equal
            (with-json-buffer "[{\"a\":1},{\"b\":2}]"
              (json-format-to-depth 1))
@@ -203,10 +203,10 @@ expanded, but each element's member values are minified."
      (json-pretty-print-members))
    :type 'user-error))
 
-(ert-deftest json-minimize-members-no-collection ()
+(ert-deftest json-compact-members-no-collection ()
   (should-error
    (with-json-buffer "no json here"
-     (json-minimize-members))
+     (json-compact-members))
    :type 'user-error))
 
 (provide 'json-pretty-print-array-test)

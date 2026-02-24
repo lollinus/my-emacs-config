@@ -11,7 +11,7 @@
 ;; Provides three commands for reformatting a JSON array or object at point:
 ;;
 ;; `json-pretty-print-members'  - Fully expand every nested collection.
-;; `json-minimize-members'      - Keep one element/member per line but minify
+;; `json-compact-members'      - Keep one element/member per line but minify
 ;;                                each element's content to a single line.
 ;; `json-format-to-depth'       - Expand collections to a given depth; anything
 ;;                                deeper is minified to a single line.
@@ -203,7 +203,7 @@ column of the opening bracket."
       (json-ppa--apply beg end base-col collection most-positive-fixnum))))
 
 ;;;###autoload
-(defun json-minimize-members ()
+(defun json-compact-members ()
   "Format the JSON collection at point: one element/member per line, minified.
 Each element (array) or member value (object) is collapsed to a single line."
   (interactive)
