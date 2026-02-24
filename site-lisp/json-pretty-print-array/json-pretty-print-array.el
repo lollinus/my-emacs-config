@@ -133,8 +133,9 @@ Returns a string (possibly multi-line).
   "Preprocess TEXT from a JSON-alike document to produce valid JSON.
 
 Handles, in order:
-1. Control characters U+0000-U+001F (except \\t \\n \\r) are removed — JSON
-   forbids them unescaped inside strings.
+1. Control characters U+0000-U+001F (except \\t \\n \\r), U+FEFF (UTF-8 BOM),
+   and U+FFFD (Unicode replacement character) are removed — JSON forbids
+   unescaped control characters, and the latter two are encoding artefacts.
 2. Spaced-out uppercase identifiers are collapsed: \"A L W A Y S\" → \"ALWAYS\".
    Matches sequences of uppercase letters, digits, and underscores each
    separated by exactly one space.
@@ -146,7 +147,10 @@ Handles, in order:
 7. Extra whitespace between a key's closing quote and the colon.
 8. Multiple spaces after a colon collapsed to a single space."
   ;; 1. Remove bare control characters (U+0000–U+0008, U+000B–U+000C, U+000E–U+001F)
-  (setq text (replace-regexp-in-string "[\x00-\x08\x0b\x0c\x0e-\x1f]" "" text))
+  ;;    and common encoding artefacts: U+FEFF (UTF-8 BOM / zero-width no-break space)
+  ;;    and U+FFFD (Unicode replacement character for undecodable bytes).
+  (setq text (replace-regexp-in-string
+              "[\x00-\x08\x0b\x0c\x0e-\x1f\ufeff\ufffd]" "" text))
   ;; 2. Collapse spaced-out identifiers: "A L W A Y S _ L I S T E N I N G" → "ALWAYS_LISTENING"
   (setq text (replace-regexp-in-string
               "[A-Z0-9_]\\(?: [A-Z0-9_]\\)+"
