@@ -1849,7 +1849,10 @@ Used to see multiline flymake errors"
   :added "2026-02-09"
   :emacs>= 27.1
   :ensure t
-  :after org)
+  :after org
+  :bind-keymap ("C-c d" . doing-command-map)
+  :custom
+  (doing-directory . "~/projects/documents/"))
 
 (leaf markdown-ts-mode
   :doc "Major mode for Markdown using Treesitter"
