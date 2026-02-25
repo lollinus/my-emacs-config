@@ -1403,15 +1403,17 @@ Used to see multiline flymake errors"
   :ensure t
   :after json-snatcher)
 
-(leaf json-pretty-print-array
-  :doc "Pretty print each element in a JSON array"
-  :load-path "~/.emacs.d/site-lisp/json-pretty-print-array"
+(leaf json-at-point
+  :vc (json-at-point
+       :url "https://github.com/lollinus/json-at-point"
+       :vc-backend Git
+       :branch "master")
+  :require t
   :bind (:json-mode-map
-         ("C-c C-p" . json-pretty-print-members)
-         ("C-c C-m" . json-compact-members)
+         ("C-c C-f" . json-pretty-print-members)
+         ("C-c C-c" . json-compact-members)
          ("C-c C-d" . json-format-to-depth)
-         ("C-c C-k" . json-cleanup-at-point)))
- ;; (load "~/.emacs.d/site-lisp/json-pretty-print-array/json-pretty-print-array.el")
+         ("C-c C-u" . json-cleanup-at-point)))
 
 (leaf yaml-ts-mode
   :doc "tree-sitter support for YAML"
