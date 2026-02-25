@@ -1411,7 +1411,7 @@ Used to see multiline flymake errors"
          ("C-c C-m" . json-compact-members)
          ("C-c C-d" . json-format-to-depth)
          ("C-c C-k" . json-cleanup-at-point)))
- (load "~/.emacs.d/site-lisp/json-pretty-print-array/json-pretty-print-array.el")
+ ;; (load "~/.emacs.d/site-lisp/json-pretty-print-array/json-pretty-print-array.el")
 
 (leaf yaml-ts-mode
   :doc "tree-sitter support for YAML"
@@ -1815,6 +1815,7 @@ Used to see multiline flymake errors"
 ;;    (username (plist-get auth :user)))
 ;;   (message "creds %S USR: %S AUTH: %S" `(:username ,(plist-get auth :user) :password ,password) username auth))
 
+
 (leaf org-jira
   :doc "Syncing between Jira and Org-mode"
   :req "emacs-24.5" "cl-lib-0.5" "request-0.2.0" "dash-2.14.1"
@@ -1858,10 +1859,29 @@ Used to see multiline flymake errors"
   :added "2025-10-06"
   :emacs>= 29.1
   :ensure t
-  :mode ("\\.text\\'" "\\.markdown\\'" "\\.md\\'")
   :config
   (add-to-list 'treesit-language-source-alist '(markdown "https://github.com/tree-sitter-grammars/tree-sitter-markdown" "split_parser" "tree-sitter-markdown/src"))
   (add-to-list 'treesit-language-source-alist '(markdown-inline "https://github.com/tree-sitter-grammars/tree-sitter-markdown" "split_parser" "tree-sitter-markdown-inline/src")))
+
+(leaf mark-graf
+  :doc "Modern WYSIWYG-style markdown editing"
+  :req "emacs-30.1"
+  :tag "text" "wp" "markdown" "emacs>=30.1"
+  :url "https://github.com/hyperZphere/mark-graf"
+  :added "2026-02-25"
+  :emacs>= 30.1
+  :ensure t
+  :mode ("\\.text\\'" "\\.markdown\\'" "\\.md\\'")
+  :custom
+  (mark-graf-edit-style . 'block)
+  (mark-graf-heading-scale . '(1.8 1.5 1.3 1.1 1.05 1.0))
+  (mark-graf-heading-use-variable-pitch . t)
+  (mark-graf-image-max-width . 800)
+  (mark-graf-lazy-rendering . t)
+  :hook
+  (mark-graf-mode-hook . visual-line-mode)
+  :config
+  (set-face-attribute 'mark-graf-heading-1 nil :foreground "#2aa198"))
 
 (leaf markdown-mode
   :disabled t
