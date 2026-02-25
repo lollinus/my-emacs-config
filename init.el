@@ -1854,6 +1854,22 @@ Used to see multiline flymake errors"
   :custom
   (doing-directory . "~/projects/documents/"))
 
+(leaf org-tempus
+  :doc "Enhance Org time tracking"
+  :req "emacs-27.1"
+  :tag "calendar" "emacs>=27.1"
+  :url "https://github.com/rul/org-tempus"
+  :added "2026-02-25"
+  :emacs>= 27.1
+  :ensure t
+  :global-minor-mode t
+  :custom
+  (org-tempus-auto-clock-enabled . t)
+  (org-tempus-auto-clock-default-task-id . "d8402933-a0cd-43e1-9b02-cb262d851599")
+  (org-tempus-idle-provider . 'mutter)
+  (org-tempus-dconf-path . "/org/gnome/shell/extensions/simple-message/message")
+  )
+
 (leaf markdown-ts-mode
   :doc "Major mode for Markdown using Treesitter"
   :req "emacs-29.1"
