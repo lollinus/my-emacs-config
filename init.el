@@ -1407,7 +1407,9 @@ Used to see multiline flymake errors"
   :vc (json-at-point
        :url "https://github.com/lollinus/json-at-point"
        :vc-backend Git
-       :branch "master")
+       :branch "master"
+       :rev :newest)
+  :init (package-vc-upgrade 'json-at-point)
   :require t
   :bind (:json-mode-map
          ("C-c C-f" . json-pretty-print-members)
