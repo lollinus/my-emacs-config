@@ -209,9 +209,6 @@ expanded, but each element's member values are minified."
      (json-compact-members))
    :type 'user-error))
 
-(provide 'json-pretty-print-array-test)
-;;; json-pretty-print-array-test.el ends here
-
 ;;; json-cleanup-at-point
 
 (ert-deftest json-cleanup-extra-spaces-around-colon ()
@@ -248,3 +245,41 @@ expanded, but each element's member values are minified."
              (with-json-buffer input
                (json-cleanup-at-point))
              "{\n  \"speech\": {\n    \"name\": \"SPEECH\",\n    \"enabled\": \"1\"\n  }\n}"))))
+
+(ert-deftest json-cleanup-js-style-single-quotes-unquoted-keys ()
+  "JS-style object literals: single-quoted strings and unquoted keys are converted."
+  (should (equal
+           (with-json-buffer "[{key: 'ALWAYS_LISTENING', value: {enabled: true}}]"
+             (json-cleanup-at-point))
+           "[\n  {\n    \"key\": \"ALWAYS_LISTENING\",\n    \"value\": {\n      \"enabled\": true\n    }\n  }\n]")))
+
+(ert-deftest json-cleanup-mid-token-line-wrap ()
+  "A line break in the middle of a token is joined without a space."
+  (should (equal
+           (with-json-buffer "{\"conf\nirmed\":true}"
+             (json-cleanup-at-point))
+           "{\n  \"confirmed\": true\n}")))
+
+(ert-deftest json-cleanup-between-token-line-wrap ()
+  "A line break between tokens (soft wrap) is replaced with a space."
+  (should (equal
+           (with-json-buffer "{key: 'A',\nvalue: 1}"
+             (json-cleanup-at-point))
+           "{\n  \"key\": \"A\",\n  \"value\": 1\n}")))
+
+(ert-deftest json-cleanup-embedded-json-in-double-outer-quotes ()
+  "A JSON object wrapped in double-outer-quotes is unwrapped to an inline object."
+  (should (equal
+           (with-json-buffer "{\"data\":\"\"{\"x\":1}\"\"}"
+             (json-cleanup-at-point))
+           "{\n  \"data\": {\n    \"x\": 1\n  }\n}")))
+
+(ert-deftest json-cleanup-no-false-positive-natural-language ()
+  "Natural-language strings with mixed-case words are not collapsed by step 2."
+  (should (equal
+           (with-json-buffer "{\"agent\":\"MGU Navigation Controller\"}"
+             (json-cleanup-at-point))
+           "{\n  \"agent\": \"MGU Navigation Controller\"\n}")))
+
+(provide 'json-pretty-print-array-test)
+;;; json-pretty-print-array-test.el ends here
