@@ -1611,15 +1611,37 @@ Used to see multiline flymake errors"
   :added "2026-01-20"
   :emacs>= 29.1
   :ensure t
-  :after shell-maker acp
-
   :config
-  (setq agent-shell-anthropic-claude-environment
-        (agent-shell-make-environment-variables
-         "ANTHROPIC_API_KEY"
-         (auth-source-pick-first-password
-          :host "api.anthropic.com"
-          :user "apikey"))))
+  ;; Required CLI: Claude Code + ACP bridge
+  ;;   curl -fsSL https://claude.ai/install.sh | bash   (native installer, recommended)
+  ;;   npm install -g @zed-industries/claude-agent-acp  (ACP bridge, must be in PATH)
+  ;;   Then authenticate: claude login
+  ;;   (npm install -g @anthropic-ai/claude-code is deprecated since v2.1.15)
+  ;;
+  ;; Alternative CLIs (each requires its own require + authentication setup,
+  ;; see https://github.com/xenodium/agent-shell for details):
+  ;;   Gemini CLI:   install recent release with --experimental-acp support
+  ;;   OpenAI Codex: npm install -g @openai/codex
+  ;;   Goose:        https://github.com/block/goose  (ensure `goose` is in PATH)
+  ;;   Auggie:       npm install -g @augmentcode/auggie
+  ;;   Mistral Vibe: uv tool install mistral-vibe
+  (require 'agent-shell-anthropic)
+  (setq agent-shell-anthropic-authentication
+      (agent-shell-anthropic-make-authentication :login t))
+  ;; (setq agent-shell-anthropic-authentication
+  ;;       (agent-shell-anthropic-make-authentication
+  ;;        :api-key (lambda ()
+  ;;                   (auth-source-pick-first-password
+  ;;                    :host "api.anthropic.com"
+  ;;                    :user "apikey"))))
+  ;; (setq agent-shell-anthropic-claude-environment
+  ;;       (agent-shell-make-environment-variables
+  ;;        "ANTHROPIC_API_KEY"
+  ;;        (auth-source-pick-first-password
+  ;;         :host "api.anthropic.com"
+  ;;         :user "apikey"))))
+)
+
 
 (leaf ai-code
   :doc "Unified interface for AI coding CLI such as Codex, Copilot CLI, Opencode, Grok CLI, etc."

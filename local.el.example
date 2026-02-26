@@ -1,0 +1,16 @@
+;;; local.el.example --- Machine-local configuration example  -*- lexical-binding: t; -*-
+;; Copy this file to local.el and customize for the current machine.
+;; local.el is NOT committed to git.
+
+;;; Copilot
+
+;; GitHub Enterprise (e.g. BMW):
+;; (leaf copilot
+;;   :after copilot
+;;   :config
+;;   (setq copilot-lsp-settings '(:github-enterprise (:uri "https://your-ghe-host.com"))))
+
+;; Standard github.com (default, no extra config needed):
+;; no copilot leaf block needed
+
+;;; local.el.example ends here
