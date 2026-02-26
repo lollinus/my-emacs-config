@@ -4,7 +4,7 @@
 
 ;;; Copilot
 
-;; GitHub Enterprise (e.g. BMW):
+;; GitHub Enterprise:
 ;; (leaf copilot
 ;;   :after copilot
 ;;   :config
@@ -12,5 +12,13 @@
 
 ;; Standard github.com (default, no extra config needed):
 ;; no copilot leaf block needed
+
+;;; agent-shell
+
+;; GitHub Enterprise (authenticate first: gh auth login --hostname your-ghe-host.com):
+;; (with-eval-after-load 'agent-shell-github
+;;   (setq agent-shell-github-environment
+;;         (agent-shell-make-environment-variables
+;;          "GITHUB_ENTERPRISE_URL" "https://your-ghe-host.com")))
 
 ;;; local.el.example ends here

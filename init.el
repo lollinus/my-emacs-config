@@ -1611,37 +1611,45 @@ Used to see multiline flymake errors"
   :added "2026-01-20"
   :emacs>= 29.1
   :ensure t
+  :defun (agent-shell-mistral-start-vibe . agent-shell-mistral)
+         (agent-shell-anthropic-start-claude-code . agent-shell-anthropic)
+  :bind (("C-c s" . agent-shell)
+         ("C-c m" . agent-shell-mistral-start-vibe)
+         ("C-c c" . agent-shell-anthropic-start-claude-code))
   :config
-  ;; Required CLI: Claude Code + ACP bridge
-  ;;   curl -fsSL https://claude.ai/install.sh | bash   (native installer, recommended)
-  ;;   npm install -g @zed-industries/claude-agent-acp  (ACP bridge, must be in PATH)
-  ;;   Then authenticate: claude login
-  ;;   (npm install -g @anthropic-ai/claude-code is deprecated since v2.1.15)
-  ;;
-  ;; Alternative CLIs (each requires its own require + authentication setup,
-  ;; see https://github.com/xenodium/agent-shell for details):
-  ;;   Gemini CLI:   install recent release with --experimental-acp support
-  ;;   OpenAI Codex: npm install -g @openai/codex
-  ;;   Goose:        https://github.com/block/goose  (ensure `goose` is in PATH)
-  ;;   Auggie:       npm install -g @augmentcode/auggie
-  ;;   Mistral Vibe: uv tool install mistral-vibe
+  ;; Claude Code
+  ;; Install: curl -fsSL https://claude.ai/install.sh | bash
+  ;;          npm install -g @zed-industries/claude-agent-acp
+  ;;          claude login
   (require 'agent-shell-anthropic)
   (setq agent-shell-anthropic-authentication
-      (agent-shell-anthropic-make-authentication :login t))
+        (agent-shell-anthropic-make-authentication :login t))
   ;; (setq agent-shell-anthropic-authentication
   ;;       (agent-shell-anthropic-make-authentication
   ;;        :api-key (lambda ()
   ;;                   (auth-source-pick-first-password
   ;;                    :host "api.anthropic.com"
   ;;                    :user "apikey"))))
-  ;; (setq agent-shell-anthropic-claude-environment
-  ;;       (agent-shell-make-environment-variables
-  ;;        "ANTHROPIC_API_KEY"
-  ;;        (auth-source-pick-first-password
-  ;;         :host "api.anthropic.com"
-  ;;         :user "apikey"))))
-)
 
+  ;; Mistral Vibe
+  ;; Install: uv tool install mistral-vibe
+  ;; Auth: add to ~/.authinfo.gpg:
+  ;;   machine mistral-vibe login apikey password YOUR_API_KEY_HERE
+  (require 'agent-shell-mistral)
+  (setq agent-shell-mistral-authentication
+        (agent-shell-mistral-make-authentication
+         :api-key (lambda ()
+                    (auth-source-pick-first-password
+                     :host "mistral-vibe"
+                     :user "apikey"))))
+  ;; (setq agent-shell-mistral-default-model-id "mistral-large-latest")
+  ;; (setq agent-shell-mistral-default-session-mode-id "default")
+
+  ;; GitHub Copilot
+  ;; Install: gh extension install github/gh-copilot && gh auth login
+  ;; Enterprise config (GITHUB_ENTERPRISE_URL) is machine-specific — see local.el
+  (require 'agent-shell-github)
+)
 
 (leaf ai-code
   :doc "Unified interface for AI coding CLI such as Codex, Copilot CLI, Opencode, Grok CLI, etc."
@@ -1654,7 +1662,7 @@ Used to see multiline flymake errors"
   :ensure t
   :bind ("C-c a" . 'ai-code-menu)
   :config
-  (ai-code-set-backend 'github-copilot-cli))
+  (ai-code-set-backend 'agent-shell))
 
 (leaf copilot
   ;; TODO recognize that copilot credentials and copilot-language-server are available
