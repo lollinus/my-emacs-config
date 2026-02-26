@@ -1659,7 +1659,6 @@ Used to see multiline flymake errors"
     (message "**** copilot-language-server not found")
     (mason-install "copilot-language-server"  nil nil (lambda (success) (message "**** copilot-language-server install %S" success))))
 
-  (setq copilot-lsp-settings '(:github-enterprise (:uri "https://bmw.ghe.com")))
   (setq copilot-max-char 20000)  ; default is 10000
   (setq copilot-max-char-warning-disable t)
   (setq copilot-indent-offset-warning-disable t)
@@ -2275,4 +2274,10 @@ Used to see multiline flymake errors"
   :global-minor-mode global-page-break-lines-mode)
 
 (message "** Init finished")
+
+;;; Machine-local overrides (local.el is not committed to git)
+(let ((local (expand-file-name "local.el" user-emacs-directory)))
+  (when (file-exists-p local)
+    (load local)))
+
 ;;; init.el ends here

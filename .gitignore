@@ -15,3 +15,4 @@ transient/history.el
 eln-cache/
 straight/
 var/
+local.el
