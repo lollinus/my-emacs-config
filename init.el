@@ -1935,26 +1935,6 @@ Used to see multiline flymake errors"
   (add-to-list 'treesit-language-source-alist '(markdown "https://github.com/tree-sitter-grammars/tree-sitter-markdown" "split_parser" "tree-sitter-markdown/src"))
   (add-to-list 'treesit-language-source-alist '(markdown-inline "https://github.com/tree-sitter-grammars/tree-sitter-markdown" "split_parser" "tree-sitter-markdown-inline/src")))
 
-(leaf mark-graf
-  :doc "Modern WYSIWYG-style markdown editing"
-  :req "emacs-30.1"
-  :tag "text" "wp" "markdown" "emacs>=30.1"
-  :url "https://github.com/hyperZphere/mark-graf"
-  :added "2026-02-25"
-  :emacs>= 30.1
-  :ensure t
-  :mode ("\\.text\\'" "\\.markdown\\'" "\\.md\\'")
-  :custom
-  (mark-graf-edit-style . 'block)
-  (mark-graf-heading-scale . '(1.8 1.5 1.3 1.1 1.05 1.0))
-  (mark-graf-heading-use-variable-pitch . t)
-  (mark-graf-image-max-width . 800)
-  (mark-graf-lazy-rendering . t)
-  :hook
-  (mark-graf-mode-hook . visual-line-mode)
-  :config
-  (set-face-attribute 'mark-graf-heading-1 nil :foreground "#2aa198"))
-
 (leaf markdown-mode
   :disabled t
   :doc "Major mode for Markdown-formatted text"
