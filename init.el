@@ -1288,7 +1288,6 @@ Used to see multiline flymake errors"
   :require t
   :after tree-sitter-mode
   :global-minor-mode (global-treesit-fold-mode global-treesit-fold-indicators-mode treesit-fold-line-comment-mode)
-  treesit-fold-line-comment-mode
   :custom
   (treesit-fold-indicators-fringe . 'left-fringe)
   (treesit-fold-indicators-priority . 30)
