@@ -1409,8 +1409,7 @@ Used to see multiline flymake errors"
        :vc-backend Git
        :branch "master"
        :rev :newest)
-  :init (package-vc-upgrade 'json-at-point)
-  :require t
+  :after json-mode
   :bind (:json-mode-map
          ("C-c C-f" . json-pretty-print-members)
          ("C-c C-c" . json-compact-members)
