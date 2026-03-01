@@ -1666,7 +1666,7 @@ Used to see multiline flymake errors"
 
 (leaf copilot
   ;; TODO recognize that copilot credentials and copilot-language-server are available
-  ;; :disabled `,(not (executable-find "copilot-language-server")) 
+  ;; :disabled `,(not (executable-find "copilot-language-server"))
   ;; :disabled t
   :doc "An unofficial Copilot plugin"
   :req "emacs-27.2" "editorconfig-0.8.2" "jsonrpc-1.0.14" "f-0.20.0" "track-changes-1.4"
@@ -1805,7 +1805,6 @@ Used to see multiline flymake errors"
   :added "2026-01-28"
   :emacs>= 26.1
   :ensure t
-  :after org compat
   :hook (org-mode-hook . org-make-toc-mode))
 
 (leaf ox-jira
