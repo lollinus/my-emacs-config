@@ -1581,7 +1581,20 @@ Used to see multiline flymake errors"
   :url "https://github.com/johannes-mueller/devcontainer.el"
   :added "2026-01-28"
   :emacs>= 29.1
-  :ensure t)
+  :ensure t
+  ;; Install devcontainer CLI:
+  ;;   npm install -g @devcontainers/cli
+  ;; Verify: devcontainer --version
+  ;;
+  ;; devcontainer-mode makes M-x compile run inside the container.
+  ;; Toggle on/off with C-c d m (or M-x devcontainer-mode).
+  ;; When active, all compile/recompile commands are prefixed with:
+  ;;   devcontainer exec --workspace-folder <project-root> <cmd>
+  :config
+  (unless (executable-find "devcontainer")
+    (message "devcontainer: CLI not found. Install with: npm install -g @devcontainers/cli"))
+
+  :bind (("C-c d m" . devcontainer-mode)))
 
 ;;; AI Tools
 (leaf gptel
@@ -1908,6 +1921,7 @@ Used to see multiline flymake errors"
   (org-tempus-idle-provider . 'mutter)
   (org-tempus-dconf-path . "/org/gnome/shell/extensions/simple-message/message")
   )
+
 
 (leaf markdown-ts-mode
   :doc "Major mode for Markdown using Treesitter"
