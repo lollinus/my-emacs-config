@@ -2210,9 +2210,7 @@ Used to see multiline flymake errors"
   :emacs>= 28.1
   :ensure t
   :blackout t
-  :hook ((flycheck-mode-hook . sideline-mode)
-         (eglot-managed-mode-hook . sideline-mode)
-         (prog-mode-hook . sideline-mode)))
+  :global-minor-mode t)
 
 (leaf sideline-blame
   :doc "Show blame messages with sideline."
