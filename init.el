@@ -1887,10 +1887,12 @@ Used to see multiline flymake errors"
   :added "2026-02-09"
   :emacs>= 27.1
   :ensure t
-  :after org
-  :bind-keymap ("C-c d" . doing-command-map)
   :custom
-  (doing-directory . "~/projects/documents/"))
+  (doing-directory . "~/projects/documents/")
+  :config
+  (with-eval-after-load 'doing
+    ;; TODO: fix :bind-keymap does fails with error no such command ding-command-map
+    (global-set-key (kbd "C-c d") doing-command-map)))
 
 (leaf org-tempus
   :doc "Enhance Org time tracking"
