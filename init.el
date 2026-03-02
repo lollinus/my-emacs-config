@@ -205,12 +205,9 @@
   ;; Tell Emacs to prefer the treesitter mode
   ;; You'll want to run the command `M-x treesit-install-language-grammar' before editing.
   (setq major-mode-remap-alist (append major-mode-remap-alist '((bash-mode . bash-ts-mode)
-                                                                (js2-mode . js-ts-mode)
-                                                                (typescript-mode . typescript-ts-mode)
                                                                 (json-mode . json-ts-mode)
                                                                 (css-mode . css-ts-mode)
                                                                 (python-mode . python-ts-mode)
-                                                                (javascript-mode . js-ts-mode)
                                                                 (html-mode . html-ts-mode)))))
 (leaf auth-source
   :doc "authentication sources for Gnus and Emacs"
@@ -1114,6 +1111,37 @@ Used to see multiline flymake errors"
   :bind (:js-ts-mode-map ("M-." . #'js-ts-defs-jump-to-definition))
 )
 
+(leaf template-literals-ts-mode
+  :doc "Tree-sitter support for HTML/CSS in JS/TS template literals"
+  :req "emacs-30.1"
+  :tag "tree-sitter" "typescript" "javascript" "languages" "emacs>=30.1"
+  :url "https://github.com/ispringle/template-literals-ts-mode"
+  :added "2026-02-16"
+  :emacs>= 30.1
+  :ensure t
+  :hook ((lit-ts-js-mode-hook . template-literals-ts-mode)
+         (lit-ts-typescript-mode-hook . template-literals-ts-mode)))
+
+(leaf lit-ts-mode
+  :doc "A major mode for Lit (web components) using tree-sitter"
+  :url "https://github.com/ispringle/lit-ts-mode"
+  :added "2026-03-02"
+  :emacs>= 30.1
+  :after template-literals-ts-mode
+  :ensure t
+  :init
+  (add-to-list 'major-mode-remap-alist '(js2-mode . lit-ts-js-mode))
+  (add-to-list 'major-mode-remap-alist '(javascript-mode . lit-ts-js-mode))
+  (add-to-list 'major-mode-remap-alist '(js-ts-mode . lit-ts-js-mode))
+  (add-to-list 'major-mode-remap-alist '(typescript-mode . lit-ts-typescript-mode))
+  (add-to-list 'major-mode-remap-alist '(typescript-ts-mode . lit-ts-typescript-mode))
+  :config
+  (unless (treesit-language-available-p 'lit-html)
+    (message "lit-ts-mode: lit-html grammar not found, installing...")
+    (treesit-install-language-grammar 'lit-html))
+  :mode (("\\.js\\'" . lit-ts-js-mode)
+         ("\\.ts\\'" . lit-ts-typescript-mode)))
+
 (leaf clang-format
   :doc "Format code using clang-format."
   :req "cl-lib-0.3"
@@ -1390,7 +1418,7 @@ Used to see multiline flymake errors"
     (when (string-match  "\\.json$" (buffer-name))
       (local-set-key (kbd "C-c C-g") 'jsons-print-path)))
   :hook
-  ((js-mode-hook js2-mode-hook js-ts-mode-hook) . js-mode-bindings))
+  ((js-mode-hook js2-mode-hook js-ts-mode-hook lit-ts-js-mode-hook) . js-mode-bindings))
 
 (leaf json-mode
   :doc "Major mode for editing JSON files"
@@ -1525,17 +1553,6 @@ Used to see multiline flymake errors"
       (add-hook 'which-func-functions 'kb/nxml-where t t)))
 
   (add-hook 'find-file-hook 'xml-find-file-hook t))
-
-(leaf template-literals-ts-mode
-  :doc "Tree-sitter support for HTML/CSS in JS/TS template literals"
-  :req "emacs-30.1"
-  :tag "tree-sitter" "typescript" "javascript" "languages" "emacs>=30.1"
-  :url "https://github.com/ispringle/template-literals-ts-mode"
-  :added "2026-02-16"
-  :emacs>= 30.1
-  :ensure t
-  :hook ((js-ts-mode-hook . template-literals-ts-mode)
-         (typescript-ts-mode-hook . template-literals-ts-mode)))
 
 (leaf sparql-mode
   :doc "Edit and interactively evaluate SPARQL queries"
