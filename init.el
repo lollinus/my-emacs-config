@@ -1849,6 +1849,18 @@ Used to see multiline flymake errors"
   :bind (org-mode-map ("C-<print>" . ews-org-insert-screenshot))
   )
 
+(leaf dash
+  :doc "A modern list library for Emacs."
+  :req "emacs-24"
+  :tag "lisp" "extensions" "emacs>=24"
+  :url "https://github.com/magnars/dash.el"
+  :added "2026-03-03"
+  :emacs>= 24
+  :ensure t
+  :config
+  (with-eval-after-load 'info-look
+    (dash-register-info-lookup)))
+
 (leaf org-make-toc
   :doc "Automatic tables of contents for Org files"
   :req "emacs-26.1" "dash-2.12" "s-1.10.0" "org-9.3" "compat-29.1"
@@ -1857,6 +1869,7 @@ Used to see multiline flymake errors"
   :added "2026-01-28"
   :emacs>= 26.1
   :ensure t
+  :after org compat
   :hook (org-mode-hook . org-make-toc-mode))
 
 (leaf ox-jira
