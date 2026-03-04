@@ -2314,6 +2314,50 @@ Used to see multiline flymake errors"
   :blackout t
   :global-minor-mode global-page-break-lines-mode)
 
+(leaf slack
+  :doc "Slack client."
+  :req "websocket-1.12" "request-0.3.2" "circe-2.11" "alert-1.2" "emojify-1.2.1" "emacs-25.1" "dash-2.19.1" "s-1.13.1" "ts-0.3"
+  :tag "tools" "emacs>=25.1"
+  :url "https://github.com/emacs-slack/emacs-slack"
+  :added "2026-03-04"
+  :emacs>= 25.1
+  :ensure t
+  :after websocket circe alert emojify ts
+  :bind (("C-c S K" . slack-stop)
+         ("C-c S c" . slack-select-rooms)
+         ("C-c S u" . slack-select-unread-rooms)
+         ("C-c S U" . slack-user-select)
+         ("C-c S s" . slack-search-from-messages)
+         ("C-c S J" . slack-jump-to-browser)
+         ("C-c S j" . slack-jump-to-app)
+         ("C-c S e" . slack-insert-emoji)
+         ("C-c S E" . slack-message-edit)
+         ("C-c S r" . slack-message-add-reaction)
+         ("C-c S t" . slack-thread-show-or-create)
+         ("C-c S g" . slack-message-redisplay)
+         ("C-c S G" . slack-conversations-list-update-quick)
+         ("C-c S q" . slack-quote-and-reply)
+         ("C-c S Q" . slack-quote-and-reply-with-link)
+         (:slack-mode-map
+          (("@" . slack-message-embed-mention)
+           ("#" . slack-message-embed-channel)))
+         (:slack-thread-message-buffer-mode-map
+          (("C-c '" . slack-message-write-another-buffer)
+           ("@" . slack-message-embed-mention)
+           ("#" . slack-message-embed-channel)))
+         (:slack-message-buffer-mode-map
+          (("C-c '" . slack-message-write-another-buffer)))
+         (:slack-message-compose-buffer-mode-map
+          (("C-c '" . slack-message-send-from-buffer)))
+         )
+  )
+
+(leaf alert
+  :commands (alert)
+  :init
+  (setq alert-default-style 'notifier))
+
+
 (message "** Init finished")
 
 ;;; Machine-local overrides (local.el is not committed to git)
