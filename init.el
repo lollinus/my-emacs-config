@@ -912,7 +912,8 @@
   :emacs>= 29.4
   :ensure t
   ;; Replace `project-prefix-map' with `disproject-dispatch'.
-  :bind (ctl-x-map ("p" . disproject-dispatch)))
+  :init
+  (keymap-global-set "C-x p" #'disproject-dispatch))
 
 (leaf consult-project-extra
   :doc "Consult integration for project.el"
