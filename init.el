@@ -1707,9 +1707,9 @@ Used to see multiline flymake errors"
   :emacs>= 27.2
   :defun copilot--start-server
   :ensure t
-  :hook
+  ;; :hook
   ;; Optional: Enable in programming modes
-  ((prog-mode-hook . copilot-mode))
+  ;; ((prog-mode-hook . copilot-mode))
 
   ;; Keybindings
   :bind (:copilot-completion-map
