@@ -2314,6 +2314,16 @@ Used to see multiline flymake errors"
   :blackout t
   :global-minor-mode global-page-break-lines-mode)
 
+(leaf emojify
+  :doc "Display emojis in Emacs"
+  :req "emacs-24.3" "seq-1.11" "ht-2.0"
+  :tag "multimedia" "convenience" "emacs>=24.3"
+  :url "https://github.com/iqbalansari/emacs-emojify"
+  :added "2026-03-06"
+  :emacs>= 24.3
+  :ensure t
+  :global-minor-mode global-emojify-mode)
+
 (leaf slack
   :doc "Slack client."
   :req "websocket-1.12" "request-0.3.2" "circe-2.11" "alert-1.2" "emojify-1.2.1" "emacs-25.1" "dash-2.19.1" "s-1.13.1" "ts-0.3"
