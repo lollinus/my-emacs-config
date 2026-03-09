@@ -848,6 +848,17 @@
   (add-to-list 'magit-process-find-password-functions 'magit-process-password-auth-source)
   )
 
+(leaf magit-browse-commit
+  :doc "Browse pull/merge requests from magit-blame."
+  :req "emacs-25.1" "magit-3.0.0" "s-1.12.0"
+  :tag "git" "tools" "vc" "emacs>=25.1"
+  :url "https://github.com/bbw9n/magit-browse-commit"
+  :added "2026-03-09"
+  :emacs>= 25.1
+  :ensure t
+  :after magit
+  :bind (:magit-blame-mode-map ("M-o" . magit-browse-commit-at-point)))
+
 (leaf magit-gh
   :doc "GitHub CLI integration for Magit"
   :req "emacs-29.1" "magit-4.0.0" "transient-0.5.0"
