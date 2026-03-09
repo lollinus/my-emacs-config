@@ -1959,6 +1959,7 @@ Used to see multiline flymake errors"
     (global-set-key (kbd "C-c d") doing-command-map)))
 
 (leaf org-tempus
+  :disabled t
   :doc "Enhance Org time tracking"
   :req "emacs-27.1"
   :tag "calendar" "emacs>=27.1"
