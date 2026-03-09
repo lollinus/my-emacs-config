@@ -713,7 +713,6 @@
                                      (lua "https://github.com/tree-sitter-grammars/tree-sitter-lua")
                                      (magik "https://github.com/krn-robin/tree-sitter-magik")
                                      (make "https://github.com/alemuller/tree-sitter-make")
-                                     ;; (markdown "https://github.com/tree-sitter-grammars/tree-sitter-markdown")
                                      (org "https://github.com/milisims/tree-sitter-org")
                                      (proto "https://github.com/mitchellh/tree-sitter-proto")
                                      (python "https://github.com/tree-sitter/tree-sitter-python")
@@ -1951,7 +1950,6 @@ Used to see multiline flymake errors"
   (org-tempus-dconf-path . "/org/gnome/shell/extensions/simple-message/message")
   )
 
-
 (leaf markdown-ts-mode
   :doc "Major mode for Markdown using Treesitter"
   :req "emacs-29.1"
@@ -1960,9 +1958,20 @@ Used to see multiline flymake errors"
   :added "2025-10-06"
   :emacs>= 29.1
   :ensure t
+  :mode ("\\.md\\'" . markdown-ts-mode)
   :config
   (add-to-list 'treesit-language-source-alist '(markdown "https://github.com/tree-sitter-grammars/tree-sitter-markdown" "split_parser" "tree-sitter-markdown/src"))
   (add-to-list 'treesit-language-source-alist '(markdown-inline "https://github.com/tree-sitter-grammars/tree-sitter-markdown" "split_parser" "tree-sitter-markdown-inline/src")))
+
+(leaf markdown-indent-mode
+  :doc "Dynamic indentation for Markdown."
+  :req "emacs-28.1"
+  :tag "emacs>=28.1"
+  :url "https://github.com/whhone/markdown-indent-mode"
+  :added "2026-03-09"
+  :emacs>= 28.1
+  :ensure t
+  :hook ((markdown-ts-mode-hook markdown-mode) . markdown-indent-mode))
 
 (leaf markdown-mode
   :disabled t
