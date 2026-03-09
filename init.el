@@ -2243,7 +2243,7 @@ Used to see multiline flymake errors"
   :emacs>= 28.1
   :ensure t
   :blackout t
-  :global-minor-mode t)
+  :global-minor-mode global-sideline-mode)
 
 (leaf sideline-blame
   :doc "Show blame messages with sideline."
