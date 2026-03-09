@@ -1737,6 +1737,17 @@ Used to see multiline flymake errors"
 
 
 ;;; Tools
+(leaf hackernews-modern
+  :doc "Modern, widget-based Hacker News client for Emacs"
+  :req "emacs-28.1"
+  :tag "news" "web" "emacs>=28.1"
+  :url "https://git.andros.dev/andros/hackernews-modern-el"
+  :added "2026-03-09"
+  :emacs>= 28.1
+  :ensure t
+  :custom
+  (hackernews-modern-enable-emojis . t))
+
 (leaf vterm
   :doc "Fully-featured terminal emulator"
   :req "emacs-25.1"
