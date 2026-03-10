@@ -1654,9 +1654,11 @@ Used to see multiline flymake errors"
   :ensure t
   :defun (agent-shell-mistral-start-vibe . agent-shell-mistral)
          (agent-shell-anthropic-start-claude-code . agent-shell-anthropic)
+         (agent-shell-github-start-copilot . agent-shell-github)
   :bind (("C-c s" . agent-shell)
          ("C-c m" . agent-shell-mistral-start-vibe)
-         ("C-c c" . agent-shell-anthropic-start-claude-code))
+         ("C-c c" . agent-shell-anthropic-start-claude-code)
+         ("C-c g" . agent-shell-github-start-copilot))
   :config
   ;; Claude Code
   ;; Install: curl -fsSL https://claude.ai/install.sh | bash
@@ -1690,6 +1692,25 @@ Used to see multiline flymake errors"
   ;; Install: gh extension install github/gh-copilot && gh auth login
   ;; Enterprise config (GITHUB_ENTERPRISE_URL) is machine-specific — see local.el
   (require 'agent-shell-github)
+
+  ;; Fix RET on fragment toggles.
+  ;;
+  ;; agent-shell renders collapsible fragments with a keymap text property that
+  ;; maps RET → agent-shell-ui-toggle-fragment-at-point.  In practice this is
+  ;; often shadowed because shell-maker installs
+  ;;   <remap> <comint-send-input> → shell-maker-submit
+  ;; and some Emacs builds resolve the remap before checking text-property
+  ;; keymaps, so RET always submits instead of toggling.
+  ;;
+  ;; The fix: bind RET in agent-shell-mode-map to a smart dispatcher that
+  ;; checks whether point is on a toggleable fragment first.
+  (defun agent-shell-ret-dwim ()
+    "Toggle fragment at point if on one, otherwise submit input."
+    (interactive)
+    (if (get-text-property (point) 'agent-shell-ui-state)
+        (agent-shell-ui-toggle-fragment-at-point)
+      (shell-maker-submit)))
+  (keymap-set agent-shell-mode-map "RET" #'agent-shell-ret-dwim)
 )
 
 (leaf ai-code
