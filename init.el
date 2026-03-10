@@ -1651,11 +1651,7 @@ Used to see multiline flymake errors"
   :url "https://github.com/xenodium/agent-shell"
   :added "2026-01-20"
   :emacs>= 29.1
-  :vc (agent-shell
-       :url "https://github.com/lollinus/agent-shell"
-       :vc-backend Git
-       :branch "fix/ret-fragment-toggle"
-       :rev :newest)
+  :ensure t
   :defun (agent-shell-mistral-start-vibe . agent-shell-mistral)
          (agent-shell-anthropic-start-claude-code . agent-shell-anthropic)
          (agent-shell-github-start-copilot . agent-shell-github)
