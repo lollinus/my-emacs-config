@@ -2373,7 +2373,9 @@ Used to see multiline flymake errors"
   :added "2026-03-06"
   :emacs>= 24.3
   :ensure t
-  :global-minor-mode global-emojify-mode)
+  :global-minor-mode global-emojify-mode
+  :config
+  (add-to-list 'emojify-inhibit-major-modes 'agent-shell-mode))
 
 (leaf slack
   :doc "Slack client."
