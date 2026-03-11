@@ -1409,13 +1409,12 @@ Used to see multiline flymake errors"
   :added "2025-09-17"
   :emacs>= 24
   :ensure t
-  :config
-  (defun js-mode-bindings ()
-    "Sets a hotkey for using the json-snatcher plugin."
-    (when (string-match  "\\.json$" (buffer-name))
-      (local-set-key (kbd "C-c C-g") 'jsons-print-path)))
+  :preface
+  (defun kb/json-snatcher-bind ()
+    "Bind jsons-print-path in JSON buffers."
+    (local-set-key (kbd "C-c C-g") 'jsons-print-path))
   :hook
-  ((js-mode-hook js2-mode-hook js-ts-mode-hook lit-ts-js-mode-hook) . js-mode-bindings))
+  (json-ts-mode-hook . kb/json-snatcher-bind))
 
 (leaf json-mode
   :doc "Major mode for editing JSON files"
