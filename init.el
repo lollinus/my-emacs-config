@@ -220,13 +220,7 @@
             (auto-mode-case-fold . nil))
   :custom ((large-file-warning-threshold . 100000000)
            (mode-require-final-newline . t)      ; add a newline to end of file)
-           (make-backup-files . nil))
-  :config
-  ;; Tell Emacs to prefer the treesitter mode
-  ;; You'll want to run the command `M-x treesit-install-language-grammar' before editing.
-  (setq major-mode-remap-alist (append major-mode-remap-alist '((bash-mode . bash-ts-mode)
-                                                                (css-mode . css-ts-mode)
-                                                                (html-mode . html-ts-mode)))))
+           (make-backup-files . nil)))
 (leaf auth-source
   :doc "authentication sources for Gnus and Emacs"
   :tag "builtin"
@@ -1477,7 +1471,29 @@ Used to see multiline flymake errors"
   :mode ("\\.yaml\\'" "\\.yml\\'")
   :hook (yaml-ts-mode-hook . eglot-ensure)
   :custom-face (font-lock-variable-name-face . '((t (:foreground "#cba6f7"))))
-  :init (add-to-list 'major-mode-remap-alist '(yaml-mode . yaml-ts-mode)))
+  :init (add-to-list 'major-mode-remap-alist '(yaml-mode . yaml-ts-mode))
+  :treesit yaml)
+
+(leaf bash-ts-mode
+  :doc "tree-sitter support for Bash (builtin)"
+  :tag "builtin"
+  :mode ("\\.sh\\'" "\\.bash\\'")
+  :init (add-to-list 'major-mode-remap-alist '(bash-mode . bash-ts-mode))
+  :treesit bash)
+
+(leaf css-ts-mode
+  :doc "tree-sitter support for CSS (builtin)"
+  :tag "builtin"
+  :mode "\\.css\\'"
+  :init (add-to-list 'major-mode-remap-alist '(css-mode . css-ts-mode))
+  :treesit css)
+
+(leaf html-ts-mode
+  :doc "tree-sitter support for HTML (builtin)"
+  :tag "builtin"
+  :mode ("\\.html\\'" "\\.htm\\'")
+  :init (add-to-list 'major-mode-remap-alist '(html-mode . html-ts-mode))
+  :treesit html)
 
 (leaf csv-mode
     :doc "Major mode for editing comma/char separated values"
@@ -1529,7 +1545,7 @@ Used to see multiline flymake errors"
   :hook
   (cmake-ts-mode-hook . kb/cmake-mode-setup)
   (cmake-ts-mode-hook . kb/whitespace-progmode-setup)
-)
+  :treesit cmake)
 
 (leaf cmake-font-lock
   :doc "Advanced, type aware, highlight support for CMake"
