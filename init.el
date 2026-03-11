@@ -1099,9 +1099,8 @@ Used to see multiline flymake errors"
     (if (executable-find "flake8")
         (setq-local python-flymake-command '("flake8" "-"))
       (remove-hook 'flymake-diagnostic-functions #'python-flymake t)))
+  :init (add-to-list 'major-mode-remap-alist '(python-mode . python-ts-mode))
   :config
-  ;; Prefer python-ts-mode over python-mode when treesitter is available
-  (add-to-list 'major-mode-remap-alist '(python-mode . python-ts-mode))
   (with-eval-after-load 'eglot
     (add-to-list 'eglot-server-programs '(python-ts-mode . ("pylsp")))
     (add-to-list 'eglot-server-programs '(python-mode . ("pylsp"))))
