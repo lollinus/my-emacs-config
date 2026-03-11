@@ -1472,6 +1472,7 @@ Used to see multiline flymake errors"
   :hook (yaml-ts-mode-hook . eglot-ensure)
   :custom-face (font-lock-variable-name-face . '((t (:foreground "#cba6f7"))))
   :init (add-to-list 'major-mode-remap-alist '(yaml-mode . yaml-ts-mode))
+  :mason ("yaml-language-server" "yaml-language-server")
   :treesit yaml)
 
 (leaf bash-ts-mode
@@ -1545,6 +1546,7 @@ Used to see multiline flymake errors"
   :hook
   (cmake-ts-mode-hook . kb/cmake-mode-setup)
   (cmake-ts-mode-hook . kb/whitespace-progmode-setup)
+  :mason ("neocmakelsp" "neocmakelsp")
   :treesit cmake)
 
 (leaf cmake-font-lock
