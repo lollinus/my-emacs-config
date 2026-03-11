@@ -836,15 +836,14 @@
            (haskell-process-auto-import-loaded-modules . t)
            (haskell-process-log . t)
            )
-  :hook ((haskell-mode-hook . interactive-haskell-mode)
-         (haskell-mode-hook . turn-on-haskell-doc-mode)
-         (haskell-mode-hook . haskell-indent-mode)
-         (haskell-mode-hook . kb/haskell-setup-outline-mode))
-  :config
+  :preface
   (defun kb/haskell-setup-outline-mode ()
     (make-local-variable 'outline-regexp)
     (setq outline-regexp "\\`\\|\\s-+\\S-"))
-  )
+  :hook ((haskell-mode-hook . interactive-haskell-mode)
+         (haskell-mode-hook . turn-on-haskell-doc-mode)
+         (haskell-mode-hook . haskell-indent-mode)
+         (haskell-mode-hook . kb/haskell-setup-outline-mode)))
 
 (leaf magit
   :doc "A Git porcelain inside Emacs."
