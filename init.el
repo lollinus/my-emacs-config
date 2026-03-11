@@ -981,7 +981,12 @@
   ;; https://www.masteringemacs.org/article/seamlessly-merge-multiple-documentation-sources-eldoc
   (defun kb/eglot-eldoc ()
     (setq eldoc-documentation-strategy
-            'eldoc-documentation-compose-eagerly))
+            'eldoc-documentation-compose-eagerly)
+    ;; sideline-flymake already shows clangd diagnostics inline; remove the
+    ;; flymake eldoc source so eldoc-box doesn't duplicate them.
+    ;; Note: in eglot 1.21 this is `flymake-eldoc-function', not the old
+    ;; `eglot--flymake-eldoc-function'.
+    (remove-hook 'eldoc-documentation-functions #'flymake-eldoc-function t))
   :hook ((eglot-managed-mode-hook . kb/eglot-eldoc)))
 
 (leaf consult-eglot
@@ -2288,7 +2293,6 @@ Used to see multiline flymake errors"
 )
 
 (leaf sideline-eglot
-  :disabled t ;; NOTE: disabled to avoid Debugger entered--Lisp error: (void-function eglot--diag-data)
   :doc "Show eglot information with sideline."
   :req "emacs-29.1" "eglot-1.12.29" "sideline-0.1.0" "ht-2.4"
   :tag "eglot" "convenience" "emacs>=29.1"
@@ -2298,6 +2302,12 @@ Used to see multiline flymake errors"
   :ensure t
   :after eglot sideline
   :config
+  ;; `eglot--diag-data' was removed in eglot 1.21; the standard Flymake API
+  ;; `flymake-diagnostic-data' is its direct replacement.  Shim it so
+  ;; sideline-eglot (which still references the old name) works without
+  ;; patching the elpa directory.
+  (unless (fboundp 'eglot--diag-data)
+    (defalias 'eglot--diag-data #'flymake-diagnostic-data))
   ;; (setq sideline-backends-left nil)
   (add-to-list 'sideline-backends-left '(sideline-eglot . up)))
 
