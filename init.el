@@ -1965,7 +1965,7 @@ Used to see multiline flymake errors"
   (doing-directory . "~/projects/documents/")
   :config
   (with-eval-after-load 'doing
-    ;; TODO: fix :bind-keymap does fails with error no such command ding-command-map
+    ;; TODO: fix :bind-keymap fails with error no such command doing-command-map
     (global-set-key (kbd "C-c d") doing-command-map)))
 
 (leaf org-tempus
@@ -2160,19 +2160,13 @@ Used to see multiline flymake errors"
   (separedit-continue-fill-column . t)
   (separedit-write-file-when-execute-save . t)
   (separedit-remove-trailing-spaces-in-comment . t)
-  :init
-  (defun kb/bind-separedit () (keymap-set prog-mode-map "C-c '" #'separedit))
-  :hook (prog-mode-hook . kb/bind-separedit)
   :bind
   ((:prog-mode-map
     ((kbd "C-c '") . #'separedit))
    (:minibuffer-local-map
     ((kbd "C-c '") . #'separedit))
    (:help-mode-map
-    ((kbd "C-c '") . #'separedit))
-   ;; (:helpful-mode-map
-   ;;  ((kbd "C-c '") . #'separedit))
-   )
+    ((kbd "C-c '") . #'separedit)))
   ;; :init
   ;; (require 'separedit)
   ;; (define-key prog-mode-map "C-c '" 'separedit)
