@@ -1514,19 +1514,19 @@ Used to see multiline flymake errors"
   (defun kb/cmake-mode-setup ()
       (message "***** cmake-ts-mode custom")
       (setq-local fill-column 80)
-      (indent-tabs-mode -1)
-      ;; NOTE: default eglot-server-programs contains following setting for cmake-mode and cmake-ts-mode.
-      ;; ,(eglot-alternatives '((("neocmakelsp" "--stdio") "cmake-language-server")))
-      ;; This is causing problems as ("neocmakelsp" "--stdio") is improperly passed to (eglot--find-executable)
-      ;; To override this set it explicit
-      (add-to-list 'eglot-server-programs
-                   '(cmake-ts-mode . ("neocmakelsp" "--stdio")))
-      (eglot-ensure))
+      (indent-tabs-mode -1))
   :init (add-to-list 'major-mode-remap-alist '(cmake-mode . cmake-ts-mode))
   :mode ("CMakeLists\\.txt\\'" "\\.cmake\\'")
   :hook
   (cmake-ts-mode-hook . kb/cmake-mode-setup)
   (cmake-ts-mode-hook . kb/whitespace-progmode-setup)
+  (cmake-ts-mode-hook . eglot-ensure)
+  :config
+  ;; NOTE: default eglot-server-programs entry for cmake uses eglot-alternatives
+  ;; which is improperly passed to eglot--find-executable; override explicitly.
+  (with-eval-after-load 'eglot
+    (add-to-list 'eglot-server-programs
+                 '(cmake-ts-mode . ("neocmakelsp" "--stdio"))))
   :mason ("neocmakelsp" "neocmakelsp")
   :treesit cmake)
 
