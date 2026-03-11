@@ -360,6 +360,39 @@ See: URL `http://en.wikipedia.org/wiki/ISO_8601'"
     ((lambda (x) (concat (substring x 0 3) ":" (substring x 3 5)))
      (format-time-string "%z")))))
 
+;;--------------------------------------------------------------------------------
+;; Language tooling helpers
+;;--------------------------------------------------------------------------------
+
+(declare-function treesit-ready-p "treesit")
+(declare-function treesit-install-language-grammar "treesit")
+(declare-function mason-installed-p "mason")
+(declare-function mason-install "mason")
+
+;;;###autoload
+(defun kb/treesit-ensure (language)
+  "Install treesitter grammar for LANGUAGE if not already available.
+Falls back gracefully on first buffer open; reverts are needed to
+activate the ts-mode after installation."
+  (when (not (treesit-ready-p language t))
+    (message "**** Installing %s grammar for treesitter" language)
+    (treesit-install-language-grammar language)
+    (message "**** %s grammar installed. Revert buffers to activate ts-mode (M-x revert-buffer)" language)))
+
+;;;###autoload
+(defun kb/mason-ensure (executable package &optional on-success-msg)
+  "Ensure PACKAGE is installed via mason if EXECUTABLE is not on exec-path.
+ON-SUCCESS-MSG is an optional string appended to the success notification."
+  (when (not (executable-find executable))
+    (message "*** Installing %s" package)
+    (when (not (mason-installed-p package))
+      (mason-install package nil nil
+                     (lambda (success)
+                       (if success
+                           (message "**** %s installed.%s" package
+                                    (if on-success-msg (concat " " on-success-msg) ""))
+                         (message "**** %s install FAILED" package)))))))
+
 (provide 'rc-functions)
 
 ;;; rc-functions.el ends here

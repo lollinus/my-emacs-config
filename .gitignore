@@ -16,3 +16,4 @@ eln-cache/
 straight/
 var/
 local.el
+/.agent-shell/

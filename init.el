@@ -56,6 +56,11 @@
 ;; (leaf leaf-tree :ensure t)
 (leaf leaf-convert :ensure t)
 
+;; Make rc/ directory available for autoloads
+(add-to-list 'load-path (expand-file-name "rc" user-emacs-directory))
+(autoload 'kb/treesit-ensure "rc-functions" nil t)
+(autoload 'kb/mason-ensure "rc-functions" nil t)
+
 ;; Contrary to what many Emacs users have in their configs, you don't need
 ;; more than this to make UTF-8 the default coding system:
 (set-language-environment "UTF-8")
@@ -207,7 +212,6 @@
   (setq major-mode-remap-alist (append major-mode-remap-alist '((bash-mode . bash-ts-mode)
                                                                 (json-mode . json-ts-mode)
                                                                 (css-mode . css-ts-mode)
-                                                                (python-mode . python-ts-mode)
                                                                 (html-mode . html-ts-mode)))))
 (leaf auth-source
   :doc "authentication sources for Gnus and Emacs"
@@ -1081,7 +1085,15 @@ Used to see multiline flymake errors"
   :tag "builtin"
   :added "2025-09-16"
   :defun (treesit-ready-p . treesit)
+  :preface
+  (defun kb/python-flymake-setup ()
+    "Enable flymake with flake8 if available, otherwise disable python-flymake backend."
+    (if (executable-find "flake8")
+        (setq-local python-flymake-command '("flake8" "-"))
+      (remove-hook 'flymake-diagnostic-functions #'python-flymake t)))
   :config
+  ;; Prefer python-ts-mode over python-mode when treesitter is available
+  (add-to-list 'major-mode-remap-alist '(python-mode . python-ts-mode))
   (with-eval-after-load 'eglot
     (add-to-list 'eglot-server-programs '(python-ts-mode . ("pylsp")))
     (add-to-list 'eglot-server-programs '(python-mode . ("pylsp"))))
@@ -1090,25 +1102,15 @@ Used to see multiline flymake errors"
 
   :defer-config
   ;; install python treesitter grammar on demand
-  (when (not (treesit-ready-p 'python t))
-    (message "**** Installing python grammar for treesitter")
-    (treesit-install-language-grammar 'python)
-    )
+  (kb/treesit-ensure 'python)
   ;; install python language server on demand
-  (when (not (executable-find "pylsp"))
-    (message "*** Installing python-lsp-server")
-    (when (not (mason-installed-p "python-lsp-server"))
-        (mason-install "python-lsp-server" nil nil (lambda (success) (message "**** python-lsp-server install %S" success)))
-        ))
-  (when (not (executable-find "flake8"))
-    (message "*** Installing flake8")
-    (when (not (mason-installed-p "flake8"))
-      (mason-install "flake8" nil nil (lambda (success)
-                                        (message "**** flake8 install %S" success)
-                                        (if success (setopt python-flymake-command '("flake8" "-")))))
-        ))
+  (kb/mason-ensure "pylsp" "python-lsp-server"
+                   "Run M-x eglot in your Python buffer to activate.")
+  (kb/mason-ensure "flake8" "flake8")
   :hook
-  ((python-mode-hook . eglot-ensure)))
+  ;; python-base-mode-hook fires for both python-mode and python-ts-mode
+  ((python-base-mode-hook . eglot-ensure)
+   (python-base-mode-hook . kb/python-flymake-setup)))
 
 (leaf js-ts-defs
   :doc "Find JavaScript variable definitions using tree-sitter"
@@ -1148,8 +1150,7 @@ Used to see multiline flymake errors"
   (add-to-list 'major-mode-remap-alist '(typescript-ts-mode . lit-ts-typescript-mode))
   :config
   (unless (treesit-language-available-p 'lit-html)
-    (message "lit-ts-mode: lit-html grammar not found, installing...")
-    (treesit-install-language-grammar 'lit-html))
+    (kb/treesit-ensure 'lit-html))
   :mode (("\\.js\\'" . lit-ts-js-mode)
          ("\\.ts\\'" . lit-ts-typescript-mode)))
 
@@ -1644,6 +1645,18 @@ Used to see multiline flymake errors"
   (message "**** defer config ")
   )
 
+;; (leaf acp
+;;   :doc "An ACP (Agent Client Protocol) implementation."
+;;   :req "emacs-28.1"
+;;   :tag "emacs>=28.1"
+;;   :added "2026-03-10"
+;;   :emacs>= 28.1
+;;   :vc (acp
+;;        :url "https://github.com/lollinus/acp.el.git"
+;;        :vc-backend Git
+;;        :branch "fix/permission-response-double-nested-outcome"
+;;        :rev :nevest))
+
 (leaf agent-shell
   :doc "Native agentic integrations for Claude Code, Gemini CLI, etc"
   :req "emacs-29.1" "shell-maker-0.84.8" "acp-0.8.3"
@@ -1692,6 +1705,9 @@ Used to see multiline flymake errors"
   ;; Install: gh extension install github/gh-copilot && gh auth login
   ;; Enterprise config (GITHUB_ENTERPRISE_URL) is machine-specific — see local.el
   (require 'agent-shell-github)
+  (advice-add 'shell-maker--process-sentinel :before
+              (lambda (&rest args)
+                (message "[shell-maker sentinel] fired: %S" args)))
 )
 
 (leaf ai-code
@@ -1728,9 +1744,7 @@ Used to see multiline flymake errors"
          ("<tab>" . 'copilot-accept-completion))
 
   :config
-  (when (not (mason-installed-p "copilot-language-server"))
-    (message "**** copilot-language-server not found")
-    (mason-install "copilot-language-server"  nil nil (lambda (success) (message "**** copilot-language-server install %S" success))))
+  (kb/mason-ensure "copilot-language-server" "copilot-language-server")
 
   (setq copilot-max-char 20000)  ; default is 10000
   (setq copilot-max-char-warning-disable t)
