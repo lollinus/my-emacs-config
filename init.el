@@ -1171,31 +1171,14 @@ Used to see multiline flymake errors"
   ;;        (:c-mode-map
   ;;         ("C-M-'" . #'clang-format-region)))
   :preface
-  (defun kb/c++-bind-clang-format ()
-    "Hook used to bind clang-format on moded activation."
-    ;; (interactive)
-    ;; (define-key c-mode-base-map (kbd "C-M-'") 'clang-format-region)
-    (keymap-set c++-mode-map "C-M-'" #'clang-format-region))
-  (defun kb/c-bind-clang-format ()
-    "Hook used to bind clang-format on moded activation."
-    ;; (interactive)
-    ;; (define-key c-mode-base-map (kbd "C-M-'") 'clang-format-region)
-    (keymap-set c-mode-map "C-M-'" #'clang-format-region))
   (defun kb/c++-ts-bind-clang-format ()
-    "Hook used to bind clang-format on moded activation."
-    ;; (interactive)
-    ;; (define-key c-mode-base-map (kbd "C-M-'") 'clang-format-region)
+    "Hook used to bind clang-format on mode activation."
     (keymap-set c++-ts-mode-map "C-M-'" #'clang-format-region))
   (defun kb/c-ts-bind-clang-format ()
-    "Hook used to bind clang-format on moded activation."
-    ;; (interactive)
-    ;; (define-key c-mode-base-map (kbd "C-M-'") 'clang-format-region)
+    "Hook used to bind clang-format on mode activation."
     (keymap-set c-ts-mode-map "C-M-'" #'clang-format-region))
-  :hook (c-mode-hook . kb/c-bind-clang-format)
-  :hook (c++-mode-hook . kb/c++-bind-clang-format)
   :hook (c-ts-mode-hook . kb/c-ts-bind-clang-format)
-  :hook (c++-ts-mode-hook . kb/c++-ts-bind-clang-format)
-  )
+  :hook (c++-ts-mode-hook . kb/c++-ts-bind-clang-format))
 
 (leaf verb
   :doc "Organize and send HTTP requests"
