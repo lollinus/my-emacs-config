@@ -1453,6 +1453,10 @@ Used to see multiline flymake errors"
   :hook (yaml-ts-mode-hook . eglot-ensure)
   :custom-face (font-lock-variable-name-face . '((t (:foreground "#cba6f7"))))
   :init (add-to-list 'major-mode-remap-alist '(yaml-mode . yaml-ts-mode))
+  :config
+  (with-eval-after-load 'eglot
+    (add-to-list 'eglot-server-programs
+                 '(yaml-ts-mode . ("yaml-language-server" "--stdio"))))
   :mason ("yaml-language-server" "yaml-language-server")
   :treesit yaml)
 
