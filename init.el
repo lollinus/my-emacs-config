@@ -48,7 +48,22 @@
 
     :config
     ;; initialize leaf-keywords.el
-    (leaf-keywords-init)))
+    (leaf-keywords-init)
+    ;; Custom keywords for on-demand treesitter grammar and mason package installation.
+    ;; Both wrap their calls in eval-after-load so they always defer to package load time.
+    ;; :treesit LANG...  calls (kb/treesit-ensure 'LANG) for each language symbol
+    ;; :mason (EXEC PKG [MSG])...  calls (kb/mason-ensure EXEC PKG MSG) for each spec
+    (customize-set-variable
+     'leaf-keywords-after-config
+     (append
+      leaf-keywords-after-config
+      (leaf-list
+       :treesit `((eval-after-load ',leaf--name
+                    (lambda () ,@(mapcar (lambda (lang) `(kb/treesit-ensure ',lang)) leaf--value)))
+                  ,@leaf--body)
+       :mason   `((eval-after-load ',leaf--name
+                    (lambda () ,@(mapcar (lambda (spec) `(kb/mason-ensure ,@spec)) leaf--value)))
+                  ,@leaf--body))))))
 ;; </leaf-install-code>
 ;; =========================== leaf bootstrap ==========================
 
@@ -796,10 +811,7 @@
          ((c-ts-mode-hook c++-ts-mode-hook) . kb/whitespace-progmode-setup))
   :config
   (c-ts-mode-set-global-style 'linux)
-  :defer-config
-  (kb/treesit-ensure 'c)
-  (kb/treesit-ensure 'cpp)
-  )
+  :treesit c cpp)
 
 (leaf haskell-mode
   :doc "A Haskell editing mode"
@@ -1103,13 +1115,9 @@ Used to see multiline flymake errors"
   (setq-default eglot-workspace-configuration
                 '((:pylsp . (:configurationSources ["flake8"] :plugins (:pycodestyle (:enabled nil) :mccabe (:enabled nil) :flake8 (:enabled t))))))
 
-  :defer-config
-  ;; install python treesitter grammar on demand
-  (kb/treesit-ensure 'python)
-  ;; install python language server on demand
-  (kb/mason-ensure "pylsp" "python-lsp-server"
-                   "Run M-x eglot in your Python buffer to activate.")
-  (kb/mason-ensure "flake8" "flake8")
+  :treesit python
+  :mason ("pylsp" "python-lsp-server" "Run M-x eglot in your Python buffer to activate.")
+         ("flake8" "flake8")
   :hook
   ;; python-base-mode-hook fires for both python-mode and python-ts-mode
   ((python-base-mode-hook . eglot-ensure)
@@ -1151,9 +1159,7 @@ Used to see multiline flymake errors"
   (add-to-list 'major-mode-remap-alist '(js-ts-mode . lit-ts-js-mode))
   (add-to-list 'major-mode-remap-alist '(typescript-mode . lit-ts-typescript-mode))
   (add-to-list 'major-mode-remap-alist '(typescript-ts-mode . lit-ts-typescript-mode))
-  :config
-  (unless (treesit-language-available-p 'lit-html)
-    (kb/treesit-ensure 'lit-html))
+  :treesit lit-html
   :mode (("\\.js\\'" . lit-ts-js-mode)
          ("\\.ts\\'" . lit-ts-typescript-mode)))
 
@@ -1746,9 +1752,8 @@ Used to see multiline flymake errors"
   :bind (:copilot-completion-map
          ("<tab>" . 'copilot-accept-completion))
 
+  :mason ("copilot-language-server" "copilot-language-server")
   :config
-  (kb/mason-ensure "copilot-language-server" "copilot-language-server")
-
   (setq copilot-max-char 20000)  ; default is 10000
   (setq copilot-max-char-warning-disable t)
   (setq copilot-indent-offset-warning-disable t)
@@ -2006,9 +2011,7 @@ Used to see multiline flymake errors"
   :config
   (add-to-list 'treesit-language-source-alist '(markdown "https://github.com/tree-sitter-grammars/tree-sitter-markdown" "split_parser" "tree-sitter-markdown/src"))
   (add-to-list 'treesit-language-source-alist '(markdown-inline "https://github.com/tree-sitter-grammars/tree-sitter-markdown" "split_parser" "tree-sitter-markdown-inline/src"))
-  :defer-config
-  (kb/treesit-ensure 'markdown)
-  (kb/treesit-ensure 'markdown-inline))
+  :treesit markdown markdown-inline)
 
 (leaf markdown-indent-mode
   :doc "Dynamic indentation for Markdown."
