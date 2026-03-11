@@ -2007,7 +2007,7 @@ Used to see multiline flymake errors"
   :added "2026-03-09"
   :emacs>= 28.1
   :ensure t
-  :hook ((markdown-ts-mode-hook markdown-mode) . markdown-indent-mode))
+  :hook (markdown-ts-mode-hook . markdown-indent-mode))
 
 (leaf markdown-mode
   :disabled t
