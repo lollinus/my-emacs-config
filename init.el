@@ -225,7 +225,6 @@
   ;; Tell Emacs to prefer the treesitter mode
   ;; You'll want to run the command `M-x treesit-install-language-grammar' before editing.
   (setq major-mode-remap-alist (append major-mode-remap-alist '((bash-mode . bash-ts-mode)
-                                                                (json-mode . json-ts-mode)
                                                                 (css-mode . css-ts-mode)
                                                                 (html-mode . html-ts-mode)))))
 (leaf auth-source
@@ -1451,6 +1450,13 @@ Used to see multiline flymake errors"
   :ensure t
   :after json-snatcher)
 
+(leaf json-ts-mode
+  :doc "tree-sitter support for JSON (builtin)"
+  :tag "builtin"
+  :mode "\\.json\\'"
+  :init (add-to-list 'major-mode-remap-alist '(json-mode . json-ts-mode))
+  :treesit json)
+
 (leaf json-at-point
   :vc (json-at-point
        :url "https://github.com/lollinus/json-at-point"
@@ -1458,7 +1464,7 @@ Used to see multiline flymake errors"
        :branch "master"
        :rev :newest)
   :after json-mode
-  :bind (:json-mode-map
+  :bind (:json-ts-mode-map
          ("C-c C-f" . json-pretty-print-members)
          ("C-c C-c" . json-compact-members)
          ("C-c C-d" . json-format-to-depth)
