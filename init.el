@@ -1151,7 +1151,7 @@ Used to see multiline flymake errors"
   (add-to-list 'major-mode-remap-alist '(js-ts-mode . lit-ts-js-mode))
   (add-to-list 'major-mode-remap-alist '(typescript-mode . lit-ts-typescript-mode))
   (add-to-list 'major-mode-remap-alist '(typescript-ts-mode . lit-ts-typescript-mode))
-  :treesit lit-html
+  :treesit lit-html javascript typescript tsx
   :mode (("\\.js\\'" . lit-ts-js-mode)
          ("\\.ts\\'" . lit-ts-typescript-mode)))
 
