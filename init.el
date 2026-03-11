@@ -796,6 +796,9 @@
          ((c-ts-mode-hook c++-ts-mode-hook) . kb/whitespace-progmode-setup))
   :config
   (c-ts-mode-set-global-style 'linux)
+  :defer-config
+  (kb/treesit-ensure 'c)
+  (kb/treesit-ensure 'cpp)
   )
 
 (leaf haskell-mode
@@ -2002,7 +2005,10 @@ Used to see multiline flymake errors"
   :mode ("\\.md\\'" . markdown-ts-mode)
   :config
   (add-to-list 'treesit-language-source-alist '(markdown "https://github.com/tree-sitter-grammars/tree-sitter-markdown" "split_parser" "tree-sitter-markdown/src"))
-  (add-to-list 'treesit-language-source-alist '(markdown-inline "https://github.com/tree-sitter-grammars/tree-sitter-markdown" "split_parser" "tree-sitter-markdown-inline/src")))
+  (add-to-list 'treesit-language-source-alist '(markdown-inline "https://github.com/tree-sitter-grammars/tree-sitter-markdown" "split_parser" "tree-sitter-markdown-inline/src"))
+  :defer-config
+  (kb/treesit-ensure 'markdown)
+  (kb/treesit-ensure 'markdown-inline))
 
 (leaf markdown-indent-mode
   :doc "Dynamic indentation for Markdown."
