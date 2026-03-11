@@ -2197,14 +2197,13 @@ Used to see multiline flymake errors"
   :added "2025-09-01"
   :emacs>= 27.2
   :ensure t
+  :preface
+  (defun kb/circadian-after-load-theme (_theme)
+    "Reapply cursor style after theme change."
+    (set-default 'cursor-type 'box)
+    (set-cursor-color "#F52503"))
   :hook ((emacs-startup-hook . circadian-setup)
-         (circadian-after-load-theme-hook .
-                                          (lambda (theme)
-                                            ;; Line numbers appearance
-                                            (setq linum-format 'linum-format-func)
-                                            ;; Cursor
-                                            (set-default 'cursor-type 'box)
-                                            (set-cursor-color "#F52503"))))
+         (circadian-after-load-theme-hook . kb/circadian-after-load-theme))
   :custom
   (circadian-verbose . t)
   (calendar-latitude . 53.51)
