@@ -7,7 +7,7 @@
 (message "** Init entered")
 
 ;; useful for quickly debugging Emacs
-(setq debug-on-error t)
+(when init-file-debug (setq debug-on-error t))
 ;; (setenv "LSP_USE_PLISTS" "true")
 
 ;;; Startup
@@ -1416,7 +1416,7 @@ Used to see multiline flymake errors"
   :ensure t
   :hook (eglot-managed-mode-hook . eldoc-box-hover-mode)
   :config
-  (add-to-list 'eglot-ignored-server-capabilites :hoverProvider))
+  (add-to-list 'eglot-ignored-server-capabilities :hoverProvider))
 
 (leaf json-snatcher
   :doc "Grabs the path to JSON values in a JSON file"
@@ -1719,9 +1719,6 @@ Used to see multiline flymake errors"
   ;; Install: gh extension install github/gh-copilot && gh auth login
   ;; Enterprise config (GITHUB_ENTERPRISE_URL) is machine-specific — see local.el
   (require 'agent-shell-github)
-  (advice-add 'shell-maker--process-sentinel :before
-              (lambda (&rest args)
-                (message "[shell-maker sentinel] fired: %S" args)))
 )
 
 (leaf ai-code
