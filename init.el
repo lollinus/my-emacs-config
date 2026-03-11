@@ -1515,34 +1515,15 @@ Used to see multiline flymake errors"
       (message "***** cmake-ts-mode custom")
       (setq-local fill-column 80)
       (indent-tabs-mode -1)
-      ;; (auto-fill-mode)
-      ;; (setq cmake-tab-width 4)
-      ;; (setq indent-tabs-mode nil)
       ;; NOTE: default eglot-server-programs contains following setting for cmake-mode and cmake-ts-mode.
       ;; ,(eglot-alternatives '((("neocmakelsp" "--stdio") "cmake-language-server")))
       ;; This is causing problems as ("neocmakelsp" "--stdio") is improperly passed to (eglot--find-executable)
       ;; To override this set it explicit
       (add-to-list 'eglot-server-programs
-                   '(cmake-mode . ("neocmakelsp" "--stdio")))
+                   '(cmake-ts-mode . ("neocmakelsp" "--stdio")))
       (eglot-ensure))
-  (defun kb/whitespace-progmode-setup ()
-    "Enable whitespace mode for programming modes."
-    (setq-local whitespace-style
-                '(face
-                  trailing
-                  lines-tail
-                  newline
-                  empty
-                  indentation
-                  space-after-tab::tab
-                  ;; space-after-tab
-                  ;; big-indent
-                  space-before-tab::tab
-                  ;; space-before-tab
-                  tab-mark
-                  newline-mark
-                  ))
-    )
+  :init (add-to-list 'major-mode-remap-alist '(cmake-mode . cmake-ts-mode))
+  :mode ("CMakeLists\\.txt\\'" "\\.cmake\\'")
   :hook
   (cmake-ts-mode-hook . kb/cmake-mode-setup)
   (cmake-ts-mode-hook . kb/whitespace-progmode-setup)
