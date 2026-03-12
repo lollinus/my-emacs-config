@@ -5,28 +5,33 @@ Targets
 -------
   //:emacs_package      Build Emacs 30.2 (stable tarball) → emacs-30.2-install.tar.xz
   //:emacs_ref_package  Build any git ref/commit via EMACS_REF env var (default: master)
-  //:deploy             Install stable build into $HOME/.local/
-  //:deploy_ref         Install ref build into $HOME/.local/
+  //:fonts              Bundle programming fonts → fonts.tar.gz
+
+  bazel run targets (build artifact + install/remove side effects):
+  //:install            Install stable Emacs 30.2 into ~/.local/
+  //:install_ref        Install ref/commit build (set EMACS_REF env var first)
+  //:install_fonts      Install fonts into ~/.local/share/fonts/emacs/
+  //:remove             Uninstall Emacs from ~/.local/
+  //:remove_fonts       Uninstall fonts from ~/.local/share/fonts/emacs/
 
 Examples
 --------
-  # Stable build (pinned, cached by SHA256)
+  # Stable build + install (one step)
+  bazel run //:install
+
+  # Ref build + install
+  EMACS_REF=emacs-30.2 bazel run //:install_ref
+
+  # Fonts: install / remove
+  bazel run //:install_fonts
+  bazel run //:remove_fonts
+
+  # Emacs: remove
+  bazel run //:remove
+
+  # Build only (no install)
   bazel build //:emacs_package
-
-  # Build from git master (EMACS_REF defaults to master)
   EMACS_REF=master bazel build //:emacs_ref_package
-
-  # Build a specific release branch
-  EMACS_REF=emacs-30 bazel build //:emacs_ref_package
-
-  # Build a specific tag
-  EMACS_REF=emacs-30.2 bazel build //:emacs_ref_package
-
-  # Build a specific commit SHA (triggers full clone, not shallow)
-  EMACS_REF=a1b2c3d4e5f6 bazel build //:emacs_ref_package
-
-  # Deploy ref build to ~/.local/
-  EMACS_REF=emacs-30 bazel run //:deploy_ref
 
 Caching
 -------
@@ -36,6 +41,8 @@ Caching
          Note: for mutable refs (master, emacs-30) the cache may be stale;
          use `bazel build --action_env=EMACS_REF_FORCE=$(date +%s)` to force rebuild.
 """
+
+load("@rules_shell//shell:sh_binary.bzl", "sh_binary")
 
 # ---------------------------------------------------------------------------
 # Common configure flags
@@ -226,3 +233,47 @@ genrule(
         tar -czf "$$OUTPUT_ABS" -C "$$STAGING" .
     """,
 )
+
+# ---------------------------------------------------------------------------
+# bazel run targets — install / remove
+#
+# Each sh_binary declares the relevant build artifact as a data dependency
+# so Bazel builds it automatically before running the installer script.
+# The script locates the artifact via the $RUNFILES_DIR mechanism.
+#
+# Usage:
+#   bazel run //:install                              # stable Emacs 30.2
+#   EMACS_REF=emacs-30.2 bazel run //:install_ref   # any git ref
+#   bazel run //:install_fonts
+#   bazel run //:remove                              # Emacs 30.2
+#   bazel run //:remove_fonts
+# ---------------------------------------------------------------------------
+
+sh_binary(
+    name = "install",
+    srcs = ["install_emacs.sh"],
+    data = ["//:emacs_package"],
+)
+
+sh_binary(
+    name = "install_ref",
+    srcs = ["install_emacs_ref.sh"],
+    data = ["//:emacs_ref_package"],
+)
+
+sh_binary(
+    name = "install_fonts",
+    srcs = ["install_fonts.sh"],
+    data = ["//:fonts"],
+)
+
+sh_binary(
+    name = "remove",
+    srcs = ["remove.sh"],
+)
+
+sh_binary(
+    name = "remove_fonts",
+    srcs = ["remove_fonts.sh"],
+)
+

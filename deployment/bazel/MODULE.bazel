@@ -6,21 +6,35 @@ Targets:
   //:emacs_ref_package — build any git ref/commit via EMACS_REF env var
   //:fonts             — bundle programming fonts for ~/.local/share/fonts/emacs/
 
+  bazel run targets (build + install/remove in one step):
+  //:install           — install stable Emacs 30.2 into ~/.local/
+  //:install_ref       — install ref/commit build (set EMACS_REF first)
+  //:install_fonts     — install programming fonts into ~/.local/share/fonts/emacs/
+  //:remove            — uninstall Emacs from ~/.local/
+  //:remove_fonts      — uninstall fonts from ~/.local/share/fonts/emacs/
+
 Prerequisites (install system packages first):
   sudo apt install $(grep -v '^#' ../emacs-pkgs-ubuntu24.txt | tr '\n' ' ')
 
 Usage:
   bazel --nohome_rc build //:emacs_package
   EMACS_REF=emacs-30.2 bazel --nohome_rc build //:emacs_ref_package
-  ./deploy.sh               # build stable + deploy to ~/.local/
-  ./deploy.sh --ref emacs-30.2
-  ./deploy_fonts.sh         # download and install programming fonts
+  bazel run //:install
+  EMACS_REF=emacs-30.2 bazel run //:install_ref
+  bazel run //:install_fonts
+  bazel run //:remove
+  bazel run //:remove_fonts
+  ./deploy.sh               # legacy: build stable + deploy to ~/.local/
+  ./deploy_fonts.sh         # legacy: download and install programming fonts
 """
 
 module(
     name = "emacs-build",
     version = "0.1.0",
 )
+
+# sh_binary for bazel run install/remove targets.
+bazel_dep(name = "rules_shell", version = "0.3.0")
 
 # Fetch Emacs source archives via our custom module extension.
 emacs_sources = use_extension("//:emacs_fetch.bzl", "emacs_sources")
