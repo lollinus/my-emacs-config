@@ -194,3 +194,26 @@ After installing Emacs by any path above:
 #+END_SRC
 
 First launch will auto-install all MELPA/ELPA packages. This takes a few minutes.
+
+* Uninstalling Emacs
+
+If Emacs was installed via the build script or Bazel (i.e. extracted into
+=~/.local/=), use the provided removal script:
+
+#+BEGIN_SRC sh
+  cd ~/.emacs.d/deployment/bazel
+  bash remove.sh           # removes Emacs 30.2 (default)
+  bash remove.sh 30.2      # explicit version
+#+END_SRC
+
+Or manually:
+
+#+BEGIN_SRC sh
+  VERSION=30.2
+  rm -f ~/.local/bin/{emacs,emacs-${VERSION},emacsclient,etags,ctags,ebrowse}
+  rm -rf ~/.local/{share,lib,libexec}/emacs/${VERSION}
+  rm -f ~/.local/share/glib-2.0/schemas/org.gnu.emacs.defaults.gschema.xml
+  glib-compile-schemas ~/.local/share/glib-2.0/schemas/ 2>/dev/null || true
+#+END_SRC
+
+The snap installation is removed with =sudo snap remove emacs=.
