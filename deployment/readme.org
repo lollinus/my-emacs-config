@@ -1,51 +1,162 @@
-#+TITLE:     Readme for deployment
+#+TITLE:     Emacs Deployment Guide
 #+AUTHOR:    Karol Barski
-#+EMAIL:     karol.barski@mobica.com
-#+DATE:      2012-10-13 So
+#+STARTUP:   showall
+#+OPTIONS:   H:3 num:t toc:t
 
+* Overview
 
-#+DESCRIPTION:
-#+KEYWORDS:
-#+STARTUP: showall
-#+LANGUAGE:  en
-#+OPTIONS:   H:3 num:t toc:t \n:nil @:t ::t |:t ^:t -:t f:t *:t <:t
-#+OPTIONS:   TeX:t LaTeX:t skip:nil d:nil todo:t pri:nil tags:not-in-toc
-#+INFOJS_OPT: view:nil toc:nil ltoc:t mouse:underline buttons:0 path:http://orgmode.org/org-info.js
-#+EXPORT_SELECT_TAGS: export
-#+EXPORT_EXCLUDE_TAGS: noexport
-#+LINK_UP:   
-#+LINK_HOME: 
-#+XSLT:
+Three ways to get a current Emacs on Ubuntu (Linux focus). Choose based on
+your needs:
 
+| Path              | File                          | Effort   | Reproducible | Notes                        |
+|-------------------+-------------------------------+----------+--------------+------------------------------|
+| Snap              | [[file:snap-ubuntu.md]]          | Minimal  | Auto-updates | Recommended for daily use    |
+| Script (stable)   | [[file:emacs-config-ubuntu24.sh]] | Medium   | Pinned ver.  | Emacs 30.2, installs ~/.local |
+| Script (git)      | same script, =--git= flag       | Medium   | No           | Bleeding-edge master branch  |
+| Bazel (stable)    | [[file:bazel/BUILD.bazel]]        | High     | Yes (SHA256) | Cached, reproducible         |
+| Bazel (git)       | same workspace, git target    | High     | No           | Bleeding-edge, no cache      |
 
-* Font
+Target: Ubuntu 24.04 LTS, Emacs 30.x.
 
-** Unifont
+* Path 1: Snap (recommended for daily use)
 
-Recommend to install fixed unicode font from [[http://unifoundry.com/unifont.html][unifoundry]] page.
-Link to latest version from date when this document was written
-[[http://unifoundry.com/pub/unifont/unifont-13.0.06/font-builds/unifont-13.0.06.ttf][unifont-13.0.06.ttf]]
+The simplest path. Tracks the latest Emacs stable release automatically.
 
-#+begin_src bash
-  apt install unifont
-#+end_src
-
-** DejaVu
-
-[[https://dejavu-fonts.github.io][DejaVu]] is another set of useful fonts to be used by my setup.
-
-Ubuntu install:
 #+BEGIN_SRC sh
-  apt install fonts-dejavu
-  apt install ttf-dejavu
+  sudo snap install emacs --classic
 #+END_SRC
 
-** Cantarell
+=--classic= is required for unrestricted filesystem access (GPG, tramp, vterm,
+native compilation cache).
 
-Yet another set of fonts used by my setup.
+See [[file:snap-ubuntu.md]] for full details including first-launch notes and =local.el= setup.
 
-Ubuntu install:
+* Path 2: Build from source — shell script
+
+** Prerequisites
+
+Install system packages once:
+
 #+BEGIN_SRC sh
-  apt install fonts-cantarell
+  sudo apt install $(grep -v '^#' emacs-pkgs-ubuntu24.txt | tr '\n' ' ')
 #+END_SRC
 
+See [[file:emacs-pkgs-ubuntu24.txt]] for the full annotated list.
+
+** Build stable Emacs 30.2
+
+#+BEGIN_SRC sh
+  ./emacs-config-ubuntu24.sh
+#+END_SRC
+
+Clones or downloads Emacs 30.2, configures, builds with =make -j$(nproc --ignore=2)=,
+and installs to =~/.local/=. Also produces a distributable =.tar.xz= and an uninstall script.
+
+Configure highlights:
+- =--with-pgtk= — Pure GTK; works on Wayland *and* X11
+- =--with-native-compilation=aot= — ahead-of-time native compilation
+- =--with-tree-sitter= — built-in tree-sitter support
+- =--with-sqlite3= — needed by org-roam and consult backends
+
+** Build latest git master (bleeding-edge)
+
+#+BEGIN_SRC sh
+  ./emacs-config-ubuntu24.sh --git
+#+END_SRC
+
+Shallow-clones =master= from =https://git.savannah.gnu.org/git/emacs.git=.
+Subsequent runs update the existing clone. Same configure flags as the stable path.
+
+*Warning:* master may be unstable between releases.
+
+** Add to PATH
+
+#+BEGIN_SRC sh
+  export PATH="${HOME}/.local/bin:${PATH}"
+  # Add to ~/.bashrc or ~/.profile to persist
+#+END_SRC
+
+* Path 3: Bazel build
+
+Bazel orchestrates fetching, building, and packaging Emacs. The stable build is
+content-addressed and cached — subsequent =bazel build= calls are instant if
+nothing has changed.
+
+** Prerequisites
+
+1. Install system packages (same as Path 2 above).
+
+2. Install Bazel 7+ (recommend using Bazelisk):
+   #+BEGIN_SRC sh
+     npm install -g @bazel/bazelisk   # or: go install github.com/bazelbuild/bazelisk@latest
+     # or download from https://github.com/bazelbuild/bazelisk/releases
+   #+END_SRC
+
+** Build stable Emacs 30.2
+
+#+BEGIN_SRC sh
+  cd deployment/bazel
+  bazel build //:emacs_package
+  # Output: bazel-bin/emacs-30.2-install.tar.xz
+#+END_SRC
+
+** Build latest git master
+
+#+BEGIN_SRC sh
+  cd deployment/bazel
+  bazel build //:emacs_git_package
+  # Output: bazel-bin/emacs-git-install.tar.xz
+#+END_SRC
+
+Git builds are never Bazel-cached (no SHA256 pin possible).
+
+** Deploy with Bazel run
+
+#+BEGIN_SRC sh
+  bazel run //:deploy        # stable → ~/.local/
+  bazel run //:deploy_git    # git master → ~/.local/
+#+END_SRC
+
+** Deploy with the convenience script
+
+#+BEGIN_SRC sh
+  ./deploy.sh         # stable
+  ./deploy.sh --git   # git master
+#+END_SRC
+
+* Fonts
+
+All paths require the same fonts. Install once:
+
+#+BEGIN_SRC sh
+  sudo apt install unifont fonts-dejavu fonts-cantarell
+  fc-cache -frv
+#+END_SRC
+
+To verify installed fonts:
+#+BEGIN_SRC sh
+  fc-list | grep -i "unifont\|dejavu\|cantarell"
+#+END_SRC
+
+** Manual font installation (without apt)
+
+Place =.ttf= files in =~/.local/share/fonts/= then run =fc-cache -frv=.
+
+- Unifont: https://unifoundry.com/unifont.html
+- DejaVu: https://dejavu-fonts.github.io
+- Cantarell: https://fonts.google.com/specimen/Cantarell
+
+* Configuration deployment
+
+After installing Emacs by any path above:
+
+#+BEGIN_SRC sh
+  # Clone this config (if not already present)
+  git clone <repo-url> ~/.emacs.d
+
+  # Copy the machine-local template and customise
+  cp ~/.emacs.d/local.el.example ~/.emacs.d/local.el
+  $EDITOR ~/.emacs.d/local.el
+#+END_SRC
+
+First launch will auto-install all MELPA/ELPA packages. This takes a few minutes.
