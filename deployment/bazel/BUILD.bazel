@@ -1,11 +1,6 @@
 """
 BUILD.bazel — Emacs source build orchestration via Bazel genrules.
 
-All genrule targets use local = True so they can access system apt packages
-(libgccjit-13, libtree-sitter, libgtk-3, etc.) that Bazel cannot manage.
-This is intentional: system dependencies are documented in emacs-pkgs-ubuntu24.txt
-and are expected to be pre-installed.
-
 Targets
 -------
   //:emacs_package      Build Emacs 30.2 (stable tarball) → emacs-30.2-install.tar.xz
@@ -75,17 +70,18 @@ GIT_URL = "https://git.savannah.gnu.org/git/emacs.git"
 
 genrule(
     name = "emacs_package",
-    srcs = ["@emacs_src//:all"],
+    srcs = [
+        "@emacs_src//:all",
+        "@emacs_src//:configure",
+    ],
     outs = ["emacs-30.2-install.tar.xz"],
     cmd = """
         set -euo pipefail
 
-        # Locate the extracted source root from the filegroup.
-        SRCS_LIST="$(locations @emacs_src//:all)"
-        SRC_ROOT=$$(dirname $$(echo $$SRCS_LIST | tr ' ' '\\n' | head -1))
-        while [[ ! -f "$$SRC_ROOT/configure" && ! -f "$$SRC_ROOT/autogen.sh" ]]; do
-            SRC_ROOT=$$(dirname $$SRC_ROOT)
-        done
+        # Locate the source root via the single exported 'configure' file path.
+        # This avoids embedding all source paths ($$(locations :all) = 444KB).
+        CONFIGURE_PATH="$(location @emacs_src//:configure)"
+        SRC_ROOT="$$(realpath $$(dirname "$$CONFIGURE_PATH"))"
 
         WORK=$$(mktemp -d)
         INSTALL_DIR="$$WORK/install"
@@ -154,59 +150,13 @@ genrule(
 
 # ---------------------------------------------------------------------------
 # Deploy targets
+#
+# Bazel 9 removed sh_binary from the built-in rule set (it now lives in
+# rules_shell). Rather than add that dependency, deployment is handled by
+# deploy.sh in this directory, which builds the appropriate target and
+# extracts the resulting tarball into ~/.local/.
+#
+# Usage:
+#   ./deploy.sh              # stable 30.2
+#   ./deploy.sh --ref REF    # any git ref / commit SHA
 # ---------------------------------------------------------------------------
-
-genrule(
-    name = "deploy_script",
-    srcs = [":emacs_package"],
-    outs = ["deploy.sh"],
-    cmd = """
-        cat > "$@" << 'EOF'
-#!/usr/bin/env bash
-set -euo pipefail
-TARBALL="$(rootpath :emacs_package)"
-PREFIX="${HOME}/.local"
-echo "==> Deploying Emacs 30.2 (stable) to $$PREFIX"
-mkdir -p "$$PREFIX"
-tar -xJf "$$TARBALL" -C "$$PREFIX"
-update-desktop-database "$$PREFIX/share/applications" 2>/dev/null || true
-echo "==> Done: $$($$PREFIX/bin/emacs --version | head -1)"
-echo "    Add $$PREFIX/bin to PATH if not already present."
-EOF
-        chmod +x "$@"
-    """,
-)
-
-genrule(
-    name = "deploy_ref_script",
-    srcs = [":emacs_ref_package"],
-    outs = ["deploy_ref.sh"],
-    cmd = """
-        cat > "$@" << 'EOF'
-#!/usr/bin/env bash
-set -euo pipefail
-TARBALL="$(rootpath :emacs_ref_package)"
-PREFIX="${HOME}/.local"
-REF="${EMACS_REF:-master}"
-echo "==> Deploying Emacs ref '$$REF' to $$PREFIX"
-mkdir -p "$$PREFIX"
-tar -xJf "$$TARBALL" -C "$$PREFIX"
-update-desktop-database "$$PREFIX/share/applications" 2>/dev/null || true
-echo "==> Done: $$($$PREFIX/bin/emacs --version | head -1)"
-echo "    Add $$PREFIX/bin to PATH if not already present."
-EOF
-        chmod +x "$@"
-    """,
-)
-
-sh_binary(
-    name = "deploy",
-    srcs = [":deploy_script"],
-    data = [":emacs_package"],
-)
-
-sh_binary(
-    name = "deploy_ref",
-    srcs = [":deploy_ref_script"],
-    data = [":emacs_ref_package"],
-)

@@ -39,12 +39,12 @@ if [[ -n "${EMACS_REF}" ]]; then
     FORCE_FLAG="--action_env=EMACS_REF_FORCE=$(date +%s)"
   fi
   # shellcheck disable=SC2086
-  EMACS_REF="${EMACS_REF}" bazel build //:emacs_ref_package ${FORCE_FLAG}
-  TARBALL="$(bazel info bazel-bin)/emacs-ref-install.tar.xz"
+  EMACS_REF="${EMACS_REF}" bazel --nohome_rc build //:emacs_ref_package ${FORCE_FLAG}
+  TARBALL="$(bazel --nohome_rc info bazel-bin)/emacs-ref-install.tar.xz"
 else
   echo "==> Building Emacs 30.2 (stable)"
-  bazel build //:emacs_package
-  TARBALL="$(bazel info bazel-bin)/emacs-30.2-install.tar.xz"
+  bazel --nohome_rc build //:emacs_package
+  TARBALL="$(bazel --nohome_rc info bazel-bin)/emacs-30.2-install.tar.xz"
 fi
 
 echo "==> Deploying to ${PREFIX}"
