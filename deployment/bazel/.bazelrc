@@ -1,0 +1,17 @@
+# Bazel flags for the Emacs build
+#
+# The Emacs build wraps GNU autoconf/make and needs access to system apt
+# packages (libgccjit, libtree-sitter, libgtk-3, etc.), so sandboxing is
+# disabled for the genrule targets via local = True in BUILD.bazel.
+
+# Use bzlmod (MODULE.bazel) as the dependency system — required for Bazel 7+.
+common --enable_bzlmod
+
+# Keep Bazel output readable during long builds.
+common --show_progress_rate_limit=5
+
+# Allow genrules that use local=True to write to the home directory.
+build --sandbox_writable_path=/tmp
+
+# Print test output on failure.
+test --test_output=errors

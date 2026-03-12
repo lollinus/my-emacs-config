@@ -1,0 +1,177 @@
+"""
+BUILD.bazel — Emacs source build orchestration via Bazel genrules.
+
+All genrule targets use local = True so they can access system apt packages
+(libgccjit-13, libtree-sitter, libgtk-3, etc.) that Bazel cannot manage.
+This is intentional: system dependencies are documented in emacs-pkgs-ubuntu24.txt
+and are expected to be pre-installed.
+
+Targets
+-------
+  //:emacs_package      Build Emacs 30.2 (stable) → emacs-30.2-install.tar.xz
+  //:emacs_git_package  Build Emacs master (git)  → emacs-git-YYYYMMDD-install.tar.xz
+  //:deploy             Install stable build into $HOME/.local/
+  //:deploy_git         Install git-master build into $HOME/.local/
+"""
+
+load("@bazel_skylib//rules:native_binary.bzl", "native_binary")
+
+# ---------------------------------------------------------------------------
+# Common configure flags (written as a shell variable for reuse)
+# ---------------------------------------------------------------------------
+
+CONFIGURE_FLAGS = " ".join([
+    "--with-pgtk",
+    "--with-native-compilation=aot",
+    "--with-tree-sitter",
+    "--with-json",
+    "--with-modules",
+    "--with-sqlite3",
+    "--with-harfbuzz",
+    "--with-compress-install",
+    "--with-threads",
+    "--with-rsvg",
+    "--with-jpeg",
+    "--with-png",
+    "--with-gif",
+    "--with-tiff",
+    "--with-xpm",
+    "--with-gnutls",
+    "--with-dbus",
+    "--with-mailutils",
+])
+
+# ---------------------------------------------------------------------------
+# Stable build (Emacs 30.2 tarball via @emacs_src)
+# ---------------------------------------------------------------------------
+
+genrule(
+    name = "emacs_package",
+    srcs = ["@emacs_src//:all"],
+    outs = ["emacs-30.2-install.tar.xz"],
+    cmd = """
+        set -euo pipefail
+
+        # Locate the extracted source root (first file gives us the path).
+        SRCS_LIST="$(locations @emacs_src//:all)"
+        SRC_ROOT=$$(dirname $$(echo $$SRCS_LIST | tr ' ' '\\n' | head -1))
+        # Walk up until we find configure or autogen.sh.
+        while [[ ! -f "$$SRC_ROOT/configure" && ! -f "$$SRC_ROOT/autogen.sh" ]]; do
+            SRC_ROOT=$$(dirname $$SRC_ROOT)
+        done
+
+        WORK=$$(mktemp -d)
+        INSTALL_DIR="$$WORK/install"
+        BUILD_DIR="$$WORK/build"
+        mkdir -p "$$INSTALL_DIR" "$$BUILD_DIR"
+
+        # Copy source to a writable build directory (source tree is read-only in Bazel).
+        cp -a "$$SRC_ROOT/." "$$BUILD_DIR/"
+        cd "$$BUILD_DIR"
+
+        [[ -x ./autogen.sh ]] && ./autogen.sh
+
+        CC=clang ./configure --prefix="$$INSTALL_DIR" """ + CONFIGURE_FLAGS + """
+
+        make -j$$(nproc --ignore=2)
+        make install
+
+        tar -cJf "$@" -C "$$INSTALL_DIR" .
+        rm -rf "$$WORK"
+    """,
+    # local = True: disable sandbox so system libraries are reachable.
+    local = True,
+)
+
+# ---------------------------------------------------------------------------
+# Git master build (bleeding-edge — clones at build time, not cached)
+# ---------------------------------------------------------------------------
+
+genrule(
+    name = "emacs_git_package",
+    srcs = [],
+    outs = ["emacs-git-install.tar.xz"],
+    cmd = """
+        set -euo pipefail
+
+        WORK=$$(mktemp -d)
+        INSTALL_DIR="$$WORK/install"
+        BUILD_DIR="$$WORK/build"
+        mkdir -p "$$INSTALL_DIR" "$$BUILD_DIR"
+
+        echo "==> Cloning Emacs git master (WARNING: bleeding-edge, may be unstable)"
+        git clone --depth 1 --branch master \\
+            https://git.savannah.gnu.org/git/emacs.git "$$BUILD_DIR"
+
+        cd "$$BUILD_DIR"
+        ./autogen.sh
+
+        CC=clang ./configure --prefix="$$INSTALL_DIR" """ + CONFIGURE_FLAGS + """
+
+        make -j$$(nproc --ignore=2)
+        make install
+
+        tar -cJf "$@" -C "$$INSTALL_DIR" .
+        rm -rf "$$WORK"
+    """,
+    local = True,
+)
+
+# ---------------------------------------------------------------------------
+# Deploy targets (bazel run //:deploy  or  bazel run //:deploy_git)
+# Each script extracts the tarball into $HOME/.local/ at runtime.
+# ---------------------------------------------------------------------------
+
+genrule(
+    name = "deploy_script",
+    srcs = [":emacs_package"],
+    outs = ["deploy.sh"],
+    cmd = """
+        cat > "$@" << 'EOF'
+#!/usr/bin/env bash
+set -euo pipefail
+TARBALL="$(rootpath :emacs_package)"
+PREFIX="${{HOME}}/.local"
+echo "==> Deploying Emacs to $$PREFIX"
+mkdir -p "$$PREFIX"
+tar -xJf "$$TARBALL" -C "$$PREFIX"
+update-desktop-database "$$PREFIX/share/applications" 2>/dev/null || true
+echo "==> Done: $$($$PREFIX/bin/emacs --version | head -1)"
+echo "    Add $$PREFIX/bin to PATH if not already present."
+EOF
+        chmod +x "$@"
+    """,
+)
+
+genrule(
+    name = "deploy_git_script",
+    srcs = [":emacs_git_package"],
+    outs = ["deploy_git.sh"],
+    cmd = """
+        cat > "$@" << 'EOF'
+#!/usr/bin/env bash
+set -euo pipefail
+TARBALL="$(rootpath :emacs_git_package)"
+PREFIX="${{HOME}}/.local"
+echo "==> Deploying Emacs (git master) to $$PREFIX"
+mkdir -p "$$PREFIX"
+tar -xJf "$$TARBALL" -C "$$PREFIX"
+update-desktop-database "$$PREFIX/share/applications" 2>/dev/null || true
+echo "==> Done: $$($$PREFIX/bin/emacs --version | head -1)"
+echo "    Add $$PREFIX/bin to PATH if not already present."
+EOF
+        chmod +x "$@"
+    """,
+)
+
+sh_binary(
+    name = "deploy",
+    srcs = [":deploy_script"],
+    data = [":emacs_package"],
+)
+
+sh_binary(
+    name = "deploy_git",
+    srcs = [":deploy_git_script"],
+    data = [":emacs_git_package"],
+)

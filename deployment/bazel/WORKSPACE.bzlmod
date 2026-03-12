@@ -1,0 +1,3 @@
+# This file intentionally left empty.
+# Required by Bazel 7+ when using bzlmod (MODULE.bazel).
+# See: https://bazel.build/external/migration

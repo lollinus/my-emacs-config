@@ -1,0 +1,36 @@
+"""
+Bazel build for GNU Emacs.
+
+Targets:
+  //:emacs_stable   — build Emacs 30.2 from the official GNU tarball (reproducible)
+  //:emacs_git      — build latest Emacs from git master (bleeding-edge)
+  //:emacs_package  — produce a relocatable emacs-install.tar.xz in bazel-bin/
+  //:deploy         — extract the package into ~/.local/ (run with: bazel run //:deploy)
+
+Prerequisites (system apt packages must be installed before any bazel build):
+  sudo apt install $(grep -v '^#' ../emacs-pkgs-ubuntu24.txt | tr '\\n' ' ')
+
+Usage:
+  bazel build //:emacs_package          # build stable, produce tarball
+  bazel build //:emacs_package --git    # not applicable; use the :emacs_git_package target
+  bazel build //:emacs_git_package      # build from git master
+  bazel run   //:deploy                 # build stable + deploy to ~/.local/
+  bazel run   //:deploy_git             # build git master + deploy to ~/.local/
+"""
+
+module(
+    name = "emacs-build",
+    version = "0.1.0",
+)
+
+bazel_dep(name = "bazel_skylib", version = "1.7.1")
+
+# Fetch Emacs source archives via our custom module extension.
+emacs_sources = use_extension("//:emacs_fetch.bzl", "emacs_sources")
+emacs_sources.stable(
+    sha256 = "a3e3f0ff36f3b0b80178c3f9c928c0e41b9206ec4c599546ce2a4a098e5dc7c1",
+    strip_prefix = "emacs-30.2",
+    url = "https://ftp.gnu.org/gnu/emacs/emacs-30.2.tar.xz",
+    version = "30.2",
+)
+use_repo(emacs_sources, "emacs_src")
