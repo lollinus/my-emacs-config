@@ -190,3 +190,39 @@ genrule(
 #   ./deploy.sh              # stable 30.2
 #   ./deploy.sh --ref REF    # any git ref / commit SHA
 # ---------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------
+# Fonts target
+#
+# Downloads programming fonts via Bazel (JetBrains Mono, Fira Code,
+# Noto Sans Mono) and bundles them into fonts.tar.gz.
+#
+# Usage:
+#   bazel --nohome_rc build //:fonts
+#   ./deploy_fonts.sh    # build + install to ~/.local/share/fonts/emacs/
+# ---------------------------------------------------------------------------
+
+genrule(
+    name = "fonts",
+    srcs = [
+        "@font_jetbrains_mono//:ttf_files",
+        "@font_fira_code//:ttf_files",
+        "@font_noto_sans_mono_regular//file",
+        "@font_noto_sans_mono_bold//file",
+    ],
+    outs = ["fonts.tar.gz"],
+    cmd = """
+        set -euo pipefail
+        OUTPUT_ABS="$$PWD/$@"
+        STAGING="$$(mktemp -d)"
+        trap 'rm -rf "$$STAGING"' EXIT
+
+        # $(SRCS) expands to all source file paths (execroot-relative).
+        # Copy each font into the flat staging directory.
+        for f in $(SRCS); do
+            cp "$$f" "$$STAGING/$$(basename $$f)"
+        done
+
+        tar -czf "$$OUTPUT_ABS" -C "$$STAGING" .
+    """,
+)
