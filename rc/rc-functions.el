@@ -393,6 +393,74 @@ ON-SUCCESS-MSG is an optional string appended to the success notification."
                                     (if on-success-msg (concat " " on-success-msg) ""))
                          (message "**** %s install FAILED" package)))))))
 
+;;--------------------------------------------------------------------------------
+;; Font installation helper
+;;--------------------------------------------------------------------------------
+
+;;;###autoload
+(defun kb/font-ensure (font-name url &optional sha256 no-fc-cache)
+  "Install the font FONT-NAME from URL if it is not already available.
+
+SHA256 is the optional expected checksum of the downloaded file.  When
+provided the download is verified before installation; when omitted the
+checksum step is skipped.  Two archive types are supported based on the
+URL suffix:
+  .zip  — extracted with unzip; all *.ttf files found recursively are copied.
+  .ttf  — the file is downloaded directly as a single font file.
+
+When NO-FC-CACHE is non-nil, skip running fc-cache after installation.
+Fontconfig will discover the font lazily on the next Emacs start without
+an explicit cache rebuild, so this is safe to skip.
+
+Fonts are installed to ~/.local/share/fonts/emacs/ (the same location
+used by deploy_fonts.sh and deploy_fonts_no_bazel.sh).  Installation
+runs asynchronously via a subprocess so it does not block Emacs startup.
+Does nothing when running in a terminal (non-graphic display).
+
+A restart of Emacs is required for newly installed fonts to be picked
+up by `find-font' and `default-frame-alist'."
+  (when (display-graphic-p)
+    (unless (find-font (font-spec :name font-name))
+      (let* ((font-dir (expand-file-name
+                      "fonts/emacs"
+                      (or (getenv "XDG_DATA_HOME") "~/.local/share")))
+           (is-zip (string-suffix-p ".zip" url))
+           (ext     (if is-zip ".zip" ".ttf"))
+           (tmp     (make-temp-file "emacs-font-" nil ext))
+           (verify  (when sha256
+                      (format "printf '%%s  %%s\\n' %s %s | sha256sum -c --quiet\n"
+                              sha256 (shell-quote-argument tmp))))
+           (fccache (unless no-fc-cache
+                      (format "fc-cache -f %s\n" (shell-quote-argument font-dir))))
+           (script
+            (if is-zip
+                (concat "set -e\n"
+                        (format "mkdir -p %s\n" (shell-quote-argument font-dir))
+                        (format "curl -fsSL -o %s %s\n" (shell-quote-argument tmp) (shell-quote-argument url))
+                        (or verify "")
+                        "xtmp=$(mktemp -d)\n"
+                        (format "unzip -q %s '*.ttf' -d \"$xtmp\"\n" (shell-quote-argument tmp))
+                        (format "find \"$xtmp\" -name '*.ttf' -exec cp {} %s/ \\;\n" (shell-quote-argument font-dir))
+                        (format "rm -rf \"$xtmp\" %s\n" (shell-quote-argument tmp))
+                        (or fccache ""))
+              (concat "set -e\n"
+                      (format "mkdir -p %s\n" (shell-quote-argument font-dir))
+                      (format "curl -fsSL -o %s %s\n" (shell-quote-argument tmp) (shell-quote-argument url))
+                      (or verify "")
+                      (format "cp %s %s/\n" (shell-quote-argument tmp) (shell-quote-argument font-dir))
+                      (format "rm -f %s\n" (shell-quote-argument tmp))
+                      (or fccache "")))))
+      (message "*** Installing font '%s' ..." font-name)
+      (make-process
+       :name     (format "kb/font-install:%s" font-name)
+       :buffer   (format " *font-install:%s*" font-name)
+       :command  (list "bash" "-c" script)
+       :sentinel (lambda (_proc event)
+                   (if (string-match-p "finished" event)
+                       (message "*** Font '%s' installed — restart Emacs to activate it." font-name)
+                     (message "*** Font '%s' install FAILED — see buffer ' *font-install:%s*'"
+                              font-name font-name))))))))
+
 (provide 'rc-functions)
 
 ;;; rc-functions.el ends here
