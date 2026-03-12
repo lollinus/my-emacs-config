@@ -184,11 +184,11 @@ subsequent calls are instant.
 
 Fonts included (all [[https://scripts.sil.org/OFL][SIL Open Font License 1.1]]):
 
-| Font | Version | Description |
-|---|---|---|
-| *JetBrains Mono* | 2.304 | Full family + NL (no-ligature) variant, all weights |
-| *Fira Code* | 6.2 | Programming ligatures, all weights |
-| *Noto Sans Mono* | (latest) | Wide Unicode coverage; fallback for missing glyphs |
+| Font           |  Version | Description                                         |
+|----------------+----------+-----------------------------------------------------|
+| *JetBrains Mono* |    2.304 | Full family + NL (no-ligature) variant, all weights |
+| *Fira Code*      |      6.2 | Programming ligatures, all weights                  |
+| *Noto Sans Mono* | (latest) | Wide Unicode coverage; fallback for missing glyphs  |
 
 To set a font in Emacs:
 
@@ -197,6 +197,22 @@ To set a font in Emacs:
   ;; or in early-init.el / local.el:
   (add-to-list 'default-frame-alist '(font . "Fira Code-12"))
 #+END_SRC
+
+** Without Bazel (curl-based)
+
+If Bazel is not available, use the companion script that downloads the same
+fonts directly with =curl= and verifies their SHA256 checksums:
+
+#+BEGIN_SRC sh
+  cd ~/.emacs.d/deployment/bazel
+  ./deploy_fonts_no_bazel.sh              # download and install all fonts
+  ./deploy_fonts_no_bazel.sh --list       # list installed fonts
+  ./deploy_fonts_no_bazel.sh --remove     # uninstall
+#+END_SRC
+
+Requires: =curl=, =unzip=, =sha256sum=, =fc-cache= (all standard on Ubuntu).
+Fonts are installed to the same location (~/.local/share/fonts/emacs/) and the
+same SHA256 hashes are verified, giving equivalent results to the Bazel path.
 
 ** System fonts (apt)
 
