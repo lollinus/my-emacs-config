@@ -4,6 +4,7 @@ Bazel build for GNU Emacs.
 Targets:
   //:emacs_package     — build Emacs 30.2 from the official tarball (reproducible)
   //:emacs_ref_package — build any git ref/commit via EMACS_REF env var
+  //:fonts             — bundle programming fonts for ~/.local/share/fonts/emacs/
 
 Prerequisites (install system packages first):
   sudo apt install $(grep -v '^#' ../emacs-pkgs-ubuntu24.txt | tr '\n' ' ')
@@ -13,6 +14,7 @@ Usage:
   EMACS_REF=emacs-30.2 bazel --nohome_rc build //:emacs_ref_package
   ./deploy.sh               # build stable + deploy to ~/.local/
   ./deploy.sh --ref emacs-30.2
+  ./deploy_fonts.sh         # download and install programming fonts
 """
 
 module(
@@ -29,3 +31,57 @@ emacs_sources.stable(
     version = "30.2",
 )
 use_repo(emacs_sources, "emacs_src")
+
+# ---------------------------------------------------------------------------
+# Font downloads — programming fonts installed to ~/.local/share/fonts/emacs/
+# via //:fonts target and deploy_fonts.sh.  All fonts are released under the
+# SIL Open Font License (OFL).
+# ---------------------------------------------------------------------------
+
+http_archive = use_repo_rule("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+http_file    = use_repo_rule("@bazel_tools//tools/build_defs/repo:http.bzl", "http_file")
+
+# JetBrains Mono 2.304 — monospace with ligatures, excellent readability.
+# https://www.jetbrains.com/lp/mono/
+http_archive(
+    name   = "font_jetbrains_mono",
+    url    = "https://github.com/JetBrains/JetBrainsMono/releases/download/v2.304/JetBrainsMono-2.304.zip",
+    sha256 = "6f6376c6ed2960ea8a963cd7387ec9d76e3f629125bc33d1fdcd7eb7012f7bbf",
+    build_file_content = """
+filegroup(
+    name = "ttf_files",
+    srcs = glob(["fonts/ttf/*.ttf"]),
+    visibility = ["//visibility:public"],
+)
+""",
+)
+
+# Fira Code 6.2 — monospace with programming ligatures.
+# https://github.com/tonsky/FiraCode
+http_archive(
+    name   = "font_fira_code",
+    url    = "https://github.com/tonsky/FiraCode/releases/download/6.2/Fira_Code_v6.2.zip",
+    sha256 = "0949915ba8eb24d89fd93d10a7ff623f42830d7c5ffc3ecbf960e4ecad3e3e79",
+    build_file_content = """
+filegroup(
+    name = "ttf_files",
+    srcs = glob(["ttf/*.ttf"]),
+    visibility = ["//visibility:public"],
+)
+""",
+)
+
+# Noto Sans Mono — wide Unicode coverage; excellent fallback / UI font.
+# https://github.com/googlefonts/noto-fonts
+http_file(
+    name = "font_noto_sans_mono_regular",
+    url  = "https://github.com/googlefonts/noto-fonts/raw/main/hinted/ttf/NotoSansMono/NotoSansMono-Regular.ttf",
+    sha256 = "d9e2b23d19f8230be7146f409a52b1d23117e635e28f2e2892cf91b7382f325b",
+    downloaded_file_path = "NotoSansMono-Regular.ttf",
+)
+http_file(
+    name = "font_noto_sans_mono_bold",
+    url  = "https://github.com/googlefonts/noto-fonts/raw/main/hinted/ttf/NotoSansMono/NotoSansMono-Bold.ttf",
+    sha256 = "beb857bd799a114de7d5d90cc75cc69f4b6ee8d401f4ab20697e6f9719a66dfc",
+    downloaded_file_path = "NotoSansMono-Bold.ttf",
+)
