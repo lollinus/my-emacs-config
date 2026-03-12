@@ -1,0 +1,51 @@
+# System packages required to build Emacs 30.x from source on Ubuntu 24.04 LTS
+# Install with: sudo apt install $(grep -v '^#' emacs-pkgs-ubuntu24.txt | tr '\n' ' ')
+
+# Core build tools
+build-essential
+autoconf
+automake
+texinfo
+clang
+
+# Native compilation (libgccjit required for --with-native-compilation=aot)
+libgccjit0
+libgccjit-13-dev
+
+# Tree-sitter (required for --with-tree-sitter)
+libtree-sitter-dev
+
+# GUI / display — Pure GTK (supports both Wayland and X11)
+libgtk-3-dev
+
+# Text shaping / font rendering
+libharfbuzz-dev
+libharfbuzz-bin
+
+# Image format support
+libjpeg-dev
+libpng-dev
+libtiff5-dev
+libgif-dev
+libxpm-dev
+librsvg2-dev
+
+# TLS / security
+libgnutls28-dev
+
+# JSON (for --with-json)
+libjansson-dev
+
+# SQLite (for org-roam, consult, etc.)
+libsqlite3-dev
+
+# XML / misc
+libxml2-dev
+libncurses-dev
+libacl1-dev
+
+# Sound (optional but commonly needed)
+libasound2-dev
+
+# vterm terminal emulator support
+libvterm-dev
