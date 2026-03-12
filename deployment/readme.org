@@ -166,25 +166,46 @@ Compiler can also be passed via environment variable:
 
 * Fonts
 
-All paths require the same fonts. Install once:
+** Bazel-managed fonts (recommended)
+
+The =deployment/bazel= directory includes a =//:fonts= target that downloads
+and installs programming fonts using Bazel — no =apt= or manual downloads needed.
 
 #+BEGIN_SRC sh
-  sudo apt install unifont fonts-dejavu fonts-cantarell
-  fc-cache -frv
+  cd ~/.emacs.d/deployment/bazel
+  ./deploy_fonts.sh              # download and install all fonts
+  ./deploy_fonts.sh --list       # list installed fonts
+  ./deploy_fonts.sh --remove     # uninstall (removes ~/.local/share/fonts/emacs/)
 #+END_SRC
 
-To verify installed fonts:
+Fonts are installed to =~/.local/share/fonts/emacs/= (isolated from system fonts).
+=fc-cache= is run automatically. Bazel caches all downloads by SHA256, so
+subsequent calls are instant.
+
+Fonts included (all [[https://scripts.sil.org/OFL][SIL Open Font License 1.1]]):
+
+| Font | Version | Description |
+|---|---|---|
+| *JetBrains Mono* | 2.304 | Full family + NL (no-ligature) variant, all weights |
+| *Fira Code* | 6.2 | Programming ligatures, all weights |
+| *Noto Sans Mono* | (latest) | Wide Unicode coverage; fallback for missing glyphs |
+
+To set a font in Emacs:
+
+#+BEGIN_SRC emacs-lisp
+  (set-face-attribute 'default nil :font "JetBrains Mono-12")
+  ;; or in early-init.el / local.el:
+  (add-to-list 'default-frame-alist '(font . "Fira Code-12"))
+#+END_SRC
+
+** System fonts (apt)
+
+For UI fonts used by GTK (menus, dialogs), install via apt:
+
 #+BEGIN_SRC sh
-  fc-list | grep -i "unifont\|dejavu\|cantarell"
+  sudo apt install fonts-dejavu fonts-cantarell
+  fc-cache -f
 #+END_SRC
-
-** Manual font installation (without apt)
-
-Place =.ttf= files in =~/.local/share/fonts/= then run =fc-cache -frv=.
-
-- Unifont: https://unifoundry.com/unifont.html
-- DejaVu: https://dejavu-fonts.github.io
-- Cantarell: https://fonts.google.com/specimen/Cantarell
 
 * Configuration deployment
 
