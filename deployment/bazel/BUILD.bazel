@@ -45,7 +45,6 @@ CONFIGURE_FLAGS = " ".join([
     "--with-pgtk",
     "--with-native-compilation=aot",
     "--with-tree-sitter",
-    "--with-json",
     "--with-modules",
     "--with-sqlite3",
     "--with-harfbuzz",
@@ -78,25 +77,40 @@ genrule(
     cmd = """
         set -euo pipefail
 
+        # Capture absolute output path before any cd (Bazel's $@ is execroot-relative).
+        OUTPUT_ABS="$$PWD/$@"
+
+        # Establish the real home dir — genrule env strips $$HOME.
+        REAL_HOME="/home/$$(whoami)"
+        PREFIX="$$REAL_HOME/.local"
+
         # Locate the source root via the single exported 'configure' file path.
         # This avoids embedding all source paths ($$(locations :all) = 444KB).
         CONFIGURE_PATH="$(location @emacs_src//:configure)"
         SRC_ROOT="$$(realpath $$(dirname "$$CONFIGURE_PATH"))"
 
         WORK=$$(mktemp -d)
-        INSTALL_DIR="$$WORK/install"
+        STAGING_DIR="$$WORK/staging"
         BUILD_DIR="$$WORK/build"
-        mkdir -p "$$INSTALL_DIR" "$$BUILD_DIR"
+        mkdir -p "$$STAGING_DIR" "$$BUILD_DIR"
 
         cp -a "$$SRC_ROOT/." "$$BUILD_DIR/"
         cd "$$BUILD_DIR"
 
-        [[ -x ./autogen.sh ]] && ./autogen.sh
-        CC=clang ./configure --prefix="$$INSTALL_DIR" """ + CONFIGURE_FLAGS + """
-        make -j$$(nproc --ignore=2)
-        make install
+        # libgccjit has no pkg-config file; it lives under the GCC lib dir.
+        # Detect the active GCC version and expose headers + .so to configure.
+        GCC_VER=$$(/usr/bin/gcc -dumpversion | cut -d. -f1)
+        GCC_LIBDIR="/usr/lib/gcc/x86_64-linux-gnu/$${GCC_VER}"
+        export CPPFLAGS="-I$${GCC_LIBDIR}/include"
+        export LDFLAGS="-L$${GCC_LIBDIR} -Wl,-rpath,$${GCC_LIBDIR}"
 
-        tar -cJf "$@" -C "$$INSTALL_DIR" .
+        [[ -x ./autogen.sh ]] && ./autogen.sh
+        CC=clang ./configure --prefix="$$PREFIX" """ + CONFIGURE_FLAGS + """
+        make -j$$(nproc --ignore=2)
+        # DESTDIR stages files under staging/<prefix>; internal paths still say <prefix>.
+        make install DESTDIR="$$STAGING_DIR"
+
+        tar -cJf "$$OUTPUT_ABS" -C "$$STAGING_DIR$$PREFIX" .
         rm -rf "$$WORK"
     """,
     # local = True: disable sandbox so system libraries are reachable.
@@ -116,13 +130,20 @@ genrule(
     cmd = """
         set -euo pipefail
 
+        # Capture absolute output path before any cd (Bazel's $@ is execroot-relative).
+        OUTPUT_ABS="$$PWD/$@"
+
+        # Establish the real home dir — genrule env strips $$HOME.
+        REAL_HOME="/home/$$(whoami)"
+        PREFIX="$$REAL_HOME/.local"
+
         REF="$${EMACS_REF:-master}"
         GIT_URL=""" + '"' + GIT_URL + '"' + """
 
         WORK=$$(mktemp -d)
-        INSTALL_DIR="$$WORK/install"
+        STAGING_DIR="$$WORK/staging"
         BUILD_DIR="$$WORK/build"
-        mkdir -p "$$INSTALL_DIR"
+        mkdir -p "$$STAGING_DIR"
 
         # Detect whether REF is a commit SHA (hex-only, 7-40 chars).
         # SHAs cannot be shallow-cloned from Savannah, so we use a partial
@@ -138,11 +159,15 @@ genrule(
 
         cd "$$BUILD_DIR"
         ./autogen.sh
-        CC=clang ./configure --prefix="$$INSTALL_DIR" """ + CONFIGURE_FLAGS + """
+        GCC_VER=$$(/usr/bin/gcc -dumpversion | cut -d. -f1)
+        GCC_LIBDIR="/usr/lib/gcc/x86_64-linux-gnu/$${GCC_VER}"
+        export CPPFLAGS="-I$${GCC_LIBDIR}/include"
+        export LDFLAGS="-L$${GCC_LIBDIR} -Wl,-rpath,$${GCC_LIBDIR}"
+        CC=clang ./configure --prefix="$$PREFIX" """ + CONFIGURE_FLAGS + """
         make -j$$(nproc --ignore=2)
-        make install
+        make install DESTDIR="$$STAGING_DIR"
 
-        tar -cJf "$@" -C "$$INSTALL_DIR" .
+        tar -cJf "$$OUTPUT_ABS" -C "$$STAGING_DIR$$PREFIX" .
         rm -rf "$$WORK"
     """,
     local = True,

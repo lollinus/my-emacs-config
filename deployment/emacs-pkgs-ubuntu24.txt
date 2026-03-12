@@ -25,7 +25,7 @@ libharfbuzz-bin
 # Image format support
 libjpeg-dev
 libpng-dev
-libtiff5-dev
+libtiff-dev
 libgif-dev
 libxpm-dev
 librsvg2-dev
