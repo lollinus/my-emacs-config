@@ -63,7 +63,10 @@
                   ,@leaf--body)
        :mason   `((eval-after-load ',leaf--name
                     (lambda () ,@(mapcar (lambda (spec) `(kb/mason-ensure ,@spec)) leaf--value)))
-                  ,@leaf--body))))))
+                  ,@leaf--body)
+       :font    `((eval-after-load ',leaf--name
+                    (lambda () ,@(mapcar (lambda (spec) `(kb/font-ensure ,@spec)) leaf--value)))
+                  ,@leaf--body)))))))
 ;; </leaf-install-code>
 ;; =========================== leaf bootstrap ==========================
 
@@ -75,6 +78,7 @@
 (add-to-list 'load-path (expand-file-name "rc" user-emacs-directory))
 (autoload 'kb/treesit-ensure "rc-functions" nil t)
 (autoload 'kb/mason-ensure "rc-functions" nil t)
+(autoload 'kb/font-ensure "rc-functions" nil t)
 
 ;; Contrary to what many Emacs users have in their configs, you don't need
 ;; more than this to make UTF-8 the default coding system:
