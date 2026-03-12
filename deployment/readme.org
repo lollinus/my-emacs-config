@@ -141,21 +141,27 @@ commit. To force a fresh build after upstream advances:
   EMACS_REF=master EMACS_REF_FORCE=$(date +%s) bazel build //:emacs_ref_package
 #+END_SRC
 
-** Deploy with Bazel run
-
-#+BEGIN_SRC sh
-  bazel run //:deploy                              # stable 30.2 → ~/.local/
-  EMACS_REF=emacs-30 bazel run //:deploy_ref      # any ref → ~/.local/
-#+END_SRC
-
 ** Deploy with the convenience script
 
 #+BEGIN_SRC sh
-  ./deploy.sh                      # stable 30.2
-  ./deploy.sh --ref master         # git master
-  ./deploy.sh --ref emacs-30       # release branch
-  ./deploy.sh --ref a1b2c3d4       # specific commit
-  ./deploy.sh --ref master --force # force rebuild (ignores cache)
+  cd ~/.emacs.d/deployment/bazel
+
+  ./deploy.sh                          # stable 30.2, clang (default)
+  ./deploy.sh --cc gcc                 # build with GCC instead
+  ./deploy.sh --ref master             # git master
+  ./deploy.sh --ref emacs-30           # release branch
+  ./deploy.sh --ref a1b2c3d4           # specific commit
+  ./deploy.sh --ref master --force     # force rebuild (ignores cache)
+  ./deploy.sh --ref emacs-30 --cc gcc  # ref + explicit compiler
+#+END_SRC
+
+The =--cc= flag selects the compiler (=clang= or =gcc=). Bazel caches clang and
+gcc builds separately, so switching is instant if both have been built before.
+
+Compiler can also be passed via environment variable:
+
+#+BEGIN_SRC sh
+  EMACS_CC=gcc bazel build //:emacs_package
 #+END_SRC
 
 * Fonts
@@ -197,23 +203,46 @@ First launch will auto-install all MELPA/ELPA packages. This takes a few minutes
 
 * Uninstalling Emacs
 
-If Emacs was installed via the build script or Bazel (i.e. extracted into
-=~/.local/=), use the provided removal script:
+** Bazel-built or script-built (installed to =~/.local/=)
+
+Use =remove.sh= — the companion script to =deploy.sh= in the Bazel directory:
 
 #+BEGIN_SRC sh
   cd ~/.emacs.d/deployment/bazel
-  bash remove.sh           # removes Emacs 30.2 (default)
-  bash remove.sh 30.2      # explicit version
+  ./remove.sh           # remove Emacs 30.2 (default version)
+  ./remove.sh 30.2      # explicit version argument
 #+END_SRC
 
-Or manually:
+This removes:
+- Binaries: =emacs=, =emacs-30.2=, =emacsclient=, =etags=, =ctags=, =ebrowse=
+- Data directories: =~/.local/{share,lib,libexec}/emacs/30.2/=
+- GLib schema: =org.gnu.emacs.defaults.gschema.xml= (recompiles the schema index)
+- =~/.local/share/emacs/site-lisp/= only if it contains no user-added files
+
+To also remove the Bazel build cache (the compiled artifact tarball):
+
+#+BEGIN_SRC sh
+  cd ~/.emacs.d/deployment/bazel
+  bazel --nohome_rc clean            # removes bazel-bin/ outputs
+  bazel --nohome_rc clean --expunge  # also removes the shared action cache
+#+END_SRC
+
+** Manual removal (one-liner)
 
 #+BEGIN_SRC sh
   VERSION=30.2
-  rm -f ~/.local/bin/{emacs,emacs-${VERSION},emacsclient,etags,ctags,ebrowse}
-  rm -rf ~/.local/{share,lib,libexec}/emacs/${VERSION}
+  rm -f ~/.local/bin/emacs ~/.local/bin/emacs-${VERSION} \
+        ~/.local/bin/emacsclient ~/.local/bin/etags \
+        ~/.local/bin/ctags ~/.local/bin/ebrowse
+  rm -rf ~/.local/share/emacs/${VERSION} \
+         ~/.local/lib/emacs/${VERSION} \
+         ~/.local/libexec/emacs/${VERSION}
   rm -f ~/.local/share/glib-2.0/schemas/org.gnu.emacs.defaults.gschema.xml
   glib-compile-schemas ~/.local/share/glib-2.0/schemas/ 2>/dev/null || true
 #+END_SRC
 
-The snap installation is removed with =sudo snap remove emacs=.
+** Snap installation
+
+#+BEGIN_SRC sh
+  sudo snap remove emacs
+#+END_SRC
