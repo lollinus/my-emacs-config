@@ -2387,7 +2387,8 @@ Used to see multiline flymake errors"
   :ensure t
   :global-minor-mode global-emojify-mode
   :config
-  (add-to-list 'emojify-inhibit-major-modes 'agent-shell-mode))
+  (add-to-list 'emojify-inhibit-major-modes 'agent-shell-mode)
+  (add-to-list 'emojify-inhibit-major-modes 'magit-status-mode))
 
 (leaf slack
   :doc "Slack client."
