@@ -216,3 +216,40 @@ Other packages confirmed absent by configure output:
 Once =sudo apt install= installs the packages in Step 2, a full build should
 succeed. The Bazel wrapper, module extension, genrule logic, and deploy script
 have all been validated at the framework level.
+
+** Additional bugs fixed before full success
+
+*** --with-json unrecognised in Emacs 30.2
+JSON is now a built-in default; the flag was silently rejected. Removed.
+
+*** libgccjit not found despite being installed
+=libgccjit-13-dev= installs to =/usr/lib/gcc/x86_64-linux-gnu/13/= with no
+=pkg-config= file. The genrule env strips =PKG_CONFIG_PATH=. Fixed by detecting
+the active GCC version at runtime and setting =CPPFLAGS=/=LDFLAGS=.
+
+*** Bazel =$@= output path is execroot-relative; breaks after =cd=
+After =cd $BUILD_DIR= the relative =bazel-out/...= path Bazel substitutes for
+=$@= no longer resolves. Fixed by capturing =OUTPUT_ABS="$PWD/$@"= before any =cd=.
+
+*** Emacs compiled with temp-dir prefix; internal paths broken on deploy
+=--prefix=/tmp/tmp.xxx/install= hardcodes all internal paths to a dir that is
+deleted after the build. Fixed using =DESTDIR=: configure uses
+=--prefix=$HOME/.local=, installs via =make install DESTDIR=$STAGING_DIR=,
+then tars from =STAGING_DIR/$HOME/.local=.
+
+** Final result: full end-to-end build and deploy succeeded ✓
+
+#+begin_example
+$ bazel --nohome_rc build //:emacs_package
+INFO: Build completed successfully, 2 total actions   (382s)
+
+$ bash deploy.sh
+==> Done: GNU Emacs 30.2
+
+$ emacs --batch -Q --eval '(message "native-comp: %s, tree-sitter: %s, sqlite: %s" \
+    (native-comp-available-p) (treesit-available-p) (sqlite-available-p))'
+native-comp: t, tree-sitter: t, sqlite: t
+#+end_example
+
+Emacs 30.2 installed to =~/.local/= with all major features enabled.
+=data-directory= correctly resolves to =~/.local/share/emacs/30.2/etc/=.
