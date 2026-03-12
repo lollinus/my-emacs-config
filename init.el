@@ -66,7 +66,7 @@
                   ,@leaf--body)
        :font    `((eval-after-load ',leaf--name
                     (lambda () ,@(mapcar (lambda (spec) `(kb/font-ensure ,@spec)) leaf--value)))
-                  ,@leaf--body)))))))
+                  ,@leaf--body))))))
 ;; </leaf-install-code>
 ;; =========================== leaf bootstrap ==========================
 
@@ -101,13 +101,14 @@
 ;; with code 128 (fatal error), vc-exec-after throws "Unexpected process
 ;; state".  Excluding user-emacs-directory stops those probes entirely.
 (leaf vc
-  :custom
-  (vc-ignore-dir-regexp . (format "%s\\|%s"
-                             locate-dominating-stop-dir-regexp
-                             (regexp-quote (expand-file-name user-emacs-directory))))
+  :config
+  ;; Prevent VC from probing ~/.emacs.d/ via async git processes.
+  (setq vc-ignore-dir-regexp
+        (format "%s\\|%s"
+                locate-dominating-stop-dir-regexp
+                (regexp-quote (expand-file-name user-emacs-directory))))
   ;; Safety-net: silence "Unexpected process state" so a stale/failed git
   ;; process never raises a top-level error while other commands are running.
-  :config
   (with-eval-after-load 'vc-git
     (advice-add 'vc-exec-after :around
       (lambda (fn &rest args)
@@ -1978,8 +1979,8 @@ Used to see multiline flymake errors"
   (setopt jiralib-use-restapi t)
   (setopt jiralib-url "https://jira.cc.bmwgroup.net")
   (let* ((auth (car (auth-source-search
- 	       :host "jira.cc.bmwgroup.net"
- 	       :requires '(:user :secret))))
+                      :host "jira.cc.bmwgroup.net"
+                      :requires '(:user :secret))))
     (password (funcall (plist-get auth :secret)))
     (username (plist-get auth :user))
     (jira-host (plist-get auth :host)))
@@ -2263,17 +2264,11 @@ Used to see multiline flymake errors"
 
 (leaf nerd-icons
   :doc "Emacs Nerd Font Icons Library"
-  :req "emacs-24.3"
-  :tag "lisp" "emacs>=24.3"
+  :req "emacs-25.1"
+  :tag "lisp" "emacs>=25.1"
   :url "https://github.com/rainstormstudio/nerd-icons.el"
   :added "2025-09-16"
-  :emacs>= 24.3
-  ;; :ensure t
-  ;; :after nerd-icons
-  ;; :config
-  ;; (setq nerd-icons-fonts-subdirectory (expand-file-name (concat user-emacs-directory "fonts/")))
-  ;; (unless (file-exists-p (expand-file-name (concat nerd-icons-fonts-subdirectory (car nerd-icons-font-names)))) (nerd-icons-install-fonts t))
-  )
+  :emacs>= 25.1)
 
 (leaf nerd-icons-corfu
   :doc "Icons for Corfu via nerd-icons"
