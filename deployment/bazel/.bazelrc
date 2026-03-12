@@ -20,5 +20,11 @@ build --sandbox_writable_path=/tmp
 build --action_env=EMACS_REF
 build --action_env=EMACS_REF_FORCE
 
+# Track the compiler as part of the cache key so clang and gcc builds are stored
+# separately.  Defaults to clang inside the genrule when unset.
+# Override with: EMACS_CC=gcc bazel build //:emacs_package
+#            or: ./deploy.sh --cc gcc
+build --action_env=EMACS_CC
+
 # Print test output on failure.
 test --test_output=errors

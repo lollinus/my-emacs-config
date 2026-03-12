@@ -104,8 +104,12 @@ genrule(
         export CPPFLAGS="-I$${GCC_LIBDIR}/include"
         export LDFLAGS="-L$${GCC_LIBDIR} -Wl,-rpath,$${GCC_LIBDIR}"
 
+        # Compiler: EMACS_CC env var (set via --action_env=EMACS_CC or deploy.sh --cc).
+        # Defaults to clang; pass EMACS_CC=gcc to build with GCC instead.
+        CC="$${EMACS_CC:-clang}"
+
         [[ -x ./autogen.sh ]] && ./autogen.sh
-        CC=clang ./configure --prefix="$$PREFIX" """ + CONFIGURE_FLAGS + """
+        CC="$$CC" ./configure --prefix="$$PREFIX" """ + CONFIGURE_FLAGS + """
         make -j$$(nproc --ignore=2)
         # DESTDIR stages files under staging/<prefix>; internal paths still say <prefix>.
         make install DESTDIR="$$STAGING_DIR"
@@ -163,7 +167,8 @@ genrule(
         GCC_LIBDIR="/usr/lib/gcc/x86_64-linux-gnu/$${GCC_VER}"
         export CPPFLAGS="-I$${GCC_LIBDIR}/include"
         export LDFLAGS="-L$${GCC_LIBDIR} -Wl,-rpath,$${GCC_LIBDIR}"
-        CC=clang ./configure --prefix="$$PREFIX" """ + CONFIGURE_FLAGS + """
+        CC="$${EMACS_CC:-clang}"
+        CC="$$CC" ./configure --prefix="$$PREFIX" """ + CONFIGURE_FLAGS + """
         make -j$$(nproc --ignore=2)
         make install DESTDIR="$$STAGING_DIR"
 
