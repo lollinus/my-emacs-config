@@ -13,5 +13,12 @@ common --show_progress_rate_limit=5
 # Allow genrules that use local=True to write to the home directory.
 build --sandbox_writable_path=/tmp
 
+# Track EMACS_REF as part of the Bazel cache key for //:emacs_ref_package.
+# Different EMACS_REF values (branches, tags, SHAs) produce separate cached artifacts.
+# Note: mutable refs (e.g. master) won't auto-invalidate when upstream advances.
+# Force a rebuild with: EMACS_REF=master EMACS_REF_FORCE=$(date +%s) bazel build //:emacs_ref_package
+build --action_env=EMACS_REF
+build --action_env=EMACS_REF_FORCE
+
 # Print test output on failure.
 test --test_output=errors

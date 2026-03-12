@@ -2,36 +2,45 @@
 # deploy.sh — Build Emacs via Bazel and install it to ~/.local/
 #
 # Usage:
-#   ./deploy.sh           # build Emacs 30.2 (stable) and deploy
-#   ./deploy.sh --git     # build Emacs master and deploy
+#   ./deploy.sh                    # Emacs 30.2 stable (pinned, recommended)
+#   ./deploy.sh --ref master       # git master
+#   ./deploy.sh --ref emacs-30     # release branch
+#   ./deploy.sh --ref emacs-30.2   # release tag
+#   ./deploy.sh --ref a1b2c3d4     # specific commit SHA
 #
-# This script is a convenience wrapper around:
-#   bazel build //:emacs_package && <extract>
-#   bazel build //:emacs_git_package && <extract>
-#
-# Alternatively, use the Bazel run targets directly:
-#   bazel run //:deploy
-#   bazel run //:deploy_git
+# Bazel caches each unique EMACS_REF value separately.
+# For mutable refs (master, emacs-30), force a fresh build with:
+#   ./deploy.sh --ref master --force
 
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PREFIX="${HOME}/.local"
 
-USE_GIT=0
-for arg in "$@"; do
-  case "$arg" in
-    --git) USE_GIT=1 ;;
-    *) echo "Unknown argument: $arg" >&2; exit 1 ;;
+EMACS_REF=""
+FORCE=0
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --ref)    EMACS_REF="${2:?--ref requires an argument}"; shift 2 ;;
+    --ref=*)  EMACS_REF="${1#--ref=}"; shift ;;
+    --force)  FORCE=1; shift ;;
+    *) echo "Unknown argument: $1" >&2
+       echo "Usage: $0 [--ref REF] [--force]" >&2; exit 1 ;;
   esac
 done
 
 cd "${SCRIPT_DIR}"
 
-if [[ "${USE_GIT}" -eq 1 ]]; then
-  echo "==> Building Emacs git master (WARNING: bleeding-edge)"
-  bazel build //:emacs_git_package
-  TARBALL="$(bazel info bazel-bin)/emacs-git-install.tar.xz"
+if [[ -n "${EMACS_REF}" ]]; then
+  echo "==> Building Emacs ref '${EMACS_REF}'"
+  FORCE_FLAG=""
+  if [[ "${FORCE}" -eq 1 ]]; then
+    FORCE_FLAG="--action_env=EMACS_REF_FORCE=$(date +%s)"
+  fi
+  # shellcheck disable=SC2086
+  EMACS_REF="${EMACS_REF}" bazel build //:emacs_ref_package ${FORCE_FLAG}
+  TARBALL="$(bazel info bazel-bin)/emacs-ref-install.tar.xz"
 else
   echo "==> Building Emacs 30.2 (stable)"
   bazel build //:emacs_package

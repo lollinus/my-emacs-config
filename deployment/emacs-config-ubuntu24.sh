@@ -2,8 +2,12 @@
 # emacs-config-ubuntu24.sh — Build and install Emacs from source on Ubuntu 24.04 LTS
 #
 # Usage:
-#   ./emacs-config-ubuntu24.sh           # build Emacs 30.2 (stable, recommended)
-#   ./emacs-config-ubuntu24.sh --git     # build latest git master (bleeding-edge)
+#   ./emacs-config-ubuntu24.sh                   # Emacs 30.2 tarball (stable, recommended)
+#   ./emacs-config-ubuntu24.sh --git             # git master (bleeding-edge)
+#   ./emacs-config-ubuntu24.sh --ref master      # explicit branch
+#   ./emacs-config-ubuntu24.sh --ref emacs-30    # release branch
+#   ./emacs-config-ubuntu24.sh --ref emacs-30.2  # release tag
+#   ./emacs-config-ubuntu24.sh --ref a1b2c3d4    # specific commit SHA
 #
 # The binary is installed to ~/.local/. No sudo required for the install step.
 # Prerequisites (run once):
@@ -18,7 +22,6 @@ set -euo pipefail
 EMACS_VERSION="30.2"
 EMACS_TARBALL_URL="https://ftp.gnu.org/gnu/emacs/emacs-${EMACS_VERSION}.tar.xz"
 EMACS_GIT_URL="https://git.savannah.gnu.org/git/emacs.git"
-EMACS_GIT_BRANCH="master"
 
 INSTALL_PREFIX="${HOME}/.local"
 BUILD_DIR="${HOME}/emacs-build"
@@ -28,11 +31,16 @@ JOBS="$(nproc --ignore=2)"
 # Parse arguments
 # ---------------------------------------------------------------------------
 
-USE_GIT=0
-for arg in "$@"; do
-  case "$arg" in
-    --git) USE_GIT=1 ;;
-    *) echo "Unknown argument: $arg" >&2; exit 1 ;;
+# EMACS_REF: empty = use tarball; non-empty = clone that git ref
+EMACS_REF=""
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --git)   EMACS_REF="master"; shift ;;
+    --ref)   EMACS_REF="${2:?--ref requires an argument}"; shift 2 ;;
+    --ref=*) EMACS_REF="${1#--ref=}"; shift ;;
+    *) echo "Unknown argument: $1" >&2
+       echo "Usage: $0 [--git | --ref REF]" >&2; exit 1 ;;
   esac
 done
 
@@ -85,20 +93,44 @@ check_deps() {
 # Source acquisition
 # ---------------------------------------------------------------------------
 
+# Returns 0 if REF looks like a full or abbreviated commit SHA (hex only).
+is_sha() { [[ "$1" =~ ^[0-9a-fA-F]{7,40}$ ]]; }
+
+# Clone or update a git ref into BUILD_DIR/emacs-<slug>.
+# Branches/tags use --depth 1 (fast). SHAs require a full clone because
+# Savannah does not advertise arbitrary commit objects for shallow fetches.
+clone_ref() {
+  local ref="$1"
+  local slug
+  # Sanitise ref into a safe directory-name component.
+  slug="$(echo "${ref}" | tr '/' '-' | tr -cd '[:alnum:]._-')"
+  EMACS_SRC="${BUILD_DIR}/emacs-${slug}"
+
+  if is_sha "${ref}"; then
+    step "Fetching Emacs at commit ${ref} (full clone required for SHA)"
+    if [[ ! -d "${EMACS_SRC}/.git" ]]; then
+      # --filter=blob:none keeps the clone lean while still allowing checkout.
+      git clone --filter=blob:none "${EMACS_GIT_URL}" "${EMACS_SRC}"
+    fi
+    git -C "${EMACS_SRC}" fetch --filter=blob:none origin
+    git -C "${EMACS_SRC}" checkout "${ref}"
+  else
+    step "Cloning Emacs ref '${ref}' (shallow)"
+    if [[ -d "${EMACS_SRC}/.git" ]]; then
+      echo "Updating existing clone..."
+      git -C "${EMACS_SRC}" fetch --depth=1 origin "${ref}"
+      git -C "${EMACS_SRC}" reset --hard FETCH_HEAD
+    else
+      git clone --depth 1 --branch "${ref}" "${EMACS_GIT_URL}" "${EMACS_SRC}"
+    fi
+  fi
+}
+
 acquire_source() {
   mkdir -p "${BUILD_DIR}"
 
-  if [[ "${USE_GIT}" -eq 1 ]]; then
-    step "Cloning Emacs git master (bleeding-edge — may be unstable)"
-    if [[ -d "${BUILD_DIR}/emacs/.git" ]]; then
-      echo "Updating existing clone..."
-      git -C "${BUILD_DIR}/emacs" fetch --depth=1 origin "${EMACS_GIT_BRANCH}"
-      git -C "${BUILD_DIR}/emacs" reset --hard "origin/${EMACS_GIT_BRANCH}"
-    else
-      git clone --depth 1 --branch "${EMACS_GIT_BRANCH}" \
-        "${EMACS_GIT_URL}" "${BUILD_DIR}/emacs"
-    fi
-    EMACS_SRC="${BUILD_DIR}/emacs"
+  if [[ -n "${EMACS_REF}" ]]; then
+    clone_ref "${EMACS_REF}"
   else
     step "Downloading Emacs ${EMACS_VERSION} source tarball"
     local tarball="${BUILD_DIR}/emacs-${EMACS_VERSION}.tar.xz"
@@ -155,8 +187,10 @@ install_emacs() {
 
 package_emacs() {
   local label
-  if [[ "${USE_GIT}" -eq 1 ]]; then
-    label="emacs-git-$(date +%Y%m%d)"
+  if [[ -n "${EMACS_REF}" ]]; then
+    local slug
+    slug="$(echo "${EMACS_REF}" | tr '/' '-' | tr -cd '[:alnum:]._-')"
+    label="emacs-${slug}-$(date +%Y%m%d)"
   else
     label="emacs-${EMACS_VERSION}"
   fi

@@ -12,9 +12,9 @@ your needs:
 |-------------------+-------------------------------+----------+--------------+------------------------------|
 | Snap              | [[file:snap-ubuntu.md]]          | Minimal  | Auto-updates | Recommended for daily use    |
 | Script (stable)   | [[file:emacs-config-ubuntu24.sh]] | Medium   | Pinned ver.  | Emacs 30.2, installs ~/.local |
-| Script (git)      | same script, =--git= flag       | Medium   | No           | Bleeding-edge master branch  |
+| Script (any ref)  | same script, =--ref REF=        | Medium   | No           | Branch, tag, or commit SHA   |
 | Bazel (stable)    | [[file:bazel/BUILD.bazel]]        | High     | Yes (SHA256) | Cached, reproducible         |
-| Bazel (git)       | same workspace, git target    | High     | No           | Bleeding-edge, no cache      |
+| Bazel (any ref)   | same workspace, =EMACS_REF=     | High     | Per ref      | Cached by ref name           |
 
 Target: Ubuntu 24.04 LTS, Emacs 30.x.
 
@@ -62,12 +62,22 @@ Configure highlights:
 
 #+BEGIN_SRC sh
   ./emacs-config-ubuntu24.sh --git
+  # equivalent to: --ref master
 #+END_SRC
 
-Shallow-clones =master= from =https://git.savannah.gnu.org/git/emacs.git=.
-Subsequent runs update the existing clone. Same configure flags as the stable path.
+** Build any branch, tag, or commit
 
-*Warning:* master may be unstable between releases.
+#+BEGIN_SRC sh
+  ./emacs-config-ubuntu24.sh --ref emacs-30       # release branch
+  ./emacs-config-ubuntu24.sh --ref emacs-30.2     # release tag
+  ./emacs-config-ubuntu24.sh --ref a1b2c3d4       # specific commit SHA
+#+END_SRC
+
+Branches and tags use a shallow clone (fast). Commit SHAs trigger a blobless
+full clone since Savannah does not support direct SHA fetches.
+Subsequent runs with the same ref update the existing clone in-place.
+
+*Warning:* git-based builds may be unstable between releases.
 
 ** Add to PATH
 
@@ -100,28 +110,52 @@ nothing has changed.
   # Output: bazel-bin/emacs-30.2-install.tar.xz
 #+END_SRC
 
-** Build latest git master
+** Build from any git ref or commit
+
+Use the =emacs_ref_package= target with the =EMACS_REF= environment variable.
+Bazel caches each unique ref value separately (tracked via =--action_env=EMACS_REF=
+in =.bazelrc=).
 
 #+BEGIN_SRC sh
   cd deployment/bazel
-  bazel build //:emacs_git_package
-  # Output: bazel-bin/emacs-git-install.tar.xz
+
+  # git master (default when EMACS_REF is unset)
+  EMACS_REF=master bazel build //:emacs_ref_package
+
+  # release branch
+  EMACS_REF=emacs-30 bazel build //:emacs_ref_package
+
+  # release tag
+  EMACS_REF=emacs-30.2 bazel build //:emacs_ref_package
+
+  # specific commit SHA (triggers blobless full clone)
+  EMACS_REF=a1b2c3d4e5f6 bazel build //:emacs_ref_package
 #+END_SRC
 
-Git builds are never Bazel-cached (no SHA256 pin possible).
+Output is always =bazel-bin/emacs-ref-install.tar.xz=.
+
+*Caching note:* mutable refs like =master= are cached by ref name, not by upstream
+commit. To force a fresh build after upstream advances:
+
+#+BEGIN_SRC sh
+  EMACS_REF=master EMACS_REF_FORCE=$(date +%s) bazel build //:emacs_ref_package
+#+END_SRC
 
 ** Deploy with Bazel run
 
 #+BEGIN_SRC sh
-  bazel run //:deploy        # stable → ~/.local/
-  bazel run //:deploy_git    # git master → ~/.local/
+  bazel run //:deploy                              # stable 30.2 → ~/.local/
+  EMACS_REF=emacs-30 bazel run //:deploy_ref      # any ref → ~/.local/
 #+END_SRC
 
 ** Deploy with the convenience script
 
 #+BEGIN_SRC sh
-  ./deploy.sh         # stable
-  ./deploy.sh --git   # git master
+  ./deploy.sh                      # stable 30.2
+  ./deploy.sh --ref master         # git master
+  ./deploy.sh --ref emacs-30       # release branch
+  ./deploy.sh --ref a1b2c3d4       # specific commit
+  ./deploy.sh --ref master --force # force rebuild (ignores cache)
 #+END_SRC
 
 * Fonts

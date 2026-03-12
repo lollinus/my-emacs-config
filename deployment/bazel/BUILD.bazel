@@ -8,16 +8,42 @@ and are expected to be pre-installed.
 
 Targets
 -------
-  //:emacs_package      Build Emacs 30.2 (stable) → emacs-30.2-install.tar.xz
-  //:emacs_git_package  Build Emacs master (git)  → emacs-git-YYYYMMDD-install.tar.xz
+  //:emacs_package      Build Emacs 30.2 (stable tarball) → emacs-30.2-install.tar.xz
+  //:emacs_ref_package  Build any git ref/commit via EMACS_REF env var (default: master)
   //:deploy             Install stable build into $HOME/.local/
-  //:deploy_git         Install git-master build into $HOME/.local/
+  //:deploy_ref         Install ref build into $HOME/.local/
+
+Examples
+--------
+  # Stable build (pinned, cached by SHA256)
+  bazel build //:emacs_package
+
+  # Build from git master (EMACS_REF defaults to master)
+  EMACS_REF=master bazel build //:emacs_ref_package
+
+  # Build a specific release branch
+  EMACS_REF=emacs-30 bazel build //:emacs_ref_package
+
+  # Build a specific tag
+  EMACS_REF=emacs-30.2 bazel build //:emacs_ref_package
+
+  # Build a specific commit SHA (triggers full clone, not shallow)
+  EMACS_REF=a1b2c3d4e5f6 bazel build //:emacs_ref_package
+
+  # Deploy ref build to ~/.local/
+  EMACS_REF=emacs-30 bazel run //:deploy_ref
+
+Caching
+-------
+  Stable (//:emacs_package): fully cached by Bazel (SHA256-pinned tarball input).
+  Ref    (//:emacs_ref_package): cached per EMACS_REF value, tracked via
+         --action_env=EMACS_REF in .bazelrc. Changing EMACS_REF busts the cache.
+         Note: for mutable refs (master, emacs-30) the cache may be stale;
+         use `bazel build --action_env=EMACS_REF_FORCE=$(date +%s)` to force rebuild.
 """
 
-load("@bazel_skylib//rules:native_binary.bzl", "native_binary")
-
 # ---------------------------------------------------------------------------
-# Common configure flags (written as a shell variable for reuse)
+# Common configure flags
 # ---------------------------------------------------------------------------
 
 CONFIGURE_FLAGS = " ".join([
@@ -41,8 +67,10 @@ CONFIGURE_FLAGS = " ".join([
     "--with-mailutils",
 ])
 
+GIT_URL = "https://git.savannah.gnu.org/git/emacs.git"
+
 # ---------------------------------------------------------------------------
-# Stable build (Emacs 30.2 tarball via @emacs_src)
+# Stable build (Emacs 30.2 tarball via @emacs_src — reproducible)
 # ---------------------------------------------------------------------------
 
 genrule(
@@ -52,10 +80,9 @@ genrule(
     cmd = """
         set -euo pipefail
 
-        # Locate the extracted source root (first file gives us the path).
+        # Locate the extracted source root from the filegroup.
         SRCS_LIST="$(locations @emacs_src//:all)"
         SRC_ROOT=$$(dirname $$(echo $$SRCS_LIST | tr ' ' '\\n' | head -1))
-        # Walk up until we find configure or autogen.sh.
         while [[ ! -f "$$SRC_ROOT/configure" && ! -f "$$SRC_ROOT/autogen.sh" ]]; do
             SRC_ROOT=$$(dirname $$SRC_ROOT)
         done
@@ -65,14 +92,11 @@ genrule(
         BUILD_DIR="$$WORK/build"
         mkdir -p "$$INSTALL_DIR" "$$BUILD_DIR"
 
-        # Copy source to a writable build directory (source tree is read-only in Bazel).
         cp -a "$$SRC_ROOT/." "$$BUILD_DIR/"
         cd "$$BUILD_DIR"
 
         [[ -x ./autogen.sh ]] && ./autogen.sh
-
         CC=clang ./configure --prefix="$$INSTALL_DIR" """ + CONFIGURE_FLAGS + """
-
         make -j$$(nproc --ignore=2)
         make install
 
@@ -84,30 +108,41 @@ genrule(
 )
 
 # ---------------------------------------------------------------------------
-# Git master build (bleeding-edge — clones at build time, not cached)
+# Ref build — any branch, tag, or commit SHA via EMACS_REF env var.
+# Tracked by --action_env=EMACS_REF in .bazelrc (different values = different
+# cache entries). EMACS_REF defaults to "master" when unset.
 # ---------------------------------------------------------------------------
 
 genrule(
-    name = "emacs_git_package",
+    name = "emacs_ref_package",
     srcs = [],
-    outs = ["emacs-git-install.tar.xz"],
+    outs = ["emacs-ref-install.tar.xz"],
     cmd = """
         set -euo pipefail
+
+        REF="$${EMACS_REF:-master}"
+        GIT_URL=""" + '"' + GIT_URL + '"' + """
 
         WORK=$$(mktemp -d)
         INSTALL_DIR="$$WORK/install"
         BUILD_DIR="$$WORK/build"
-        mkdir -p "$$INSTALL_DIR" "$$BUILD_DIR"
+        mkdir -p "$$INSTALL_DIR"
 
-        echo "==> Cloning Emacs git master (WARNING: bleeding-edge, may be unstable)"
-        git clone --depth 1 --branch master \\
-            https://git.savannah.gnu.org/git/emacs.git "$$BUILD_DIR"
+        # Detect whether REF is a commit SHA (hex-only, 7-40 chars).
+        # SHAs cannot be shallow-cloned from Savannah, so we use a partial
+        # (blobless) clone instead.
+        if [[ "$$REF" =~ ^[0-9a-fA-F]{7,40}$$ ]]; then
+            echo "==> Fetching commit $$REF (blobless clone)"
+            git clone --filter=blob:none "$$GIT_URL" "$$BUILD_DIR"
+            git -C "$$BUILD_DIR" checkout "$$REF"
+        else
+            echo "==> Cloning ref '$$REF' (shallow)"
+            git clone --depth 1 --branch "$$REF" "$$GIT_URL" "$$BUILD_DIR"
+        fi
 
         cd "$$BUILD_DIR"
         ./autogen.sh
-
         CC=clang ./configure --prefix="$$INSTALL_DIR" """ + CONFIGURE_FLAGS + """
-
         make -j$$(nproc --ignore=2)
         make install
 
@@ -118,8 +153,7 @@ genrule(
 )
 
 # ---------------------------------------------------------------------------
-# Deploy targets (bazel run //:deploy  or  bazel run //:deploy_git)
-# Each script extracts the tarball into $HOME/.local/ at runtime.
+# Deploy targets
 # ---------------------------------------------------------------------------
 
 genrule(
@@ -131,8 +165,8 @@ genrule(
 #!/usr/bin/env bash
 set -euo pipefail
 TARBALL="$(rootpath :emacs_package)"
-PREFIX="${{HOME}}/.local"
-echo "==> Deploying Emacs to $$PREFIX"
+PREFIX="${HOME}/.local"
+echo "==> Deploying Emacs 30.2 (stable) to $$PREFIX"
 mkdir -p "$$PREFIX"
 tar -xJf "$$TARBALL" -C "$$PREFIX"
 update-desktop-database "$$PREFIX/share/applications" 2>/dev/null || true
@@ -144,16 +178,17 @@ EOF
 )
 
 genrule(
-    name = "deploy_git_script",
-    srcs = [":emacs_git_package"],
-    outs = ["deploy_git.sh"],
+    name = "deploy_ref_script",
+    srcs = [":emacs_ref_package"],
+    outs = ["deploy_ref.sh"],
     cmd = """
         cat > "$@" << 'EOF'
 #!/usr/bin/env bash
 set -euo pipefail
-TARBALL="$(rootpath :emacs_git_package)"
-PREFIX="${{HOME}}/.local"
-echo "==> Deploying Emacs (git master) to $$PREFIX"
+TARBALL="$(rootpath :emacs_ref_package)"
+PREFIX="${HOME}/.local"
+REF="${EMACS_REF:-master}"
+echo "==> Deploying Emacs ref '$$REF' to $$PREFIX"
 mkdir -p "$$PREFIX"
 tar -xJf "$$TARBALL" -C "$$PREFIX"
 update-desktop-database "$$PREFIX/share/applications" 2>/dev/null || true
@@ -171,7 +206,7 @@ sh_binary(
 )
 
 sh_binary(
-    name = "deploy_git",
-    srcs = [":deploy_git_script"],
-    data = [":emacs_git_package"],
+    name = "deploy_ref",
+    srcs = [":deploy_ref_script"],
+    data = [":emacs_ref_package"],
 )
