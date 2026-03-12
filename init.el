@@ -95,6 +95,28 @@
   (put 'upcase-region 'disabled nil)
   )
 
+;; Fix: prevent VC from probing ~/.emacs.d/ via async git processes.
+;; When shell-maker (or any tool) opens a "Write file:" prompt defaulting
+;; to ~/.emacs.d/, Emacs VC spawns a background git process; if git exits
+;; with code 128 (fatal error), vc-exec-after throws "Unexpected process
+;; state".  Excluding user-emacs-directory stops those probes entirely.
+(leaf vc
+  :custom
+  (vc-ignore-dir-regexp . (format "%s\\|%s"
+                             locate-dominating-stop-dir-regexp
+                             (regexp-quote (expand-file-name user-emacs-directory))))
+  ;; Safety-net: silence "Unexpected process state" so a stale/failed git
+  ;; process never raises a top-level error while other commands are running.
+  :config
+  (with-eval-after-load 'vc-git
+    (advice-add 'vc-exec-after :around
+      (lambda (fn &rest args)
+        (condition-case err
+            (apply fn args)
+          (error
+           (unless (string= (cadr err) "Unexpected process state")
+             (signal (car err) (cdr err)))))))))
+
 (leaf spatial-window
   :doc "Jump to windows using keyboard spatial mapping"
   :req "emacs-28.1" "posframe-1.0.0"
@@ -1679,6 +1701,10 @@ Used to see multiline flymake errors"
          ("C-c m" . agent-shell-mistral-start-vibe)
          ("C-c c" . agent-shell-anthropic-start-claude-code)
          ("C-c g" . agent-shell-github-start-copilot))
+  ;; Disable VC in shell-maker buffers so saving transcripts never triggers
+  ;; background git probes that can race with vc-exec-after.
+  :hook (shell-maker-mode-hook . (lambda ()
+                                   (setq-local vc-handled-backends nil)))
   :config
   ;; Claude Code
   ;; Install: curl -fsSL https://claude.ai/install.sh | bash
@@ -1712,7 +1738,7 @@ Used to see multiline flymake errors"
   ;; Install: gh extension install github/gh-copilot && gh auth login
   ;; Enterprise config (GITHUB_ENTERPRISE_URL) is machine-specific — see local.el
   (require 'agent-shell-github)
-)
+  )
 
 (leaf ai-code
   :doc "Unified interface for AI coding CLI such as Codex, Copilot CLI, Opencode, Grok CLI, etc."
