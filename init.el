@@ -2270,7 +2270,12 @@ Used to see multiline flymake errors"
   :tag "lisp" "emacs>=25.1"
   :url "https://github.com/rainstormstudio/nerd-icons.el"
   :added "2025-09-16"
-  :emacs>= 25.1)
+  :emacs>= 25.1
+  :ensure t
+  :config
+  (when (boundp 'nerd-icons-font-family)
+    (unless (find-font (font-spec :name nerd-icons-font-family))
+      (nerd-icons-install-fonts t))))
 
 (leaf nerd-icons-corfu
   :doc "Icons for Corfu via nerd-icons"
