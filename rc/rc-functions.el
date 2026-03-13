@@ -398,7 +398,7 @@ ON-SUCCESS-MSG is an optional string appended to the success notification."
 ;;--------------------------------------------------------------------------------
 
 ;;;###autoload
-(defun kb/font-ensure (font-name url &optional sha256 no-fc-cache)
+(defun kb/font-ensure (font-name url &optional sha256 no-fc-cache force)
   "Install the font FONT-NAME from URL if it is not already available.
 
 SHA256 is the optional expected checksum of the downloaded file.  When
@@ -412,6 +412,9 @@ When NO-FC-CACHE is non-nil, skip running fc-cache after installation.
 Fontconfig will discover the font lazily on the next Emacs start without
 an explicit cache rebuild, so this is safe to skip.
 
+When FORCE is non-nil, reinstall the font even if it is already available
+according to `find-font'.
+
 Fonts are installed to ~/.local/share/fonts/emacs/ (the same location
 used by deploy_fonts.sh and deploy_fonts_no_bazel.sh).  Installation
 runs asynchronously via a subprocess so it does not block Emacs startup.
@@ -420,7 +423,7 @@ Does nothing when running in a terminal (non-graphic display).
 A restart of Emacs is required for newly installed fonts to be picked
 up by `find-font' and `default-frame-alist'."
   (when (display-graphic-p)
-    (unless (find-font (font-spec :name font-name))
+    (when (or force (not (find-font (font-spec :name font-name))))
       (let* ((font-dir (expand-file-name
                       "fonts/emacs"
                       (or (getenv "XDG_DATA_HOME") "~/.local/share")))
