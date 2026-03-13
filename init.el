@@ -291,6 +291,7 @@
   :doc "minor mode to visualize TAB, (HARD) SPACE, NEWLINE"
   :tag "builtin"
   :added "2025-09-22"
+  :blackout t
   :custom (
            ;; (setq whitespace-style '(face trailing lines-tail newline empty indentation big-indent space-before-tab))
            (whitespace-style . '(newline-mark newline))
@@ -2044,16 +2045,6 @@ Used to see multiline flymake errors"
   :emacs>= 28.1
   :ensure t
   :hook (markdown-ts-mode-hook . markdown-indent-mode))
-
-(leaf markdown-mode
-  :disabled t
-  :doc "Major mode for Markdown-formatted text"
-  :req "emacs-28.1"
-  :tag "itex" "github flavored markdown" "markdown" "emacs>=28.1"
-  :url "https://jblevins.org/projects/markdown-mode/"
-  :added "2025-11-18"
-  :emacs>= 28.1
-  :ensure t)
 
 (leaf doxymacs
   :doc "Emacs integration with Doxygen."
