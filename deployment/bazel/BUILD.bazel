@@ -105,11 +105,16 @@ genrule(
         cd "$$BUILD_DIR"
 
         # libgccjit has no pkg-config file; it lives under the GCC lib dir.
-        # Detect the active GCC version and expose headers + .so to configure.
-        GCC_VER=$$(/usr/bin/gcc -dumpversion | cut -d. -f1)
-        GCC_LIBDIR="/usr/lib/gcc/x86_64-linux-gnu/$${GCC_VER}"
-        export CPPFLAGS="-I$${GCC_LIBDIR}/include"
-        export LDFLAGS="-L$${GCC_LIBDIR} -Wl,-rpath,$${GCC_LIBDIR}"
+        # Locate it by finding libgccjit.h directly — this is independent of
+        # whichever gcc version /usr/bin/gcc points to, so libgccjit-13-dev
+        # is found correctly even when the default gcc is an older version.
+        GCC_LIBDIR=$$(dirname "$$(find /usr/lib/gcc/x86_64-linux-gnu -name libgccjit.h 2>/dev/null | sort -V | tail -1)")
+        if [[ -z "$$GCC_LIBDIR" || "$$GCC_LIBDIR" == "." ]]; then
+            echo "ERROR: libgccjit.h not found — install libgccjit-XX-dev" >&2
+            exit 1
+        fi
+        export CPPFLAGS="-I$${GCC_LIBDIR}"
+        export LDFLAGS="-L$$(dirname $$GCC_LIBDIR) -Wl,-rpath,$$(dirname $$GCC_LIBDIR)"
 
         # Compiler: EMACS_CC env var (set via --action_env=EMACS_CC or deploy.sh --cc).
         # Defaults to clang; pass EMACS_CC=gcc to build with GCC instead.
@@ -170,10 +175,13 @@ genrule(
 
         cd "$$BUILD_DIR"
         ./autogen.sh
-        GCC_VER=$$(/usr/bin/gcc -dumpversion | cut -d. -f1)
-        GCC_LIBDIR="/usr/lib/gcc/x86_64-linux-gnu/$${GCC_VER}"
-        export CPPFLAGS="-I$${GCC_LIBDIR}/include"
-        export LDFLAGS="-L$${GCC_LIBDIR} -Wl,-rpath,$${GCC_LIBDIR}"
+        GCC_LIBDIR=$$(dirname "$$(find /usr/lib/gcc/x86_64-linux-gnu -name libgccjit.h 2>/dev/null | sort -V | tail -1)")
+        if [[ -z "$$GCC_LIBDIR" || "$$GCC_LIBDIR" == "." ]]; then
+            echo "ERROR: libgccjit.h not found — install libgccjit-XX-dev" >&2
+            exit 1
+        fi
+        export CPPFLAGS="-I$${GCC_LIBDIR}"
+        export LDFLAGS="-L$$(dirname $$GCC_LIBDIR) -Wl,-rpath,$$(dirname $$GCC_LIBDIR)"
         CC="$${EMACS_CC:-clang}"
         CC="$$CC" ./configure --prefix="$$PREFIX" """ + CONFIGURE_FLAGS + """
         make -j$$(nproc --ignore=2)

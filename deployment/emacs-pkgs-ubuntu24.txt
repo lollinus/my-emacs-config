@@ -9,6 +9,10 @@ texinfo
 clang
 
 # Native compilation (libgccjit required for --with-native-compilation=aot)
+# gcc-13 is needed even when building with clang: libgccjit-13-dev installs
+# its headers under /usr/lib/gcc/x86_64-linux-gnu/13/, which the build locates
+# by searching for libgccjit.h rather than relying on the active gcc version.
+gcc-13
 libgccjit0
 libgccjit-13-dev
 

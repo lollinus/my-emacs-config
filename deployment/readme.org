@@ -96,10 +96,34 @@ nothing has changed.
 
 1. Install system packages (same as Path 2 above).
 
-2. Install Bazel 7+ (recommend using Bazelisk):
+2. Install Bazel 7+ via Bazelisk.
+
+   *Important:* Ubuntu's =bazel-bootstrap= package (installed as =/usr/bin/bazel=) is
+   version 4.2.3 and will *not* work — it pre-dates bzlmod (=MODULE.bazel=) and does not
+   recognise =WORKSPACE.bzlmod= as a workspace root.  Install a real Bazel 7+ binary first.
+
+   Bazelisk is a version manager that downloads the correct Bazel automatically (reads
+   =.bazelversion= from the workspace).  Install it as =~/.local/bin/bazel= so it shadows
+   the broken system wrapper.
+
+   *Option A — Go* (recommended; produces a self-contained native binary with no runtime deps):
    #+BEGIN_SRC sh
-     npm install -g @bazel/bazelisk   # or: go install github.com/bazelbuild/bazelisk@latest
-     # or download from https://github.com/bazelbuild/bazelisk/releases
+     go install github.com/bazelbuild/bazelisk@latest
+     ln -sf "$(go env GOPATH)/bin/bazelisk" ~/.local/bin/bazel
+   #+END_SRC
+
+   *Option B — curl* (pre-built static binary; use this if Go is not available):
+   #+BEGIN_SRC sh
+     curl -fsSL \
+       https://github.com/bazelbuild/bazelisk/releases/latest/download/bazelisk-linux-amd64 \
+       -o ~/.local/bin/bazel
+     chmod +x ~/.local/bin/bazel
+   #+END_SRC
+
+   Verify:
+   #+BEGIN_SRC sh
+     which bazel          # should be ~/.local/bin/bazel
+     bazel --version      # e.g. "Build label: 7.5.0"
    #+END_SRC
 
 ** Build stable Emacs 30.2

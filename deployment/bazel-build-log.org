@@ -253,3 +253,48 @@ native-comp: t, tree-sitter: t, sqlite: t
 
 Emacs 30.2 installed to =~/.local/= with all major features enabled.
 =data-directory= correctly resolves to =~/.local/share/emacs/30.2/etc/=.
+
+* Step 6: Re-test after libgccjit detection fix (2026-03-13)
+
+The =BUILD.bazel= genrule was updated to detect =libgccjit.h= via =find= instead of relying
+on =/usr/bin/gcc -dumpversion=.  This makes it resilient to mismatches where the default
+=gcc= is a different version from the installed =libgccjit-XX-dev=.
+
+#+begin_example
+$ find /usr/lib/gcc/x86_64-linux-gnu -name libgccjit.h
+/usr/lib/gcc/x86_64-linux-gnu/13/include/libgccjit.h
+
+$ /usr/bin/gcc --version | head -1
+gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0   # same version on this machine
+#+end_example
+
+On this machine gcc-13 happens to be the default, so both old and new detection
+would work.  The =find=-based approach is more robust for cases where the default
+GCC is a different version (e.g. gcc-14 is the default but libgccjit-13-dev is
+the installed dev package).
+
+** Build (2026-03-13, Bazel 9.0.1, Ubuntu 24.04.4)
+
+#+begin_example
+$ bazel --nohome_rc build //:emacs_package --verbose_failures
+INFO: Build completed successfully, 2 total actions   (577s)
+
+$ bash deploy.sh
+INFO: Build completed successfully, 2 total actions   (883s)
+==> Done: GNU Emacs 30.2
+
+$ ~/.local/bin/emacs --batch -Q --eval '(message "native-comp: %s, tree-sitter: %s, sqlite: %s" \
+    (native-comp-available-p) (treesit-available-p) (sqlite-available-p))'
+native-comp: t, tree-sitter: t, sqlite: t
+#+end_example
+
+** Note: cache miss between bare =bazel build= and =deploy.sh=
+
+The first run used =bazel --nohome_rc build= (no =EMACS_CC= in env).
+=deploy.sh= explicitly passes =EMACS_CC=clang=.  Since =.bazelrc= tracks
+=EMACS_CC= as an action env key, unset and ="clang"= are different cache
+entries, causing a full rebuild.
+
+For consistent caching, always use =deploy.sh= (or always pass =EMACS_CC=clang=
+explicitly when invoking bazel directly).  Subsequent =deploy.sh= runs are instant
+cache hits (no rebuild unless =BUILD.bazel= changes).
