@@ -2460,4 +2460,7 @@ Used to see multiline flymake errors"
   (when (file-exists-p local)
     (load local)))
 
+;; Local Variables:
+;; no-byte-compile: t
+;; End:
 ;;; init.el ends here
