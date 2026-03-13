@@ -6,7 +6,7 @@
 set -euo pipefail
 
 RUNFILES="${RUNFILES_DIR:-${BASH_SOURCE[0]}.runfiles}"
-TARBALL="${RUNFILES}/__main__/fonts.tar.gz"
+TARBALL="${RUNFILES}/_main/fonts.tar.gz"
 
 if [[ ! -f "${TARBALL}" ]]; then
     echo "ERROR: tarball not found: ${TARBALL}" >&2

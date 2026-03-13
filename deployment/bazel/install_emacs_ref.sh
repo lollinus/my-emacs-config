@@ -6,7 +6,7 @@
 set -euo pipefail
 
 RUNFILES="${RUNFILES_DIR:-${BASH_SOURCE[0]}.runfiles}"
-TARBALL="${RUNFILES}/__main__/emacs-ref-install.tar.xz"
+TARBALL="${RUNFILES}/_main/emacs-ref-install.tar.xz"
 
 if [[ ! -f "${TARBALL}" ]]; then
     echo "ERROR: tarball not found: ${TARBALL}" >&2

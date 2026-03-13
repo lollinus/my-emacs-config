@@ -49,7 +49,7 @@ load("@rules_shell//shell:sh_binary.bzl", "sh_binary")
 # ---------------------------------------------------------------------------
 
 CONFIGURE_FLAGS = " ".join([
-    "--with-pgtk",
+    "--with-x-toolkit=lucid",
     "--with-native-compilation=aot",
     "--with-tree-sitter",
     "--with-modules",
