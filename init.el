@@ -2165,8 +2165,10 @@ Used to see multiline flymake errors"
   :url "https://elpa.gnu.org/packages/rainbow-mode.html"
   :added "2025-11-24"
   :ensure t
-  :global-minor-mode t)
-
+  :blackout t
+  :global-minor-mode t
+  :hook (prog-mode-hook text-mode-hook)
+  :custom (rainbow-html-colors . t))
 
 ;; Other
 (leaf comment-dwim-2
