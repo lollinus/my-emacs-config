@@ -22,6 +22,9 @@
 (when (version< emacs-version "27.1")
   (error "This requires Emacs 27.1 and above!"))
 
+;; Suppress "Missing lexical-binding cookie" warnings from third-party packages.
+(add-to-list 'warning-suppress-types '(files))
+
 (defgroup kb-config nil
   "Custom options for KB config."
   :group 'convenience
@@ -301,9 +304,9 @@
                                             (tab-mark 9 [9654 9] [92 9]))))
   :bind (("C-c w w" . whitespace-mode))
   :custom-face
-  (whitespace-space . '((t (:inherit whitespace-space :foreground "DimGrey" :background nil))))
-  (whitespace-newline . '((t (:inherit whitespace-newline :foreground "DimGrey" :background nil))))
-  (whitespace-indentation . '((t (:inherit whitespace-indentation :foreground "DimGrey" :background nil))))
+  (whitespace-space . '((t (:foreground "DimGrey" :background nil))))
+  (whitespace-newline . '((t (:foreground "DimGrey" :background nil))))
+  (whitespace-indentation . '((t (:foreground "DimGrey" :background nil))))
 
   :global-minor-mode (global-whitespace-mode)
   )
