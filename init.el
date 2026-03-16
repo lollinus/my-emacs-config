@@ -944,13 +944,23 @@
             "CMakeList.txt"
             "package.json"
             "Project.toml" ".project"
-            "Cargo.toml""mix.exs" "qlfile" ".git"))
+            "Cargo.toml" "mix.exs" "qlfile"))
   (setopt project-vc-ignores (append project-vc-ignores
                                      '(".idea" ".vscode" ".ensime_cache" ".eunit" ".git"
                                        ".hg" ".fslockout" "_FOSSIL_" ".bzr" "_darcs" ".tox"
                                        ".svn" ".stack-work" ".ccls-cache" ".cache" ".clangd")
                                      '(".log" ".vs" "node_modules")
-                                     )))
+                                     ))
+  ;; Detect projects marked with .project at the immediate VC root, taking
+  ;; priority over the superproject. This allows git submodules that contain
+  ;; a .project file to be treated as independent projects instead of
+  ;; resolving to the parent repository root.
+  (defun kb/project-try-dot-project (dir)
+    "Return project root if the immediate VC root for DIR contains `.project'."
+    (when-let* ((vc-root (vc-git-root dir))
+                (_ (file-exists-p (expand-file-name ".project" vc-root))))
+      (list 'vc 'Git vc-root)))
+  (add-to-list 'project-find-functions #'kb/project-try-dot-project))
 
 (leaf disproject
   :doc "Dispatch project commands with Transient"
