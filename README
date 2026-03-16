@@ -1,6 +1,38 @@
 My emacs configuration files. -*- mode: org mode: auto-fill -*-
 #+STARTUP: showall
 
+* Project Detection
+
+  Project roots are detected by =project.el= using a combination of VC (git)
+  and marker files.  The following marker files are recognised as project roots
+  (see =project-vc-extra-root-markers= in =init.el=):
+
+  - =.project= — explicit project root marker (preferred)
+  - =pyproject.toml=, =Cargo.toml=, =*.cabal=, =package.json=, etc.
+
+** Git Submodules as Independent Projects
+
+   By default =project-try-vc= walks up the git hierarchy and resolves a
+   submodule to its superproject root.  A custom finder
+   =kb/project-try-dot-project= is added to =project-find-functions= (before
+   =project-try-vc=) to short-circuit this: if the *immediate* git root of
+   the current file contains a =.project= file, that root is used as the
+   project root regardless of any enclosing superproject.
+
+   To make a git submodule an independent Emacs project, place an empty
+   =.project= file at its root:
+
+   #+BEGIN_SRC sh
+   touch <submodule-root>/.project
+   #+END_SRC
+
+   Optionally add it to the submodule's =.git/info/exclude= to keep it out of
+   git status without committing it:
+
+   #+BEGIN_SRC sh
+   echo ".project" >> <submodule-root>/.git/info/exclude
+   #+END_SRC
+
 * Setup
 
 ** Windows
