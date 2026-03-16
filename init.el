@@ -731,12 +731,12 @@
                                      (bash "https://github.com/tree-sitter/tree-sitter-bash")
                                      (bibtex "https://github.com/latex-lsp/tree-sitter-bibtex")
                                      (blueprint "https://github.com/huanie/tree-sitter-blueprint")
-                                     (c "https://github.com/tree-sitter/tree-sitter-c")
+                                     (c "https://github.com/tree-sitter/tree-sitter-c" "v0.23.5")
                                      (c-sharp "https://github.com/tree-sitter/tree-sitter-c-sharp")
                                      (closure "https://github.com/sogaiu/tree-sitter-clojure")
                                      (cmake "https://github.com/uyha/tree-sitter-cmake")
                                      (commonlisp "https://github.com/tree-sitter-grammars/tree-sitter-commonlisp")
-                                     (cpp "https://github.com/tree-sitter/tree-sitter-cpp")
+                                     (cpp "https://github.com/tree-sitter/tree-sitter-cpp" "v0.23.4")
                                      (css "https://github.com/tree-sitter/tree-sitter-css")
                                      (dart "https://github.com/ast-grep/tree-sitter-dart")
                                      (dockerfile "https://github.com/camdencheek/tree-sitter-dockerfile")
@@ -758,7 +758,7 @@
                                      (make "https://github.com/alemuller/tree-sitter-make")
                                      (org "https://github.com/milisims/tree-sitter-org")
                                      (proto "https://github.com/mitchellh/tree-sitter-proto")
-                                     (python "https://github.com/tree-sitter/tree-sitter-python")
+                                     (python "https://github.com/tree-sitter/tree-sitter-python" "v0.23.6")
                                      (ruby "https://github.com/tree-sitter/tree-sitter-ruby")
                                      (rust "https://github.com/tree-sitter/tree-sitter-rust")
                                      (sql "https://github.com/DerekStride/tree-sitter-sql")
@@ -769,7 +769,7 @@
                                      (wast "https://github.com/wasm-lsp/tree-sitter-wasm" "main" "wast/src")
                                      (wat "https://github.com/wasm-lsp/tree-sitter-wasm" "main" "wat/src")
                                      (wsgl "https://github.com/mehmetoguzderin/tree-sitter-wgsl")
-                                     (yaml "https://github.com/tree-sitter-grammars/tree-sitter-yaml")
+                                     (yaml "https://github.com/tree-sitter-grammars/tree-sitter-yaml" "v0.7.2")
                                      )))
 
 (leaf mason
@@ -835,7 +835,7 @@
          ((c-ts-mode-hook c++-ts-mode-hook) . kb/whitespace-progmode-setup))
   :config
   (c-ts-mode-set-global-style 'linux)
-  :treesit c cpp)
+  :treesit c cpp doxygen)
 
 (leaf haskell-mode
   :doc "A Haskell editing mode"
@@ -2040,8 +2040,8 @@ Used to see multiline flymake errors"
   :ensure t
   :mode ("\\.md\\'" . markdown-ts-mode)
   :init
-  (add-to-list 'treesit-language-source-alist '(markdown "https://github.com/tree-sitter-grammars/tree-sitter-markdown" "split_parser" "tree-sitter-markdown/src"))
-  (add-to-list 'treesit-language-source-alist '(markdown-inline "https://github.com/tree-sitter-grammars/tree-sitter-markdown" "split_parser" "tree-sitter-markdown-inline/src"))
+  (add-to-list 'treesit-language-source-alist '(markdown "https://github.com/tree-sitter-grammars/tree-sitter-markdown" "v0.4.1" "tree-sitter-markdown/src"))
+  (add-to-list 'treesit-language-source-alist '(markdown-inline "https://github.com/tree-sitter-grammars/tree-sitter-markdown" "v0.4.1" "tree-sitter-markdown-inline/src"))
   :treesit markdown markdown-inline)
 
 (leaf markdown-indent-mode

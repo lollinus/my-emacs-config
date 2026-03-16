@@ -373,11 +373,39 @@ See: URL `http://en.wikipedia.org/wiki/ISO_8601'"
 (defun kb/treesit-ensure (language)
   "Install treesitter grammar for LANGUAGE if not already available.
 Falls back gracefully on first buffer open; reverts are needed to
-activate the ts-mode after installation."
-  (when (not (treesit-ready-p language t))
-    (message "**** Installing %s grammar for treesitter" language)
-    (treesit-install-language-grammar language)
-    (message "**** %s grammar installed. Revert buffers to activate ts-mode (M-x revert-buffer)" language)))
+activate the ts-mode after installation.
+
+Uses `treesit-language-available-p' (Emacs 31+) when available to
+distinguish between a missing grammar and an ABI version mismatch.
+An ABI mismatch cannot be fixed by reinstalling from HEAD — the grammar
+source in `treesit-language-source-alist' must be pinned to a revision
+that is compatible with this build of Emacs."
+  (if (fboundp 'treesit-language-available-p)
+      ;; Emacs 31+: get detailed error signal to avoid fruitless reinstalls.
+      (let ((avail (treesit-language-available-p language t)))
+        (cond
+         ((car avail) nil)                ; already loaded — nothing to do
+         ((eq (cadr avail) 'language-grammar-version-mismatch)
+          (message "*** Treesitter grammar for %s has an ABI mismatch (%s).\
+ Pin a compatible revision in `treesit-language-source-alist' to fix."
+                   language (caddr avail)))
+         (t                              ; grammar missing — attempt install
+          (message "*** Installing %s grammar for treesitter" language)
+          (condition-case err
+              (progn
+                (treesit-install-language-grammar language)
+                (message "*** %s grammar installed. Revert buffers to activate ts-mode." language))
+            (error (message "*** Failed to install %s grammar: %s"
+                            language (error-message-string err)))))))
+    ;; Emacs <31 fallback: use treesit-ready-p (cannot detect ABI mismatch).
+    (when (not (treesit-ready-p language t))
+      (message "*** Installing %s grammar for treesitter" language)
+      (condition-case err
+          (progn
+            (treesit-install-language-grammar language)
+            (message "*** %s grammar installed. Revert buffers to activate ts-mode." language))
+        (error (message "*** Failed to install %s grammar: %s"
+                        language (error-message-string err)))))))
 
 ;;;###autoload
 (defun kb/mason-ensure (executable package &optional on-success-msg)
