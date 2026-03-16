@@ -1657,25 +1657,6 @@ Used to see multiline flymake errors"
   :bind (("C-c d m" . devcontainer-mode)))
 
 ;;; AI Tools
-(leaf gptel
-  :disabled t
-  :doc "Interact with ChatGPT or other LLMs"
-  :req "emacs-27.1" "transient-0.7.4" "compat-30.1.0.0"
-  :tag "tools" "convenience" "emacs>=27.1"
-  :url "https://github.com/karthink/gptel"
-  :added "2025-10-09"
-  :emacs>= 27.1
-  :ensure t
-  :after compat
-  :custom
-  ;; OPTIONAL configuration
-  (gptel-model . 'gpt-4o) ; default: 'gpt-3.5-turbo 'claude-3.7-sonnet
-
-  (gptel-expert-commands . t)
-  :defer-config
-  (message "**** defer config ")
-  )
-
 ;; (leaf acp
 ;;   :doc "An ACP (Agent Client Protocol) implementation."
 ;;   :req "emacs-28.1"
@@ -1712,34 +1693,50 @@ Used to see multiline flymake errors"
   ;; Install: curl -fsSL https://claude.ai/install.sh | bash
   ;;          npm install -g @zed-industries/claude-agent-acp
   ;;          claude login
-  (require 'agent-shell-anthropic)
-  (setq agent-shell-anthropic-authentication
-        (agent-shell-anthropic-make-authentication :login t))
-  ;; (setq agent-shell-anthropic-authentication
-  ;;       (agent-shell-anthropic-make-authentication
-  ;;        :api-key (lambda ()
-  ;;                   (auth-source-pick-first-password
-  ;;                    :host "api.anthropic.com"
-  ;;                    :user "apikey"))))
+  ;; Status:  claude-agent-acp not installed on this machine
+  ;; Models:  claude-opus-4-5, claude-sonnet-4-5, claude-haiku-4-5
+  (when (executable-find "claude-agent-acp")
+    (require 'agent-shell-anthropic)
+    (setq agent-shell-anthropic-authentication
+          (agent-shell-anthropic-make-authentication :login t))
+    ;; Override with API key instead of login:
+    ;; (setq agent-shell-anthropic-authentication
+    ;;       (agent-shell-anthropic-make-authentication
+    ;;        :api-key (lambda ()
+    ;;                   (auth-source-pick-first-password
+    ;;                    :host "api.anthropic.com"
+    ;;                    :user "apikey"))))
+    ;; (setq agent-shell-anthropic-default-model-id "claude-sonnet-4-5")
+    )
 
   ;; Mistral Vibe
   ;; Install: uv tool install mistral-vibe
-  ;; Auth: add to ~/.authinfo.gpg:
-  ;;   machine mistral-vibe login apikey password YOUR_API_KEY_HERE
-  (require 'agent-shell-mistral)
-  (setq agent-shell-mistral-authentication
-        (agent-shell-mistral-make-authentication
-         :api-key (lambda ()
-                    (auth-source-pick-first-password
-                     :host "mistral-vibe"
-                     :user "apikey"))))
-  ;; (setq agent-shell-mistral-default-model-id "mistral-large-latest")
-  ;; (setq agent-shell-mistral-default-session-mode-id "default")
+  ;; Auth:    add to ~/.authinfo.gpg:
+  ;;            machine mistral-vibe login apikey password YOUR_API_KEY_HERE
+  ;; Status:  mistral-vibe not installed, API key not configured on this machine
+  ;; Models:  codestral-latest, mistral-large-latest, mistral-small-latest,
+  ;;          open-mistral-nemo, open-codestral-mamba
+  (when (executable-find "mistral-vibe")
+    (require 'agent-shell-mistral)
+    (setq agent-shell-mistral-authentication
+          (agent-shell-mistral-make-authentication
+           :api-key (lambda ()
+                      (auth-source-pick-first-password
+                       :host "mistral-vibe"
+                       :user "apikey"))))
+    ;; (setq agent-shell-mistral-default-model-id "codestral-latest")
+    ;; (setq agent-shell-mistral-default-session-mode-id "default")
+    )
 
   ;; GitHub Copilot
-  ;; Install: gh extension install github/gh-copilot && gh auth login
+  ;; Install: gh auth login && gh extension install github/gh-copilot
   ;; Enterprise config (GITHUB_ENTERPRISE_URL) is machine-specific — see local.el
-  (require 'agent-shell-github)
+  ;; Status:  gh installed but not authenticated on this machine
+  ;; Models:  gpt-4o, claude-sonnet-4-5, gemini-2.0-flash, o3-mini, o1
+  (when (executable-find "gh")
+    (require 'agent-shell-github)
+    ;; (setq agent-shell-github-default-model-id "gpt-4o")
+    )
   )
 
 (leaf ai-code
@@ -1756,9 +1753,7 @@ Used to see multiline flymake errors"
   (ai-code-set-backend 'agent-shell))
 
 (leaf copilot
-  ;; TODO recognize that copilot credentials and copilot-language-server are available
-  ;; :disabled `,(not (executable-find "copilot-language-server"))
-  ;; :disabled t
+  :disabled (not (executable-find "copilot-language-server"))
   :doc "An unofficial Copilot plugin"
   :req "emacs-27.2" "editorconfig-0.8.2" "jsonrpc-1.0.14" "f-0.20.0" "track-changes-1.4"
   :tag "copilot" "convenience" "emacs>=27.2"
