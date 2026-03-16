@@ -8,10 +8,27 @@ PREFIX="${HOME}/.local"
 
 echo "==> Removing Emacs ${VERSION} from ${PREFIX}"
 
-# Binaries installed by Emacs
-for bin in emacs "emacs-${VERSION}" emacsclient etags ctags ebrowse; do
-    rm -f "${PREFIX}/bin/${bin}"
-done
+# Versioned binary (e.g. emacs-30.2, emacs-31.0.50)
+rm -f "${PREFIX}/bin/emacs-${VERSION}"
+
+# Remove the 'emacs' symlink only if it points at this version's binary.
+# Skipping it when it points elsewhere prevents accidentally breaking a
+# different installed version (e.g. removing 30.2 while 31 is active).
+EMACS_LINK="${PREFIX}/bin/emacs"
+if [[ -L "${EMACS_LINK}" && "$(readlink "${EMACS_LINK}")" == "emacs-${VERSION}" ]]; then
+    rm -f "${EMACS_LINK}"
+else
+    echo "    Skipping ${EMACS_LINK} — points to $(readlink "${EMACS_LINK}" 2>/dev/null || echo '(not a symlink)'), not emacs-${VERSION}"
+fi
+
+# Remove helper binaries only when emacs-VERSION was actually the active build
+# (i.e. the emacs symlink pointed at it, meaning we just removed it above).
+# If a different version is active, leave the helpers in place.
+if [[ ! -L "${EMACS_LINK}" && ! -f "${EMACS_LINK}" ]]; then
+    for bin in emacsclient etags ctags ebrowse; do
+        rm -f "${PREFIX}/bin/${bin}"
+    done
+fi
 
 # Versioned data directories
 rm -rf "${PREFIX}/share/emacs/${VERSION}"

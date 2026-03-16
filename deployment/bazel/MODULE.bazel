@@ -34,7 +34,7 @@ module(
 )
 
 # sh_binary for bazel run install/remove targets.
-bazel_dep(name = "rules_shell", version = "0.3.0")
+bazel_dep(name = "rules_shell", version = "0.6.1")
 
 # Fetch Emacs source archives via our custom module extension.
 emacs_sources = use_extension("//:emacs_fetch.bzl", "emacs_sources")
