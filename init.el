@@ -2039,7 +2039,7 @@ Used to see multiline flymake errors"
   :emacs>= 29.1
   :ensure t
   :mode ("\\.md\\'" . markdown-ts-mode)
-  :config
+  :init
   (add-to-list 'treesit-language-source-alist '(markdown "https://github.com/tree-sitter-grammars/tree-sitter-markdown" "split_parser" "tree-sitter-markdown/src"))
   (add-to-list 'treesit-language-source-alist '(markdown-inline "https://github.com/tree-sitter-grammars/tree-sitter-markdown" "split_parser" "tree-sitter-markdown-inline/src"))
   :treesit markdown markdown-inline)
