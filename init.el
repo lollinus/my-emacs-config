@@ -2054,6 +2054,16 @@ Used to see multiline flymake errors"
   :ensure t
   :hook (markdown-ts-mode-hook . markdown-indent-mode))
 
+(leaf markdown-table-wrap
+  :doc "Word-wrap GFM pipe tables to fit window width"
+  :tag "markdown" "table" "wp"
+  :url "https://github.com/dnouri/markdown-table-wrap"
+  :added "2026-03-17"
+  :ensure t
+  :bind (:markdown-ts-mode-map
+         ("C-c t w" . markdown-table-wrap)
+         ("C-c t u" . markdown-table-wrap-unwrap)))
+
 (leaf doxymacs
   :doc "Emacs integration with Doxygen."
   :req "emacs-24.4" "compat-28.1"
