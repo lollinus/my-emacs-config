@@ -54,13 +54,16 @@
     (leaf-keywords-init)
     ;; Custom keywords for on-demand treesitter grammar and mason package installation.
     ;; Both wrap their calls in eval-after-load so they always defer to package load time.
-    ;; :treesit LANG...  calls (kb/treesit-ensure 'LANG) for each language symbol
+    ;; :treesit-src SPEC...  calls (kb/treesit-register-grammar 'SPEC) for each spec immediately at init
+    ;; :treesit LANG...      calls (kb/treesit-ensure 'LANG) for each language symbol after package load
     ;; :mason (EXEC PKG [MSG])...  calls (kb/mason-ensure EXEC PKG MSG) for each spec
     (customize-set-variable
      'leaf-keywords-after-config
      (append
       leaf-keywords-after-config
       (leaf-list
+       :treesit-src `(,@(mapcar (lambda (spec) `(kb/treesit-register-grammar ',spec)) leaf--value)
+                      ,@leaf--body)
        :treesit `((eval-after-load ',leaf--name
                     (lambda () ,@(mapcar (lambda (lang) `(kb/treesit-ensure ',lang)) leaf--value)))
                   ,@leaf--body)
@@ -79,6 +82,7 @@
 
 ;; Make rc/ directory available for autoloads
 (add-to-list 'load-path (expand-file-name "rc" user-emacs-directory))
+(autoload 'kb/treesit-register-grammar "rc-functions" nil t)
 (autoload 'kb/treesit-ensure "rc-functions" nil t)
 (autoload 'kb/mason-ensure "rc-functions" nil t)
 (autoload 'kb/font-ensure "rc-functions" nil t)
@@ -725,52 +729,53 @@
   :doc "tree-sitter utilities"
   :tag "builtin" "languages" "tree-sitter" "treesit"
   :added "2025-09-17"
-  :custom
-  (treesit-language-source-alist . '(
-                                     (awk "https://github.com/Beaglefoot/tree-sitter-awk")
-                                     (bash "https://github.com/tree-sitter/tree-sitter-bash")
-                                     (bibtex "https://github.com/latex-lsp/tree-sitter-bibtex")
-                                     (blueprint "https://github.com/huanie/tree-sitter-blueprint")
-                                     (c "https://github.com/tree-sitter/tree-sitter-c" "v0.23.5")
-                                     (c-sharp "https://github.com/tree-sitter/tree-sitter-c-sharp")
-                                     (closure "https://github.com/sogaiu/tree-sitter-clojure")
-                                     (cmake "https://github.com/uyha/tree-sitter-cmake")
-                                     (commonlisp "https://github.com/tree-sitter-grammars/tree-sitter-commonlisp")
-                                     (cpp "https://github.com/tree-sitter/tree-sitter-cpp" "v0.23.4")
-                                     (css "https://github.com/tree-sitter/tree-sitter-css")
-                                     (dart "https://github.com/ast-grep/tree-sitter-dart")
-                                     (dockerfile "https://github.com/camdencheek/tree-sitter-dockerfile")
-                                     (doxygen "https://github.com/tree-sitter-grammars/tree-sitter-doxygen")
-                                     (elisp "https://github.com/Wilfred/tree-sitter-elisp")
-                                     (elixir "https://github.com/elixir-lang/tree-sitter-elixir")
-                                     (glsl "https://github.com/tree-sitter-grammars/tree-sitter-glsl")
-                                     (go "https://github.com/tree-sitter/tree-sitter-go")
-                                     (gomod "https://github.com/camdencheek/tree-sitter-go-mod")
-                                     (haskell "https://github.com/tree-sitter/tree-sitter-haskell")
-                                     (heex "https://github.com/phoenixframework/tree-sitter-heex")
-                                     (html "https://github.com/tree-sitter/tree-sitter-html")
-                                     (javascript "https://github.com/tree-sitter/tree-sitter-javascript" "master" "src")
-                                     (json "https://github.com/tree-sitter/tree-sitter-json")
-                                     (kotlin "https://github.com/fwcd/tree-sitter-kotlin")
-                                     (latex "https://github.com/latex-lsp/tree-sitter-latex")
-                                     (lua "https://github.com/tree-sitter-grammars/tree-sitter-lua")
-                                     (magik "https://github.com/krn-robin/tree-sitter-magik")
-                                     (make "https://github.com/alemuller/tree-sitter-make")
-                                     (org "https://github.com/milisims/tree-sitter-org")
-                                     (proto "https://github.com/mitchellh/tree-sitter-proto")
-                                     (python "https://github.com/tree-sitter/tree-sitter-python" "v0.23.6")
-                                     (ruby "https://github.com/tree-sitter/tree-sitter-ruby")
-                                     (rust "https://github.com/tree-sitter/tree-sitter-rust")
-                                     (sql "https://github.com/DerekStride/tree-sitter-sql")
-                                     (sparql "https://github.com/GordianDziwis/tree-sitter-sparql")
-                                     (toml "https://github.com/tree-sitter/tree-sitter-toml")
-                                     (tsx "https://github.com/tree-sitter/tree-sitter-typescript" "master" "tsx/src")
-                                     (typescript "https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src")
-                                     (wast "https://github.com/wasm-lsp/tree-sitter-wasm" "main" "wast/src")
-                                     (wat "https://github.com/wasm-lsp/tree-sitter-wasm" "main" "wat/src")
-                                     (wsgl "https://github.com/mehmetoguzderin/tree-sitter-wgsl")
-                                     (yaml "https://github.com/tree-sitter-grammars/tree-sitter-yaml" "v0.7.2")
-                                     )))
+  :init
+  ;; Grammars not tied to a specific mode leaf are registered here.
+  ;; Mode-specific grammars live in their respective leaf (e.g. markdown-ts-mode).
+  (dolist (src '((awk "https://github.com/Beaglefoot/tree-sitter-awk")
+                 (bash "https://github.com/tree-sitter/tree-sitter-bash")
+                 (bibtex "https://github.com/latex-lsp/tree-sitter-bibtex")
+                 (blueprint "https://github.com/huanie/tree-sitter-blueprint")
+                 (c "https://github.com/tree-sitter/tree-sitter-c" "v0.23.5")
+                 (c-sharp "https://github.com/tree-sitter/tree-sitter-c-sharp")
+                 (closure "https://github.com/sogaiu/tree-sitter-clojure")
+                 (cmake "https://github.com/uyha/tree-sitter-cmake")
+                 (commonlisp "https://github.com/tree-sitter-grammars/tree-sitter-commonlisp")
+                 (cpp "https://github.com/tree-sitter/tree-sitter-cpp" "v0.23.4")
+                 (css "https://github.com/tree-sitter/tree-sitter-css")
+                 (dart "https://github.com/ast-grep/tree-sitter-dart")
+                 (dockerfile "https://github.com/camdencheek/tree-sitter-dockerfile")
+                 (doxygen "https://github.com/tree-sitter-grammars/tree-sitter-doxygen")
+                 (elisp "https://github.com/Wilfred/tree-sitter-elisp")
+                 (elixir "https://github.com/elixir-lang/tree-sitter-elixir")
+                 (glsl "https://github.com/tree-sitter-grammars/tree-sitter-glsl")
+                 (go "https://github.com/tree-sitter/tree-sitter-go")
+                 (gomod "https://github.com/camdencheek/tree-sitter-go-mod")
+                 (haskell "https://github.com/tree-sitter/tree-sitter-haskell")
+                 (heex "https://github.com/phoenixframework/tree-sitter-heex")
+                 (html "https://github.com/tree-sitter/tree-sitter-html")
+                 (javascript "https://github.com/tree-sitter/tree-sitter-javascript" "master" "src")
+                 (json "https://github.com/tree-sitter/tree-sitter-json")
+                 (kotlin "https://github.com/fwcd/tree-sitter-kotlin")
+                 (latex "https://github.com/latex-lsp/tree-sitter-latex")
+                 (lua "https://github.com/tree-sitter-grammars/tree-sitter-lua")
+                 (magik "https://github.com/krn-robin/tree-sitter-magik")
+                 (make "https://github.com/alemuller/tree-sitter-make")
+                 (org "https://github.com/milisims/tree-sitter-org")
+                 (proto "https://github.com/mitchellh/tree-sitter-proto")
+                 (python "https://github.com/tree-sitter/tree-sitter-python" "v0.23.6")
+                 (ruby "https://github.com/tree-sitter/tree-sitter-ruby")
+                 (rust "https://github.com/tree-sitter/tree-sitter-rust")
+                 (sql "https://github.com/DerekStride/tree-sitter-sql")
+                 (sparql "https://github.com/GordianDziwis/tree-sitter-sparql")
+                 (toml "https://github.com/tree-sitter/tree-sitter-toml")
+                 (tsx "https://github.com/tree-sitter/tree-sitter-typescript" "master" "tsx/src")
+                 (typescript "https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src")
+                 (wast "https://github.com/wasm-lsp/tree-sitter-wasm" "main" "wast/src")
+                 (wat "https://github.com/wasm-lsp/tree-sitter-wasm" "main" "wat/src")
+                 (wsgl "https://github.com/mehmetoguzderin/tree-sitter-wgsl")
+                 (yaml "https://github.com/tree-sitter-grammars/tree-sitter-yaml" "v0.7.2")))
+    (kb/treesit-register-grammar src)))
 
 (leaf mason
   :doc "Package managers for LSP, DAP, linters, and more"
@@ -984,7 +989,6 @@ Uses `locate-dominating-file' to find `.git' without loading `vc-git'."
 (leaf consult-project-extra
   :doc "Consult integration for project.el"
   :req "emacs-27.1" "consult-0.17" "project-0.8.1"
-  :package all-the-icons-completion ;; ensure that all-the-icons-completion is installed first
   :tag "management" "project" "convenience" "emacs>=27.1"
   :url "https://github.com/Qkessler/consult-project-extra"
   :added "2025-09-01"
@@ -1002,8 +1006,7 @@ Uses `locate-dominating-file' to find `.git' without loading `vc-git'."
   :added "2025-09-01"
   :emacs>= 28.1
   :ensure t
-  :global-minor-mode t
-  )
+  :global-minor-mode t)
 
 (leaf eglot
   :doc "The Emacs Client for LSP servers"
@@ -2043,9 +2046,8 @@ Used to see multiline flymake errors"
   :emacs>= 29.1
   :ensure t
   :mode ("\\.md\\'" . markdown-ts-mode)
-  :init
-  (add-to-list 'treesit-language-source-alist '(markdown "https://github.com/tree-sitter-grammars/tree-sitter-markdown" "v0.4.1" "tree-sitter-markdown/src"))
-  (add-to-list 'treesit-language-source-alist '(markdown-inline "https://github.com/tree-sitter-grammars/tree-sitter-markdown" "v0.4.1" "tree-sitter-markdown-inline/src"))
+  :treesit-src (markdown "https://github.com/tree-sitter-grammars/tree-sitter-markdown" "v0.4.1" "tree-sitter-markdown/src")
+               (markdown-inline "https://github.com/tree-sitter-grammars/tree-sitter-markdown" "v0.4.1" "tree-sitter-markdown-inline/src")
   :treesit markdown markdown-inline)
 
 (leaf markdown-indent-mode
@@ -2204,35 +2206,19 @@ Used to see multiline flymake errors"
   :added "2025-10-06"
   :emacs>= 25.1
   :ensure t
-  :after edit-indirect
   :custom
   ;; (separedit-default-mode . 'markdown-mode)
   (separedit-preserve-string-indentation . t)
   (separedit-continue-fill-column . t)
   (separedit-write-file-when-execute-save . t)
   (separedit-remove-trailing-spaces-in-comment . t)
-  :bind
-  ((:prog-mode-map
-    ((kbd "C-c '") . #'separedit))
-   (:minibuffer-local-map
-    ((kbd "C-c '") . #'separedit))
-   (:help-mode-map
-    ((kbd "C-c '") . #'separedit)))
-  ;; :init
-  ;; (require 'separedit)
-  ;; (define-key prog-mode-map "C-c '" 'separedit)
-  ;; (define-key c-mode-map "C-c '" 'separedit)
-  ;; (define-key c++-mode-map "C-c '" 'separedit)
+  :init
+  (dolist (map (list prog-mode-map
+                     minibuffer-local-map
+                     help-mode-map
+                     emacs-lisp-mode-map))
+    (define-key map (kbd "C-c '") #'separedit))
   )
-
-(leaf zerodark-theme
-  :doc "A dark, medium contrast theme for Emacs"
-  :req "all-the-icons-2.0.0"
-  :tag "themes"
-  :url "https://github.com/NicolasPetton/zerodark-theme"
-  :added "2025-09-01"
-  :ensure t
-  :after all-the-icons)
 
 (leaf circadian
   :doc "Theme-switching based on daytime"
@@ -2256,7 +2242,7 @@ Used to see multiline flymake errors"
   (circadian-themes . '((:sunrise . deeper-blue)
                         (:sunset . tsdh-dark)
                         ("8:00" . tango-dark)
-                        ("8:15" . zerodark)
+                        ("8:15" . misterioso)
                         ("15:00" . (modus-vivendi))
                         ("15:15" . wombat)
                         ("17:00" . wheatgrass)
