@@ -2174,6 +2174,16 @@ Used to see multiline flymake errors"
   (add-to-list 'hl-todo-keyword-faces '("NOCOMMIT" . "#ff00ff"))
   :global-minor-mode global-hl-todo-mode)
 
+(leaf consult-todo
+  :doc "Search hl-todo keywords in consult"
+  :req "emacs-29.1" "consult-1.9" "hl-todo-3.8.2"
+  :tag "emacs>=29.1"
+  :url "https://github.com/eki3z/consult-todo"
+  :added "2026-03-23"
+  :emacs>= 29.1
+  :ensure t
+  :after consult hl-todo)
+
 (leaf rainbow-mode
   :doc "Colorize color names in buffers"
   :tag "faces"
