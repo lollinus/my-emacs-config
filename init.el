@@ -557,9 +557,9 @@
   :ensure t
   :after consult
   :bind
-  (global-map ("C-x C-d" . consult-dir))
-  (minibuffer-local-completion-map ("C-x C-d" . cnosult-dir)
-                                   ("C-x C-j" . consult-dir-jump-file)))
+  (:global-map ("C-x C-d" . consult-dir))
+  (:minibuffer-local-completion-map ("C-x C-d" . cnosult-dir)
+                                    ("C-x C-j" . consult-dir-jump-file)))
 
 (leaf prescient
   :doc "Better sorting and filtering"
@@ -2424,9 +2424,12 @@ Used to see multiline flymake errors"
   :ensure t
   :global-minor-mode global-emojify-mode
   :config
-  (add-to-list 'emojify-inhibit-major-modes 'agent-shell-mode)
-  (add-to-list 'emojify-inhibit-major-modes 'magit-status-mode)
-  (add-to-list 'emojify-inhibit-major-modes 'diff-mode))
+  (mapc (lambda (mode) (add-to-list 'emojify-inhibit-major-modes mode))
+        '(agent-shell-mode
+         magit-status-mode
+         diff-mode
+         flymake-diagnostics-buffer-mode))
+  )
 
 (leaf slack
   :doc "Slack client."

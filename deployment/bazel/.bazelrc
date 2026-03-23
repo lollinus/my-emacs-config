@@ -28,3 +28,9 @@ build --action_env=EMACS_CC
 
 # Print test output on failure.
 test --test_output=errors
+
+# Forward proxy environment variables for network access
+build --action_env=http_proxy
+build --action_env=https_proxy
+build --action_env=HTTP_PROXY
+build --action_env=HTTPS_PROXY
