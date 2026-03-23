@@ -426,6 +426,29 @@
   (defun kb/ibuffer-switch-to-filter () (ibuffer-switch-to-saved-filter-groups "default"))
   :hook (ibuffer-mode-hook . kb/ibuffer-switch-to-filter))
 
+(leaf popper
+  :doc "Summon and dismiss buffers as popups"
+  :req "emacs-26.1"
+  :tag "convenience" "emacs>=26.1"
+  :url "https://github.com/karthink/popper"
+  :added "2026-03-23"
+  :emacs>= 26.1
+  :ensure t
+  :bind (("C-`"   . popper-toggle)
+         ("M-`"   . popper-cycle)
+         ("C-M-`" . popper-toggle-type))
+  :custom
+  (popper-reference-buffers . '("\\*Messages\\*"
+                                 "\\*Warnings\\*"
+                                 "Output\\*$"
+                                 "\\*Async Shell Command\\*"
+                                 help-mode
+                                 compilation-mode
+                                 flymake-diagnostics-buffer-mode
+                                 flymake-project-diagnostics-mode))
+  (popper-group-function . #'popper-group-by-project)
+  :global-minor-mode (popper-mode popper-echo-mode))
+
 (leaf vertico
   :doc "VERTical Interactive COmpletion"
   :req "emacs-28.1" "compat-30"
