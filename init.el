@@ -954,16 +954,20 @@
                                        ".svn" ".stack-work" ".ccls-cache" ".cache" ".clangd")
                                      '(".log" ".vs" "node_modules")
                                      ))
+  (setopt project-vc-merge-submodules nil)
+
   ;; Detect projects marked with .project at the immediate VC root, taking
   ;; priority over the superproject. This allows git submodules that contain
   ;; a .project file to be treated as independent projects instead of
   ;; resolving to the parent repository root.
   (defun kb/project-try-dot-project (dir)
-    "Return project root if the immediate VC root for DIR contains `.project'."
-    (when-let* ((vc-root (vc-git-root dir))
-                (_ (file-exists-p (expand-file-name ".project" vc-root))))
-      (list 'vc 'Git vc-root)))
-  (add-to-list 'project-find-functions #'kb/project-try-dot-project))
+    "Return project root if the immediate git root for DIR contains `.project'.
+Uses `locate-dominating-file' to find `.git' without loading `vc-git'."
+    (when-let* ((git-root (locate-dominating-file dir ".git"))
+                (_ (file-exists-p (expand-file-name ".project" git-root))))
+      (list 'vc 'Git git-root)))
+  ;; (add-to-list 'project-find-functions #'kb/project-try-dot-project)
+)
 
 (leaf disproject
   :doc "Dispatch project commands with Transient"
