@@ -2184,6 +2184,17 @@ Used to see multiline flymake errors"
   :ensure t
   :after consult hl-todo)
 
+(leaf consult-symbol
+  :doc "Consult-based symbol search with narrowing"
+  :req "emacs-27.1" "consult-2.0"
+  :tag "matching" "convenience" "emacs>=27.1"
+  :url "https://github.com/danielfleischer/consult-symbol"
+  :added "2026-03-23"
+  :emacs>= 27.1
+  :ensure t
+  :after consult
+  :bind ([remap describe-symbol] . consult-symbol))
+
 (leaf rainbow-mode
   :doc "Colorize color names in buffers"
   :tag "faces"
