@@ -1272,6 +1272,16 @@ Used to see multiline flymake errors"
   :emacs>= 28.1
   :ensure t)
 
+(leaf conflict-buttons
+  :doc "Clickable inline buttons for smerge-mode conflict resolution"
+  :req "emacs-26.1"
+  :tag "vc" "convenience" "emacs>=26.1"
+  :url "https://git.andros.dev/andros/conflict-buttons.el"
+  :added "2026-03-23"
+  :emacs>= 26.1
+  :ensure t
+  :global-minor-mode conflict-buttons-global-mode)
+
 (leaf diff-hl
   :doc "Highlight uncommitted changes using VC"
   :req "cl-lib-0.2" "emacs-26.1"
