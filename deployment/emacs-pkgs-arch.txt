@@ -1,0 +1,52 @@
+# System packages required to build Emacs 30.x from source on Arch Linux / EndeavourOS
+# Install with: sudo pacman -S --needed $(grep -v '^#' emacs-pkgs-arch.txt | tr '\n' ' ')
+
+# Core build tools
+base-devel
+autoconf
+automake
+texinfo
+clang
+
+# Native compilation (libgccjit is bundled with gcc on Arch)
+gcc
+
+# Tree-sitter (required for --with-tree-sitter)
+tree-sitter
+
+# GUI / display — Pure GTK (supports both Wayland and X11)
+gtk3
+
+# Text shaping / font rendering
+harfbuzz
+
+# Image format support
+libjpeg-turbo
+libpng
+libtiff
+giflib
+libxpm
+librsvg
+
+# TLS / security
+gnutls
+
+# JSON (for --with-json)
+jansson
+
+# SQLite (for org-roam, consult, etc.)
+sqlite
+
+# XML / misc
+libxml2
+ncurses
+acl
+
+# Sound (optional but commonly needed)
+alsa-lib
+
+# vterm terminal emulator support
+libvterm
+
+# Desktop integration
+desktop-file-utils

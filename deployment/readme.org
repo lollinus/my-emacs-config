@@ -5,8 +5,9 @@
 
 * Overview
 
-Three ways to get a current Emacs on Ubuntu (Linux focus). Choose based on
-your needs:
+Three ways to get a current Emacs on Linux. Choose based on your needs:
+
+** Ubuntu 24.04 LTS
 
 | Path              | File                          | Effort   | Reproducible | Notes                        |
 |-------------------+-------------------------------+----------+--------------+------------------------------|
@@ -16,7 +17,105 @@ your needs:
 | Bazel (stable)    | [[file:bazel/BUILD.bazel]]        | High     | Yes (SHA256) | Cached, reproducible         |
 | Bazel (any ref)   | same workspace, =EMACS_REF=     | High     | Per ref      | Cached by ref name           |
 
-Target: Ubuntu 24.04 LTS, Emacs 30.x.
+** Arch Linux / EndeavourOS
+
+| Path             | File                       | Effort  | Reproducible | Notes                         |
+|------------------+----------------------------+---------+--------------+-------------------------------|
+| pacman (system)  | —                          | Minimal | Auto-updates | Emacs from official repo      |
+| AUR (emacs-git)  | —                          | Minimal | Auto-updates | Latest git master via AUR     |
+| Script (stable)  | [[file:emacs-config-arch.sh]]  | Medium  | Pinned ver.  | Emacs 30.2, installs ~/.local |
+| Script (any ref) | same script, =--ref REF=   | Medium  | No           | Branch, tag, or commit SHA    |
+
+* Arch Linux / EndeavourOS
+
+** Path A1: pacman (simplest)
+
+The official Arch repositories ship a recent Emacs build:
+
+#+BEGIN_SRC sh
+  sudo pacman -S emacs
+#+END_SRC
+
+This gives you a GTK3/Wayland-capable Emacs with tree-sitter and native
+compilation already enabled.  Updates arrive with normal system upgrades.
+
+** Path A2: AUR — emacs-git (bleeding-edge)
+
+For the latest git master, use an AUR helper:
+
+#+BEGIN_SRC sh
+  yay -S emacs-git       # or: paru -S emacs-git
+#+END_SRC
+
+=emacs-git= is built with =--with-pgtk=, =--with-native-compilation=aot=,
+and =--with-tree-sitter=.
+
+** Path A3: Build from source — shell script
+
+Use this to get a self-contained install under =~/.local/= that does not
+interact with the system package manager.
+
+*** Prerequisites
+
+Install system packages once:
+
+#+BEGIN_SRC sh
+  sudo pacman -S --needed $(grep -v '^#' emacs-pkgs-arch.txt | tr '\n' ' ')
+#+END_SRC
+
+See [[file:emacs-pkgs-arch.txt]] for the full annotated list.
+
+*Note on libgccjit:* On Arch the JIT backend is bundled inside the =gcc=
+package (=libgccjit.so= lives under =/usr/lib/=).  No separate dev package is
+required — unlike Ubuntu where =libgccjit-13-dev= must be installed explicitly.
+
+*** Build stable Emacs 30.2
+
+#+BEGIN_SRC sh
+  ./emacs-config-arch.sh
+#+END_SRC
+
+Clones or downloads Emacs 30.2, configures, builds with =make -j$(nproc --ignore=2)=,
+and installs to =~/.local/=.  Also produces a distributable =.tar.xz= and an
+uninstall script.
+
+Configure highlights:
+- =--with-pgtk= — Pure GTK; works on Wayland *and* X11
+- =--with-native-compilation=aot= — ahead-of-time native compilation
+- =--with-tree-sitter= — built-in tree-sitter support
+- =--with-sqlite3= — needed by org-roam and consult backends
+
+*** Build latest git master (bleeding-edge)
+
+#+BEGIN_SRC sh
+  ./emacs-config-arch.sh --git
+  # equivalent to: --ref master
+#+END_SRC
+
+*** Build any branch, tag, or commit
+
+#+BEGIN_SRC sh
+  ./emacs-config-arch.sh --ref emacs-30       # release branch
+  ./emacs-config-arch.sh --ref emacs-30.2     # release tag
+  ./emacs-config-arch.sh --ref a1b2c3d4       # specific commit SHA
+#+END_SRC
+
+*** Add to PATH
+
+#+BEGIN_SRC sh
+  export PATH="${HOME}/.local/bin:${PATH}"
+  # Add to ~/.bashrc or ~/.bash_profile to persist
+#+END_SRC
+
+** Fonts on Arch
+
+The Bazel-managed font scripts work unchanged on Arch (see [[*Fonts]] below).
+Alternatively, install programming fonts from the official repos or AUR:
+
+#+BEGIN_SRC sh
+  sudo pacman -S ttf-jetbrains-mono
+  yay -S ttf-fira-code noto-fonts
+#+END_SRC
 
 * Path 1: Snap (recommended for daily use)
 

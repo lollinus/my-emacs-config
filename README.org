@@ -39,6 +39,12 @@ My emacs configuration files. -*- mode: org mode: auto-fill -*-
 
 ** U*x
 
-   Depending on Linux distribution follow build instructions in
-   =./deployment/emacs-config-*.sh= and =./deployment/build.emacs.org=.
-   List of 3rd party libs required to build can be found in =./deployment/emacs-pkgs*.txt=.
+   See =./deployment/readme.org= for the full deployment guide.
+
+   | Distribution               | Quick path                                    | Build script                        | Package list                    |
+   |----------------------------+-----------------------------------------------+-------------------------------------+---------------------------------|
+   | Ubuntu 24.04 LTS           | =sudo snap install emacs --classic=           | =deployment/emacs-config-ubuntu24.sh= | =deployment/emacs-pkgs-ubuntu24.txt= |
+   | Arch Linux / EndeavourOS   | =sudo pacman -S emacs=                        | =deployment/emacs-config-arch.sh=     | =deployment/emacs-pkgs-arch.txt=     |
+
+   Build scripts install to =~/.local/= (no =sudo= required for the install step).
+   See =./deployment/build.emacs.org= for Bazel-based reproducible builds.
