@@ -938,6 +938,19 @@
   :ensure t
   :after magit)
 
+(leaf gerrit
+  :doc "Emacs interface for Gerrit code review"
+  :req "emacs-29.1" "magit-2.13.1" "s-1.12.0" "dash-0.2.15"
+  :tag "extensions" "emacs>=29.1"
+  :url "https://github.com/twmr/gerrit.el"
+  :added "2026-03-23"
+  :emacs>= 29.1
+  :ensure t
+  :after magit
+  :bind (("C-c g u" . gerrit-upload-transient)
+         ("C-c g d" . gerrit-dashboard))
+  :hook (magit-status-sections-hook . gerrit-magit-insert-status))
+
 (leaf git-timemachine
   :doc "Walk through git revisions of a file"
   :req "emacs-24.3" "transient-0.1.0"
