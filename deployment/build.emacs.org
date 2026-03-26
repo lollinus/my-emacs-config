@@ -11,6 +11,19 @@ CentOS 8 reached EOL December 2021 and is no longer supported.
 
 * Prerequisites
 
+** Node.js (required for agent-shell / claude-agent-acp)
+
+=claude-agent-acp= requires *Node.js v20 or later*.  AppStream/EPEL may carry
+an older version.  Install via NodeSource:
+
+#+begin_src sh
+  curl -fsSL https://rpm.nodesource.com/setup_22.x | sudo bash -
+  sudo dnf install -y nodejs
+  sudo npm install -g @agentclientprotocol/claude-agent-acp
+#+end_src
+
+See [[file:readme.org::#node-js-required-for-agent-shell-claude-agent-acp][readme.org § Node.js]] for the nvm alternative and the Emacs =exec-path= note.
+
 ** Enable required repositories
 
 The CRB repository (CodeReady Builder, formerly "PowerTools" on CentOS 8)

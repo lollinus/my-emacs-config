@@ -247,6 +247,71 @@ For UI fonts used by GTK (menus, dialogs), install via apt:
   fc-cache -f
 #+END_SRC
 
+* Node.js (required for agent-shell / claude-agent-acp)
+
+=agent-shell= drives AI coding agents via =claude-agent-acp=, a Node.js process.
+=claude-agent-acp= uses the =import ... with { type: "json" }= ES2025 syntax —
+*Node.js v20 or later is required.* Ubuntu 24.04's default package is v18 and
+will not work (the process hangs or exits with a syntax error).
+
+** Ubuntu 24.04
+
+Ubuntu's =apt= repository carries Node.js 18 only. Use one of the following.
+
+*Option A — nvm (recommended; user-space, no sudo)*
+
+#+BEGIN_SRC sh
+  curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
+  source ~/.bashrc                   # or restart shell
+  nvm install 22
+  nvm alias default 22
+  sudo npm install -g @agentclientprotocol/claude-agent-acp
+#+END_SRC
+
+*Option B — NodeSource (system-wide, requires sudo)*
+
+#+BEGIN_SRC sh
+  curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -
+  sudo apt-get install -y nodejs
+  sudo npm install -g @agentclientprotocol/claude-agent-acp
+#+END_SRC
+
+** RHEL / AlmaLinux / Rocky Linux 9
+
+EPEL/AppStream may carry an older Node.js. Use NodeSource or nvm as above.
+NodeSource provides RHEL-compatible RPM repos:
+
+#+BEGIN_SRC sh
+  curl -fsSL https://rpm.nodesource.com/setup_22.x | sudo bash -
+  sudo dnf install -y nodejs
+  sudo npm install -g @agentclientprotocol/claude-agent-acp
+#+END_SRC
+
+** macOS
+
+#+BEGIN_SRC sh
+  brew install node          # installs latest LTS via Homebrew
+  npm install -g @agentclientprotocol/claude-agent-acp
+#+END_SRC
+
+Or use nvm (same commands as Ubuntu Option A above).
+
+** Emacs exec-path / PATH note
+
+Emacs inherits =PATH= from the shell environment at launch time.  If you
+installed Node.js via nvm, ensure the nvm-managed bin directory appears in
+=PATH= *before Emacs starts* (i.e. source nvm in =~/.bashrc= / =~/.profile=,
+not just in interactive shell hooks).  =exec-path-from-shell= or an explicit
+=(add-to-list 'exec-path ...)= in =local.el= is the usual fix when launching
+Emacs from a GUI launcher that does not read =.bashrc=.
+
+** Verify
+
+#+BEGIN_SRC sh
+  node --version          # should print v20.x or higher
+  claude-agent-acp --version 2>&1 | head -1
+#+END_SRC
+
 * Configuration deployment
 
 After installing Emacs by any path above:

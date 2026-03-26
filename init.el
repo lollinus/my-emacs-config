@@ -1759,8 +1759,12 @@ Used to see multiline flymake errors"
   :config
   ;; Claude Code
   ;; Install: curl -fsSL https://claude.ai/install.sh | bash
-  ;;          npm install -g @zed-industries/claude-agent-acp
+  ;;          npm install -g @agentclientprotocol/claude-agent-acp
   ;;          claude login
+  ;; Node.js: claude-agent-acp requires Node.js v20+; Ubuntu 24.04 ships v18.
+  ;;          Use nvm: curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
+  ;;                   nvm install 22 && nvm alias default 22
+  ;;          See deployment/readme.org § Node.js for full per-platform instructions.
   ;; Status:  claude-agent-acp not installed on this machine
   ;; Models:  claude-opus-4-5, claude-sonnet-4-5, claude-haiku-4-5
   (when (executable-find "claude-agent-acp")
