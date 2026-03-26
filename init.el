@@ -912,7 +912,7 @@
   :added "2025-09-01"
   :emacs>= 28.1
   :ensure t
-  :setq (magit-define-global-key-bindings . 'recommended)
+  :setq (magit-define-global-key-bindings . t)
   :defer-config
   (add-to-list 'magit-process-find-password-functions 'magit-process-password-auth-source)
   )
@@ -947,8 +947,10 @@
   :emacs>= 29.1
   :ensure t
   :after magit
-  :bind (("C-c g u" . gerrit-upload-transient)
-         ("C-c g d" . gerrit-dashboard))
+  :bind ((:magit-mode-map ("U" . gerrit-upload-transient)))
+  :config
+  (transient-append-suffix 'magit-dispatch "!"
+    '("U" "Gerrit upload" gerrit-upload-transient))
   :hook (magit-status-sections-hook . gerrit-magit-insert-status))
 
 (leaf git-timemachine
@@ -1746,10 +1748,10 @@ Used to see multiline flymake errors"
   :defun (agent-shell-mistral-start-vibe . agent-shell-mistral)
          (agent-shell-anthropic-start-claude-code . agent-shell-anthropic)
          (agent-shell-github-start-copilot . agent-shell-github)
-  :bind (("C-c s" . agent-shell)
-         ("C-c m" . agent-shell-mistral-start-vibe)
-         ("C-c c" . agent-shell-anthropic-start-claude-code)
-         ("C-c g" . agent-shell-github-start-copilot))
+  :bind (("C-c A s" . agent-shell)
+         ("C-c A m" . agent-shell-mistral-start-vibe)
+         ("C-c A c" . agent-shell-anthropic-start-claude-code)
+         ("C-c A g" . agent-shell-github-start-copilot))
   ;; Disable VC in shell-maker buffers so saving transcripts never triggers
   ;; background git probes that can race with vc-exec-after.
   :hook (shell-maker-mode-hook . (lambda ()
