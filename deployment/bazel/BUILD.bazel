@@ -14,13 +14,35 @@ Targets
   //:remove             Uninstall Emacs from ~/.local/
   //:remove_fonts       Uninstall fonts from ~/.local/share/fonts/emacs/
 
+GUI Toolkit (EMACS_TOOLKIT, default: auto-detect)
+-------------------------------------------
+  Auto-detection (when EMACS_TOOLKIT is unset):
+    Wayland session (XDG_SESSION_TYPE=wayland or WAYLAND_DISPLAY set) → pgtk
+    X11 session                                                        → lucid
+
+  lucid   Lucid (Athena/Xaw) toolkit — stable, X11 only
+            deps: libxaw7-dev libxt-dev
+  pgtk    Pure GTK3 — native Wayland client + X11 via GTK backend
+            deps: libgtk-3-dev
+            warning: running under X11 triggers an Emacs warning about
+            unsupported configuration, crashes on large selections, and
+            keyboard input problems.  Only use in a native Wayland session.
+  gtk3    GTK3 with X11 — Wayland only via XWayland
+            deps: libgtk-3-dev
+
 Examples
 --------
   # Stable build + install (one step)
   bazel run //:install
 
+  # Stable build with pgtk toolkit
+  EMACS_TOOLKIT=pgtk bazel build //:emacs_package
+
   # Ref build + install
   EMACS_REF=emacs-30.2 bazel run //:install_ref
+
+  # Ref build with pgtk toolkit
+  EMACS_REF=emacs-30.2 EMACS_TOOLKIT=pgtk bazel run //:install_ref
 
   # Fonts: install / remove
   bazel run //:install_fonts
@@ -40,6 +62,8 @@ Caching
          --action_env=EMACS_REF in .bazelrc. Changing EMACS_REF busts the cache.
          Note: for mutable refs (master, emacs-30) the cache may be stale;
          use `bazel build --action_env=EMACS_REF_FORCE=$(date +%s)` to force rebuild.
+  Toolkit: EMACS_TOOLKIT is tracked via --action_env=EMACS_TOOLKIT in .bazelrc,
+         so lucid and pgtk builds are cached independently.
 """
 
 load("@rules_shell//shell:sh_binary.bzl", "sh_binary")
@@ -49,7 +73,6 @@ load("@rules_shell//shell:sh_binary.bzl", "sh_binary")
 # ---------------------------------------------------------------------------
 
 CONFIGURE_FLAGS = " ".join([
-    "--with-x-toolkit=lucid",
     "--with-native-compilation=aot",
     "--with-tree-sitter",
     "--with-modules",
@@ -120,8 +143,29 @@ genrule(
         # Defaults to clang; pass EMACS_CC=gcc to build with GCC instead.
         CC="$${EMACS_CC:-clang}"
 
+        # Toolkit selection (EMACS_TOOLKIT env var, tracked via --action_env in .bazelrc).
+        # When unset, auto-detects from XDG_SESSION_TYPE / WAYLAND_DISPLAY:
+        #   Wayland session → pgtk   (native Wayland client via GTK backend)
+        #   X11 session     → lucid  (stable Athena/Xaw toolkit, default)
+        # Override: EMACS_TOOLKIT=lucid|pgtk|gtk3 bazel build //:emacs_package
+        if [[ -n "$${EMACS_TOOLKIT:-}" ]]; then
+            EFFECTIVE_TOOLKIT="$$EMACS_TOOLKIT"
+        elif [[ "$${XDG_SESSION_TYPE:-}" == "wayland" ]] || [[ -n "$${WAYLAND_DISPLAY:-}" ]]; then
+            EFFECTIVE_TOOLKIT="pgtk"
+            echo "==> Auto-detected Wayland session → toolkit: pgtk"
+        else
+            EFFECTIVE_TOOLKIT="lucid"
+            echo "==> Auto-detected X11 session → toolkit: lucid"
+        fi
+        case "$$EFFECTIVE_TOOLKIT" in
+          lucid) TOOLKIT_FLAG="--with-x-toolkit=lucid" ;;
+          pgtk)  TOOLKIT_FLAG="--with-pgtk" ;;
+          gtk3)  TOOLKIT_FLAG="--with-x-toolkit=gtk3" ;;
+          *) echo "ERROR: Unknown EMACS_TOOLKIT '$$EFFECTIVE_TOOLKIT'. Valid values: lucid, pgtk, gtk3" >&2; exit 1 ;;
+        esac
+
         [[ -x ./autogen.sh ]] && ./autogen.sh
-        CC="$$CC" ./configure --prefix="$$PREFIX" """ + CONFIGURE_FLAGS + """
+        CC="$$CC" ./configure --prefix="$$PREFIX" $$TOOLKIT_FLAG """ + CONFIGURE_FLAGS + """
         make -j$$(nproc --ignore=2)
         # DESTDIR stages files under staging/<prefix>; internal paths still say <prefix>.
         make install DESTDIR="$$STAGING_DIR"
@@ -183,7 +227,22 @@ genrule(
         export CPPFLAGS="-I$${GCC_LIBDIR}"
         export LDFLAGS="-L$$(dirname $$GCC_LIBDIR) -Wl,-rpath,$$(dirname $$GCC_LIBDIR)"
         CC="$${EMACS_CC:-clang}"
-        CC="$$CC" ./configure --prefix="$$PREFIX" """ + CONFIGURE_FLAGS + """
+        if [[ -n "$${EMACS_TOOLKIT:-}" ]]; then
+            EFFECTIVE_TOOLKIT="$$EMACS_TOOLKIT"
+        elif [[ "$${XDG_SESSION_TYPE:-}" == "wayland" ]] || [[ -n "$${WAYLAND_DISPLAY:-}" ]]; then
+            EFFECTIVE_TOOLKIT="pgtk"
+            echo "==> Auto-detected Wayland session → toolkit: pgtk"
+        else
+            EFFECTIVE_TOOLKIT="lucid"
+            echo "==> Auto-detected X11 session → toolkit: lucid"
+        fi
+        case "$$EFFECTIVE_TOOLKIT" in
+          lucid) TOOLKIT_FLAG="--with-x-toolkit=lucid" ;;
+          pgtk)  TOOLKIT_FLAG="--with-pgtk" ;;
+          gtk3)  TOOLKIT_FLAG="--with-x-toolkit=gtk3" ;;
+          *) echo "ERROR: Unknown EMACS_TOOLKIT '$$EFFECTIVE_TOOLKIT'. Valid values: lucid, pgtk, gtk3" >&2; exit 1 ;;
+        esac
+        CC="$$CC" ./configure --prefix="$$PREFIX" $$TOOLKIT_FLAG """ + CONFIGURE_FLAGS + """
         make -j$$(nproc --ignore=2)
         make install DESTDIR="$$STAGING_DIR"
 

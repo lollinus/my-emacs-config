@@ -26,6 +26,14 @@ build --action_env=EMACS_REF_FORCE
 #            or: ./deploy.sh --cc gcc
 build --action_env=EMACS_CC
 
+# Track the GUI toolkit as part of the cache key so different toolkit builds
+# are stored separately.  When unset, the genrule auto-detects from
+# XDG_SESSION_TYPE / WAYLAND_DISPLAY (Wayland → pgtk, X11 → lucid).
+# Override with: EMACS_TOOLKIT=lucid|pgtk|gtk3 bazel build //:emacs_package
+build --action_env=EMACS_TOOLKIT
+build --action_env=XDG_SESSION_TYPE
+build --action_env=WAYLAND_DISPLAY
+
 # Print test output on failure.
 test --test_output=errors
 

@@ -79,7 +79,7 @@ step() { echo; echo "==> $*"; }
 check_deps() {
   step "Checking build dependencies"
   local missing=()
-  for pkg in libgccjit-13-dev libtree-sitter-dev libgtk-3-dev libharfbuzz-dev; do
+  for pkg in libgccjit-13-dev libtree-sitter-dev libgtk-3-dev libxaw7-dev libxt-dev libharfbuzz-dev; do
     dpkg -s "$pkg" &>/dev/null || missing+=("$pkg")
   done
   if [[ ${#missing[@]} -gt 0 ]]; then

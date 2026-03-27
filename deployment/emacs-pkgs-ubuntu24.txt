@@ -19,8 +19,13 @@ libgccjit-13-dev
 # Tree-sitter (required for --with-tree-sitter)
 libtree-sitter-dev
 
-# GUI / display — Pure GTK (supports both Wayland and X11)
+# GUI / display
+# libgtk-3-dev  — Pure GTK toolkit (--with-pgtk); used by emacs-config-ubuntu24.sh
+# libxaw7-dev   — Lucid (Athena) toolkit (--with-x-toolkit=lucid); used by Bazel build
+# libxt-dev     — X Toolkit Intrinsics; required by Lucid toolkit
 libgtk-3-dev
+libxaw7-dev
+libxt-dev
 
 # Text shaping / font rendering
 libharfbuzz-dev

@@ -26,6 +26,23 @@ Usage:
   bazel run //:remove_fonts
   ./deploy.sh               # legacy: build stable + deploy to ~/.local/
   ./deploy_fonts.sh         # legacy: download and install programming fonts
+
+GUI toolkit selection (EMACS_TOOLKIT env var, default: auto-detect):
+  Auto-detection (when EMACS_TOOLKIT is unset):
+    Wayland session (XDG_SESSION_TYPE=wayland or WAYLAND_DISPLAY set) → pgtk
+    X11 session                                                        → lucid
+  lucid — Lucid (Athena/Xaw) toolkit; stable, X11 only
+            requires: libxaw7-dev libxt-dev
+  pgtk  — Pure GTK3; native Wayland client + X11 via GTK backend
+            requires: libgtk-3-dev
+            warning: running under X11 (not Wayland) triggers an Emacs warning
+            about unsupported configuration, sporadic crashes on large selections,
+            and keyboard input problems.  Only use pgtk in a native Wayland session.
+  gtk3  — GTK3 with X11; Wayland only via XWayland
+            requires: libgtk-3-dev
+
+  EMACS_TOOLKIT=pgtk bazel build //:emacs_package
+  EMACS_TOOLKIT=gtk3 bazel run //:install
 """
 
 module(
