@@ -1035,7 +1035,8 @@
   :mode ("\\(\\.ii\\|\\.\\(CC?\\|HH?\\)\\|\\.[ch]\\(pp\\|xx\\|\\+\\+\\)\\|\\.\\(cc\\|hh\\)\\)\\'" . c++-ts-mode)
   :hook (((c-ts-mode-hook c++-ts-mode-hook) . kb/c++-ts-mode-hook)
          ((c-ts-mode-hook c++-ts-mode-hook) . kb/whitespace-progmode-setup))
-  :treesit-src (c "https://github.com/tree-sitter/tree-sitter-c")
+  :treesit-src
+  (c "https://github.com/tree-sitter/tree-sitter-c")
   (cpp "https://github.com/tree-sitter/tree-sitter-cpp")
   (doxygen "https://github.com/tree-sitter-grammars/tree-sitter-doxygen")
   :config
@@ -1079,7 +1080,8 @@
   :hook ((haskell-mode-hook . interactive-haskell-mode)
          (haskell-mode-hook . turn-on-haskell-doc-mode)
          (haskell-mode-hook . haskell-indent-mode)
-         (haskell-mode-hook . kb/haskell-setup-outline-mode)))
+         (haskell-mode-hook . kb/haskell-setup-outline-mode))
+  :treesit-src (haskell "https://github.com/tree-sitter/tree-sitter-haskell"))
 
 (leaf magit
   :doc "A Git porcelain inside Emacs."
@@ -2025,7 +2027,8 @@ Used to see multiline flymake errors"
   :added "2026-01-08"
   :emacs>= 28.1
   :ensure t
-  :after aio tablist)
+  :after aio tablist
+  :treesit-src (dockerfile "https://github.com/camdencheek/tree-sitter-dockerfile"))
 
 (leaf devcontainer
   :doc "Support for devcontainer"
@@ -2535,8 +2538,8 @@ Used to see multiline flymake errors"
    ;; Insert a blank single-line Doxygen comment.
    ("C-c d s" . doxymacs-insert-blank-singleline-comment)
    ;; Insert a grouping comments around the current region.
-   ("C-c d @" . doxymacs-insert-grouping-comments)
-   ))
+   ("C-c d @" . doxymacs-insert-grouping-comments))
+  :treesit-src (doxygen "https://github.com/tree-sitter-grammars/tree-sitter-doxygen"))
 
 (leaf gnuplot
   :doc "Major-mode and interactive frontend for gnuplot"
