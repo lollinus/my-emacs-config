@@ -752,19 +752,17 @@
   :doc "tree-sitter utilities"
   :tag "builtin" "languages" "tree-sitter" "treesit"
   :added "2025-09-17"
-  :init
+  :defer-config
   ;; Grammars not tied to a specific mode leaf are registered here.
   ;; Mode-specific grammars live in their respective leaf (e.g. markdown-ts-mode).
   (dolist (src '((awk "https://github.com/Beaglefoot/tree-sitter-awk")
                  (bash "https://github.com/tree-sitter/tree-sitter-bash")
                  (bibtex "https://github.com/latex-lsp/tree-sitter-bibtex")
                  (blueprint "https://github.com/huanie/tree-sitter-blueprint")
-                 (c "https://github.com/tree-sitter/tree-sitter-c" "v0.23.5")
                  (c-sharp "https://github.com/tree-sitter/tree-sitter-c-sharp")
                  (closure "https://github.com/sogaiu/tree-sitter-clojure")
                  (cmake "https://github.com/uyha/tree-sitter-cmake")
                  (commonlisp "https://github.com/tree-sitter-grammars/tree-sitter-commonlisp")
-                 (cpp "https://github.com/tree-sitter/tree-sitter-cpp" "v0.23.4")
                  (css "https://github.com/tree-sitter/tree-sitter-css")
                  (dart "https://github.com/ast-grep/tree-sitter-dart")
                  (dockerfile "https://github.com/camdencheek/tree-sitter-dockerfile")
@@ -818,6 +816,9 @@
   :custom ((c-ts-common-indent-offset . 4)
            (c-ts-mode-enable-doxygen . t)
            (c-ts-mode-indent-offset . 4))
+  :treesit-src
+  (c "https://github.com/tree-sitter/tree-sitter-c" "v0.23.5")
+  (cpp "https://github.com/tree-sitter/tree-sitter-cpp" "v0.23.4")
   :preface
   (defun kb/c++-setup-symbol-compose ()
     "Define additional symbol composition rules for C++ mode."
