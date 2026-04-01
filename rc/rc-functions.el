@@ -367,21 +367,39 @@ See: URL `http://en.wikipedia.org/wiki/ISO_8601'"
 (declare-function treesit-ready-p "treesit")
 (declare-function treesit-install-language-grammar "treesit")
 
+(defvar kb/treesit--user-registered nil
+  "Languages added to `treesit-language-source-alist' by `kb/treesit-register-grammar'.
+Used to distinguish user-registered entries from those registered by Emacs
+built-in modes (which use `add-to-list' directly and bypass this function).
+A conflict between two user registrations is always warned; a conflict where
+Emacs already registered the language is silently skipped.")
+
 ;;;###autoload
 (defun kb/treesit-register-grammar (spec)
-  "Add SPEC to `treesit-language-source-alist', warning on conflicting entries.
+  "Add SPEC to `treesit-language-source-alist'.
 SPEC is a list (LANG URL [REVISION [SOURCE-DIR [CC [C++]]]]).
-If LANG is already registered with a different spec the existing entry wins
-and a `display-warning' is emitted so the conflict is visible at startup."
+
+If LANG is already registered:
+- by this function (user conflict): warn and keep the existing entry.
+- by Emacs or a package directly (system entry): silently skip.
+
+This means version-guarded workarounds like `(when (< emacs-major-version 31)
+...)' are unnecessary — built-in modes that self-register their grammars will
+simply win without noise."
   (let* ((lang (car spec))
          (existing (assq lang treesit-language-source-alist)))
-    (if (and existing (not (equal existing spec)))
-        (display-warning
-         'treesit
-         (format "Grammar conflict for `%s':\n  keeping : %S\n  ignored : %S"
-                 lang existing spec)
-         :warning)
-      (add-to-list 'treesit-language-source-alist spec))))
+    (cond
+     ((null existing)
+      (add-to-list 'treesit-language-source-alist spec)
+      (cl-pushnew lang kb/treesit--user-registered))
+     ((equal existing spec) nil)
+     ((memq lang kb/treesit--user-registered)
+      (display-warning
+       'treesit
+       (format "Grammar conflict for `%s':\n  keeping : %S\n  ignored : %S"
+               lang existing spec)
+       :warning))
+     (t nil))))
 (declare-function mason-installed-p "mason")
 (declare-function mason-install "mason")
 

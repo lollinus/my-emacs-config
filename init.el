@@ -756,17 +756,13 @@
   ;; Grammars not tied to a specific mode leaf are registered here.
   ;; Mode-specific grammars live in their respective leaf (e.g. markdown-ts-mode).
   (dolist (src '((awk "https://github.com/Beaglefoot/tree-sitter-awk")
-                 (bash "https://github.com/tree-sitter/tree-sitter-bash")
                  (bibtex "https://github.com/latex-lsp/tree-sitter-bibtex")
                  (blueprint "https://github.com/huanie/tree-sitter-blueprint")
                  (c-sharp "https://github.com/tree-sitter/tree-sitter-c-sharp")
                  (closure "https://github.com/sogaiu/tree-sitter-clojure")
-                 (cmake "https://github.com/uyha/tree-sitter-cmake")
                  (commonlisp "https://github.com/tree-sitter-grammars/tree-sitter-commonlisp")
-                 (css "https://github.com/tree-sitter/tree-sitter-css")
                  (dart "https://github.com/ast-grep/tree-sitter-dart")
                  (dockerfile "https://github.com/camdencheek/tree-sitter-dockerfile")
-                 (doxygen "https://github.com/tree-sitter-grammars/tree-sitter-doxygen")
                  (elisp "https://github.com/Wilfred/tree-sitter-elisp")
                  (elixir "https://github.com/elixir-lang/tree-sitter-elixir")
                  (glsl "https://github.com/tree-sitter-grammars/tree-sitter-glsl")
@@ -774,28 +770,20 @@
                  (gomod "https://github.com/camdencheek/tree-sitter-go-mod")
                  (haskell "https://github.com/tree-sitter/tree-sitter-haskell")
                  (heex "https://github.com/phoenixframework/tree-sitter-heex")
-                 (html "https://github.com/tree-sitter/tree-sitter-html")
-                 (javascript "https://github.com/tree-sitter/tree-sitter-javascript" "master" "src")
-                 (json "https://github.com/tree-sitter/tree-sitter-json")
                  (kotlin "https://github.com/fwcd/tree-sitter-kotlin")
                  (latex "https://github.com/latex-lsp/tree-sitter-latex")
                  (lua "https://github.com/tree-sitter-grammars/tree-sitter-lua")
                  (magik "https://github.com/krn-robin/tree-sitter-magik")
                  (make "https://github.com/alemuller/tree-sitter-make")
-                 (org "https://github.com/milisims/tree-sitter-org")
                  (proto "https://github.com/mitchellh/tree-sitter-proto")
-                 (python "https://github.com/tree-sitter/tree-sitter-python" "v0.23.6")
                  (ruby "https://github.com/tree-sitter/tree-sitter-ruby")
                  (rust "https://github.com/tree-sitter/tree-sitter-rust")
                  (sql "https://github.com/DerekStride/tree-sitter-sql")
                  (sparql "https://github.com/GordianDziwis/tree-sitter-sparql")
                  (toml "https://github.com/tree-sitter/tree-sitter-toml")
-                 (tsx "https://github.com/tree-sitter/tree-sitter-typescript" "master" "tsx/src")
-                 (typescript "https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src")
                  (wast "https://github.com/wasm-lsp/tree-sitter-wasm" "main" "wast/src")
                  (wat "https://github.com/wasm-lsp/tree-sitter-wasm" "main" "wat/src")
-                 (wsgl "https://github.com/mehmetoguzderin/tree-sitter-wgsl")
-                 (yaml "https://github.com/tree-sitter-grammars/tree-sitter-yaml" "v0.7.2")))
+                 (wsgl "https://github.com/mehmetoguzderin/tree-sitter-wgsl")))
     (kb/treesit-register-grammar src)))
 
 (leaf mason
@@ -816,9 +804,6 @@
   :custom ((c-ts-common-indent-offset . 4)
            (c-ts-mode-enable-doxygen . t)
            (c-ts-mode-indent-offset . 4))
-  :treesit-src
-  (c "https://github.com/tree-sitter/tree-sitter-c" "v0.23.5")
-  (cpp "https://github.com/tree-sitter/tree-sitter-cpp" "v0.23.4")
   :preface
   (defun kb/c++-setup-symbol-compose ()
     "Define additional symbol composition rules for C++ mode."
@@ -862,6 +847,9 @@
   :mode ("\\(\\.ii\\|\\.\\(CC?\\|HH?\\)\\|\\.[ch]\\(pp\\|xx\\|\\+\\+\\)\\|\\.\\(cc\\|hh\\)\\)\\'" . c++-ts-mode)
   :hook (((c-ts-mode-hook c++-ts-mode-hook) . kb/c++-ts-mode-hook)
          ((c-ts-mode-hook c++-ts-mode-hook) . kb/whitespace-progmode-setup))
+  :treesit-src (c "https://github.com/tree-sitter/tree-sitter-c" "v0.23.5")
+  (cpp "https://github.com/tree-sitter/tree-sitter-cpp" "v0.23.4")
+  (doxygen "https://github.com/tree-sitter-grammars/tree-sitter-doxygen")
   :config
   (c-ts-mode-set-global-style 'linux)
   :treesit c cpp doxygen)
@@ -1198,6 +1186,7 @@ Used to see multiline flymake errors"
   (setq-default eglot-workspace-configuration
                 '((:pylsp . (:configurationSources ["flake8"] :plugins (:pycodestyle (:enabled nil) :mccabe (:enabled nil) :flake8 (:enabled t))))))
 
+  :treesit-src (python "https://github.com/tree-sitter/tree-sitter-python" "v0.23.6")
   :treesit python
   :mason ("pylsp" "python-lsp-server" "Run M-x eglot in your Python buffer to activate.")
          ("flake8" "flake8")
@@ -1242,6 +1231,9 @@ Used to see multiline flymake errors"
   (add-to-list 'major-mode-remap-alist '(js-ts-mode . lit-ts-js-mode))
   (add-to-list 'major-mode-remap-alist '(typescript-mode . lit-ts-typescript-mode))
   (add-to-list 'major-mode-remap-alist '(typescript-ts-mode . lit-ts-typescript-mode))
+  :treesit-src (javascript "https://github.com/tree-sitter/tree-sitter-javascript" "master" "src")
+  (typescript "https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src")
+  (tsx "https://github.com/tree-sitter/tree-sitter-typescript" "master" "tsx/src")
   :treesit lit-html javascript typescript tsx
   :mode (("\\.js\\'" . lit-ts-js-mode)
          ("\\.ts\\'" . lit-ts-typescript-mode)))
@@ -1531,6 +1523,7 @@ Used to see multiline flymake errors"
   :tag "builtin"
   :mode "\\.json\\'"
   :init (add-to-list 'major-mode-remap-alist '(json-mode . json-ts-mode))
+  :treesit-src (json "https://github.com/tree-sitter/tree-sitter-json")
   :treesit json)
 
 (leaf json-at-point
@@ -1559,6 +1552,7 @@ Used to see multiline flymake errors"
     (add-to-list 'eglot-server-programs
                  '(yaml-ts-mode . ("yaml-language-server" "--stdio"))))
   :mason ("yaml-language-server" "yaml-language-server")
+  :treesit-src (yaml "https://github.com/tree-sitter-grammars/tree-sitter-yaml" "v0.7.2")
   :treesit yaml)
 
 (leaf bash-ts-mode
@@ -1566,6 +1560,7 @@ Used to see multiline flymake errors"
   :tag "builtin"
   :mode ("\\.sh\\'" "\\.bash\\'")
   :init (add-to-list 'major-mode-remap-alist '(bash-mode . bash-ts-mode))
+  :treesit-src (bash "https://github.com/tree-sitter/tree-sitter-bash")
   :treesit bash)
 
 (leaf css-ts-mode
@@ -1573,6 +1568,7 @@ Used to see multiline flymake errors"
   :tag "builtin"
   :mode "\\.css\\'"
   :init (add-to-list 'major-mode-remap-alist '(css-mode . css-ts-mode))
+  :treesit-src (css "https://github.com/tree-sitter/tree-sitter-css")
   :treesit css)
 
 (leaf html-ts-mode
@@ -1580,6 +1576,7 @@ Used to see multiline flymake errors"
   :tag "builtin"
   :mode ("\\.html\\'" "\\.htm\\'")
   :init (add-to-list 'major-mode-remap-alist '(html-mode . html-ts-mode))
+  :treesit-src (html "https://github.com/tree-sitter/tree-sitter-html")
   :treesit html)
 
 (leaf csv-mode
@@ -1614,6 +1611,7 @@ Used to see multiline flymake errors"
     (add-to-list 'eglot-server-programs
                  '(cmake-ts-mode . ("neocmakelsp" "--stdio"))))
   :mason ("neocmakelsp" "neocmakelsp")
+  :treesit-src (cmake "https://github.com/uyha/tree-sitter-cmake")
   :treesit cmake)
 
 (leaf cmake-font-lock
@@ -1962,6 +1960,7 @@ Used to see multiline flymake errors"
       (insert (format "[[file:%s]]" filename))
       (org-redisplay-inline-images)))
   :bind (org-mode-map ("C-<print>" . ews-org-insert-screenshot))
+  :treesit-src (org "https://github.com/milisims/tree-sitter-org")
   )
 
 (leaf dash
