@@ -2293,6 +2293,15 @@ Used to see multiline flymake errors"
     (define-key map (kbd "C-c '") #'separedit))
   )
 
+(leaf ancient-theme
+  :doc "A theme about ruins."
+  :req "emacs-29.1"
+  :tag "theme" "faces" "emacs>=29.1"
+  :url "https://github.com/thomasbestvina/ancient-theme"
+  :added "2026-03-30"
+  :emacs>= 29.1
+  :ensure t)
+
 (leaf circadian
   :doc "Theme-switching based on daytime"
   :req "emacs-27.2"
@@ -2316,6 +2325,7 @@ Used to see multiline flymake errors"
                         (:sunset . tsdh-dark)
                         ("8:00" . tango-dark)
                         ("8:15" . misterioso)
+                        ("9:00" . ancient)
                         ("15:00" . (modus-vivendi))
                         ("15:15" . wombat)
                         ("17:00" . wheatgrass)
