@@ -446,7 +446,7 @@
                                  compilation-mode
                                  flymake-diagnostics-buffer-mode
                                  flymake-project-diagnostics-mode))
-  (popper-group-function . #'popper-group-by-project)
+  (popper-group-function . #'popper-group-by-directory)
   :global-minor-mode (popper-mode popper-echo-mode))
 
 (leaf vertico
