@@ -400,6 +400,7 @@ simply win without noise."
                lang existing spec)
        :warning))
      (t nil))))
+
 (declare-function mason-installed-p "mason")
 (declare-function mason-install "mason")
 
@@ -431,13 +432,24 @@ that is compatible with this build of Emacs."
                 (message "*** %s grammar installed. Revert buffers to activate ts-mode." language))
             (error (message "*** Failed to install %s grammar: %s"
                             language (error-message-string err)))))))
-    ;; Emacs <31 fallback: use treesit-ready-p (cannot detect ABI mismatch).
+    ;; Emacs <31 fallback: treesit-ready-p returns nil for both a missing
+    ;; grammar and an ABI mismatch — we cannot distinguish them here.
     (when (not (treesit-ready-p language t))
       (message "*** Installing %s grammar for treesitter" language)
       (condition-case err
           (progn
             (treesit-install-language-grammar language)
-            (message "*** %s grammar installed. Revert buffers to activate ts-mode." language))
+            ;; Re-check: if still not ready the compiled grammar has an ABI
+            ;; incompatible with this Emacs build (libtree-sitter too old).
+            (if (treesit-ready-p language t)
+                (message "*** %s grammar installed. Revert buffers to activate ts-mode." language)
+              (display-warning
+               'treesit
+               (format "Grammar for `%s' was reinstalled but is still not usable.\
+ This usually means the grammar's ABI version is newer than what this Emacs\
+ build supports. Rebuild Emacs against a newer libtree-sitter (>= 0.24 for ABI 15)."
+                       language)
+               :warning)))
         (error (message "*** Failed to install %s grammar: %s"
                         language (error-message-string err)))))))
 

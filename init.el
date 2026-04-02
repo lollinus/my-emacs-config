@@ -847,8 +847,8 @@
   :mode ("\\(\\.ii\\|\\.\\(CC?\\|HH?\\)\\|\\.[ch]\\(pp\\|xx\\|\\+\\+\\)\\|\\.\\(cc\\|hh\\)\\)\\'" . c++-ts-mode)
   :hook (((c-ts-mode-hook c++-ts-mode-hook) . kb/c++-ts-mode-hook)
          ((c-ts-mode-hook c++-ts-mode-hook) . kb/whitespace-progmode-setup))
-  :treesit-src (c "https://github.com/tree-sitter/tree-sitter-c" "v0.23.5")
-  (cpp "https://github.com/tree-sitter/tree-sitter-cpp" "v0.23.4")
+  :treesit-src (c "https://github.com/tree-sitter/tree-sitter-c")
+  (cpp "https://github.com/tree-sitter/tree-sitter-cpp")
   (doxygen "https://github.com/tree-sitter-grammars/tree-sitter-doxygen")
   :config
   (c-ts-mode-set-global-style 'linux)
@@ -1186,7 +1186,7 @@ Used to see multiline flymake errors"
   (setq-default eglot-workspace-configuration
                 '((:pylsp . (:configurationSources ["flake8"] :plugins (:pycodestyle (:enabled nil) :mccabe (:enabled nil) :flake8 (:enabled t))))))
 
-  :treesit-src (python "https://github.com/tree-sitter/tree-sitter-python" "v0.23.6")
+  :treesit-src (python "https://github.com/tree-sitter/tree-sitter-python")
   :treesit python
   :mason ("pylsp" "python-lsp-server" "Run M-x eglot in your Python buffer to activate.")
          ("flake8" "flake8")
