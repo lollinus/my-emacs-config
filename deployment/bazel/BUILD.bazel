@@ -93,6 +93,46 @@ CONFIGURE_FLAGS = " ".join([
 
 GIT_URL = "https://git.savannah.gnu.org/git/emacs.git"
 
+# Shell fragment shared by both Emacs genrules: unpacks the libtree-sitter
+# staging tarball and exports the env vars that point configure at it.
+_TREE_SITTER_SETUP = """
+        # Unpack the libtree-sitter staging tarball built by //:libtree_sitter.
+        TS_STAGING=$$(mktemp -d)
+        tar -xf "$(location //:libtree_sitter)" -C "$$TS_STAGING"
+        export PKG_CONFIG_PATH="$$TS_STAGING/lib/pkgconfig${PKG_CONFIG_PATH:+:$$PKG_CONFIG_PATH}"
+        export LIBRARY_PATH="$$TS_STAGING/lib${LIBRARY_PATH:+:$$LIBRARY_PATH}"
+        export LDFLAGS="$$LDFLAGS -L$$TS_STAGING/lib -Wl,-rpath,$$REAL_HOME/.local/lib"
+"""
+
+# ---------------------------------------------------------------------------
+# libtree-sitter (built from source for ABI-15 support)
+# Produces a staging tree under lib/ and include/ in the output directory,
+# consumed by the Emacs genrules via TREE_SITTER_STAGING.
+# ---------------------------------------------------------------------------
+
+genrule(
+    name = "libtree_sitter",
+    srcs = ["@libtree_sitter_src//:all"],
+    outs = ["libtree-sitter-staging.tar"],
+    cmd = """
+        set -euo pipefail
+        OUTPUT_ABS="$$PWD/$@"
+
+        # Locate the source root from any known file in the archive.
+        SRC=$$(dirname $$(echo $(locations @libtree_sitter_src//:all) | tr ' ' '\\n' | grep 'Makefile$$' | head -1))
+
+        STAGING=$$(mktemp -d)
+        trap 'rm -rf "$$STAGING"' EXIT
+
+        # tree-sitter's Makefile honours PREFIX for installation.
+        make -C "$$SRC" -j$$(nproc --ignore=2)
+        make -C "$$SRC" PREFIX="$$STAGING" install
+
+        tar -cf "$$OUTPUT_ABS" -C "$$STAGING" .
+    """,
+    local = True,
+)
+
 # ---------------------------------------------------------------------------
 # Stable build (Emacs 30.2 tarball via @emacs_src — reproducible)
 # ---------------------------------------------------------------------------
@@ -102,6 +142,7 @@ genrule(
     srcs = [
         "@emacs_src//:all",
         "@emacs_src//:configure",
+        "//:libtree_sitter",
     ],
     outs = ["emacs-30.2-install.tar.xz"],
     cmd = """
@@ -138,7 +179,7 @@ genrule(
         fi
         export CPPFLAGS="-I$${GCC_LIBDIR}"
         export LDFLAGS="-L$$(dirname $$GCC_LIBDIR) -Wl,-rpath,$$(dirname $$GCC_LIBDIR)"
-
+""" + _TREE_SITTER_SETUP + """
         # Compiler: EMACS_CC env var (set via --action_env=EMACS_CC or deploy.sh --cc).
         # Defaults to clang; pass EMACS_CC=gcc to build with GCC instead.
         CC="$${EMACS_CC:-clang}"
@@ -185,7 +226,7 @@ genrule(
 
 genrule(
     name = "emacs_ref_package",
-    srcs = [],
+    srcs = ["//:libtree_sitter"],
     outs = ["emacs-ref-install.tar.xz"],
     cmd = """
         set -euo pipefail
@@ -226,6 +267,7 @@ genrule(
         fi
         export CPPFLAGS="-I$${GCC_LIBDIR}"
         export LDFLAGS="-L$$(dirname $$GCC_LIBDIR) -Wl,-rpath,$$(dirname $$GCC_LIBDIR)"
+""" + _TREE_SITTER_SETUP + """
         CC="$${EMACS_CC:-clang}"
         if [[ -n "$${EMACS_TOOLKIT:-}" ]]; then
             EFFECTIVE_TOOLKIT="$$EMACS_TOOLKIT"
