@@ -1120,6 +1120,9 @@ Uses `locate-dominating-file' to find `.git' without loading `vc-git'."
           ("M-p" . flymake-goto-prev-error))
          )
   :hook (prog-mode-hook . flymake-mode)
+  :custom 
+  ;; (flymake-fringe-indicator-position . 'right-fringe)
+  (flymake-indicator-type . 'margin)
   :preface
   (defun kb/flymake-show-diagnostic-here (pos &optional other-window)
     "Show the full diagnostic of this error.
@@ -1403,11 +1406,10 @@ Used to see multiline flymake errors"
        :vc-backend Git
        :branch "main")
   :require t
-  :after tree-sitter-mode
   :global-minor-mode (global-treesit-fold-mode global-treesit-fold-indicators-mode treesit-fold-line-comment-mode)
   :custom
   (treesit-fold-indicators-fringe . 'left-fringe)
-  (treesit-fold-indicators-priority . 30)
+  (treesit-fold-indicators-priority . 100)
   (treesit-fold-line-count-show . t)  ; Show line count in folded regions
   :config
   (message "**** Configuring treesit-fold")
