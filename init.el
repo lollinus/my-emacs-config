@@ -2500,8 +2500,8 @@ Used to see multiline flymake errors"
         '(agent-shell-mode
          magit-status-mode
          diff-mode
-         flymake-diagnostics-buffer-mode))
-  )
+         flymake-diagnostics-buffer-mode
+         prog-mode)))
 
 (leaf slack
   :doc "Slack client."
