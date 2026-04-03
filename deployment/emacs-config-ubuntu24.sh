@@ -187,10 +187,13 @@ build_emacs() {
   [[ -x ./autogen.sh ]] && ./autogen.sh
 
   step "Configuring (prefix=${INSTALL_PREFIX})"
-  # Point pkg-config and the linker at our locally-built libtree-sitter so
-  # Emacs picks it up rather than the stale system package.
+  # PKG_CONFIG_PATH / LIBRARY_PATH point the build-time linker at our
+  # locally-built libtree-sitter.  LDFLAGS bakes an RPATH into the Emacs
+  # binary so the *runtime* dynamic linker also finds it — without this,
+  # Emacs would fall back to the stale system libtree-sitter at startup.
   PKG_CONFIG_PATH="${INSTALL_PREFIX}/lib/pkgconfig${PKG_CONFIG_PATH:+:${PKG_CONFIG_PATH}}" \
   LIBRARY_PATH="${INSTALL_PREFIX}/lib${LIBRARY_PATH:+:${LIBRARY_PATH}}" \
+  LDFLAGS="-Wl,-rpath,${INSTALL_PREFIX}/lib${LDFLAGS:+ ${LDFLAGS}}" \
   CC=clang ./configure "${CONFIGURE_FLAGS[@]}"
 
   step "Building with ${JOBS} parallel jobs"
