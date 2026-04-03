@@ -21,4 +21,18 @@
 ;;         (agent-shell-make-environment-variables
 ;;          "GITHUB_ENTERPRISE_URL" "https://your-ghe-host.com")))
 
+;;; Tree-sitter grammar ABI workaround
+;; If this machine's Emacs was built against libtree-sitter < 0.24 (e.g. Ubuntu
+;; 24.04 system package 0.20.8), grammars from HEAD or recent tags emit ABI 15
+;; and won't load.  Pin affected languages to the last ABI-14 tags here.
+;; Remove once Emacs is rebuilt with libtree-sitter >= 0.24 (see deployment script).
+;;
+;; (with-eval-after-load 'treesit
+;;   (dolist (spec '((c       "https://github.com/tree-sitter/tree-sitter-c"      "v0.21.4")
+;;                   (cpp     "https://github.com/tree-sitter/tree-sitter-cpp"    "v0.22.3")
+;;                   (python  "https://github.com/tree-sitter/tree-sitter-python" "v0.21.0")))
+;;     (let ((lang (car spec)))
+;;       (setq treesit-language-source-alist
+;;             (cons spec (assq-delete-all lang treesit-language-source-alist))))))
+
 ;;; local.el.example ends here
