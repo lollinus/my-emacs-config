@@ -2012,17 +2012,16 @@ Used to see multiline flymake errors"
   :custom
   ;; Multiple LaTeX passes for bibliographies
   (org-latex-pdf-process .
-                         '("pdflatex -interaction nonstopmode -output-directory %o %f"
+                         '("%latex -interaction nonstopmode -output-directory %o %f"
                            "bibtex %b"
-                           "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
-                           "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"))
+                           "%latex -shell-escape -interaction nonstopmode -output-directory %o %f"
+                           "%latex -shell-escape -interaction nonstopmode -output-directory %o %f"))
   ;; Clean temporary files after export
   (org-latex-logfiles-extensions .
                                  (quote ("lof" "lot" "tex~" "aux" "idx" "log" "out"
                                          "toc" "nav" "snm" "vrb" "dvi" "fdb_latexmk"
                                          "blg" "brf" "fls" "entoc" "ps" "spl" "bbl"
-                                        "tex" "bcf"))))
-
+                                         "tex" "bcf"))))
 ;; (require 'auth-source)
 ;; (let* ((auth (car (auth-source-search
 ;; 	       :host "jira.cc.bmwgroup.net"
