@@ -1872,6 +1872,15 @@ Used to see multiline flymake errors"
   :emacs>= 25.1
   :ensure t)
 
+(leaf ghostel
+  :doc "Terminal emulator powered by libghostty."
+  :req "emacs-28.1"
+  :tag "terminals" "emacs>=28.1"
+  :url "https://github.com/dakra/ghostel"
+  :added "2026-04-07"
+  :emacs>= 28.1
+  :ensure t)
+
 (leaf emamux
   :doc "Interact with tmux"
   :req "emacs-24.3"
