@@ -192,9 +192,12 @@ build_emacs() {
   # locally-built libtree-sitter.  LDFLAGS bakes an RPATH into the Emacs
   # binary so the *runtime* dynamic linker also finds it — without this,
   # Emacs would fall back to the stale system libtree-sitter at startup.
+  # CPPFLAGS prepends the staged include dir so it shadows any system
+  # libtree-sitter-dev headers (e.g. Ubuntu 24.04's stale 0.20.8).
   PKG_CONFIG_PATH="${INSTALL_PREFIX}/lib/pkgconfig${PKG_CONFIG_PATH:+:${PKG_CONFIG_PATH}}" \
   LIBRARY_PATH="${INSTALL_PREFIX}/lib${LIBRARY_PATH:+:${LIBRARY_PATH}}" \
   LDFLAGS="-Wl,-rpath,${INSTALL_PREFIX}/lib${LDFLAGS:+ ${LDFLAGS}}" \
+  CPPFLAGS="-I${INSTALL_PREFIX}/include${CPPFLAGS:+ ${CPPFLAGS}}" \
   CC=clang ./configure "${CONFIGURE_FLAGS[@]}"
 
   step "Building with ${JOBS} parallel jobs"
