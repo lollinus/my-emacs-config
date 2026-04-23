@@ -2041,6 +2041,14 @@ Used to see multiline flymake errors"
 ;;    (username (plist-get auth :user)))
 ;;   (message "creds %S USR: %S AUTH: %S" `(:username ,(plist-get auth :user) :password ,password) username auth))
 
+(leaf htmlize
+  :doc "Convert buffer text and decorations to HTML"
+  :req "emacs-26.1"
+  :tag "extensions" "hypermedia" "emacs>=26.1"
+  :url "https://github.com/emacsorphanage/htmlize"
+  :added "2026-04-17"
+  :emacs>= 26.1
+  :ensure t)
 
 (leaf org-jira
   :doc "Syncing between Jira and Org-mode"
@@ -2551,6 +2559,9 @@ Used to see multiline flymake errors"
           (("C-c '" . slack-message-send-from-buffer)))
          )
   )
+
+;; packages to try
+;; - ben
 
 (leaf alert
   :commands (alert)
