@@ -17,3 +17,5 @@ straight/
 var/
 local.el
 /.agent-shell/
+deployment/bazel/.last_force
+deployment/bazel/.bazelrc.force

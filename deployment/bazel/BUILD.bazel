@@ -102,7 +102,8 @@ _TREE_SITTER_SETUP = """
         tar -xf "$$LIBTREE_SITTER_TAR" -C "$$TS_STAGING"
         export PKG_CONFIG_PATH="$$TS_STAGING/lib/pkgconfig$${PKG_CONFIG_PATH:+:$$PKG_CONFIG_PATH}"
         export LIBRARY_PATH="$$TS_STAGING/lib$${LIBRARY_PATH:+:$$LIBRARY_PATH}"
-        export LDFLAGS="$$LDFLAGS -L$$TS_STAGING/lib -Wl,-rpath,$$TS_STAGING/lib -Wl,-rpath,$$REAL_HOME/.local/lib"
+        export LD_LIBRARY_PATH="$$TS_STAGING/lib$${LD_LIBRARY_PATH:+:$$LD_LIBRARY_PATH}"
+        export LDFLAGS="$$LDFLAGS -L$$TS_STAGING/lib -Wl,-rpath,$$REAL_HOME/.local/lib"
         # Prepend staged headers so they shadow any system libtree-sitter-dev
         # (e.g. Ubuntu 24.04's stale 0.20.8 at /usr/include/tree_sitter/api.h).
         export CPPFLAGS="-I$$TS_STAGING/include $${CPPFLAGS:-}"
@@ -219,6 +220,11 @@ genrule(
         # DESTDIR stages files under staging/<prefix>; internal paths still say <prefix>.
         make install DESTDIR="$$STAGING_DIR"
 
+        # Bundle libtree-sitter .so files into the tarball so the rpath
+        # ($$HOME/.local/lib) is satisfied at runtime without a system install.
+        mkdir -p "$$STAGING_DIR$$PREFIX/lib"
+        cp -a "$$TS_STAGING/lib"/libtree-sitter.so* "$$STAGING_DIR$$PREFIX/lib/"
+
         tar -cJf "$$OUTPUT_ABS" -C "$$STAGING_DIR$$PREFIX" .
         rm -rf "$$WORK"
     """,
@@ -298,6 +304,11 @@ genrule(
         CC="$$CC" ./configure --prefix="$$PREFIX" $$TOOLKIT_FLAG """ + CONFIGURE_FLAGS + """
         make -j$$(nproc --ignore=2)
         make install DESTDIR="$$STAGING_DIR"
+
+        # Bundle libtree-sitter .so files into the tarball so the rpath
+        # ($$HOME/.local/lib) is satisfied at runtime without a system install.
+        mkdir -p "$$STAGING_DIR$$PREFIX/lib"
+        cp -a "$$TS_STAGING/lib"/libtree-sitter.so* "$$STAGING_DIR$$PREFIX/lib/"
 
         tar -cJf "$$OUTPUT_ABS" -C "$$STAGING_DIR$$PREFIX" .
         rm -rf "$$WORK"

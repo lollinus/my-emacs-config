@@ -7,6 +7,13 @@
 # Use bzlmod (MODULE.bazel) as the dependency system — required for Bazel 7+.
 common --enable_bzlmod
 
+# Persisted EMACS_REF_FORCE value written by deploy.sh --force.
+# Lets direct bazel invocations reuse the last force value with no extra flags:
+#   EMACS_REF=master bazel --nohome_rc build //:emacs_ref_package
+# Regenerate with: ./deploy.sh --ref master --force
+# .bazelrc.force is gitignored and machine-local.
+try-import %workspace%/.bazelrc.force
+
 # Keep Bazel output readable during long builds.
 common --show_progress_rate_limit=5
 
