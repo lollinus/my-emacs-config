@@ -190,7 +190,7 @@
   "moduleExtensions": {
     "//:emacs_fetch.bzl%emacs_sources": {
       "general": {
-        "bzlTransitiveDigest": "iTqfpx5T3ftI/LQ11CZAiadx/22/spktvMoz22RcJmU=",
+        "bzlTransitiveDigest": "o/s3WD9Ey0AvkOV332fj6+qMiQnSbCxyYVGWsH5qC1U=",
         "usagesDigest": "yBuL/BsbaT8yl03Yvv9MvH6iGvKmfGE3vsGC64HovWc=",
         "recordedInputs": [
           "REPO_MAPPING:,bazel_tools bazel_tools"
