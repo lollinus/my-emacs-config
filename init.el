@@ -746,7 +746,14 @@
   :doc "Generic major mode for programming"
   :tag "builtin" "internal"
   :added "2022-11-01"
-  :global-minor-mode global-prettify-symbols-mode)
+  :global-minor-mode global-prettify-symbols-mode
+  :font
+  ("Fira Code" "https://github.com/tonsky/FiraCode/releases/download/6.2/Fira_Code_v6.2.zip")
+  ("JetBrains Mono"  "https://download.jetbrains.com/fonts/JetBrainsMono-2.304.zip")
+  ("Noto Sans Mono" "https://github.com/notofonts/latin-greek-cyrillic/releases/tag/NotoSansMono-v2.014")
+  :config
+  (set-face-attribute 'default nil :font "Fira Code")
+)
 
 (leaf treesit
   :doc "tree-sitter utilities"
