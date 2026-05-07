@@ -1812,6 +1812,19 @@ Used to see multiline flymake errors"
     )
   )
 
+(leaf agent-recall
+  :doc "Search and browse agent-shell conversation transcripts"
+  :req "emacs-29.1" "agent-shell-0.1.0"
+  :tag "ai" "convenience" "tools" "emacs>=29.1"
+  :url "https://github.com/Marx-A00/agent-recall"
+  :added "2026-04-23"
+  :emacs>= 29.1
+  :ensure t
+  :after agent-shell
+  :hook (agent-shell-mode-hook . agent-recall-track-sessions)
+  :config
+  (setq agent-recall-search-paths  '("~/.agent-shell/" "~/projects" "~/ddad" "~/orion")))
+
 (leaf ai-code
   :doc "Unified interface for AI coding CLI such as Codex, Copilot CLI, Opencode, Grok CLI, etc."
   :req "emacs-28.1" "transient-0.8.0" "magit-2.1.0"
