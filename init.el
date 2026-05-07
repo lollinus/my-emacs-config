@@ -2523,6 +2523,7 @@ Used to see multiline flymake errors"
          prog-mode)))
 
 (leaf slack
+  :disabled t
   :doc "Slack client."
   :req "websocket-1.12" "request-0.3.2" "circe-2.11" "alert-1.2" "emojify-1.2.1" "emacs-25.1" "dash-2.19.1" "s-1.13.1" "ts-0.3"
   :tag "tools" "emacs>=25.1"
