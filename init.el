@@ -1877,6 +1877,7 @@ Used to see multiline flymake errors"
   :disabled (not (executable-find "copilot-language-server"))
   :doc "An unofficial Copilot plugin"
   :req "emacs-27.2" "editorconfig-0.8.2" "jsonrpc-1.0.14" "f-0.20.0" "track-changes-1.4"
+  :after project
   :tag "copilot" "convenience" "emacs>=27.2"
   :url "https://github.com/copilot-emacs/copilot.el"
   :added "2026-01-08"
