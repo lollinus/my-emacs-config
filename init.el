@@ -426,6 +426,15 @@
   (defun kb/ibuffer-switch-to-filter () (ibuffer-switch-to-saved-filter-groups "default"))
   :hook (ibuffer-mode-hook . kb/ibuffer-switch-to-filter))
 
+(leaf shannon-max
+  :doc "Analyze your keybindings with information theory"
+  :req "emacs-29.1"
+  :tag "emacs>=29.1"
+  :url "https://github.com/sstraust/shannonmax"
+  :added "2026-05-13"
+  :emacs>= 29.1
+  :ensure t)
+
 (leaf popper
   :doc "Summon and dismiss buffers as popups"
   :req "emacs-26.1"
@@ -1818,6 +1827,25 @@ Used to see multiline flymake errors"
     ;; (setq agent-shell-github-default-model-id "gpt-4o")
     )
   )
+
+(leaf claude-code
+  :doc "Run Claude Code sessions"
+  :req "emacs-28.1" "projectile-2.5.0" "vterm-0.0.2" "transient-0.4.0" "markdown-mode-2.5"
+  :tag "convenience" "tools" "emacs>=28.1"
+  :url "https://github.com/yuya373/claude-code-emacs"
+  :added "2026-05-13"
+  :emacs>= 28.1
+  :ensure t
+  :after projectile vterm markdown-mode)
+
+(leaf claude-code-context
+  :doc "Share buffer context with Claude Code"
+  :req "emacs-27.1"
+  :tag "convenience" "ai" "tools" "emacs>=27.1"
+  :url "https://github.com/lukehoersten/claude-code-context"
+  :added "2026-05-13"
+  :emacs>= 27.1
+  :ensure t)
 
 (leaf agent-recall
   :doc "Search and browse agent-shell conversation transcripts"
