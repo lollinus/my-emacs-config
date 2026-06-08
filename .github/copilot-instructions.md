@@ -34,6 +34,7 @@ These are defined in `rc/rc-functions.el` and added via `leaf-keywords-init`.
 | Diagnostics | flymake, sideline-eglot, sideline-flymake |
 | Syntax / Folding | tree-sitter (built-in ≥29), treesit-fold |
 | Git | magit, diff-hl, git-timemachine, sideline-blame |
+| Bazel | bazel.el (official), emacs-bazel (local: `~/projects/emacs-bazel`) |
 | AI | copilot, gptel, ai-code |
 | Terminal | vterm |
 | Icons | nerd-icons |
@@ -79,3 +80,14 @@ For RHEL-family systems (AlmaLinux 9, Rocky Linux 9, CentOS Stream 9), see `depl
 System package prerequisites for Ubuntu 24.04 are in `deployment/emacs-pkgs-ubuntu24.txt`.
 
 After launching Emacs with this config for the first time, packages auto-install from MELPA/GNU ELPA. There is no separate install step.
+
+## Bazel C++ Development (emacs-bazel)
+
+The `emacs-bazel` package (loaded from `~/projects/emacs-bazel`) provides:
+- **compile_commands.json** generation via a Bazel aspect — feeds clangd/eglot without running a full build
+- **Build/test** commands with configuration selection and `bazel.el` target completion
+- **GDB debugging** of `cc_test`/`cc_binary` with proper runfiles environment
+
+Key bindings (under `C-c b`): `r` refresh, `b` build, `t` test, `d` debug, `T` test-at-point, `a` add-package, `c` select-config.
+
+Per-project config is stored in `.bazel-compdb/config.json` (packages, configurations, active config). The `.bazel-compdb/` directory also contains the aspect `.bzl` file and an empty BUILD file (required for Bazel label resolution).
