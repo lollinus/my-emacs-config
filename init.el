@@ -2324,6 +2324,22 @@ Used to see multiline flymake errors"
   :global-minor-mode t
   :hook (prog-mode-hook text-mode-hook)
   :custom (rainbow-html-colors . t))
+
+(leaf sleek-modeline
+  :doc "Minimal and elegant modeline."
+  :req "emacs-29.1"
+  :tag "faces" "mode-line" "emacs>=29.1"
+  :url "https://github.com/abidanBrito/sleek-modeline"
+  :added "2026-06-08"
+  :emacs>= 29.1
+  :ensure t
+  :global-minor-mode t
+  :custom
+  (sleek-modeline-size . 'medium)
+  (sleek-modeline-diagnostics-ok-symbol . "✓")
+  ;; (sleek-modeline-separator . " | ")
+  ;; (sleek-modeline-vc-use-github-icon . nil)
+  )
 
 ;; Other
 (leaf comment-dwim-2
