@@ -1136,7 +1136,7 @@ Uses `locate-dominating-file' to find `.git' without loading `vc-git'."
           ("M-p" . flymake-goto-prev-error))
          )
   :hook (prog-mode-hook . flymake-mode)
-  :custom 
+  :custom
   ;; (flymake-fringe-indicator-position . 'right-fringe)
   (flymake-indicator-type . 'margin)
   :preface
@@ -2360,13 +2360,13 @@ Used to see multiline flymake errors"
     (define-key map (kbd "C-c '") #'separedit))
   )
 
-(leaf ancient-theme
-  :doc "A theme about ruins."
-  :req "emacs-29.1"
-  :tag "theme" "faces" "emacs>=29.1"
-  :url "https://github.com/thomasbestvina/ancient-theme"
-  :added "2026-03-30"
-  :emacs>= 29.1
+(leaf desert-theme
+  :doc "A warm earthy port of Vim's desert theme."
+  :req "emacs-27.1"
+  :tag "desert" "vim" "theme" "faces" "emacs>=27.1"
+  :url "https://github.com/bkc39/desert-theme"
+  :added "2026-06-08"
+  :emacs>= 27.1
   :ensure t)
 
 (leaf circadian
@@ -2392,7 +2392,7 @@ Used to see multiline flymake errors"
                         (:sunset . tsdh-dark)
                         ("8:00" . tango-dark)
                         ("8:15" . misterioso)
-                        ("9:00" . ancient)
+                        ("9:00" . desert)
                         ("15:00" . (modus-vivendi))
                         ("15:15" . wombat)
                         ("17:00" . wheatgrass)
