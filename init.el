@@ -1651,6 +1651,31 @@ Used to see multiline flymake errors"
   :emacs>= 28.1
   :ensure t)
 
+(leaf emacs-bazel
+  :doc "Bazel IDE features: compile_commands & debug."
+  :req "emacs-29.1" "bazel-0"
+  :tag "tools" "languages" "c"
+  :url "https://github.com/lollinus/emacs-bazel"
+  :added "2026-06-08"
+  :emacs>= 29.1
+  :vc (emacs-bazel
+       :url "https://github.com/lollinus/emacs-bazel"
+       :vc-backend Git
+       :branch "master"
+       :rev :newest)
+  :after bazel
+  :commands (emacs-bazel-refresh
+             emacs-bazel-add-package
+             emacs-bazel-remove-package
+             emacs-bazel-select-configuration
+             emacs-bazel-debug-target
+             emacs-bazel-test-at-point-debug)
+  :bind (("C-c b r" . emacs-bazel-refresh)
+         ("C-c b d" . emacs-bazel-debug-target)
+         ("C-c b t" . emacs-bazel-test-at-point-debug)
+         ("C-c b a" . emacs-bazel-add-package)
+         ("C-c b c" . emacs-bazel-select-configuration)))
+
 (leaf nxml-mode
   :doc "a new XML mode"
   :tag "builtin" "xml" "languages" "hypermedia" "text"
