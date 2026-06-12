@@ -1441,11 +1441,31 @@ Used to see multiline flymake errors"
   ;; (setq treesit-fold-summary-show nil)
   ;; (setq treesit-fold-summary-exceeded-string "...")
   ;; (setq treesit-fold-summary-format " <S> %s ")
-  :bind (:treesit-fold-mode-map
-         ("C-c t f" . treesit-fold-toggle)
-         ("C-c t a" . treesit-fold-close-all)
-         ("C-c t o" . treesit-fold-open-all)
-         ("C-c t u" . treesit-fold-open-recursively)))
+  ;; :bind (:treesit-fold-mode-map
+  ;;        ("C-c t f" . treesit-fold-toggle)
+  ;;        ("C-c t a" . treesit-fold-close-all)
+  ;;        ("C-c t o" . treesit-fold-open-all)
+  ;;        ("C-c t u" . treesit-fold-open-recursively))
+  )
+
+(leaf kirigami
+  :doc "A unified method to fold and unfold text."
+  :req "emacs-26.1"
+  :tag "convenience" "emacs>=26.1"
+  :url "https://github.com/jamescherti/kirigami.el"
+  :added "2026-06-12"
+  :emacs>= 26.1
+  :ensure t
+  :global-minor-mode t
+  :custom
+  (kirigami-show-menu-bar . 1)
+  (kirigami-show-context-menu . 1)
+  :bind (kirigami-mode-map
+         ("C-c t f" . kirigami-toggle-fold)
+         ("C-c t a" . kirigami-close-folds)
+         ("C-c t o" . kirigami-open-folds)
+         ("C-c t u" . kirigami-open-fold-rec))
+  )
 
 (leaf so-long
   :doc "Say farewell to performance problems with minified code."
