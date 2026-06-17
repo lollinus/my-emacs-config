@@ -1456,7 +1456,7 @@ Used to see multiline flymake errors"
   :added "2026-06-12"
   :emacs>= 26.1
   :ensure t
-  :global-minor-mode t
+  :global-minor-mode kirigami-global-mode
   :custom
   (kirigami-show-menu-bar . 1)
   (kirigami-show-context-menu . 1)
