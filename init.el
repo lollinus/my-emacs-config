@@ -651,6 +651,18 @@
           ("C-." . embark-act)))
   )
 
+(leaf context-clues
+  :doc "Easily copy context like the current file name and path."
+  :req "emacs-28.1" "transient-0.3.0"
+  :tag "tools" "convenience" "emacs>=28.1"
+  :url "https://github.com/mrcnski/context-clues"
+  :added "2026-07-23"
+  :emacs>= 28.1
+  :ensure t
+  :bind
+  ("C-c c" . context-clues)
+  )
+
 (leaf corfu
   :doc "COmpletion in Region FUnction"
   :req "emacs-28.1" "compat-30"
@@ -2458,17 +2470,6 @@ Used to see multiline flymake errors"
                         ("15:15" . wombat)
                         ("17:00" . wheatgrass)
                         ("21:30" . leuven-dark)))
-  )
-
-(leaf kill-file-path
-  :doc "Copy file name into kill ring"
-  :req "emacs-26"
-  :tag "files" "emacs>=26"
-  :url "https://github.com/chyla/kill-file-path/kill-file-path.el"
-  :added "2025-09-02"
-  :emacs>= 26
-  :ensure t
-  ;; :bind ("C-c f" . kill-file-path)
   )
 
 
