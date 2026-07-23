@@ -691,7 +691,7 @@
   ;; Capfs and Dabbrev can be used globally (M-/).  See also the customization
   ;; variable `global-corfu-modes' to exclude certain modes.
   ;; Enable optional extension modes:
-  :global-minor-mode (global-corfu-mode corfu-history-mode corfu-popupinfo-mode)
+  :global-minor-mode (global-corfu-mode corfu-history-mode corfu-popupinfo-mode corfu-mouse-mode)
   )
 
 (leaf cape
