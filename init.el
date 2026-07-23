@@ -2560,6 +2560,7 @@ Used to see multiline flymake errors"
   :global-minor-mode global-sideline-mode)
 
 (leaf sideline-blame
+  :disabled t
   :doc "Show blame messages with sideline."
   :req "emacs-28.1" "sideline-0.1.0" "vc-msg-1.1.1"
   :tag "blame" "convenience" "emacs>=28.1"
@@ -2570,7 +2571,25 @@ Used to see multiline flymake errors"
   :after sideline
   :config
   (add-to-list 'sideline-backends-right '(sideline-blame . down))
-)
+  )
+
+(leaf blamee
+  :doc "Chunked git-blame overlays with popup details."
+  :req "emacs-27.1"
+  :tag "git" "vc" "tools" "emacs>=27.1"
+  :url "https://github.com/fvi-att/blamee"
+  :added "2026-07-23"
+  :emacs>= 27.1
+  :ensure t
+  ;; :custom
+  ;; (blamee-inline-columns . '(author date hash))
+  ;; (blamee-hash-length . 6)
+  :bind
+  ("C-c b b" . blamee-show-commit-at-point)
+  ("C-c b y" . blamee-copy-commit-hash-at-point)
+  ("C-c b r" . blamee-refresh)
+  ("C-c b t" . blamee-mode)
+  )
 
 (leaf sideline-eglot
   :doc "Show eglot information with sideline."
