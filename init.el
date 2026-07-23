@@ -945,6 +945,66 @@
   :after magit
   :bind (:magit-blame-mode-map ("M-o" . magit-browse-commit-at-point)))
 
+(leaf consult-gh
+  :doc "Consulting GitHub Client."
+  :req "emacs-29.4" "consult-2.0" "markdown-mode-2.6" "ox-gfm-1.0" "yaml-1.2.0"
+  :tag "vc" "tools" "matching" "convenience" "emacs>=29.4"
+  :url "https://github.com/armindarvish/consult-gh"
+  :added "2026-06-26"
+  :emacs>= 29.4
+  :ensure t
+  :after consult markdown-mode ox-gfm yaml
+  :custom
+  (consult-gh-default-clone-directory . "~/projects")
+  ;; (consult-gh-show-preview . t)
+  ;; (consult-gh-preview-key . "C-o")
+  ;; (consult-gh-repo-action . #'consult-gh--repo-browse-files-action)
+  ;; (consult-gh-large-file-warning-threshold 2500000)
+  ;; (consult-gh-confirm-name-before-fork nil)
+  ;; (consult-gh-confirm-before-clone t)
+  ;; (consult-gh-notifications-show-unread-only nil)
+  ;; (consult-gh-default-interactive-command #'consult-gh-transient)
+  ;; (consult-gh-prioritize-local-folder nil)
+  ;; (consult-gh-group-dashboard-by :reason)
+  ;; ;;;; Optional
+  ;; (consult-gh-repo-preview-major-mode nil) ; show readmes in their original format
+  ;; (consult-gh-preview-major-mode 'org-mode) ; use 'org-mode for editing comments, commit messages, ...
+  ;; :config
+  ;; ;; Remember visited orgs and repos across sessions
+  ;; (add-to-list 'savehist-additional-variables 'consult-gh--known-orgs-list)
+  ;; (add-to-list 'savehist-additional-variables 'consult-gh--known-repos-list)
+  ;; ;; Enable default keybindings (e.g. for commenting on issues, prs, ...)
+  ;; (consult-gh-enable-default-keybindings))
+  )
+
+;; Install `consult-gh-embark' for embark actions
+(leaf consult-gh-embark
+  :doc "Embark Actions for consult-gh"
+  :req "emacs-29.4" "consult-2.0" "consult-gh-3.0" "embark-consult-1.1" "which-key-3.6.0"
+  :tag "completion" "forges" "repositories" "git" "matching" "emacs>=29.4"
+  :url "https://github.com/armindarvish/consult-gh"
+  :added "2026-06-26"
+  :emacs>= 29.4
+  :ensure t
+  :after consult consult-gh embark-consult which-key
+  :config
+  (consult-gh-embark-mode +1))
+
+;; Install `consult-gh-forge' for forge actions
+(leaf consult-gh-forge
+  :doc "Magit/Forge Integration for consult-gh"
+  :req "emacs-29.4" "consult-2.0" "forge-0.3.3" "consult-gh-3.0"
+  :tag "completion" "forges" "repositories" "git" "matching" "emacs>=29.4"
+  :url "https://github.com/armindarvish/consult-gh"
+  :added "2026-06-26"
+  :emacs>= 29.4
+  :ensure t
+  :after consult forge consult-gh
+  :config
+  (consult-gh-forge-mode +1)
+  (setq consult-gh-forge-timeout-seconds 20))
+
+
 (leaf magit-gh
   :doc "GitHub CLI integration for Magit"
   :req "emacs-29.1" "magit-4.0.0" "transient-0.5.0"
@@ -1027,6 +1087,17 @@ Uses `locate-dominating-file' to find `.git' without loading `vc-git'."
                 (_ (file-exists-p (expand-file-name ".project" git-root))))
       (list 'vc 'Git git-root)))
   ;; (add-to-list 'project-find-functions #'kb/project-try-dot-project)
+  (defun kb/superproject-root ()
+  "Zwróć root superprojektu Git lub bieżącego projektu."
+  (let* ((root (project-root (project-current t)))
+         (default-directory root)
+         (superproject
+          (string-trim
+           (shell-command-to-string
+            "git rev-parse --show-superproject-working-tree 2>/dev/null"))))
+    (if (string-empty-p superproject)
+        root
+      (file-name-as-directory superproject))))
 )
 
 (leaf disproject
