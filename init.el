@@ -2394,6 +2394,7 @@ Used to see multiline flymake errors"
   :custom
   (sleek-modeline-size . 'medium)
   (sleek-modeline-diagnostics-ok-symbol . "✓")
+  (sleek-modeline-hide-inactive . t)
   ;; (sleek-modeline-separator . " | ")
   ;; (sleek-modeline-vc-use-github-icon . nil)
   )
@@ -2441,6 +2442,42 @@ Used to see multiline flymake errors"
   :added "2026-06-08"
   :emacs>= 27.1
   :ensure t)
+
+(leaf nano-theme
+  :doc "N Λ N O theme"
+  :req "emacs-27.1"
+  :tag "light" "dark" "theme" "emacs>=27.1"
+  :url "https://github.com/rougier/nano-theme"
+  :added "2026-07-23"
+  :emacs>= 27.1
+  :ensure t)
+
+(leaf nano-modeline
+  :doc "N Λ N O modeline"
+  :req "emacs-27.1"
+  :tag "header-line" "mode-line" "convenience" "emacs>=27.1"
+  :url "https://github.com/rougier/nano-modeline"
+  :added "2026-07-23"
+  :emacs>= 27.1
+  :ensure t
+  :hook
+  (prog-mode-hook            . nano-modeline-prog-mode)
+  (text-mode-hook            . nano-modeline-text-mode)
+  (org-mode-hook             . nano-modeline-org-mode)
+  (pdf-view-mode-hook        . nano-modeline-pdf-mode)
+  (mu4e-headers-mode-hook    . nano-modeline-mu4e-headers-mode)
+  (mu4e-view-mode-hook       . nano-modeline-mu4e-message-mode)
+  (mu4e-compose-mode-hook    . nano-modeline-mu4e-compose-mode)
+  (elfeed-show-mode-hook     . nano-modeline-elfeed-entry-mode)
+  (elfeed-search-mode-hook   . nano-modeline-elfeed-search-mode)
+  (elpher-mode-hook          . nano-modeline-elpher-mode)
+  (term-mode-hook            . nano-modeline-term-mode)
+  (eat-mode-hook             . nano-modeline-eat-mode)
+  (xwidget-webkit-mode-hook  . nano-modeline-xwidget-mode)
+  (messages-buffer-mode-hook . nano-modeline-message-mode)
+  (org-capture-mode-hook     . nano-modeline-org-capture-mode)
+  (org-agenda-mode-hook      . nano-modeline-org-agenda-mode)
+  )
 
 (leaf circadian
   :doc "Theme-switching based on daytime"
