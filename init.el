@@ -426,6 +426,18 @@
   (defun kb/ibuffer-switch-to-filter () (ibuffer-switch-to-saved-filter-groups "default"))
   :hook (ibuffer-mode-hook . kb/ibuffer-switch-to-filter))
 
+(leaf sidebuf
+  :doc "Buffer list sidebar panel."
+  :req "emacs-27.1"
+  :tag "buffers" "convenience" "emacs>=27.1"
+  :url "https://github.com/rain-64/sidebuf"
+  :added "2026-07-13"
+  :emacs>= 27.1
+  :ensure t
+  :bind
+  ("C-c b" . sidebuf-select-window)
+  )
+
 (leaf shannon-max
   :doc "Analyze your keybindings with information theory"
   :req "emacs-29.1"
