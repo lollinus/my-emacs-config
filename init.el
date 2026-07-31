@@ -1110,7 +1110,17 @@ Uses `locate-dominating-file' to find `.git' without loading `vc-git'."
   :ensure t
   ;; Replace `project-prefix-map' with `disproject-dispatch'.
   :init
-  (keymap-global-set "C-x p" #'disproject-dispatch))
+  (keymap-global-set "C-x p" #'disproject-dispatch)
+  :config
+  (leaf consult
+    :custom
+    (disproject-switch-to-buffer-command . #'consult-project-buffer)
+    )
+  (leaf ghostel
+    :custom
+    (disproject-shell-command . #'ghostel-project)
+    )
+  )
 
 (leaf consult-project-extra
   :doc "Consult integration for project.el"
