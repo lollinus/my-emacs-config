@@ -2631,7 +2631,6 @@ Used to see multiline flymake errors"
   :global-minor-mode global-sideline-mode)
 
 (leaf sideline-blame
-  :disabled t
   :doc "Show blame messages with sideline."
   :req "emacs-28.1" "sideline-0.1.0" "vc-msg-1.1.1"
   :tag "blame" "convenience" "emacs>=28.1"
