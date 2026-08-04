@@ -1893,6 +1893,7 @@ Used to see multiline flymake errors"
 ;;        :rev :nevest))
 
 (leaf agent-shell
+  :disabled t
   :doc "Native agentic integrations for Claude Code, Gemini CLI, etc"
   :req "emacs-29.1" "shell-maker-0.84.8" "acp-0.8.3"
   :tag "emacs>=29.1"
@@ -1967,6 +1968,7 @@ Used to see multiline flymake errors"
   )
 
 (leaf claude-code
+  :disabled t
   :doc "Run Claude Code sessions"
   :req "emacs-28.1" "projectile-2.5.0" "vterm-0.0.2" "transient-0.4.0" "markdown-mode-2.5"
   :tag "convenience" "tools" "emacs>=28.1"
@@ -1977,6 +1979,7 @@ Used to see multiline flymake errors"
   :after projectile vterm markdown-mode)
 
 (leaf claude-code-context
+  :disabled t
   :doc "Share buffer context with Claude Code"
   :req "emacs-27.1"
   :tag "convenience" "ai" "tools" "emacs>=27.1"
@@ -1986,6 +1989,7 @@ Used to see multiline flymake errors"
   :ensure t)
 
 (leaf agent-recall
+  :disabled t
   :doc "Search and browse agent-shell conversation transcripts"
   :req "emacs-29.1" "agent-shell-0.1.0"
   :tag "ai" "convenience" "tools" "emacs>=29.1"
@@ -1999,6 +2003,7 @@ Used to see multiline flymake errors"
   (setq agent-recall-search-paths  '("~/.agent-shell/" "~/projects" "~/ddad" "~/orion")))
 
 (leaf ai-code
+  :disabled t
   :doc "Unified interface for AI coding CLI such as Codex, Copilot CLI, Opencode, Grok CLI, etc."
   :req "emacs-28.1" "transient-0.8.0" "magit-2.1.0"
   :tag "emacs>=28.1"
