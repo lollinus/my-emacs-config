@@ -2059,18 +2059,12 @@ Used to see multiline flymake errors"
   :emacs>= 28.1
   :ensure t)
 
-(leaf emamux
-  :doc "Interact with tmux"
-  :req "emacs-24.3"
-  :tag "emacs>=24.3"
-  :url "https://github.com/syohex/emacs-emamux"
-  :added "2025-10-10"
-  :emacs>= 24.3
+(use-package emamux
   :ensure t
-  :custom
+  :config
   ;; for tmux version 2+ following settings need to be applied
-  (emamux:get-buffers-regexp . "^\\(buffer[0-9]+\\): +\\([0-9]+\\) +\\(bytes\\): +[\"]\\(.*\\)[\"]")
-  (emamux:show-buffers-with-index . t))
+  (setq emamux:get-buffers-regexp "^\\(buffer[0-9]+\\): +\\([0-9]+\\) +\\(bytes\\): +[\"]\\(.*\\)[\"]")
+  (setq emamux:show-buffers-with-index nil))
 
 
 ;; Documents
