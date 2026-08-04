@@ -2576,41 +2576,29 @@ Used to see multiline flymake errors"
 
 ;; Visuals
 
-(leaf nerd-icons
-  :doc "Emacs Nerd Font Icons Library"
-  :req "emacs-25.1"
-  :tag "lisp" "emacs>=25.1"
-  :url "https://github.com/rainstormstudio/nerd-icons.el"
-  :added "2025-09-16"
-  :emacs>= 25.1
+(use-package nerd-icons
   :ensure t
   :config
   (when (boundp 'nerd-icons-font-family)
     (unless (find-font (font-spec :name nerd-icons-font-family))
       (nerd-icons-install-fonts t))))
 
-(leaf nerd-icons-corfu
-  :doc "Icons for Corfu via nerd-icons"
-  :req "emacs-27.1" "nerd-icons-0.1.0"
-  :tag "icons" "files" "convenience" "emacs>=27.1"
-  :url "https://github.com/LuigiPiucco/nerd-icons-corfu"
-  :added "2025-09-16"
-  :emacs>= 27.1
+(use-package nerd-icons-corfu
   :ensure t
   :after corfu
   :config
   (add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter))
 
-(leaf nerd-icons-completion
-  :doc "Add icons to completion candidates"
-  :req "emacs-25.1" "nerd-icons-0.0.1" "compat-30"
-  :tag "lisp" "emacs>=25.1"
-  :url "https://github.com/rainstormstudio/nerd-icons-completion"
-  :added "2025-07-01"
-  :emacs>= 25.1
+(use-package nerd-icons-completion
   :ensure t
   :hook (marginalia-mode-hook . nerd-icons-completion-marginalia-setup)
-  :global-minor-mode t)
+  :config
+  (nerd-icons-completion-mode 1))
+
+(use-package nerd-icons-dired
+  :ensure t
+  :after nerd-icons
+  :hook (dired-mode-hook . nerd-icons-dired-mode))
 
 (leaf sideline
   :doc "Show information on the side"
