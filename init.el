@@ -2050,15 +2050,6 @@ Used to see multiline flymake errors"
   :custom
   (hackernews-modern-enable-emojis . t))
 
-(leaf vterm
-  :doc "Fully-featured terminal emulator"
-  :req "emacs-25.1"
-  :tag "terminals" "emacs>=25.1"
-  :url "https://github.com/akermu/emacs-libvterm"
-  :added "2025-09-23"
-  :emacs>= 25.1
-  :ensure t)
-
 (leaf ghostel
   :doc "Terminal emulator powered by libghostty."
   :req "emacs-28.1"
