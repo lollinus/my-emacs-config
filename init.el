@@ -2253,20 +2253,12 @@ Used to see multiline flymake errors"
     (setopt jiralib-token `("Authorization" . ,(concat "Bearer " password))))
   (setopt jiralib-use-PAT t))
 
-(leaf doing
-  :doc "Frictionless activity log and time tracking"
-  :req "emacs-27.1" "org-9.0"
-  :tag "time-tracking" "org" "convenience" "emacs>=27.1"
-  :url "https://github.com/xiaoxinghu/doing.el"
-  :added "2026-02-09"
-  :emacs>= 27.1
+
+(use-package doing
   :ensure t
+  :bind-keymap ("C-c v" . doing-command-map)
   :custom
-  (doing-directory . "~/projects/documents/")
-  :config
-  (with-eval-after-load 'doing
-    ;; TODO: fix :bind-keymap fails with error no such command doing-command-map
-    (global-set-key (kbd "C-c d") doing-command-map)))
+  (doing-directory "~/projects/documents/"))
 
 (leaf org-tempus
   :disabled t
