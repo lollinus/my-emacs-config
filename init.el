@@ -2059,6 +2059,55 @@ Used to see multiline flymake errors"
   :emacs>= 28.1
   :ensure t)
 
+(use-package termint
+  :ensure t
+  :demand t
+  :after python
+  :bind (:map python-ts-mode-map
+         ("C-c s" . termint-ipython-start))
+  :config
+
+  ;; Uses project-local ipython from .venv if available
+  (termint-define "ipython" #'termint-ipython-cmd-function
+                  :bracketed-paste-p t
+                  :source-syntax termint-ipython-source-syntax-template)
+  
+  ;; C-c m s: `termint-ipython-start'
+  ;; C-c m e: `termint-ipython-send-string'
+  ;; C-c m r: `termint-ipython-send-region' (or `termint-ipython-send-region-operator' if evil is installed.)
+  ;; C-c m p: `termint-ipython-send-paragraph'
+  ;; C-c m b: `termint-ipython-send-buffer'
+  ;; C-c m f: `termint-ipython-send-defun'
+  ;; C-c m R: `termint-ipython-source-region' (or `termint-ipython-source-region-operator' if evil is installed.)
+  ;; C-c m P: `termint-ipython-source-paragraph'
+  ;; C-c m B: `termint-ipython-source-buffer'
+  ;; C-c m F: `termint-ipython-source-defun'
+  ;; C-c m h: `termint-ipython-hide-window'
+  (define-key python-ts-mode-map (kbd "C-c m") termint-ipython-map)
+  )
+
+(use-package termint
+  :custom   (termint-backend . 'ghostel)
+  :config
+  (message "*** Configure copilot termint")
+  (termint-define "copilot" "copilot" :bracketed-paste-p t
+                  ;; In most cases, there is no need to configure
+                  ;; :send-delayed-final-ret; the default value suffices.
+                  ;; However, for claude-code, it should be explicitly set to t.
+                  :send-delayed-final-ret t
+                  :source-syntax "@{{file}}")
+
+  ;; ;; Codex is also required to enable :send-delayed-final-ret
+  ;; (termint-define "codex" "codex" :bracketed-paste-p t
+  ;;                 :source-syntax "Read the instruction from {{file}}"
+  ;;                 :end-pattern ""
+  ;;                 :send-delayed-final-ret t)
+  ;; (global-set-key (
+
+  :bind (("C-c o" . termint-copilot-start))
+  :bind-keymap ("C-c O" . termint-copilot-map)
+  )
+
 (use-package emamux
   :ensure t
   :config
