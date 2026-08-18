@@ -126,6 +126,7 @@
              (signal (car err) (cdr err)))))))))
 
 (leaf spatial-window
+  :disabled t
   :doc "Jump to windows using keyboard spatial mapping"
   :req "emacs-28.1" "posframe-1.0.0"
   :tag "windows" "convenience" "emacs>=28.1"
@@ -136,6 +137,18 @@
   :bind ("M-o" . #'spatial-window-select)
   :config
   (message "**** Configure spatial-window"))
+
+(use-package ace-window
+  :ensure t
+  :bind
+  ("M-o" . 'ace-window)
+  :config
+  (ace-window-display-mode +1))
+
+(use-package auto-dim-other-buffers
+  :ensure t
+  :config
+  (auto-dim-other-buffers-mode +1))
 
 (leaf frame
   :doc "multi-frame management independent of window systems"
@@ -447,28 +460,156 @@
   :emacs>= 29.1
   :ensure t)
 
-(leaf popper
-  :doc "Summon and dismiss buffers as popups"
-  :req "emacs-26.1"
-  :tag "convenience" "emacs>=26.1"
-  :url "https://github.com/karthink/popper"
-  :added "2026-03-23"
-  :emacs>= 26.1
+(use-package auto-side-windows
   :ensure t
-  :bind (("C-`"   . popper-toggle)
-         ("M-`"   . popper-cycle)
-         ("C-M-`" . popper-toggle-type))
   :custom
-  (popper-reference-buffers . '("\\*Messages\\*"
-                                 "\\*Warnings\\*"
-                                 "Output\\*$"
-                                 "\\*Async Shell Command\\*"
-                                 help-mode
-                                 compilation-mode
-                                 flymake-diagnostics-buffer-mode
-                                 flymake-project-diagnostics-mode))
-  (popper-group-function . #'popper-group-by-directory)
-  :global-minor-mode (popper-mode popper-echo-mode))
+  ;; Respects display actions when switching buffers
+  (switch-to-buffer-obey-display-actions t)
+
+  ;; Top side window configurations
+  (auto-side-windows-top-buffer-names
+   '("^\\*Backtrace\\*$"
+     "^\\*Async-native-compile-log\\*$"
+     "^\\*Compile-Log\\*$"
+     "^\\*Multiple Choice Help\\*$"
+     "^\\*Quick Help\\*$"
+     "^\\*TeX Help\\*$"
+     "^\\*TeX errors\\*$"
+     "^\\*Warnings\\*$"
+     "^\\*Process List\\*$"))
+  (auto-side-windows-top-buffer-modes
+   '(flymake-diagnostics-buffer-mode
+     locate-mode
+     occur-mode
+     grep-mode
+     xref--xref-buffer-mode))
+
+  ;; Bottom side window configurations
+  (auto-side-windows-bottom-buffer-names
+   '("^\\*eshell\\*$"
+     "^\\*shell\\*$"
+     "^\\*term\\*$"))
+  (auto-side-windows-bottom-buffer-modes
+   '(eshell-mode
+     shell-mode
+     term-mode
+     comint-mode
+     debugger-mode))
+
+  ;; Right side window configurations
+  (auto-side-windows-right-buffer-names
+   '("^\\*eldoc.*\\*$"
+     "^\\*info\\*$"
+     "^\\*Metahelp\\*$"))
+  (auto-side-windows-right-buffer-modes
+   '(Info-mode
+     TeX-output-mode
+     eldoc-mode
+     help-mode
+     helpful-mode
+     shortdoc-mode))
+
+  ;; Example: Custom parameters for top windows (e.g., fit height to buffer)
+  ;; (auto-side-windows-top-alist '((window-height . fit-window-to-buffer)))
+  ;; (auto-side-windows-top-window-parameters '((mode-line-format . ...))) ;; Adjust mode-line
+
+  ;; Maximum number of side windows on the left, top, right and bottom
+  (window-sides-slots '(1 1 1 1)) ; Example: Allow one window per side
+
+  ;; Force left and right side windows to occupy full frame height
+  (window-sides-vertical t)
+
+  ;; Make changes to tab-/header- and mode-line-format persistent when toggling windows visibility
+  (window-persistent-parameters
+   (append window-persistent-parameters
+           '((tab-line-format . t)
+             (header-line-format . t)
+             (mode-line-format . t))))
+  :bind ;; Example keybindings (adjust prefix as needed)
+  (:map global-map ; Or your preferred keymap prefix
+        ("C-c w t" . auto-side-windows-display-buffer-top)
+        ("C-c w b" . auto-side-windows-display-buffer-bottom)
+        ("C-c w l" . auto-side-windows-display-buffer-left)
+        ("C-c w r" . auto-side-windows-display-buffer-right)
+        ("C-c w w" . auto-side-windows-switch-to-buffer)
+        ("C-c w a" . window-toggle-side-windows) ; Toggle all side windows
+        ("C-c w T" . auto-side-windows-toggle-side-window)) ; Toggle current buffer in/out of side window
+  :hook
+  (after-init . auto-side-windows-mode)
+  :config
+  ;; Org mode: Ensure agenda buffers open in the top side window for easy access
+  (setopt org-src-window-setup 'plain)
+  (setopt auto-side-windows-top-buffer-names '("^\\*Org Agenda\\*$"
+                                               "^\\*Org Src.*\\*"
+                                               "^\\*Org-Babel Error Output\\*"))
+
+
+  ;; Magit: Display Magit diff/status in the right side window, edit commit msg on top
+  (setopt magit-display-buffer-function #'display-buffer
+          magit-commit-diff-inhibit-same-window t)
+  (setopt auto-side-windows-right-buffer-names '("^magit-diff:.*$"
+                                                 "^magit-process:.*$"))
+  (setopt auto-side-windows-right-buffer-modes '(magit-status-mode
+                                                 magit-log-mode
+                                                 magit-diff-mode
+                                                 magit-process-mode))
+  (setopt auto-side-windows-top-buffer-names
+          '("^COMMIT_EDITMSG$"))
+
+  )
+
+(use-package popper
+  :ensure t
+  :after auto-side-windows ; Ensure auto-side-windows variables are defined
+  :hook (auto-side-windows-mode . popper-mode) ; Activate popper alongside
+  :preface
+  (defun kb/popper-switch-to-buried-buffer (buffer)
+    "Switch to buried popup BUFFER."
+    (interactive
+     (list
+      (when-let ((buried-popups (progn (popper--find-buried-popups)
+                                       (mapcar #'cdr
+                                               (alist-get (funcall popper-group-function)
+                                                          popper-buried-popup-alist nil nil 'equal))))
+                 (pred (lambda (b)
+                         (if (consp b) (setq b (car b)))
+                         (setq b (get-buffer b))
+                         (member b buried-popups))))
+        (read-buffer "Switch to popup: " nil t pred))))
+    (if buffer (display-buffer buffer)
+      (message "No buried popups.")))
+  :custom
+  ;; Tell Popper to consider buffers matching auto-side-windows rules as popups
+  (popper-reference-buffers
+   (append auto-side-windows-top-buffer-names auto-side-windows-top-buffer-modes
+           auto-side-windows-left-buffer-names auto-side-windows-left-buffer-modes
+           auto-side-windows-right-buffer-names auto-side-windows-right-buffer-modes
+           auto-side-windows-bottom-buffer-names auto-side-windows-bottom-buffer-modes))
+  ;; Optional: Don't let Popper decide where to display, auto-side-windows handles that
+  (popper-display-control nil) ; Or 'user if you prefer popper commands for display
+
+  :config
+  (popper-mode +1) ; Enable popper-mode
+  (popper-echo-mode +1) ; Optional: echo area notifications
+
+  :bind ;; Example bindings
+  ;; (:map your-prefix-map ;; e.g. my/toggle-map
+  ;;       ("p" . popper-toggle)      ; Toggle last popup
+  ;;       ("P" . popper-toggle-type) ; Toggle popups of specific type
+  ;;       ("C-p" . popper-cycle))   ; Cycle through visible popups
+
+  (("C-`"   . popper-toggle)
+   ("M-`"   . popper-cycle)
+   ("C-M-`" . popper-toggle-type)
+   ("C-'" .   kb/popper-switch-to-buried-buffer)))
+
+;; (use-package window-box
+;;   :ensure t
+;;   :preface
+;;   (defun kb/auto-side-windows-box (buffer &rest _)
+;;     (with-current-buffer buffer (window-box-mode 1)))
+;;   :hook
+;;   (auto-side-windows-after-display-hook . kb/auto-side-widnows-box))
 
 (leaf vertico
   :doc "VERTical Interactive COmpletion"
