@@ -2,12 +2,12 @@
 Bazel build for GNU Emacs.
 
 Targets:
-  //:emacs_package     — build Emacs 30.2 from the official tarball (reproducible)
+  //:emacs_package     — build Emacs 31.1 from the official tarball (reproducible)
   //:emacs_ref_package — build any git ref/commit via EMACS_REF env var
   //:fonts             — bundle programming fonts for ~/.local/share/fonts/emacs/
 
   bazel run targets (build + install/remove in one step):
-  //:install           — install stable Emacs 30.2 into ~/.local/
+  //:install           — install stable Emacs 31.1 into ~/.local/
   //:install_ref       — install ref/commit build (set EMACS_REF first)
   //:install_fonts     — install programming fonts into ~/.local/share/fonts/emacs/
   //:remove            — uninstall Emacs from ~/.local/
@@ -18,9 +18,9 @@ Prerequisites (install system packages first):
 
 Usage:
   bazel --nohome_rc build //:emacs_package
-  EMACS_REF=emacs-30.2 bazel --nohome_rc build //:emacs_ref_package
+  EMACS_REF=emacs-31.1 bazel --nohome_rc build //:emacs_ref_package
   bazel run //:install
-  EMACS_REF=emacs-30.2 bazel run //:install_ref
+  EMACS_REF=emacs-31.1 bazel run //:install_ref
   bazel run //:install_fonts
   bazel run //:remove
   bazel run //:remove_fonts
@@ -47,7 +47,7 @@ GUI toolkit selection (EMACS_TOOLKIT env var, default: auto-detect):
 
 module(
     name = "emacs-build",
-    version = "0.1.0",
+    version = "0.1.1",
 )
 
 # sh_binary for bazel run install/remove targets.
@@ -56,10 +56,10 @@ bazel_dep(name = "rules_shell", version = "0.6.1")
 # Fetch Emacs source archives via our custom module extension.
 emacs_sources = use_extension("//:emacs_fetch.bzl", "emacs_sources")
 emacs_sources.stable(
-    sha256 = "b3f36f18a6dd2715713370166257de2fae01f9d38cfe878ced9b1e6ded5befd9",
-    strip_prefix = "emacs-30.2",
-    url = "https://ftp.gnu.org/gnu/emacs/emacs-30.2.tar.xz",
-    version = "30.2",
+    sha256 = "1da5790d9580c81932b5bf700633114468da7b3412d69faa767daebf974f4586",
+    strip_prefix = "emacs-31.1",
+    url = "https://ftp.gnu.org/gnu/emacs/emacs-31.1.tar.xz",
+    version = "31.1",
 )
 use_repo(emacs_sources, "emacs_src")
 
@@ -75,9 +75,9 @@ http_file    = use_repo_rule("@bazel_tools//tools/build_defs/repo:http.bzl", "ht
 
 http_archive(
     name   = "libtree_sitter_src",
-    url    = "https://github.com/tree-sitter/tree-sitter/archive/refs/tags/v0.26.8.tar.gz",
-    sha256 = "e6826b7533ec3a885aba598377a6d20b5a6321ff3db76968e960c2352d3a5077",
-    strip_prefix = "tree-sitter-0.26.8",
+    url    = "https://github.com/tree-sitter/tree-sitter/archive/refs/tags/v0.26.13.tar.gz",
+    sha256 = "ece24c3c5e2a76384075e830c7139b59fce8fb01e4ef8436fab08bbe10444c89",
+    strip_prefix = "tree-sitter-0.26.13",
     build_file_content = """
 filegroup(
     name = "all",
@@ -127,13 +127,13 @@ filegroup(
 # https://github.com/googlefonts/noto-fonts
 http_file(
     name = "font_noto_sans_mono_regular",
-    url  = "https://github.com/googlefonts/noto-fonts/raw/main/hinted/ttf/NotoSansMono/NotoSansMono-Regular.ttf",
-    sha256 = "d9e2b23d19f8230be7146f409a52b1d23117e635e28f2e2892cf91b7382f325b",
+    url  = "https://cdn.jsdelivr.net/gh/notofonts/notofonts.github.io/fonts/NotoSansMono/hinted/ttf/NotoSansMono-Regular.ttf",
+    sha256 = "65b5e2b2c4a1fba9ae8be1f026cb35b03dcb8886d9b2a4147054fde12f7e767d",
     downloaded_file_path = "NotoSansMono-Regular.ttf",
 )
 http_file(
     name = "font_noto_sans_mono_bold",
-    url  = "https://github.com/googlefonts/noto-fonts/raw/main/hinted/ttf/NotoSansMono/NotoSansMono-Bold.ttf",
-    sha256 = "beb857bd799a114de7d5d90cc75cc69f4b6ee8d401f4ab20697e6f9719a66dfc",
+    url  = "https://cdn.jsdelivr.net/gh/notofonts/notofonts.github.io/fonts/NotoSansMono/hinted/ttf/NotoSansMono-Bold.ttf",
+    sha256 = "a21ea0ba6ea49fda7b34ca39a504b487f1130885d36e1a4f9f4255b3ba6994bc",
     downloaded_file_path = "NotoSansMono-Bold.ttf",
 )

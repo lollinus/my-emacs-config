@@ -2,11 +2,11 @@
 # deploy.sh — Build Emacs via Bazel and install it to ~/.local/
 #
 # Usage:
-#   ./deploy.sh                    # Emacs 30.2 stable, clang (default)
+#   ./deploy.sh                    # Emacs 31.1 stable, clang (default)
 #   ./deploy.sh --cc gcc           # build with GCC instead of clang
 #   ./deploy.sh --ref master       # git master
 #   ./deploy.sh --ref emacs-30     # release branch
-#   ./deploy.sh --ref emacs-30.2   # release tag
+#   ./deploy.sh --ref emacs-31.1   # release tag
 #   ./deploy.sh --ref a1b2c3d4     # specific commit SHA
 #   ./deploy.sh --ref master --cc gcc --force
 #   ./deploy.sh --ref master --reforce   # rebuild using last --force timestamp
@@ -66,9 +66,9 @@ if [[ -n "${EMACS_REF}" ]]; then
   EMACS_REF="${EMACS_REF}" EMACS_CC="${EMACS_CC}" bazel --nohome_rc build //:emacs_ref_package
   TARBALL="$(bazel --nohome_rc info bazel-bin)/emacs-ref-install.tar.xz"
 else
-  echo "==> Building Emacs 30.2 (stable) with ${EMACS_CC}"
+  echo "==> Building Emacs 31.1 (stable) with ${EMACS_CC}"
   EMACS_CC="${EMACS_CC}" bazel --nohome_rc build //:emacs_package
-  TARBALL="$(bazel --nohome_rc info bazel-bin)/emacs-30.2-install.tar.xz"
+  TARBALL="$(bazel --nohome_rc info bazel-bin)/emacs-31.1-install.tar.xz"
 fi
 
 echo "==> Deploying to ${PREFIX}"

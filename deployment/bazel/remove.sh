@@ -3,17 +3,17 @@
 # Use this to cleanly remove an Emacs build deployed by deploy.sh.
 set -euo pipefail
 
-VERSION="${1:-30.2}"
+VERSION="${1:-31.1}"
 PREFIX="${HOME}/.local"
 
 echo "==> Removing Emacs ${VERSION} from ${PREFIX}"
 
-# Versioned binary (e.g. emacs-30.2, emacs-31.0.50)
+# Versioned binary (e.g. emacs-31.1, emacs-32.0.50)
 rm -f "${PREFIX}/bin/emacs-${VERSION}"
 
 # Remove the 'emacs' symlink only if it points at this version's binary.
 # Skipping it when it points elsewhere prevents accidentally breaking a
-# different installed version (e.g. removing 30.2 while 31 is active).
+# different installed version (e.g. removing 31.1 while 31 is active).
 EMACS_LINK="${PREFIX}/bin/emacs"
 if [[ -L "${EMACS_LINK}" && "$(readlink "${EMACS_LINK}")" == "emacs-${VERSION}" ]]; then
     rm -f "${EMACS_LINK}"

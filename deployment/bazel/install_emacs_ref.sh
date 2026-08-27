@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # install_emacs_ref.sh — install a ref/commit Emacs build into ~/.local/
 #
-# Invoked by: EMACS_REF=emacs-30.2 bazel run //:install_ref
+# Invoked by: EMACS_REF=emacs-31.1 bazel run //:install_ref
 # The pre-built tarball is supplied as a Bazel runfile by the sh_binary target.
 set -euo pipefail
 

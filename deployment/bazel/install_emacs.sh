@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
-# install_emacs.sh — install the stable Emacs 30.2 build into ~/.local/
+# install_emacs.sh — install the stable Emacs 31.1 build into ~/.local/
 #
 # Invoked by: bazel run //:install
 # The pre-built tarball is supplied as a Bazel runfile by the sh_binary target.
 set -euo pipefail
 
 RUNFILES="${RUNFILES_DIR:-${BASH_SOURCE[0]}.runfiles}"
-TARBALL="${RUNFILES}/_main/emacs-30.2-install.tar.xz"
+TARBALL="${RUNFILES}/_main/emacs-31.1-install.tar.xz"
 
 if [[ ! -f "${TARBALL}" ]]; then
     echo "ERROR: tarball not found: ${TARBALL}" >&2

@@ -3,12 +3,12 @@ BUILD.bazel — Emacs source build orchestration via Bazel genrules.
 
 Targets
 -------
-  //:emacs_package      Build Emacs 30.2 (stable tarball) → emacs-30.2-install.tar.xz
+  //:emacs_package      Build Emacs 31.1 (stable tarball) → emacs-31.1-install.tar.xz
   //:emacs_ref_package  Build any git ref/commit via EMACS_REF env var (default: master)
   //:fonts              Bundle programming fonts → fonts.tar.gz
 
   bazel run targets (build artifact + install/remove side effects):
-  //:install            Install stable Emacs 30.2 into ~/.local/
+  //:install            Install stable Emacs 31.1 into ~/.local/
   //:install_ref        Install ref/commit build (set EMACS_REF env var first)
   //:install_fonts      Install fonts into ~/.local/share/fonts/emacs/
   //:remove             Uninstall Emacs from ~/.local/
@@ -39,10 +39,10 @@ Examples
   EMACS_TOOLKIT=pgtk bazel build //:emacs_package
 
   # Ref build + install
-  EMACS_REF=emacs-30.2 bazel run //:install_ref
+  EMACS_REF=emacs-31.1 bazel run //:install_ref
 
   # Ref build with pgtk toolkit
-  EMACS_REF=emacs-30.2 EMACS_TOOLKIT=pgtk bazel run //:install_ref
+  EMACS_REF=emacs-31.1 EMACS_TOOLKIT=pgtk bazel run //:install_ref
 
   # Fonts: install / remove
   bazel run //:install_fonts
@@ -139,7 +139,7 @@ genrule(
 )
 
 # ---------------------------------------------------------------------------
-# Stable build (Emacs 30.2 tarball via @emacs_src — reproducible)
+# Stable build (Emacs 31.1 tarball via @emacs_src — reproducible)
 # ---------------------------------------------------------------------------
 
 genrule(
@@ -149,7 +149,7 @@ genrule(
         "@emacs_src//:configure",
         "//:libtree_sitter",
     ],
-    outs = ["emacs-30.2-install.tar.xz"],
+    outs = ["emacs-31.1-install.tar.xz"],
     cmd = """
         set -euo pipefail
 
@@ -325,7 +325,7 @@ genrule(
 # extracts the resulting tarball into ~/.local/.
 #
 # Usage:
-#   ./deploy.sh              # stable 30.2
+#   ./deploy.sh              # stable 31.1
 #   ./deploy.sh --ref REF    # any git ref / commit SHA
 # ---------------------------------------------------------------------------
 
@@ -373,10 +373,10 @@ genrule(
 # The script locates the artifact via the $RUNFILES_DIR mechanism.
 #
 # Usage:
-#   bazel run //:install                              # stable Emacs 30.2
-#   EMACS_REF=emacs-30.2 bazel run //:install_ref   # any git ref
+#   bazel run //:install                              # stable Emacs 31.1
+#   EMACS_REF=emacs-31.1 bazel run //:install_ref   # any git ref
 #   bazel run //:install_fonts
-#   bazel run //:remove                              # Emacs 30.2
+#   bazel run //:remove                              # Emacs 31.1
 #   bazel run //:remove_fonts
 # ---------------------------------------------------------------------------
 
