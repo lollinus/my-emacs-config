@@ -2463,6 +2463,13 @@ Used to see multiline flymake errors"
   (org-tempus-dconf-path . "/org/gnome/shell/extensions/simple-message/message")
   )
 
+(use-package org-draw
+  :ensure t
+  :bind (:map org-mode-map
+         ("C-c d d" . org-draw)
+         ("C-c d e" . org-draw-edit)
+         ("C-c d s" . org-draw-setup)))
+
 (leaf markdown-ts-mode
   :doc "Major mode for Markdown using Treesitter"
   :req "emacs-29.1"
