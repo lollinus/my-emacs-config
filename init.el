@@ -2487,18 +2487,22 @@ Used to see multiline flymake errors"
          ("C-c d e" . org-draw-edit)
          ("C-c d s" . org-draw-setup)))
 
-(leaf markdown-ts-mode
-  :doc "Major mode for Markdown using Treesitter"
-  :req "emacs-29.1"
-  :tag "faces" "matching" "languages" "emacs>=29.1"
-  :url "https://github.com/LionyxML/markdown-ts-mode"
-  :added "2025-10-06"
-  :emacs>= 29.1
+(use-package markdown-ts-mode
+  :if (and (not (version< emacs-version "29.1")) (version< emacs-version "31.1"))
   :ensure t
   :mode ("\\.md\\'" . markdown-ts-mode)
-  :treesit-src (markdown "https://github.com/tree-sitter-grammars/tree-sitter-markdown" "v0.4.1" "tree-sitter-markdown/src")
-               (markdown-inline "https://github.com/tree-sitter-grammars/tree-sitter-markdown" "v0.4.1" "tree-sitter-markdown-inline/src")
-  :treesit markdown markdown-inline)
+  :config
+  (kb/treesit-register-grammar
+   '(markdown
+     "https://github.com/tree-sitter-grammars/tree-sitter-markdown"
+     "v0.4.1" "tree-sitter-markdown/src"))
+  (kb/treesit-register-grammar
+   '(markdown-inline
+     "https://github.com/tree-sitter-grammars/tree-sitter-markdown"
+     "v0.4.1" "tree-sitter-markdown-inline/src"))
+  (eval-after-load 'markdown-ts-mode
+    (lambda nil (kb/treesit-ensure 'markdown)
+      (kb/treesit-ensure 'markdown-inline))))
 
 (leaf markdown-indent-mode
   :doc "Dynamic indentation for Markdown."
