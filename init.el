@@ -2250,8 +2250,20 @@ Used to see multiline flymake errors"
                   :send-delayed-final-ret t
                   :source-syntax "@{{file}}")
 
-  :bind (("C-c o" . termint-copilot-start))
-  :bind-keymap ("C-c O" . termint-copilot-map)
+  (termint-define "kiro" "kiro-cli" :bracketed-paste-p t
+                  ;; In most cases, there is no need to configure
+                  ;; :send-delayed-final-ret; the default value suffices.
+                  ;; However, for claude-code, it should be explicitly set to t.
+                  :send-delayed-final-ret t
+                  :source-syntax "@{{file}}")
+
+  :bind (
+         ("C-c o" . termint-copilot-start)
+         ("C-c k" . termint-kiro-start)
+         )
+  :bind-keymap
+  ("C-c O" . termint-copilot-map)
+  ("C-c K" . termint-kiro-map)
   )
 
 (use-package emamux
@@ -2834,7 +2846,7 @@ Used to see multiline flymake errors"
   ;; (blamee-inline-columns . '(author date hash))
   ;; (blamee-hash-length . 6)
   :bind
-  ("C-c b b" . blamee-show-commit-at-point)
+  ; ("C-c b b" . blamee-show-commit-at-point)
   ("C-c b y" . blamee-copy-commit-hash-at-point)
   ("C-c b r" . blamee-refresh)
   ("C-c b t" . blamee-mode)
