@@ -14,5 +14,9 @@
 	   default-frame-alist))
 (setq-default custom-file (concat user-emacs-directory "custom.el"))
 
+(if (not (version< emacs-version "31.1"))
+    (setopt user-lisp-directory (expand-file-name "rc" user-emacs-directory))
+  )
+
 (provide 'early-init)
 ;;; early-init.el ends here

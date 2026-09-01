@@ -9,7 +9,7 @@
 (secrets-set-alias "login" "default")
 
 (defun kb-remove-secret-by-name (name)
-  "Remove secrets represented by name ITEM from secrets."
+  "Remove secrets represented by NAME ITEM from secrets."
   (interactive)
   (mapcar (lambda (item)
             (message "processing: %s" item)
@@ -40,10 +40,13 @@ TODO: compare and update attributes."
     (apply #'secrets-create-item collection item-path secret attributes)))
 
 (defun kb-secrets-create-or-update-secret (item secret &rest attributes)
-  "Check whether secret ITEM already exits. When not found create it. When found compare SECRET and update if differ."
+  "Check whether SECRET ITEM already exits.
+
+When not found create it.  When found compare SECRET and update if differ."
   (let* ((kb-collection kb-secret-collection)
          (item-path (secrets-item-path kb-collection item))
-         (arg-list (append '("default" item secret) attributes)))
+         ;; (arg-list (append '("default" item secret) attributes))
+         )
     (if (secrets-empty-path item-path)
         ;; not found so create new item
           (apply #'secrets-create-item kb-collection item secret attributes)
@@ -61,12 +64,12 @@ TODO: compare and update attributes."
 ;; NO COMMIT END
 ;;=====================================================================
 
-(mapcar (lambda (item)
-          (let* ((item-name (car item))
-                (secret (cadr item))
-                (attributes (cddr item)))
-            (apply #'kb-secrets-create-or-update-secret item-name secret attributes)))
-        kb-secret-list)
+(mapc (lambda (item)
+        (let* ((item-name (car item))
+               (secret (cadr item))
+               (attributes (cddr item)))
+          (apply #'kb-secrets-create-or-update-secret item-name secret attributes)))
+      kb-secret-list)
 
 (provide 'kb-secrets)
 ;;; kb-secrets.el ends here

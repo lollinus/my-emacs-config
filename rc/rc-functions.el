@@ -182,42 +182,6 @@ Position the cursor at it's beginning, according to the current mode."
   (forward-line -1)
   (indent-according-to-mode))
 
-;;;
-;;; Matching parentheses
-;;;
-(defun match-parenthesis (arg)
-  "Match the current character according to the syntax table.
-
-Based on the freely available match-paren.el by Kayvan Sylvan.
-I merged code from goto-matching-paren-or-insert and match-it.
-
-When ARG does not belong to matching pair then insert it at point.
-
-You can define new \"parentheses\" (matching pairs).
-Example: angle brackets.  Add the following to your .emacs file:
-
-	(modify-syntax-entry ?< \"(>\" )
-	(modify-syntax-entry ?> \")<\" )
-
-You can set hot keys to perform matching with one keystroke.
-Example: f6 and Control-C 6.
-
-	(global-set-key \"\\C-c6\" #\='match-parenthesis)
-	(global-set-key [f6] #\='match-parenthesis)
-
-Simon Hawkin <cema@cs.umd.edu> 03/14/1998"
-  (interactive "p")
-  (let
-      ((syntax (char-syntax (following-char))))
-    (cond
-     ((= syntax ?\()
-      (forward-sexp 1) (backward-char))
-     ((= syntax ?\))
-      (forward-char) (backward-sexp 1))
-     (t (self-insert-command (or arg 1)))
-     )
-    ))
-
 (defun kb/delete-trailing-whitespaces-and-untabify ()
   "Delete trailing whitespace.
 
@@ -357,8 +321,9 @@ See: URL `http://en.wikipedia.org/wiki/ISO_8601'"
   (insert
    (concat
     (format-time-string "%Y-%m-%dT%T")
-    ((lambda (x) (concat (substring x 0 3) ":" (substring x 3 5)))
-     (format-time-string "%z")))))
+    (lambda (x)
+      (concat (substring x 0 3) ":" (substring x 3 5)))
+    (format-time-string "%z"))))
 
 ;;--------------------------------------------------------------------------------
 ;; Language tooling helpers
@@ -369,6 +334,7 @@ See: URL `http://en.wikipedia.org/wiki/ISO_8601'"
 
 (defvar kb/treesit--user-registered nil
   "Languages added to `treesit-language-source-alist' by `kb/treesit-register-grammar'.
+
 Used to distinguish user-registered entries from those registered by Emacs
 built-in modes (which use `add-to-list' directly and bypass this function).
 A conflict between two user registrations is always warned; a conflict where
@@ -383,7 +349,7 @@ If LANG is already registered:
 - by this function (user conflict): warn and keep the existing entry.
 - by Emacs or a package directly (system entry): silently skip.
 
-This means version-guarded workarounds like `(when (< emacs-major-version 31)
+This means version-guarded workarounds like `(when (< `emacs-major-version` 31)
 ...)' are unnecessary — built-in modes that self-register their grammars will
 simply win without noise."
   (let* ((lang (car spec))
@@ -455,7 +421,7 @@ that is compatible with this build of Emacs."
 
 ;;;###autoload
 (defun kb/mason-ensure (executable package &optional on-success-msg)
-  "Ensure PACKAGE is installed via mason if EXECUTABLE is not on exec-path.
+  "Ensure PACKAGE is installed via mason if EXECUTABLE is not on `exec-path`.
 ON-SUCCESS-MSG is an optional string appended to the success notification."
   (when (not (executable-find executable))
     (message "*** Installing %s" package)

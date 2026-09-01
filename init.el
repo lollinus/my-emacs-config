@@ -81,11 +81,14 @@
 (leaf leaf-convert :ensure t)
 
 ;; Make rc/ directory available for autoloads
-(add-to-list 'load-path (expand-file-name "rc" user-emacs-directory))
-(autoload 'kb/treesit-register-grammar "rc-functions" nil t)
-(autoload 'kb/treesit-ensure "rc-functions" nil t)
-(autoload 'kb/mason-ensure "rc-functions" nil t)
-(autoload 'kb/font-ensure "rc-functions" nil t)
+(when (version< emacs-version "31.1")
+  (add-to-list 'load-path (expand-file-name "rc" user-emacs-directory))
+  (autoload 'kb/treesit-register-grammar "rc-functions" nil t)
+  (autoload 'kb/treesit-ensure "rc-functions" nil t)
+  (autoload 'kb/mason-ensure "rc-functions" nil t)
+  (autoload 'kb/font-ensure "rc-functions" nil t)
+  (autoload 'match-parenthesis "match-paren" nil t)
+  )
 
 ;; Contrary to what many Emacs users have in their configs, you don't need
 ;; more than this to make UTF-8 the default coding system:
@@ -268,6 +271,7 @@
   :custom ((large-file-warning-threshold . 100000000)
            (mode-require-final-newline . t)      ; add a newline to end of file)
            (make-backup-files . nil)))
+
 (leaf auth-source
   :doc "authentication sources for Gnus and Emacs"
   :tag "builtin"
@@ -326,6 +330,10 @@
   (whitespace-indentation . '((t (:foreground "DimGrey" :background nil))))
 
   :global-minor-mode (global-whitespace-mode)
+  )
+
+(use-package match-paren
+  :bind ("C-%" . match-parenthesis)
   )
 
 (leaf subword
@@ -915,7 +923,6 @@
 
 ;;; Development
 
-;; Show symbols as composed characters (e.g. lambda -> λ)
 (leaf prog-mode
   :doc "Generic major mode for programming"
   :tag "builtin" "internal"

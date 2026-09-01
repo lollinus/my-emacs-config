@@ -1,4 +1,4 @@
-;;; insert-time-string.el --- Insert the current time. -*- coding: utf-8; -*-
+;;; insert-time-string.el --- Insert the current time. -*- coding: utf-8; lexical-binding: t; -*-
 
 ;; Copyright © 2010 Kevin Rodgers
 
