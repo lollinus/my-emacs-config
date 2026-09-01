@@ -2338,6 +2338,8 @@ Used to see multiline flymake errors"
   :treesit-src (org "https://github.com/milisims/tree-sitter-org")
   )
 
+(use-package org-relative-date :ensure t :hook (org-mode-hook . #'org-relative-date-mode))
+
 (leaf dash
   :doc "A modern list library for Emacs."
   :req "emacs-24"
