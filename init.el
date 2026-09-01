@@ -1105,6 +1105,16 @@
   :after magit
   :bind (:magit-blame-mode-map ("M-o" . magit-browse-commit-at-point)))
 
+(use-package consult-magit
+  :ensure t
+  :hook (magit-status-mode . consult-magit-record-repo)
+  :bind ("C-x C-g" . consult-magit)
+  :custom
+  (consult-magit-include-known-repositories t)
+  :config
+  (with-eval-after-load 'savehist
+    (add-to-list 'savehist-additional-variables 'consult-magit-repo-history)))
+
 (leaf consult-gh
   :doc "Consulting GitHub Client."
   :req "emacs-29.4" "consult-2.0" "markdown-mode-2.6" "ox-gfm-1.0" "yaml-1.2.0"
