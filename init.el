@@ -667,11 +667,11 @@
   :added "2025-09-01"
   :emacs>= 28.1
   :ensure t
-
   :bind
   (("M-s r" . consult-ripgrep)
    ([remap project-switch-to-buffer] . consult-project-buffer) ;; "C-x p b" orig. project-switch-to-buffer
    ("M-s l" . consult-line)
+   ;; ("M-s L" . consult-line-multi)
    ("C-s" . kb/consult-line) ;; "C-s" Isearch
    ;; GOTO
    ([remap imenu] . consult-imenu) ;; "M-g i"
@@ -682,6 +682,25 @@
    ("M-g o" . consult-outline)               ;; Alternative: consult-org-heading
    ;; Unbind `minibuffer-complete-word'
    (:minibuffer-local-completion-map ("SPC" . nil))
+   ("C-x M-:" . consult-complex-command)     ;; orig. repeat-complex-command
+   ("C-x b" . consult-buffer)                ;; orig. switch-to-buffer
+   ("C-x 4 b" . consult-buffer-other-window) ;; orig. switch-to-buffer-other-window
+   ("C-x 5 b" . consult-buffer-other-frame)  ;; orig. switch-to-buffer-other-frame
+   ("C-x t b" . consult-buffer-other-tab)    ;; orig. switch-to-buffer-other-tab
+   ("C-x r b" . consult-bookmark)            ;; orig. bookmark-jump
+   ;; ("C-x p b" . consult-project-buffer)      ;; orig. project-switch-to-buffer
+   ;; Custom M-# bindings for fast register access
+   ("M-#" . consult-register-load)
+   ("M-'" . consult-register-store)          ;; orig. abbrev-prefix-mark (unrelated)
+   ("C-M-#" . consult-register)
+   ;; Other custom bindings
+   ("M-y" . consult-yank-pop)                ;; orig. yank-pop
+   ("M-g r" . consult-grep-match)
+   ;; ("M-g m" . consult-mark)
+   (:minibuffer-local-map
+    ("M-s" . consult-history)                 ;; orig. next-matching-history-element
+    ("M-r" . consult-history)                ;; orig. previous-matching-history-element
+    )
    )
   :preface
   (defun kb/consult-line (&optional at-point)
