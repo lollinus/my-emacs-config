@@ -1325,6 +1325,34 @@ Uses `locate-dominating-file' to find `.git' without loading `vc-git'."
   :bind
   ([remap project-find-file] . consult-project-extra-find))
 
+(use-package tabspaces
+  :ensure t
+  :hook (after-init . tabspaces-mode) ;; use this only if you want the minor-mode loaded at startup.
+  :commands (tabspaces-switch-or-create-workspace
+             tabspaces-open-or-create-project-and-workspace)
+  :custom
+  (tabspaces-use-filtered-buffers-as-default t)
+  (tabspaces-default-tab "Default")
+  (tabspaces-remove-to-default t)
+  (tabspaces-include-buffers '("*scratch*"))
+  (tabspaces-initialize-project-with-todo t)
+  (tabspaces-todo-file-name "project-todo.org")
+  (tabspaces-session-auto-save-delay 300) ; Save after 5 idle minutes
+  ;; sessions
+  (tabspaces-session t)  ;; Auto-restore sessions on startup and when opening projects
+  (tabspaces-session-auto-restore t)
+  ;; additional options
+  (tabspaces-fully-resolve-paths t)  ; Resolve relative project paths to absolute
+  (tabspaces-exclude-buffers '("*Messages*" "*Compile-Log*"))  ; Additional buffers to exclude
+  (tab-bar-new-tab-choice "*scratch*")
+  ;; project
+  (tabspaces-project-switch-opens-workspace t)
+  ;; Store all project sessions in a specific directory
+  (tabspaces-session-project-session-store "~/.emacs.d/tabspaces-sessions/")
+  :config
+  (eval-after-load 'consult
+    (setopt consult-buffer-list-function #'tabspaces-local-buffer-list)))
+
 (leaf breadcrumb
   :doc "Project and imenu-based breadcrumb paths"
   :req "emacs-28.1" "project-0.9.8"
