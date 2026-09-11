@@ -2856,10 +2856,20 @@ Used to see multiline flymake errors"
   :config
   (nerd-icons-completion-mode 1))
 
-(use-package nerd-icons-dired
+;; (use-package nerd-icons-dired
+;;   :ensure t
+;;   :after nerd-icons
+;;   :hook (dired-mode-hook . nerd-icons-dired-mode))
+
+(use-package material-icons
   :ensure t
-  :after nerd-icons
-  :hook (dired-mode-hook . nerd-icons-dired-mode))
+  :hook
+  (dired-mode . material-icons-dired-icons-mode)
+  (ibuffer-mode . material-icons-ibuffer-icons-mode)
+  :init
+  (setq material-icons-size 22)
+  (with-eval-after-load 'speedbar
+    (material-icons-speedbar-icons-mode 1)))
 
 (leaf sideline
   :doc "Show information on the side"
