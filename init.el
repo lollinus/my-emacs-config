@@ -105,6 +105,8 @@
   (put 'upcase-region 'disabled nil)
   )
 
+(setopt package-archive-priorities '(("nongnu" . 10)))
+
 ;; Fix: prevent VC from probing ~/.emacs.d/ via async git processes.
 ;; When shell-maker (or any tool) opens a "Write file:" prompt defaulting
 ;; to ~/.emacs.d/, Emacs VC spawns a background git process; if git exits
@@ -640,6 +642,7 @@
 
          ;; Option 2: Replace `vertico-insert' to enable TAB prefix expansion.
          ;; (keymap-set vertico-map "TAB" #'minibuffer-complete)
+         ("M-P" . #'consult-toggle-preview)
          )
   ;; :custom (
   ;;       (vertico-cycle . t)
@@ -654,18 +657,24 @@
   ;;       read-file-name-completion-ignore-case t
   ;;       read-buffer-completion-ignore-case t)
 
+  :init
+  (defvar-local consult-toggle-preview-orig nil)
+  (defun consult-toggle-preview ()
+    "Command to enable/disable preview."
+    (interactive)
+    (if consult-toggle-preview-orig
+        (setq consult--preview-function consult-toggle-preview-orig
+              consult-toggle-preview-orig nil)
+      (setq consult-toggle-preview-orig consult--preview-function
+            consult--preview-function #'ignore)))
+
+
   :config
   (message "**** Configure vertico")
   (vertico-mouse-mode +1)
   )
 
-(leaf consult
-  :doc "Consulting completing-read"
-  :req "emacs-28.1" "compat-30"
-  :tag "completion" "files" "matching" "emacs>=28.1"
-  :url "https://github.com/minad/consult"
-  :added "2025-09-01"
-  :emacs>= 28.1
+(use-package consult
   :ensure t
   :bind
   (("M-s r" . consult-ripgrep)
@@ -681,7 +690,6 @@
    ;; ("M-g M-g" . consult-goto-line)           ;; orig. goto-line
    ("M-g o" . consult-outline)               ;; Alternative: consult-org-heading
    ;; Unbind `minibuffer-complete-word'
-   (:minibuffer-local-completion-map ("SPC" . nil))
    ("C-x M-:" . consult-complex-command)     ;; orig. repeat-complex-command
    ("C-x b" . consult-buffer)                ;; orig. switch-to-buffer
    ("C-x 4 b" . consult-buffer-other-window) ;; orig. switch-to-buffer-other-window
@@ -697,10 +705,11 @@
    ("M-y" . consult-yank-pop)                ;; orig. yank-pop
    ("M-g r" . consult-grep-match)
    ;; ("M-g m" . consult-mark)
-   (:minibuffer-local-map
-    ("M-s" . consult-history)                 ;; orig. next-matching-history-element
-    ("M-r" . consult-history)                ;; orig. previous-matching-history-element
-    )
+   :map minibuffer-local-completion-map
+   ("SPC" . nil)
+   :map minibuffer-local-map
+   ("M-s" . consult-history)                 ;; orig. next-matching-history-element
+   ("M-r" . consult-history)                ;; orig. previous-matching-history-element
    )
   :preface
   (defun kb/consult-line (&optional at-point)
@@ -711,25 +720,24 @@
       (consult-line)))
   :custom
   ;; One column view with annotations
-  (completions-format . 'one-column)
-  (completions-detailed . t)
-  (completions-group . t)
+  (completions-format 'one-column)
+  (completions-detailed t)
+  (completions-group t)
   ;; Sort candidates by history position
-  (completions-sort . 'historical)
+  (completions-sort 'historical)
   ;; Allow navigating from the minibuffer
-  (minibuffer-visible-completions . 'up-down)
+  (minibuffer-visible-completions 'up-down)
   ;; Show completions eagerly and update automatically
-  (completion-eager-update . t)
-  (completion-eager-display . t)
-  (completion-auto-help . 'always)
+  (completion-eager-update t)
+  (completion-eager-display t)
+  (completion-auto-help 'always)
   ;; Disable noise (inline help also blocks input)
-  (completion-show-help . nil)
-  (completion-show-inline-help . nil)
+  (completion-show-help nil)
+  (completion-show-inline-help nil)
 
   ;; Optionally configure the narrowing key.
   ;; Both < and C-+ work reasonably well.
-  (consult-narrow-key . "C-+") ;; "<"
-
+  (consult-narrow-key "C-+") ;; "<"
 
   ;; The :init configuration is always executed (Not lazy)
   :init
@@ -738,11 +746,14 @@
   ;; register formatting, adds thin separator lines, register sorting and hides
   ;; the window mode line.
   (advice-add #'register-preview :override #'consult-register-window)
+  ;; Use Consult to select xref locations with preview
+  (setopt xref-show-xrefs-function #'consult-xref
+          xref-show-definitions-function #'consult-xref)
   (setq register-preview-delay 0.5)
 
   ;; Configure other variables and modes in the :config section,
   ;; after lazily loading the package.
-  :defer-config
+  :config
   ;; Optionally configure preview. The default value
   ;; is 'any, such that any key triggers the preview.
   ;; (setq consult-preview-key 'any)
@@ -815,6 +826,15 @@
          ("<f2> u" . #'embark-save-unicode-character))
   :custom
   (prefix-help-command . #'embark-prefix-help-command)
+  :config
+  (defun kb/embark-preview ()
+    "Previews candidate in vertico buffer, unless it's a consult command"
+    (interactive)
+    (unless (bound-and-true-p consult--preview-function)
+      (save-selected-window
+        (let ((embark-quit-after-action nil))
+          (embark-dwim)))))
+  (define-key minibuffer-local-map (kbd "M-.") #'kb/embark-preview)
   )
 
 (leaf embark-consult
@@ -1194,7 +1214,6 @@
   :config
   (consult-gh-forge-mode +1)
   (setq consult-gh-forge-timeout-seconds 20))
-
 
 (leaf magit-gh
   :doc "GitHub CLI integration for Magit"
