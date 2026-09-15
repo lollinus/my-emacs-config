@@ -355,6 +355,37 @@
           c-ts-base-mode-hook prog-mode-hook)
          . display-line-numbers-mode))
 
+(use-package afterglow
+  :ensure t
+  :config
+  (afterglow-mode t)
+  ;; Optional customizations
+  (setopt afterglow-default-duration 0.5)
+  (setopt afterglow-default-face 'hl-line)
+  ;; Add triggers as needed
+  (afterglow-add-triggers
+   '((evil-previous-visual-line :thing line :width 5 :duration 0.2)
+     (evil-next-visual-line :thing line :width 5 :duration 0.2)
+     (previous-line :thing line :duration 0.2)
+     (next-line :thing line :duration 0.2)
+     (eval-buffer :thing window :duration 0.2)
+     (eval-defun :thing defun :duration 0.2)
+     (eval-expression :thing sexp :duration 1)
+     (eval-last-sexp :thing sexp :duration 1)
+     (my-function :thing my-region-function :duration 0.5
+                  :face 'highlight))))
+
+(use-package popterm
+  :ensure t
+  :bind (("C-`"  . popterm-toggle)
+         ("C-~"  . popterm-toggle-cd)
+         ([f9]   . popterm-window-toggle))
+  :config
+  (setq popterm-backend        'ghostel
+        popterm-display-method 'posframe
+        popterm-scope          'project
+        popterm-auto-cd        t))
+
 (leaf fancy-fill-paragraph
   :doc "Fancy paragraph fill"
   :req "emacs-29.1"
@@ -674,6 +705,11 @@
   (vertico-mouse-mode +1)
   )
 
+(use-package annotated-completing-read
+  :ensure t
+  :config
+  (annotated-completing-read-setup-history))
+
 (use-package consult
   :ensure t
   :bind
@@ -972,14 +1008,10 @@
   ("JetBrains Mono"  "https://download.jetbrains.com/fonts/JetBrainsMono-2.304.zip")
   ("Noto Sans Mono" "https://github.com/notofonts/latin-greek-cyrillic/releases/tag/NotoSansMono-v2.014")
   :config
-  (set-face-attribute 'default nil :font "Fira Code")
-)
+  (set-face-attribute 'default nil :font "Fira Code"))
 
-(leaf treesit
-  :doc "tree-sitter utilities"
-  :tag "builtin" "languages" "tree-sitter" "treesit"
-  :added "2025-09-17"
-  :defer-config
+(use-package treesit
+  :config
   ;; Grammars not tied to a specific mode leaf are registered here.
   ;; Mode-specific grammars live in their respective leaf (e.g. markdown-ts-mode).
   (dolist (src '((awk "https://github.com/Beaglefoot/tree-sitter-awk")
@@ -1343,6 +1375,24 @@ Uses `locate-dominating-file' to find `.git' without loading `vc-git'."
   :custom (consult-project-function . #'consult-project-extra-project-fn)
   :bind
   ([remap project-find-file] . consult-project-extra-find))
+
+(leaf project-x
+  :doc "Extra convenience features for project.el"
+  :req "emacs-28.1"
+  :tag "tools" "session" "convenience" "project" "emacs>=28.1"
+  :url "https://github.com/vmargb/project-x"
+  :added "2026-07-30"
+  :emacs>= 28.1
+  :ensure t
+  :hook
+  (project-find-functions . project-x-try-local)
+  :config
+  (advice-add 'project-switch-project :around #'project-x--dynamic-switch-commands)
+  :bind (
+         ("C-x y w" . project-x-window-state-save)
+         ("C-x y j" . project-x-window-state-load)
+         )
+  )
 
 (use-package tabspaces
   :ensure t
