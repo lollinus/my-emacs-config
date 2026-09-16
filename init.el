@@ -327,12 +327,13 @@
                                             (tab-mark 9 [9654 9] [92 9]))))
   :bind (("C-c w w" . whitespace-mode))
   :custom-face
-  (whitespace-space . '((t (:foreground "DimGrey" :background nil))))
-  (whitespace-newline . '((t (:foreground "DimGrey" :background nil))))
-  (whitespace-indentation . '((t (:foreground "DimGrey" :background nil))))
+  (whitespace-space . '((t (:foreground "DimGrey" :background unspecified))))
+  (whitespace-newline . '((t (:foreground "DimGrey" :background unspecified))))
+  (whitespace-indentation . '((t (:foreground "DimGrey" :background unspecified))))
 
   :global-minor-mode (global-whitespace-mode)
   )
+
 
 (use-package match-paren
   :bind ("C-%" . match-parenthesis)
@@ -355,25 +356,25 @@
           c-ts-base-mode-hook prog-mode-hook)
          . display-line-numbers-mode))
 
-(use-package afterglow
-  :ensure t
-  :config
-  (afterglow-mode t)
-  ;; Optional customizations
-  (setopt afterglow-default-duration 0.5)
-  (setopt afterglow-default-face 'hl-line)
-  ;; Add triggers as needed
-  (afterglow-add-triggers
-   '((evil-previous-visual-line :thing line :width 5 :duration 0.2)
-     (evil-next-visual-line :thing line :width 5 :duration 0.2)
-     (previous-line :thing line :duration 0.2)
-     (next-line :thing line :duration 0.2)
-     (eval-buffer :thing window :duration 0.2)
-     (eval-defun :thing defun :duration 0.2)
-     (eval-expression :thing sexp :duration 1)
-     (eval-last-sexp :thing sexp :duration 1)
-     (my-function :thing my-region-function :duration 0.5
-                  :face 'highlight))))
+;; (use-package afterglow
+;;   :ensure t
+;;   :config
+;;   (afterglow-mode t)
+;;   ;; Optional customizations
+;;   (setopt afterglow-default-duration 0.5)
+;;   (setopt afterglow-default-face 'hl-line)
+;;   ;; Add triggers as needed
+;;   (afterglow-add-triggers
+;;    '((evil-previous-visual-line :thing line :width 5 :duration 0.2)
+;;      (evil-next-visual-line :thing line :width 5 :duration 0.2)
+;;      (previous-line :thing line :duration 0.2)
+;;      (next-line :thing line :duration 0.2)
+;;      (eval-buffer :thing window :duration 0.2)
+;;      (eval-defun :thing defun :duration 0.2)
+;;      (eval-expression :thing sexp :duration 1)
+;;      (eval-last-sexp :thing sexp :duration 1)
+;;      (my-function :thing my-region-function :duration 0.5
+;;                   :face 'highlight))))
 
 (use-package popterm
   :ensure t
@@ -1188,65 +1189,6 @@
   (with-eval-after-load 'savehist
     (add-to-list 'savehist-additional-variables 'consult-magit-repo-history)))
 
-(leaf consult-gh
-  :doc "Consulting GitHub Client."
-  :req "emacs-29.4" "consult-2.0" "markdown-mode-2.6" "ox-gfm-1.0" "yaml-1.2.0"
-  :tag "vc" "tools" "matching" "convenience" "emacs>=29.4"
-  :url "https://github.com/armindarvish/consult-gh"
-  :added "2026-06-26"
-  :emacs>= 29.4
-  :ensure t
-  :after consult markdown-mode ox-gfm yaml
-  :custom
-  (consult-gh-default-clone-directory . "~/projects")
-  ;; (consult-gh-show-preview . t)
-  ;; (consult-gh-preview-key . "C-o")
-  ;; (consult-gh-repo-action . #'consult-gh--repo-browse-files-action)
-  ;; (consult-gh-large-file-warning-threshold 2500000)
-  ;; (consult-gh-confirm-name-before-fork nil)
-  ;; (consult-gh-confirm-before-clone t)
-  ;; (consult-gh-notifications-show-unread-only nil)
-  ;; (consult-gh-default-interactive-command #'consult-gh-transient)
-  ;; (consult-gh-prioritize-local-folder nil)
-  ;; (consult-gh-group-dashboard-by :reason)
-  ;; ;;;; Optional
-  ;; (consult-gh-repo-preview-major-mode nil) ; show readmes in their original format
-  ;; (consult-gh-preview-major-mode 'org-mode) ; use 'org-mode for editing comments, commit messages, ...
-  ;; :config
-  ;; ;; Remember visited orgs and repos across sessions
-  ;; (add-to-list 'savehist-additional-variables 'consult-gh--known-orgs-list)
-  ;; (add-to-list 'savehist-additional-variables 'consult-gh--known-repos-list)
-  ;; ;; Enable default keybindings (e.g. for commenting on issues, prs, ...)
-  ;; (consult-gh-enable-default-keybindings))
-  )
-
-;; Install `consult-gh-embark' for embark actions
-(leaf consult-gh-embark
-  :doc "Embark Actions for consult-gh"
-  :req "emacs-29.4" "consult-2.0" "consult-gh-3.0" "embark-consult-1.1" "which-key-3.6.0"
-  :tag "completion" "forges" "repositories" "git" "matching" "emacs>=29.4"
-  :url "https://github.com/armindarvish/consult-gh"
-  :added "2026-06-26"
-  :emacs>= 29.4
-  :ensure t
-  :after consult consult-gh embark-consult which-key
-  :config
-  (consult-gh-embark-mode +1))
-
-;; Install `consult-gh-forge' for forge actions
-(leaf consult-gh-forge
-  :doc "Magit/Forge Integration for consult-gh"
-  :req "emacs-29.4" "consult-2.0" "forge-0.3.3" "consult-gh-3.0"
-  :tag "completion" "forges" "repositories" "git" "matching" "emacs>=29.4"
-  :url "https://github.com/armindarvish/consult-gh"
-  :added "2026-06-26"
-  :emacs>= 29.4
-  :ensure t
-  :after consult forge consult-gh
-  :config
-  (consult-gh-forge-mode +1)
-  (setq consult-gh-forge-timeout-seconds 20))
-
 (leaf magit-gh
   :doc "GitHub CLI integration for Magit"
   :req "emacs-29.1" "magit-4.0.0" "transient-0.5.0"
@@ -1330,17 +1272,17 @@ Uses `locate-dominating-file' to find `.git' without loading `vc-git'."
       (list 'vc 'Git git-root)))
   ;; (add-to-list 'project-find-functions #'kb/project-try-dot-project)
   (defun kb/superproject-root ()
-  "Zwróć root superprojektu Git lub bieżącego projektu."
-  (let* ((root (project-root (project-current t)))
-         (default-directory root)
-         (superproject
-          (string-trim
-           (shell-command-to-string
-            "git rev-parse --show-superproject-working-tree 2>/dev/null"))))
-    (if (string-empty-p superproject)
-        root
-      (file-name-as-directory superproject))))
-)
+    "Return root directory of Git superproject or actual project."
+    (let* ((root (project-root (project-current t)))
+           (default-directory root)
+           (superproject
+            (string-trim
+             (shell-command-to-string
+              "git rev-parse --show-superproject-working-tree 2>/dev/null"))))
+      (if (string-empty-p superproject)
+          root
+        (file-name-as-directory superproject))))
+  )
 
 (leaf disproject
   :doc "Dispatch project commands with Transient"
@@ -1376,24 +1318,6 @@ Uses `locate-dominating-file' to find `.git' without loading `vc-git'."
   :bind
   ([remap project-find-file] . consult-project-extra-find))
 
-(leaf project-x
-  :doc "Extra convenience features for project.el"
-  :req "emacs-28.1"
-  :tag "tools" "session" "convenience" "project" "emacs>=28.1"
-  :url "https://github.com/vmargb/project-x"
-  :added "2026-07-30"
-  :emacs>= 28.1
-  :ensure t
-  :hook
-  (project-find-functions . project-x-try-local)
-  :config
-  (advice-add 'project-switch-project :around #'project-x--dynamic-switch-commands)
-  :bind (
-         ("C-x y w" . project-x-window-state-save)
-         ("C-x y j" . project-x-window-state-load)
-         )
-  )
-
 (use-package tabspaces
   :ensure t
   :hook (after-init . tabspaces-mode) ;; use this only if you want the minor-mode loaded at startup.
@@ -1419,8 +1343,58 @@ Uses `locate-dominating-file' to find `.git' without loading `vc-git'."
   ;; Store all project sessions in a specific directory
   (tabspaces-session-project-session-store "~/.emacs.d/tabspaces-sessions/")
   :config
-  (eval-after-load 'consult
-    (setopt consult-buffer-list-function #'tabspaces-local-buffer-list)))
+  ;; Filter Buffers for Consult-Buffer
+  (with-eval-after-load 'consult
+    ;; hide full buffer list (still available with "b" prefix)
+    (plist-put consult-source-buffer :hidden t)
+    (plist-put consult-source-buffer :default nil)
+    ;; set consult-workspace buffer list
+    (defvar consult--source-workspace
+      (list :name     "Workspace Buffers"
+            :narrow   ?w
+            :history  'buffer-name-history
+            :category 'buffer
+            :state    #'consult--buffer-state
+            :default  t
+            :items    (lambda () (consult--buffer-query
+                             :predicate #'tabspaces--local-buffer-p
+                             :sort 'visibility
+                             :as #'buffer-name)))
+
+      "Set workspace buffer list for consult-buffer.")
+    (add-to-list 'consult-buffer-sources 'consult--source-workspace))
+
+  (defun kb/consult-tabspaces ()
+    "Deactivate isolated buffers when not using tabspaces."
+    (require 'consult)
+    (cond (tabspaces-mode
+           ;; hide full buffer list (still available with "b")
+           (plist-put consult-source-buffer :hidden t)
+           (plist-put consult-source-buffer :default nil)
+           (add-to-list 'consult-buffer-sources 'consult--source-workspace))
+          (t
+           ;; reset consult-buffer to show all buffers
+           (plist-put consult-source-buffer :hidden nil)
+           (plist-put consult-source-buffer :default t)
+           (setopt consult-buffer-sources (remove #'consult--source-workspace consult-buffer-sources)))))
+
+  (add-hook 'tabspaces-mode-hook #'kb/consult-tabspaces)
+
+  ;; iBuffer
+  (defun kb/tabspaces-ibuffer-group ()
+  "Group ibuffer entries by tabspace."
+  (setq ibuffer-filter-groups
+        (mapcar (lambda (tab)
+                  (let ((tab-index (tab-bar--tab-index-by-name tab)))
+                    (cons tab
+                          `((predicate . (member (buffer-name)
+                                                (mapcar #'buffer-name
+                                                        (tabspaces--buffer-list nil ,tab-index))))))))
+                (tabspaces--list-tabspaces))))
+  (add-hook 'ibuffer-hook #'kb/tabspaces-ibuffer-group)
+  (with-eval-after-load 'ibuffer
+    (define-key ibuffer-mode-map (kbd "o") #'tabspaces-ibuffer-switch-buffer-and-tab))
+  )
 
 (leaf breadcrumb
   :doc "Project and imenu-based breadcrumb paths"
@@ -1841,6 +1815,7 @@ Used to see multiline flymake errors"
   :custom
   (kirigami-show-menu-bar . 1)
   (kirigami-show-context-menu . 1)
+  (kirigami-preserve-visual-position . t)
   :bind (kirigami-mode-map
          ("C-c t f" . kirigami-toggle-fold)
          ("C-c t a" . kirigami-close-folds)
@@ -2265,7 +2240,7 @@ Used to see multiline flymake errors"
   :added "2026-05-13"
   :emacs>= 28.1
   :ensure t
-  :after projectile vterm markdown-mode)
+  :after projectile vterm markdown-ts-mode)
 
 (leaf claude-code-context
   :disabled t
@@ -2396,7 +2371,6 @@ Used to see multiline flymake errors"
   :doc "Outline-based notes management and organizer"
   :tag "builtin"
   :added "2025-09-02"
-  :ensure t
   :custom ((org-startup-indented . t)
            (org-startup-with-inline-images . t)
            (org-pretty-entities . t)
@@ -2606,8 +2580,11 @@ Used to see multiline flymake errors"
 (use-package markdown-ts-mode
   :if (and (not (version< emacs-version "29.1")) (version< emacs-version "31.1"))
   :ensure t
+  )
+
+(use-package markdown-ts-mode
   :mode ("\\.md\\'" . markdown-ts-mode)
-  :config
+  :init
   (kb/treesit-register-grammar
    '(markdown
      "https://github.com/tree-sitter-grammars/tree-sitter-markdown"
@@ -2616,6 +2593,7 @@ Used to see multiline flymake errors"
    '(markdown-inline
      "https://github.com/tree-sitter-grammars/tree-sitter-markdown"
      "v0.4.1" "tree-sitter-markdown-inline/src"))
+  :config
   (eval-after-load 'markdown-ts-mode
     (lambda nil (kb/treesit-ensure 'markdown)
       (kb/treesit-ensure 'markdown-inline))))
@@ -2776,22 +2754,22 @@ Used to see multiline flymake errors"
   :hook (prog-mode-hook text-mode-hook)
   :custom (rainbow-html-colors . t))
 
-(leaf sleek-modeline
-  :doc "Minimal and elegant modeline."
-  :req "emacs-29.1"
-  :tag "faces" "mode-line" "emacs>=29.1"
-  :url "https://github.com/abidanBrito/sleek-modeline"
-  :added "2026-06-08"
-  :emacs>= 29.1
-  :ensure t
-  :global-minor-mode t
-  :custom
-  (sleek-modeline-size . 'medium)
-  (sleek-modeline-diagnostics-ok-symbol . "✓")
-  (sleek-modeline-hide-inactive . t)
-  ;; (sleek-modeline-separator . " | ")
-  ;; (sleek-modeline-vc-use-github-icon . nil)
-  )
+;; (leaf sleek-modeline
+;;   :doc "Minimal and elegant modeline."
+;;   :req "emacs-29.1"
+;;   :tag "faces" "mode-line" "emacs>=29.1"
+;;   :url "https://github.com/abidanBrito/sleek-modeline"
+;;   :added "2026-06-08"
+;;   :emacs>= 29.1
+;;   :ensure t
+;;   :global-minor-mode t
+;;   :custom
+;;   (sleek-modeline-size . 'medium)
+;;   (sleek-modeline-diagnostics-ok-symbol . "✓")
+;;   (sleek-modeline-hide-inactive . t)
+;;   ;; (sleek-modeline-separator . " | ")
+;;   ;; (sleek-modeline-vc-use-github-icon . nil)
+;;   )
 
 ;; Other
 (leaf comment-dwim-2
@@ -2815,7 +2793,7 @@ Used to see multiline flymake errors"
   :emacs>= 25.1
   :ensure t
   :custom
-  ;; (separedit-default-mode . 'markdown-mode)
+  ;; (separedit-default-mode . 'markdown-ts-mode)
   (separedit-preserve-string-indentation . t)
   (separedit-continue-fill-column . t)
   (separedit-write-file-when-execute-save . t)
@@ -2844,7 +2822,12 @@ Used to see multiline flymake errors"
   :url "https://github.com/rougier/nano-theme"
   :added "2026-07-23"
   :emacs>= 27.1
-  :ensure t)
+  :ensure t
+  :config
+  (kb/font-ensure "Roboto Mono"  "https://github.com/googlefonts/RobotoMono/archive/refs/tags/v3.001.zip")
+  (kb/font-ensure "Roboto Mono Nerd Font" "https://github.com/ryanoasis/nerd-fonts/releases/download/v3.5.1/RobotoMono.zip")
+  ;; https://github.com/ryanoasis/nerd-fonts/releases/download/v3.5.1/RobotoMono.tar.xz
+  )
 
 (leaf nano-modeline
   :doc "N Λ N O modeline"
