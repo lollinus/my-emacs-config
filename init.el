@@ -2449,7 +2449,16 @@ Used to see multiline flymake errors"
   :treesit-src (org "https://github.com/milisims/tree-sitter-org")
   )
 
-(use-package org-relative-date :ensure t :hook (org-mode-hook . #'org-relative-date-mode))
+(leaf org-relative-date
+  :doc "Live relative-date overlays on org timestamps."
+  :req "emacs-27.1" "org-9.1"
+  :tag "convenience" "org" "calendar" "emacs>=27.1"
+  :url "https://github.com/RobertPlant/org-relative-date"
+  :added "2026-09-15"
+  :emacs>= 27.1
+  :ensure t
+  :after org
+  :global-minor-mode global-org-relative-date-mode)
 
 (leaf dash
   :doc "A modern list library for Emacs."
