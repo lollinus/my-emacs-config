@@ -1210,6 +1210,16 @@
   :emacs>= 24.3
   :ensure t)
 
+(leaf git-modeline
+  :doc "Show the git status of the current file in the modeline."
+  :req "emacs-26.1"
+  :tag "convenience" "tools" "vc" "emacs>=26.1"
+  :url "https://github.com/djangoliv/git-modeline"
+  :added "2026-09-22"
+  :emacs>= 26.1
+  :ensure t
+  :global-minor-mode git-modeline-mode)
+
 (leaf git-link
   :doc "Get the GitHub/Bitbucket/GitLab URL for a buffer location"
   :req "emacs-24.3"
