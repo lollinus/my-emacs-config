@@ -2446,7 +2446,7 @@ Used to see multiline flymake errors"
       (insert (format "[[file:%s]]" filename))
       (org-redisplay-inline-images)))
   :bind (org-mode-map ("C-<print>" . ews-org-insert-screenshot))
-  :treesit-src (org "https://github.com/milisims/tree-sitter-org")
+  ;; :treesit-src (org "https://github.com/milisims/tree-sitter-org")
   )
 
 (leaf org-relative-date
