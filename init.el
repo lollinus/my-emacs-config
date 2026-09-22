@@ -2958,7 +2958,12 @@ Used to see multiline flymake errors"
   :emacs>= 28.1
   :ensure t
   :blackout t
-  :global-minor-mode global-sideline-mode)
+  :global-minor-mode global-sideline-mode
+  :config
+  ;; (setopt sideline-order-right 'up)
+  (setopt sideline-backends-right-skip-current-line nil)
+  (setopt sideline-display-backend-name t)
+  )
 
 (leaf sideline-blame
   :doc "Show blame messages with sideline."
@@ -2970,7 +2975,10 @@ Used to see multiline flymake errors"
   :ensure t
   :after sideline
   :config
-  (add-to-list 'sideline-backends-right '(sideline-blame . down))
+  (add-to-list 'sideline-backends-right '(sideline-blame . up))
+  ;; (setopt sideline-backends-right nil)
+  (setf (alist-get 'sideline-blame sideline-backend-delays) 0.7)
+  ;; (setopt sideline-backend-delays nil)
   )
 
 (leaf blamee
@@ -3001,14 +3009,16 @@ Used to see multiline flymake errors"
   :ensure t
   :after eglot sideline
   :config
-  ;; `eglot--diag-data' was removed in eglot 1.21; the standard Flymake API
-  ;; `flymake-diagnostic-data' is its direct replacement.  Shim it so
-  ;; sideline-eglot (which still references the old name) works without
-  ;; patching the elpa directory.
   (unless (fboundp 'eglot--diag-data)
-    (defalias 'eglot--diag-data #'flymake-diagnostic-data))
+    (defalias 'eglot--diag-data #'flymake-diagnostic-data
+      "`eglot--diag-data' was removed in eglot 1.21; the standard
+ Flymake API `flymake-diagnostic-data' is its direct replacement.  Shim
+ it so sideline-eglot (which still references the old name) works
+ without patching the elpa directory. "))
   ;; (setq sideline-backends-left nil)
-  (add-to-list 'sideline-backends-left '(sideline-eglot . up)))
+  (add-to-list 'sideline-backends-right '(sideline-eglot . down))
+  (setf (alist-get 'sideline-eglot sideline-backend-delays) 1.5)
+  )
 
 (leaf sideline-flymake
   :doc "Show flymake errors with sideline"
@@ -3019,9 +3029,11 @@ Used to see multiline flymake errors"
   :emacs>= 28.1
   :ensure t
   :after sideline
+  :custom
+  (sideline-flymake-show-backend-name . t)
   :config
-  (setq sideline-flymake-show-backend-name t)
-  (add-to-list 'sideline-backends-left '(sideline-flymake . down))
+  (add-to-list 'sideline-backends-left '(sideline-flymake . up))
+  (setf (alist-get 'sideline-flymake sideline-backend-delays) 2.0)
 )
 
 (leaf visible-mark
