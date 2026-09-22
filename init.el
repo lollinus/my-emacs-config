@@ -2585,6 +2585,17 @@ Used to see multiline flymake errors"
   (org-tempus-dconf-path . "/org/gnome/shell/extensions/simple-message/message")
   )
 
+(leaf latex-to-svg-for-org
+  :doc "Preview Org LaTeX math as SVG"
+  :req "emacs-29.1" "latex-to-svg-frontend-0.11.0"
+  :tag "images" "math" "org" "tex" "emacs>=29.1"
+  :url "https://github.com/alberti42/latex-to-svg"
+  :added "2026-09-22"
+  :emacs>= 29.1
+  :ensure t
+  :after latex-to-svg-frontend
+  :hook (org-mode-hook . latex-to-svg-for-org-mode))
+
 (use-package org-draw
   :ensure t
   :bind (:map org-mode-map
