@@ -1633,6 +1633,15 @@ Used to see multiline flymake errors"
   :hook (c-ts-mode-hook . kb/c-ts-bind-clang-format)
   :hook (c++-ts-mode-hook . kb/c++-ts-bind-clang-format))
 
+(leaf protobuf-mode
+  ;; :doc "Major mode for editing protocol buffers"
+  ;; :tag "languages" "protobuf" "google"
+  ;; :url "https://github.com/protocolbuffers/protobuf"
+  ;; :added "2026-09-21"
+  ;; :ensure t
+  :mode ("\\.proto")
+  )
+
 (leaf verb
   :doc "Organize and send HTTP requests"
   :req "emacs-26.3"
