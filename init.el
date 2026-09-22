@@ -130,19 +130,6 @@
            (unless (string= (cadr err) "Unexpected process state")
              (signal (car err) (cdr err)))))))))
 
-(leaf spatial-window
-  :disabled t
-  :doc "Jump to windows using keyboard spatial mapping"
-  :req "emacs-28.1" "posframe-1.0.0"
-  :tag "windows" "convenience" "emacs>=28.1"
-  :url "https://github.com/lewang/spatial-window"
-  :added "2026-02-16"
-  :emacs>= 28.1
-  :ensure t
-  :bind ("M-o" . #'spatial-window-select)
-  :config
-  (message "**** Configure spatial-window"))
-
 (use-package ace-window
   :ensure t
   :bind
