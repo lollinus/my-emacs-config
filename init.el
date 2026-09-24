@@ -2458,6 +2458,7 @@ Used to see multiline flymake errors"
   :emacs>= 27.1
   :ensure t
   :after org
+  :custom (org-relative-date-extra-format . " %yW%V")
   :global-minor-mode global-org-relative-date-mode)
 
 (leaf dash
