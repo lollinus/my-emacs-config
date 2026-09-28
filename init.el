@@ -2356,6 +2356,24 @@ Used to see multiline flymake errors"
   :emacs>= 28.1
   :ensure t)
 
+(leaf consult-ghostel
+  :doc "Consult integration for ghostel."
+  :req "emacs-28.1" "consult-1.5" "ghostel-0.52.0"
+  :tag "emacs>=28.1"
+  :url "https://github.com/dakra/ghostel"
+  :added "2026-09-28"
+  :emacs>= 28.1
+  :ensure t
+  :after consult ghostel
+  :global-minor-mode consult-ghostel-mode
+  :bind (("C-x m" . consult-ghostel)
+         (:project-prefix-map
+          ("m" . consult-ghostel-project))
+         (:ghostel-semi-char-mode-map
+          ("C-c h" . consult-ghostel-history))
+         )
+  )
+
 (use-package termint
   :ensure t
   :demand t
