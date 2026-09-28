@@ -812,6 +812,18 @@
   (:minibuffer-local-completion-map ("C-x C-d" . cnosult-dir)
                                     ("C-x C-j" . consult-dir-jump-file)))
 
+
+(leaf deadgrep
+  :doc "Fast, friendly searching with ripgrep."
+  :req "emacs-25.1" "dash-2.12.0" "s-1.11.0" "spinner-1.7.3"
+  :tag "tools" "emacs>=25.1"
+  :url "https://github.com/Wilfred/deadgrep"
+  :added "2026-09-25"
+  :emacs>= 25.1
+  :ensure t
+  :after spinner
+  :bind ("<f5>" . #'deadgrep))
+
 (leaf prescient
   :doc "Better sorting and filtering"
   :req "emacs-25.1"
