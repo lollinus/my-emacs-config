@@ -873,6 +873,16 @@
   (define-key minibuffer-local-map (kbd "M-.") #'kb/embark-preview)
   )
 
+(leaf preview-tab
+  :doc "Temporary file buffers, like VS Code's preview tab."
+  :req "emacs-27.1"
+  :tag "files" "convenience" "emacs>=27.1"
+  :url "https://github.com/ismd/preview-tab.el"
+  :added "2026-09-28"
+  :emacs>= 27.1
+  :ensure t
+  :global-minor-mode preview-tab-mode)
+
 (leaf embark-consult
   :doc "Consult integration for Embark"
   :req "emacs-28.1" "compat-30" "embark-1.1" "consult-1.8"
