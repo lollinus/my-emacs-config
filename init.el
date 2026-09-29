@@ -2786,7 +2786,7 @@ Used to see multiline flymake errors"
                                    :pick 'word :pick-pred (lambda (w) (length> w 6)))
                   :engines (gt-google-engine)
                   :render (gt-overlay-render :type 'help-echo)))))
-  :bind (("<f5>" . #'gt-translate)))
+  :bind (("<f7>" . #'gt-translate)))
 
 (leaf hl-todo
   :doc "Highlight TODO and similar keywords"
