@@ -2637,6 +2637,17 @@ Used to see multiline flymake errors"
   :after latex-to-svg-frontend
   :hook (org-mode-hook . latex-to-svg-for-org-mode))
 
+(leaf latex-to-svg-for-markdown
+  :doc "Preview Markdown LaTeX math as SVG"
+  :req "emacs-29.1" "latex-to-svg-frontend-0.11.0"
+  :tag "images" "math" "markdown" "tex" "emacs>=29.1"
+  :url "https://github.com/alberti42/latex-to-svg"
+  :added "2026-09-28"
+  :emacs>= 29.1
+  :ensure t
+  :after latex-to-svg-frontend
+  :hook (markdown-ts-mode-hook . latex-to-svg-for-markdown-mode))
+
 (use-package org-draw
   :ensure t
   :bind (:map org-mode-map
