@@ -2602,6 +2602,12 @@ Used to see multiline flymake errors"
     (setopt jiralib-token `("Authorization" . ,(concat "Bearer " password))))
   (setopt jiralib-use-PAT t))
 
+(leaf jira-markup-mode
+  :doc "Emacs Major mode for JIRA-markup-formatted text files"
+  :tag "markup" "jira"
+  :url "https://github.com/mnuessler/jira-markup-mode"
+  :added "2026-09-29"
+  :ensure t)
 
 (use-package doing
   :ensure t
