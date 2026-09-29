@@ -2911,6 +2911,8 @@ Used to see multiline flymake errors"
   (kb/font-ensure "Roboto Mono"  "https://github.com/googlefonts/RobotoMono/archive/refs/tags/v3.001.zip")
   (kb/font-ensure "Roboto Mono Nerd Font" "https://github.com/ryanoasis/nerd-fonts/releases/download/v3.5.1/RobotoMono.zip")
   ;; https://github.com/ryanoasis/nerd-fonts/releases/download/v3.5.1/RobotoMono.tar.xz
+  :init
+  (nano-mode)
   )
 
 (leaf nano-modeline
