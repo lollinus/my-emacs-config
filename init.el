@@ -2907,12 +2907,13 @@ Used to see multiline flymake errors"
   :added "2026-07-23"
   :emacs>= 27.1
   :ensure t
+  :require t
   :config
   (kb/font-ensure "Roboto Mono"  "https://github.com/googlefonts/RobotoMono/archive/refs/tags/v3.001.zip")
   (kb/font-ensure "Roboto Mono Nerd Font" "https://github.com/ryanoasis/nerd-fonts/releases/download/v3.5.1/RobotoMono.zip")
   ;; https://github.com/ryanoasis/nerd-fonts/releases/download/v3.5.1/RobotoMono.tar.xz
-  :init
   (nano-mode)
+  (nano-dark)
   )
 
 (leaf nano-modeline
@@ -2943,6 +2944,7 @@ Used to see multiline flymake errors"
   )
 
 (leaf circadian
+  :disabled t
   :doc "Theme-switching based on daytime"
   :req "emacs-27.2"
   :tag "themes" "emacs>=27.2"
@@ -2966,7 +2968,7 @@ Used to see multiline flymake errors"
                         ("8:00" . tango-dark)
                         ("8:15" . misterioso)
                         ("9:00" . nano-dark)
-                        ("15:00" . (modus-vivendi nano-light))
+                        ("15:00" . nano-light)
                         ("15:15" . wombat)
                         ("17:00" . wheatgrass)
                         ("21:30" . leuven-dark)))
