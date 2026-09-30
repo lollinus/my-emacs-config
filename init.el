@@ -261,6 +261,22 @@
            (mode-require-final-newline . t)      ; add a newline to end of file)
            (make-backup-files . nil)))
 
+(leaf quick-fasd
+  :doc "Integration for the command-line tool `fasd'"
+  :req "emacs-26.1"
+  :tag "tools" "files" "convenience" "emacs>=26.1"
+  :url "https://github.com/jamescherti/quick-fasd.el"
+  :added "2026-09-30"
+  :emacs>= 26.1
+  :when (executable-find "fasd")
+  :blackout t
+  :ensure t
+  :bind (("C-x C-d" . quick-fasd-find-path)
+         (:minibuffer-local-completion-map
+          ("C-x C-d" . quick-fasd-find-path)))
+  :custom (quick-fasd-enable-initial-prompt . nil)
+  :global-minor-mode t)
+
 (leaf auth-source
   :doc "authentication sources for Gnus and Emacs"
   :tag "builtin"
@@ -1839,6 +1855,7 @@ Used to see multiline flymake errors"
   :added "2026-06-12"
   :emacs>= 26.1
   :ensure t
+  :blackout t
   :global-minor-mode kirigami-global-mode
   :custom
   (kirigami-show-menu-bar . 1)
@@ -2911,7 +2928,7 @@ Used to see multiline flymake errors"
   :config
   (kb/font-ensure "Roboto Mono"  "https://github.com/googlefonts/RobotoMono/archive/refs/tags/v3.001.zip")
   (kb/font-ensure "Roboto Mono Nerd Font" "https://github.com/ryanoasis/nerd-fonts/releases/download/v3.5.1/RobotoMono.zip")
-  ;; https://github.com/ryanoasis/nerd-fonts/releases/download/v3.5.1/RobotoMono.tar.xz
+  (kb/font-ensure "RobotoMono Nerd Font Mono" "https://github.com/ryanoasis/nerd-fonts/releases/download/v3.5.1/RobotoMono.zip")
   (nano-mode)
   (nano-dark)
   )
