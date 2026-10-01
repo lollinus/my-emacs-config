@@ -274,7 +274,10 @@
   :bind (("C-x C-d" . quick-fasd-find-path)
          (:minibuffer-local-completion-map
           ("C-x C-d" . quick-fasd-find-path)))
-  :custom (quick-fasd-enable-initial-prompt . nil)
+  :custom
+  (quick-fasd-enable-initial-prompt . nil)
+  (quick-fasd-auto-add-on-buffer-change . t)
+  ;; (quick-fasd-command-args . "-a")
   :global-minor-mode t)
 
 (leaf auth-source
