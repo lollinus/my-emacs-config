@@ -2475,6 +2475,7 @@ Used to see multiline flymake errors"
            (org-html-postamble . nil)
            (org-todo-keywords . '((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d!)")
                                   (sequence "BACKLOG(b)" "PLAN(p)" "READY(r)" "ACTIVE(a)" "REVIEW(v)" "WAIT(w@/!)" "HOLD(h)" "|" "COMPLETED(c)" "CANC(k@)")))
+           (org-plantuml-exec-mode . 'plantuml)
            )
 
   :preface
@@ -2491,6 +2492,7 @@ Used to see multiline flymake errors"
        (shell . t)
        (dot . t)
        (gnuplot . t)
+       (plantuml . t)
        )))
   :hook ((org-mode-hook . kb/org-mode-setup))
 
@@ -2685,6 +2687,16 @@ Used to see multiline flymake errors"
   :if (and (not (version< emacs-version "29.1")) (version< emacs-version "31.1"))
   :ensure t
   )
+
+(leaf plantuml-mode
+  :doc "Major mode for PlantUML"
+  :req "dash-2.0.0" "emacs-25.1" "deflate-0.0.3"
+  :tag "tools" "processes" "text" "files" "emacs>=25.1"
+  :url "https://github.com/skuro/plantuml-mode"
+  :added "2026-10-01"
+  :emacs>= 25.1
+  :ensure t
+  :after deflate)
 
 (use-package markdown-ts-mode
   :mode ("\\.md\\'" . markdown-ts-mode)
