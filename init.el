@@ -2581,7 +2581,22 @@ Used to see multiline flymake errors"
                                  (quote ("lof" "lot" "tex~" "aux" "idx" "log" "out"
                                          "toc" "nav" "snm" "vrb" "dvi" "fdb_latexmk"
                                          "blg" "brf" "fls" "entoc" "ps" "spl" "bbl"
-                                         "tex" "bcf"))))
+                                         "tex" "bcf")))
+  :config
+  (add-to-list 'org-latex-packages-alist '("" "listings"))
+  (add-to-list 'org-latex-packages-alist '("" "xcolor")))
+
+(leaf engrave-faces
+  :doc "Convert font-lock faces to other formats"
+  :req "emacs-27.1"
+  :tag "faces" "emacs>=27.1"
+  :url "https://github.com/tecosaur/engrave-faces"
+  :added "2026-10-13"
+  :emacs>= 27.1
+  :ensure t
+  :custom (org-latex-src-block-backend . 'engraved)
+  )
+
 ;; (require 'auth-source)
 ;; (let* ((auth (car (auth-source-search
 ;; 	       :host "jira.cc.bmwgroup.net"
