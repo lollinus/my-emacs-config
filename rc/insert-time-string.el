@@ -59,6 +59,7 @@ See `format-time-string' for FORMAT-STRING.")
 
 (defvar insert-time-string-default-format "locale")
 
+;;;###autoload
 (defun insert-time-string (format-string &optional time universal)
   "Insert the current time at point, according to FORMAT-STRING.
 By default, insert the local time; with a prefix arg, insert the Universal Time.
