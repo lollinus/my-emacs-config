@@ -1708,12 +1708,22 @@ Used to see multiline flymake errors"
   :hook (c-mode-common-hook c-ts-base-mode-hook))
 
 (leaf ttl-mode
+  :disabled t
   :doc "Mode for Turtle (and Notation 3)"
   :url "https://github.com/nxg/ttl-mode"
   :added "2025-11-27"
   :ensure t
   :hook turn-on-font-lock
   :mode ("\\.n3" "\\.ttl"))
+
+(leaf ttl-ts-mode
+  :doc "RDF Turtle editing mode"
+  :req "emacs-29.1"
+  :tag "treesitter" "turtle" "rdf" "files" "languages" "emacs>=29.1"
+  :url "https://codeberg.org/nutcase/ttl-ts-mode"
+  :added "2026-10-20"
+  :emacs>= 29.1
+  :ensure t)
 
 (leaf doxymin
   :doc "Create doxygen style docs the easy way"
