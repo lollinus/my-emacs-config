@@ -2367,6 +2367,15 @@ Used to see multiline flymake errors"
   :custom
   (hackernews-modern-enable-emojis . t))
 
+(leaf vterm
+  :doc "Fully-featured terminal emulator"
+  :req "emacs-25.1"
+  :tag "terminals" "emacs>=25.1"
+  :url "https://github.com/akermu/emacs-libvterm"
+  :added "2026-10-20"
+  :emacs>= 25.1
+  :ensure t)
+
 (leaf ghostel
   :doc "Terminal emulator powered by libghostty."
   :req "emacs-28.1"
@@ -2393,6 +2402,23 @@ Used to see multiline flymake errors"
           ("C-c h" . consult-ghostel-history))
          )
   )
+
+(leaf project-terminal
+  :doc "Per-project terminal management"
+  :req "emacs-28.1"
+  :tag "convenience" "projects" "terminals" "emacs>=28.1"
+  :url "https://github.com/cowboyd/project-terminal.el"
+  :added "2026-10-20"
+  :emacs>= 28.1
+  :ensure t
+  :bind (:project-prefix-map
+         ("t" . project-terminal-toggle)
+         ("T" . project-terminal-add))
+  :custom
+  ;; (project-terminal-height 0.25)   ;; Drawer height as a fraction of the frame
+  ;; (project-terminal-side 'bottom)  ;; Side of the frame (bottom, top, left, right)
+  (project-terminal-shell . 'vterm) ;; Shell backend (eshell or vterm)
+)
 
 (use-package termint
   :ensure t
