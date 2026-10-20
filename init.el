@@ -2755,6 +2755,16 @@ Used to see multiline flymake errors"
     (lambda nil (kb/treesit-ensure 'markdown)
       (kb/treesit-ensure 'markdown-inline))))
 
+(leaf markdown-ts-appear
+  :doc "Reveal Markdown source at point"
+  :req "emacs-31.1"
+  :tag "convenience" "text" "emacs>=31.1"
+  :url "https://github.com/Thysrael/markdown-ts-appear"
+  :added "2026-10-20"
+  :emacs>= 31.1
+  :ensure t
+  :hook (markdown-ts-mode-hook . markdown-ts-appear-mode))
+
 (leaf markdown-indent-mode
   :doc "Dynamic indentation for Markdown."
   :req "emacs-28.1"
@@ -2765,13 +2775,10 @@ Used to see multiline flymake errors"
   :ensure t
   :hook (markdown-ts-mode-hook . markdown-indent-mode))
 
-(leaf markdown-table-wrap
-  :doc "Word-wrap GFM pipe tables to fit window width"
-  :tag "markdown" "table" "wp"
-  :url "https://github.com/dnouri/markdown-table-wrap"
-  :added "2026-03-17"
+(use-package markdown-table-wrap
+  :disabled t
   :ensure t
-  :bind (:markdown-ts-mode-map
+  :bind (:map markdown-ts-mode-map
          ("C-c t w" . markdown-table-wrap)
          ("C-c t u" . markdown-table-wrap-unwrap)))
 
