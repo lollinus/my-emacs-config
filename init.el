@@ -2605,6 +2605,8 @@ Used to see multiline flymake errors"
   :doc "LaTeX Backend for Org Export Engine"
   :tag "builtin" "text" "calendar" "hypermedia" "outlines"
   :added "2026-01-23"
+  :after ox
+  :require t
   :custom
   ;; Multiple LaTeX passes for bibliographies
   (org-latex-pdf-process .
