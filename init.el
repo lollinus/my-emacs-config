@@ -2666,15 +2666,19 @@ Used to see multiline flymake errors"
     (make-directory "~/.org-jira"))
   (setopt jiralib-use-restapi t)
   (setopt jiralib-url "https://jira.cc.bmwgroup.net")
-  (let* ((auth (car (auth-source-search
-                      :host "jira.cc.bmwgroup.net"
-                      :requires '(:user :secret))))
-    (password (funcall (plist-get auth :secret)))
-    (username (plist-get auth :user))
-    (jira-host (plist-get auth :host)))
-    (setopt jiralib-host jira-host)
-    (setopt jiralib-user username)
-    (setopt jiralib-token `("Authorization" . ,(concat "Bearer " password))))
+  ;; Without a credential (missing/undecryptable authinfo, batch mode) only
+  ;; warn: an error here aborts the `org' load that triggered this block.
+  (if-let* ((auth (car (auth-source-search
+                        :host "jira.cc.bmwgroup.net"
+                        :requires '(:user :secret))))
+            (secret (plist-get auth :secret))
+            (password (if (functionp secret) (funcall secret) secret)))
+      (progn
+        (setopt jiralib-host (plist-get auth :host))
+        (setopt jiralib-user (plist-get auth :user))
+        (setopt jiralib-token `("Authorization" . ,(concat "Bearer " password))))
+    (display-warning 'org-jira
+                     "No auth-source credential for jira.cc.bmwgroup.net; Jira token not set"))
   (setopt jiralib-use-PAT t))
 
 (leaf jira-markup-mode
