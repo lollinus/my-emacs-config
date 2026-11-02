@@ -4,7 +4,10 @@ BUILD.bazel — Emacs source build orchestration via Bazel genrules.
 Targets
 -------
   //:emacs_package      Build Emacs 31.1 (stable tarball) → emacs-31.1-install.tar.xz
+                                                       + emacs-31.1-config.log
   //:emacs_ref_package  Build any git ref/commit via EMACS_REF env var (default: master)
+                                                       → emacs-ref-install.tar.xz
+                                                       + emacs-ref-config.log
   //:fonts              Bundle programming fonts → fonts.tar.gz
 
   bazel run targets (build artifact + install/remove side effects):
@@ -64,6 +67,31 @@ Caching
          use `bazel build --action_env=EMACS_REF_FORCE=$(date +%s)` to force rebuild.
   Toolkit: EMACS_TOOLKIT is tracked via --action_env=EMACS_TOOLKIT in .bazelrc,
          so lucid and pgtk builds are cached independently.
+  System libraries: the genrules run unsandboxed (local = True) and probe the
+         host at build time, so upgrading a system library does not bust the
+         cache — rebuild with ./deploy.sh --reforce.
+
+libtree-sitter (EMACS_TREE_SITTER, default: auto)
+-------------------------------------------------
+  auto     Use the system library if pkg-config reports tree-sitter >= 0.25
+           (grammar ABI 15), else the copy built by //:libtree_sitter.
+           Ubuntu 24.04 (0.20.8) → bundled; Arch/EndeavourOS → system.
+  system   Require the system library; fail if it is missing or too old.
+  bundled  Always use //:libtree_sitter (bundled into the tarball, found at
+           runtime via rpath $HOME/.local/lib).
+  Either way the built Emacs must report treesit-library-abi-version >= 15.
+
+Build diagnostics
+-----------------
+  Feature guard: after configure, src/config.h is checked for every required
+         feature (RSVG, GIF, SQLITE3, LIBXML2, ...).  configure silently drops
+         a feature whose -dev package is missing, so the build fails instead.
+  config.log: declared output of both Emacs genrules; locate it with
+         `bazel cquery //:emacs_package --output=files`.
+  On failure: Bazel discards declared outputs, so the tail of config.log is
+         printed to stderr and a copy is kept at
+         ~/.cache/emacs-bazel/config.log.failed.  The scratch tree under /tmp
+         is removed on both success and failure.
 """
 
 load("@rules_shell//shell:sh_binary.bzl", "sh_binary")
@@ -93,20 +121,124 @@ CONFIGURE_FLAGS = " ".join([
 
 GIT_URL = "https://git.savannah.gnu.org/git/emacs.git"
 
-# Shell fragment shared by both Emacs genrules: unpacks the libtree-sitter
-# staging tarball and exports the env vars that point configure at it.
+# Oldest system libtree-sitter accepted instead of the bundled one: 0.25 is the
+# first release supporting grammar ABI 15, which most upstream grammars now
+# emit.  Ubuntu 24.04 ships 0.20.8 (ABI <= 14), so it always uses the bundle.
+TREE_SITTER_MIN_SYSTEM_VERSION = "0.25.0"
+
+# Shell fragment shared by both Emacs genrules: selects the system
+# libtree-sitter when it is new enough, otherwise unpacks the staging tarball
+# built by //:libtree_sitter and exports the env vars that point configure at
+# it.  EMACS_TREE_SITTER=auto|system|bundled (default auto) overrides the
+# choice.  Requires LIBTREE_SITTER_TAR (absolute) and REAL_HOME; sets TS_SOURCE.
 _TREE_SITTER_SETUP = """
-        # Unpack the libtree-sitter staging tarball built by //:libtree_sitter.
-        # $$LIBTREE_SITTER_TAR must be set to an absolute path before any cd.
-        TS_STAGING=$$(mktemp -d)
-        tar -xf "$$LIBTREE_SITTER_TAR" -C "$$TS_STAGING"
-        export PKG_CONFIG_PATH="$$TS_STAGING/lib/pkgconfig$${PKG_CONFIG_PATH:+:$$PKG_CONFIG_PATH}"
-        export LIBRARY_PATH="$$TS_STAGING/lib$${LIBRARY_PATH:+:$$LIBRARY_PATH}"
-        export LD_LIBRARY_PATH="$$TS_STAGING/lib$${LD_LIBRARY_PATH:+:$$LD_LIBRARY_PATH}"
-        export LDFLAGS="$$LDFLAGS -L$$TS_STAGING/lib -Wl,-rpath,$$REAL_HOME/.local/lib"
-        # Prepend staged headers so they shadow any system libtree-sitter-dev
-        # (e.g. Ubuntu 24.04's stale 0.20.8 at /usr/include/tree_sitter/api.h).
-        export CPPFLAGS="-I$$TS_STAGING/include $${CPPFLAGS:-}"
+        TS_MODE="$${EMACS_TREE_SITTER:-auto}"
+        TS_MIN_SYSTEM=""" + '"' + TREE_SITTER_MIN_SYSTEM_VERSION + '"' + """
+        TS_SYSTEM_VERSION="$$(pkg-config --modversion tree-sitter 2>/dev/null || echo none)"
+        if pkg-config --atleast-version="$$TS_MIN_SYSTEM" tree-sitter 2>/dev/null; then
+            TS_SYSTEM_OK=1
+        else
+            TS_SYSTEM_OK=0
+        fi
+        case "$$TS_MODE" in
+          auto)
+            if (( TS_SYSTEM_OK )); then TS_SOURCE=system; else TS_SOURCE=bundled; fi ;;
+          system)
+            if (( ! TS_SYSTEM_OK )); then
+                echo "ERROR: EMACS_TREE_SITTER=system, but system libtree-sitter is $$TS_SYSTEM_VERSION (need >= $$TS_MIN_SYSTEM)" >&2
+                exit 1
+            fi
+            TS_SOURCE=system ;;
+          bundled)
+            TS_SOURCE=bundled ;;
+          *) echo "ERROR: Unknown EMACS_TREE_SITTER '$$TS_MODE'. Valid values: auto, system, bundled" >&2; exit 1 ;;
+        esac
+
+        if [[ "$$TS_SOURCE" == system ]]; then
+            echo "==> libtree-sitter: system $$TS_SYSTEM_VERSION"
+        else
+            echo "==> libtree-sitter: bundled (system: $$TS_SYSTEM_VERSION, need >= $$TS_MIN_SYSTEM)"
+            TS_STAGING=$$(mktemp -d)
+            tar -xf "$$LIBTREE_SITTER_TAR" -C "$$TS_STAGING"
+            export PKG_CONFIG_PATH="$$TS_STAGING/lib/pkgconfig$${PKG_CONFIG_PATH:+:$$PKG_CONFIG_PATH}"
+            export LIBRARY_PATH="$$TS_STAGING/lib$${LIBRARY_PATH:+:$$LIBRARY_PATH}"
+            export LD_LIBRARY_PATH="$$TS_STAGING/lib$${LD_LIBRARY_PATH:+:$$LD_LIBRARY_PATH}"
+            export LDFLAGS="$$LDFLAGS -L$$TS_STAGING/lib -Wl,-rpath,$$REAL_HOME/.local/lib"
+            # Prepend staged headers so they shadow any system libtree-sitter-dev
+            # (e.g. Ubuntu 24.04's stale 0.20.8 at /usr/include/tree_sitter/api.h).
+            export CPPFLAGS="-I$$TS_STAGING/include $${CPPFLAGS:-}"
+        fi
+"""
+
+# Shell fragment run in the build dir after `make install`: checks that the
+# built Emacs really supports grammar ABI 15 (catching a build that picked up
+# a stale tree_sitter/api.h), then, for the bundled library only, copies the
+# .so files into the install tree so the rpath ($$HOME/.local/lib) is
+# satisfied at runtime without a system install.  Requires TS_SOURCE,
+# STAGING_DIR and PREFIX.
+_TREE_SITTER_FINISH = """
+        TS_ABI="$$(./src/emacs -Q --batch --eval '(princ (treesit-library-abi-version))' || true)"
+        if ! [[ "$$TS_ABI" =~ ^[0-9]+$$ ]] || (( TS_ABI < 15 )); then
+            echo "ERROR: built Emacs supports tree-sitter grammar ABI '$$TS_ABI', need >= 15 ($$TS_SOURCE libtree-sitter)" >&2
+            exit 1
+        fi
+        echo "==> tree-sitter grammar ABI: $$TS_ABI ($$TS_SOURCE libtree-sitter)"
+
+        if [[ "$$TS_SOURCE" == bundled ]]; then
+            mkdir -p "$$STAGING_DIR$$PREFIX/lib"
+            cp -a "$$TS_STAGING/lib"/libtree-sitter.so* "$$STAGING_DIR$$PREFIX/lib/"
+        fi
+"""
+
+# Shell fragment shared by both Emacs genrules: creates the scratch tree and
+# an EXIT trap that removes it (and TS_STAGING) on success and failure alike.
+# If the build dies before configure succeeded, the trap first saves and
+# prints config.log, since Bazel discards a failed action's declared outputs.
+# Requires REAL_HOME; sets WORK, STAGING_DIR, BUILD_DIR.
+_WORK_SETUP = """
+        WORK=$$(mktemp -d)
+        STAGING_DIR="$$WORK/staging"
+        BUILD_DIR="$$WORK/build"
+        CONFIGURED=0
+        FAILED_LOG="$$REAL_HOME/.cache/emacs-bazel/config.log.failed"
+        cleanup() {
+            local rc=$$?
+            if (( rc != 0 && CONFIGURED == 0 )) && [[ -f "$$BUILD_DIR/config.log" ]]; then
+                mkdir -p "$$(dirname "$$FAILED_LOG")"
+                cp "$$BUILD_DIR/config.log" "$$FAILED_LOG"
+                echo "==> configure failed; tail of config.log (full copy: $$FAILED_LOG):" >&2
+                tail -n 40 "$$BUILD_DIR/config.log" >&2
+            fi
+            rm -rf "$$WORK" "$${TS_STAGING:-}"
+        }
+        trap cleanup EXIT
+"""
+
+# Shell fragment run right after ./configure in the build dir: publishes
+# config.log as a declared output and fails if configure silently disabled a
+# required feature (it does so for a missing -dev package even when
+# --with-<feature> is passed).  Requires CONFIG_LOG_ABS and EFFECTIVE_TOOLKIT.
+_POST_CONFIGURE = """
+        cp config.log "$$CONFIG_LOG_ABS"
+
+        REQUIRED_FEATURES=(HAVE_RSVG HAVE_GIF HAVE_PNG HAVE_JPEG HAVE_TIFF
+                           HAVE_SQLITE3 HAVE_LIBXML2 HAVE_LCMS2 HAVE_TREE_SITTER
+                           HAVE_NATIVE_COMP HAVE_GNUTLS HAVE_HARFBUZZ HAVE_DBUS
+                           HAVE_MODULES THREADS_ENABLED)
+        # configure only enables XPM for X11 toolkits, never for pgtk.
+        if [[ "$$EFFECTIVE_TOOLKIT" != pgtk ]]; then
+            REQUIRED_FEATURES+=(HAVE_XPM)
+        fi
+        MISSING=()
+        for f in "$${REQUIRED_FEATURES[@]}"; do
+            grep -q "^#define $$f 1" src/config.h || MISSING+=("$$f")
+        done
+        if (( $${#MISSING[@]} )); then
+            echo "ERROR: configure disabled required features: $${MISSING[*]}" >&2
+            echo "Install the matching -dev packages (see emacs-pkgs-ubuntu24.txt)." >&2
+            exit 1
+        fi
+        CONFIGURED=1
 """
 
 # ---------------------------------------------------------------------------
@@ -149,12 +281,16 @@ genrule(
         "@emacs_src//:configure",
         "//:libtree_sitter",
     ],
-    outs = ["emacs-31.1-install.tar.xz"],
+    outs = [
+        "emacs-31.1-install.tar.xz",
+        "emacs-31.1-config.log",
+    ],
     cmd = """
         set -euo pipefail
 
-        # Capture absolute output path before any cd (Bazel's $@ is execroot-relative).
-        OUTPUT_ABS="$$PWD/$@"
+        # Capture absolute output paths before any cd (Bazel's locations are execroot-relative).
+        OUTPUT_ABS="$$PWD/$(location emacs-31.1-install.tar.xz)"
+        CONFIG_LOG_ABS="$$PWD/$(location emacs-31.1-config.log)"
 
         # Establish the real home dir — genrule env strips $$HOME.
         REAL_HOME="/home/$$(whoami)"
@@ -164,10 +300,7 @@ genrule(
         # This avoids embedding all source paths ($$(locations :all) = 444KB).
         CONFIGURE_PATH="$(location @emacs_src//:configure)"
         SRC_ROOT="$$(realpath $$(dirname "$$CONFIGURE_PATH"))"
-
-        WORK=$$(mktemp -d)
-        STAGING_DIR="$$WORK/staging"
-        BUILD_DIR="$$WORK/build"
+""" + _WORK_SETUP + """
         mkdir -p "$$STAGING_DIR" "$$BUILD_DIR"
 
         cp -a "$$SRC_ROOT/." "$$BUILD_DIR/"
@@ -183,8 +316,13 @@ genrule(
         # it is simply in /usr/include/ with the .so in /usr/lib/.
         GCC_LIBDIR=$$(dirname "$$(find /usr/lib/gcc/x86_64-linux-gnu -name libgccjit.h 2>/dev/null | sort -V | tail -1)")
         if [[ -n "$$GCC_LIBDIR" && "$$GCC_LIBDIR" != "." ]]; then
-            # Debian/Ubuntu layout: header under GCC versioned dir
-            export CPPFLAGS="-I$${GCC_LIBDIR}"
+            # Debian/Ubuntu layout: header under GCC versioned dir.
+            # Expose only the libgccjit headers: -I on the whole dir would
+            # shadow the compiler's own headers with that GCC's internal ones
+            # (e.g. gcc-14's stdckdint.h breaks a gcc-13 or clang build).
+            mkdir -p "$$WORK/gccjit-include"
+            ln -s "$$GCC_LIBDIR"/libgccjit*.h "$$WORK/gccjit-include/"
+            export CPPFLAGS="-I$$WORK/gccjit-include"
             export LDFLAGS="-L$$(dirname $$GCC_LIBDIR) -Wl,-rpath,$$(dirname $$GCC_LIBDIR)"
         elif [[ -f /usr/include/libgccjit.h ]]; then
             # Arch/EndeavourOS layout: header in /usr/include, lib in /usr/lib
@@ -222,17 +360,12 @@ genrule(
 
         [[ -x ./autogen.sh ]] && ./autogen.sh
         CC="$$CC" ./configure --prefix="$$PREFIX" $$TOOLKIT_FLAG """ + CONFIGURE_FLAGS + """
+""" + _POST_CONFIGURE + """
         make -j$$(nproc --ignore=2)
         # DESTDIR stages files under staging/<prefix>; internal paths still say <prefix>.
         make install DESTDIR="$$STAGING_DIR"
-
-        # Bundle libtree-sitter .so files into the tarball so the rpath
-        # ($$HOME/.local/lib) is satisfied at runtime without a system install.
-        mkdir -p "$$STAGING_DIR$$PREFIX/lib"
-        cp -a "$$TS_STAGING/lib"/libtree-sitter.so* "$$STAGING_DIR$$PREFIX/lib/"
-
+""" + _TREE_SITTER_FINISH + """
         tar -cJf "$$OUTPUT_ABS" -C "$$STAGING_DIR$$PREFIX" .
-        rm -rf "$$WORK"
     """,
     # local = True: disable sandbox so system libraries are reachable.
     local = True,
@@ -247,12 +380,16 @@ genrule(
 genrule(
     name = "emacs_ref_package",
     srcs = ["//:libtree_sitter"],
-    outs = ["emacs-ref-install.tar.xz"],
+    outs = [
+        "emacs-ref-install.tar.xz",
+        "emacs-ref-config.log",
+    ],
     cmd = """
         set -euo pipefail
 
-        # Capture absolute output path before any cd (Bazel's $@ is execroot-relative).
-        OUTPUT_ABS="$$PWD/$@"
+        # Capture absolute output paths before any cd (Bazel's locations are execroot-relative).
+        OUTPUT_ABS="$$PWD/$(location emacs-ref-install.tar.xz)"
+        CONFIG_LOG_ABS="$$PWD/$(location emacs-ref-config.log)"
 
         # Establish the real home dir — genrule env strips $$HOME.
         REAL_HOME="/home/$$(whoami)"
@@ -260,10 +397,7 @@ genrule(
 
         REF="$${EMACS_REF:-master}"
         GIT_URL=""" + '"' + GIT_URL + '"' + """
-
-        WORK=$$(mktemp -d)
-        STAGING_DIR="$$WORK/staging"
-        BUILD_DIR="$$WORK/build"
+""" + _WORK_SETUP + """
         mkdir -p "$$STAGING_DIR"
 
         # Detect whether REF is a commit SHA (hex-only, 7-40 chars).
@@ -285,7 +419,10 @@ genrule(
         ./autogen.sh
         GCC_LIBDIR=$$(dirname "$$(find /usr/lib/gcc/x86_64-linux-gnu -name libgccjit.h 2>/dev/null | sort -V | tail -1)")
         if [[ -n "$$GCC_LIBDIR" && "$$GCC_LIBDIR" != "." ]]; then
-            export CPPFLAGS="-I$${GCC_LIBDIR}"
+            # Only the libgccjit headers; see emacs_package.
+            mkdir -p "$$WORK/gccjit-include"
+            ln -s "$$GCC_LIBDIR"/libgccjit*.h "$$WORK/gccjit-include/"
+            export CPPFLAGS="-I$$WORK/gccjit-include"
             export LDFLAGS="-L$$(dirname $$GCC_LIBDIR) -Wl,-rpath,$$(dirname $$GCC_LIBDIR)"
         elif [[ -f /usr/include/libgccjit.h ]]; then
             export CPPFLAGS=""
@@ -312,16 +449,11 @@ genrule(
           *) echo "ERROR: Unknown EMACS_TOOLKIT '$$EFFECTIVE_TOOLKIT'. Valid values: lucid, pgtk, gtk3" >&2; exit 1 ;;
         esac
         CC="$$CC" ./configure --prefix="$$PREFIX" $$TOOLKIT_FLAG """ + CONFIGURE_FLAGS + """
+""" + _POST_CONFIGURE + """
         make -j$$(nproc --ignore=2)
         make install DESTDIR="$$STAGING_DIR"
-
-        # Bundle libtree-sitter .so files into the tarball so the rpath
-        # ($$HOME/.local/lib) is satisfied at runtime without a system install.
-        mkdir -p "$$STAGING_DIR$$PREFIX/lib"
-        cp -a "$$TS_STAGING/lib"/libtree-sitter.so* "$$STAGING_DIR$$PREFIX/lib/"
-
+""" + _TREE_SITTER_FINISH + """
         tar -cJf "$$OUTPUT_ABS" -C "$$STAGING_DIR$$PREFIX" .
-        rm -rf "$$WORK"
     """,
     local = True,
 )
