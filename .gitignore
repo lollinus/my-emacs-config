@@ -19,3 +19,8 @@ local.el
 /.agent-shell/
 deployment/bazel/.last_force
 deployment/bazel/.bazelrc.force
+/deployment/bazel/.bazelversion
+/deployment/bazel/bazel-bazel
+/deployment/bazel/bazel-bin
+/deployment/bazel/bazel-out
+/deployment/bazel/bazel-testlogs

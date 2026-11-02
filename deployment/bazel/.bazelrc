@@ -49,3 +49,7 @@ build --action_env=http_proxy
 build --action_env=https_proxy
 build --action_env=HTTP_PROXY
 build --action_env=HTTPS_PROXY
+
+# Inherit user PATH to build environment
+common --action_env=PATH
+common --repo_env=PATH
