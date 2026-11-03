@@ -16,6 +16,7 @@ eln-cache/
 straight/
 var/
 local.el
+/custom.el
 /.agent-shell/
 deployment/bazel/.last_force
 deployment/bazel/.bazelrc.force

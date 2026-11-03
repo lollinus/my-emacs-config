@@ -2,6 +2,15 @@
 ;; Copy this file to local.el and customize for the current machine.
 ;; local.el is NOT committed to git.
 
+;;; Identity
+;; (setopt user-mail-address "you@example.com")
+;; (setopt user-login-name "your-login")
+
+;;; org-jira
+;; Not configured here: init.el reads the Jira host, user and token from the
+;; auth-source entry tagged with port "jira".  Add it to ~/.authinfo.gpg:
+;;   machine jira.example.com port jira login USER password PERSONAL-ACCESS-TOKEN
+
 ;;; Copilot
 
 ;; GitHub Enterprise:

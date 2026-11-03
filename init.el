@@ -193,9 +193,8 @@
   :doc "define customization properties of builtins"
   :tag "builtin" "internal"
   :added "2025-09-01"
+  ;; user-mail-address / user-login-name are machine-specific: set in local.el
   :custom ((user-full-name . "Karol Barski")
-           (user-mail-address . "karol.barski@partner.bmwgroup.com")
-           (user-login-name . "qxz2st8")
            (create-lockfiles . nil)
            (init-file-debug . t)
            (truncate-lines . t)
@@ -1570,15 +1569,6 @@ Used to see multiline flymake errors"
   :hook
   ((prog-mode-hook text-mode-hook) . flymake-codespell-setup-backend))
 
-;; Put credentials in ~/.authinfo.gpg enctyped file and set them for packages needing below snippet
-;; (require 'auth-source)
-;; (let* ((auth (car (auth-source-search
-;; 	       :host "jira.cc.bmwgroup.net"
-;; 	       :requires '(:user :secret))))
-;;    (password (funcall (plist-get auth :secret)))
-;;    (username (plist-get auth :user)))
-;;   (message "creds %S USR: %S AUTH: %S" `(:username ,(plist-get auth :user) :password ,password) username auth))
-
 (leaf python
   :doc "Python's flying circus support for Emacs"
   :tag "builtin"
@@ -2635,14 +2625,6 @@ Used to see multiline flymake errors"
   :custom (org-latex-src-block-backend . 'engraved)
   )
 
-;; (require 'auth-source)
-;; (let* ((auth (car (auth-source-search
-;; 	       :host "jira.cc.bmwgroup.net"
-;; 	       :requires '(:user :secret))))
-;;    (password (funcall (plist-get auth :secret)))
-;;    (username (plist-get auth :user)))
-;;   (message "creds %S USR: %S AUTH: %S" `(:username ,(plist-get auth :user) :password ,password) username auth))
-
 (leaf htmlize
   :doc "Convert buffer text and decorations to HTML"
   :req "emacs-26.1"
@@ -2665,20 +2647,25 @@ Used to see multiline flymake errors"
   (when (not (file-exists-p "~/.org-jira"))
     (make-directory "~/.org-jira"))
   (setopt jiralib-use-restapi t)
-  (setopt jiralib-url "https://jira.cc.bmwgroup.net")
-  ;; Without a credential (missing/undecryptable authinfo, batch mode) only
-  ;; warn: an error here aborts the `org' load that triggered this block.
-  (if-let* ((auth (car (auth-source-search
-                        :host "jira.cc.bmwgroup.net"
-                        :requires '(:user :secret))))
+  ;; The Jira host is not part of this shared config: it comes from the
+  ;; auth-source entry tagged with port "jira", e.g. in ~/.authinfo.gpg:
+  ;;   machine jira.example.com port jira login USER password TOKEN
+  ;; Entries without a port match *any* :port, so filter for an explicit
+  ;; "jira" port, or another host's token would be sent to it.
+  ;; No such entry (other machines, undecryptable file, batch mode) leaves
+  ;; Jira unconfigured; never signal here, as that aborts the `org' load
+  ;; that triggered this block.
+  (if-let* ((auth (seq-find (lambda (e) (equal (plist-get e :port) "jira"))
+                            (auth-source-search :port "jira" :max 50
+                                                :require '(:host :user :secret))))
             (secret (plist-get auth :secret))
-            (password (if (functionp secret) (funcall secret) secret)))
-      (progn
-        (setopt jiralib-host (plist-get auth :host))
+            (token (if (functionp secret) (funcall secret) secret)))
+      (let ((host (plist-get auth :host)))
+        (setopt jiralib-url (concat "https://" host))
+        (setopt jiralib-host host)
         (setopt jiralib-user (plist-get auth :user))
-        (setopt jiralib-token `("Authorization" . ,(concat "Bearer " password))))
-    (display-warning 'org-jira
-                     "No auth-source credential for jira.cc.bmwgroup.net; Jira token not set"))
+        (setopt jiralib-token `("Authorization" . ,(concat "Bearer " token))))
+    (message "org-jira: no auth-source entry with port \"jira\"; Jira not configured"))
   (setopt jiralib-use-PAT t))
 
 (leaf jira-markup-mode
