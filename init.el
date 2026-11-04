@@ -1814,7 +1814,8 @@ Used to see multiline flymake errors"
   :added "2026-01-13"
   :emacs>= 26.1
   :ensure t
-  :custom (outline-indent-ellipsis . " ⤵ "))
+  :custom (outline-indent-ellipsis . " ⤵ ")
+  :hook (emacs-lisp-mode . outline-indent-minor-mode))
 
 (leaf treesit-fold
   :tag "out-of-MELPA"
