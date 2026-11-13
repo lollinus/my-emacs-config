@@ -210,6 +210,18 @@
            (enable-recursive-minibuffers . t)
            (history-length . 1000)))
 
+(leaf custom
+  :doc "tools for declaring and initializing options"
+  :tag "builtin" "faces" "help"
+  :added "2026-11-13"
+  :preface
+  (defun kb/after-enable-theme (&rest _theme)
+    "Reapply cursor style after theme change."
+    (set-default 'cursor-type 'box)
+    (set-cursor-color "#F52503"))
+  :config
+  (add-hook 'enable-theme-functions #'kb/after-enable-theme))
+
 (leaf time
   :doc "display time, load and mail indicator in mode line of Emacs"
   :tag "builtin"
@@ -3037,7 +3049,7 @@ Used to see multiline flymake errors"
   :emacs>= 27.2
   :ensure t
   :preface
-  (defun kb/circadian-after-load-theme (_theme)
+  (defun kb/circadian-after-load-theme (&rest _theme)
     "Reapply cursor style after theme change."
     (set-default 'cursor-type 'box)
     (set-cursor-color "#F52503"))
