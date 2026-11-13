@@ -233,6 +233,19 @@
            )
   :global-minor-mode display-time-mode)
 
+(leaf readline-completion
+  :doc "CAPF based on GNU Readline"
+  :req "emacs-29.1" "compat-31.1"
+  :tag "processes" "convenience" "emacs>=29.1"
+  :url "https://codeberg.org/astoff/readline-completion.el"
+  :added "2026-11-13"
+  :emacs>= 29.1
+  :ensure t
+  :config
+  (leaf readline-completion
+    :after shell
+    :hook (shell-dynamic-complete-functions . readline-completion-at-point)))
+
 (leaf ffap
   :doc "find file (or url) at point"
   :tag "builtin"
