@@ -272,6 +272,18 @@
            (mode-require-final-newline . t)      ; add a newline to end of file)
            (make-backup-files . nil)))
 
+(leaf dash
+  :doc "A modern list library for Emacs."
+  :req "emacs-24"
+  :tag "lisp" "extensions" "emacs>=24"
+  :url "https://github.com/magnars/dash.el"
+  :added "2026-03-03"
+  :emacs>= 24
+  :ensure t
+  :config
+  (with-eval-after-load 'info-look
+    (dash-register-info-lookup)))
+
 (leaf quick-fasd
   :doc "Integration for the command-line tool `fasd'"
   :req "emacs-26.1"
@@ -2562,17 +2574,15 @@ Used to see multiline flymake errors"
   :custom (org-relative-date-extra-format . " %yW%V")
   :global-minor-mode global-org-relative-date-mode)
 
-(leaf dash
-  :doc "A modern list library for Emacs."
-  :req "emacs-24"
-  :tag "lisp" "extensions" "emacs>=24"
-  :url "https://github.com/magnars/dash.el"
-  :added "2026-03-03"
-  :emacs>= 24
+(leaf burnish
+  :doc "Automate Org export and view."
+  :req "emacs-30.1"
+  :tag "tools" "emacs>=30.1"
+  :url "https://github.com/kickingvegas/burnish"
+  :added "2026-11-13"
+  :emacs>= 30.1
   :ensure t
-  :config
-  (with-eval-after-load 'info-look
-    (dash-register-info-lookup)))
+  :hook (org-mode-hook . burnish-mode))
 
 (leaf org-make-toc
   :doc "Automatic tables of contents for Org files"
